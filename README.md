@@ -28,6 +28,7 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 - **İstatistik ve ödüller:** sezon sezon istatistik geçmişi; MVP, krallıklar, yılın çaylağı, final MVP ve All-Star (üçlük yarışmasıyla).
 - **Takım arkadaşları:** kadro ekranı, kimya, takım yemeği ve ekstra antrenman.
 - **Ses:** Web Audio ile sentezlenen efektler ve maç boyunca tribün uğultusu. Ayarlar'dan kapatılabilir.
+- **Mobil uyum:** hiçbir yerde klavye tuşu gerekmez; mini oyunlar dokunma, kaydırma ve ekrandaki butonlarla oynanır. İsim listeden dokunarak seçilebilir, kayıt kodu panodan yapıştırılabilir. Yatay ekranda oyun alanı ekrana sığar, butonlar parmak boyutunda.
 - **Kılavuz:** ilk oyunda kısa tur, istendiğinde ayrıntılı rehber.
 - **Kayıt:** 5 kayıt yuvası, her yuva için otomatik yedek ve kayıt kodu ile dışa/içe aktarma.
 - **Denge:** ilerleme, teklif eşikleri ve ödüller otomatik oynayan bir simülasyonla ayarlandı. Zayıf bir oyuncu genelde 1. lig veya EuroLeague'de kalır, ortalama bir oyuncunun NBA şansı yaklaşık dörtte birdir, yetenekli bir oyuncu 25-26 yaşlarında NBA'e ulaşır.
