@@ -99,7 +99,6 @@ function renderCreate(){
       <p class="small muted" style="margin-top:6px">Pozisyon; maçta karşına çıkacak anları ve yapabileceğin antrenmanları belirler. ${{PG:"Pick & roll, alley-oop pası, top çalma.",SG:"Catch & shoot, step-back, penetre.",SF:"Kanat şutu, hızlı hücum smaçı, post-up.",PF:"Pick & pop, post-up, ribaund.",C:"Kanca, alley-oop smaç, pota koruması, ribaund."}[F.pos]}</p></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Forma numarası</div><div class="opts" id="num">${[0,1,3,7,8,10,11,13,23,24,30,33,77].map(n=>`<button class="opt ${F.num===n?"on":""}" data-v="${n}">${n}</button>`).join("")}</div></div>
   </div>
-  <div class="card small muted">Yol haritası: İstanbul'da lise → kariyer değerlendirmesi → Avrupa'nın 8 ülkesinde 3., 2. ve 1. lig kulüpleri → EuroLeague → NBA. Oynadığın takımın şehri haritayı ve görünümü belirler.</div>
   <button class="btn pri big" id="go">Kariyere başla</button>`;
   const keep=()=>{F.first=$("#fn").value.trim();F.last=$("#ln").value.trim()};
   const bind=(id,fn)=>{const el=$("#"+id);if(el)el.querySelectorAll("button").forEach(b=>b.onclick=()=>{keep();fn(b.dataset.v);renderCreate()})};

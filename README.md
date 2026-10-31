@@ -34,7 +34,8 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 | `core.js` | Oyun durumu, ana ekran, panel sistemi |
 | `places.js` | Ev, stadyum, okul, medya, aile, kafe |
 | `casino.js` | Şans salonu |
-| `shops.js` | AVM, market, eğlence merkezi ve arcade oyunları |
+| `shops.js` | AVM mağazaları, market ve eğlence merkezi |
+| `arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
 | `match.js` | Maç akışı, olaylar, sezon sonu ve teklifler |
 
 Lig adları gerçek, takımlar ise şehir adlarıyla üretilmiş hayali kulüpler. Karakterler özgün; dizideki karakterler kullanılmadı.

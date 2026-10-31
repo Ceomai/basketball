@@ -91,20 +91,23 @@ canvas{display:block;max-width:100%}
 .sheet-bg{position:fixed;inset:0;background:rgba(3,6,12,.66);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .18s}
 .sheet{background:var(--bg2);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:calc(100% - 20px - env(safe-area-inset-top,0px));display:flex;flex-direction:column;animation:up .22s ease-out}
 .sheet-h{display:flex;align-items:center;gap:10px;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.sheet-b>*{flex-shrink:0}
 .sheet-b{overflow:auto;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
 .x{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;flex-shrink:0}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
-.act{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.act{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .act .ai{width:52px;height:52px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}
 .act h3{font-size:1.02rem}
+.act>.btn{grid-column:1/-1;width:100%}
+.act>span:first-child{display:none}
 .act p{font-size:.78rem;color:var(--muted);margin-top:2px}
 .fx{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .fx span{font-size:.7rem;font-weight:800;border-radius:5px;padding:2px 6px;background:var(--card2);color:var(--muted)}
 .fx .p{color:var(--good);background:rgba(54,211,142,.12)} .fx .n{color:var(--bad);background:rgba(255,84,104,.12)} .fx .t{color:var(--warn);background:rgba(255,197,77,.12)}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.tabs button{flex:1 0 auto;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--display);font-weight:700;letter-spacing:.8px;text-transform:uppercase;font-size:.88rem;background:var(--card);color:var(--muted);border:1px solid var(--line2);border-radius:10px;padding:9px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px}
+.tabs button{min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--display);font-weight:700;letter-spacing:.8px;text-transform:uppercase;font-size:.88rem;background:var(--card);color:var(--muted);border:1px solid var(--line2);border-radius:10px;padding:9px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .tabs button:hover{color:var(--text);border-color:var(--muted)}
 .tabs button.on{background:var(--team);color:var(--team-ink);border-color:var(--team)}
 .tabs button svg{width:16px;height:16px}
@@ -225,6 +228,7 @@ tr.me td{background:rgba(255,255,255,.05);font-weight:800}
 <script src="places.js"></script>
 <script src="casino.js"></script>
 <script src="shops.js"></script>
+<script src="arcade.js"></script>
 <script src="match.js"></script>
 </body>
 </html>
