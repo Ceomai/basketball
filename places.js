@@ -15,7 +15,7 @@ function locEv(I,tab="vitrin"){
   const c=$("#evc");
   if(tab==="vitrin"){
     c.innerHTML=`<div class="scene" id="vit" style="min-height:120px"></div><div class="small muted">Kupaların, madalyaların, oynadığın takımların formaları ve aldığın eşyalar burada sergilenir. Ev büyüdükçe oda da değişir.</div>
-     <div class="card"><div class="eyebrow">Kupa dolabı</div>${S.career.trophies.length?S.career.trophies.map(t=>`<div class="row nowrap small"><span style="width:28px">${icon(t.type==="champ"?"cup":t.type==="mvp"?"plaque":t.type==="final"?"medal":"cup",t.type==="lise"?"#c0c7cf":undefined).replace("<svg",'<svg width="28" height="28"')}</span>${esc(t.label)}</div>`).join(""):'<div class="small muted">Henüz kupa yok. Şampiyonluk, final ve MVP ödülleri burada birikir.</div>'}</div>
+     <div class="card"><div class="eyebrow">Kupa dolabı</div>${S.career.trophies.length?S.career.trophies.map(t=>`<div class="row nowrap small"><span style="width:28px">${icon(...trophyIcon(t)).replace("<svg",'<svg width="28" height="28"')}</span>${esc(t.label)}</div>`).join(""):'<div class="small muted">Henüz kupa yok. Şampiyonluk, final ve MVP ödülleri burada birikir.</div>'}</div>
      ${actHTML({id:"rest",ic:icon("bed"),t:"Dinlen",d:"Evde kal, uyu, dizlerini buzla.",slot:1,fx:[["+35 Enerji","p"],["+2 Moral","p"]],btn:"Dinlen"})}`;
     vitrineCanvas().then(cv=>{const v=$("#vit");if(v){v.innerHTML="";v.appendChild(cv)}});
     bindActs({rest:restAct});

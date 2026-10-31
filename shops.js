@@ -142,8 +142,8 @@ function locMarket(I){
 
 /* ================= EĞLENCE MERKEZİ ================= */
 const ARCADE=[
- {id:"hoop",n:"Pota makinesi",d:"25 saniyede kaç basket?",ic:"hoop",rec:"arcade"},
- {id:"ref",n:"Refleks paneli",d:"15 saniye, yanan düğmeler.",ic:"joystick",rec:"reflex"},
+ {id:"hoop",n:"Pota makinesi",d:"30 saniyede kaç basket? Geriye çek, bırak.",ic:"hoop",rec:"arcade"},
+ {id:"ref",n:"Refleks paneli",d:"20 saniye, yanan düğmeler.",ic:"joystick",rec:"reflex"},
  {id:"hockey",n:"Hava hokeyi",d:"Bilgisayara karşı, 5 gole kadar.",ic:"puck",rec:"hockey"},
  {id:"rhythm",n:"Dans ritmi",d:"Düşen notalara zamanında dokun.",ic:"note",rec:"rhythm"},
  {id:"bowling",n:"Bowling",d:"3 atış, nişan al ve gücü ayarla.",ic:"bowling",rec:"bowling"},
@@ -179,7 +179,7 @@ async function arcadeRun(kind,paid){
   app.innerHTML=`<div style="padding-top:12px"><div class="eyebrow">Eğlence Merkezi</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el=$("#stg");let r;
   if(kind==="hoop")r=await mgArcade(el);else if(kind==="ref")r=await mgReflex(el);else if(kind==="hockey")r=await mgHockey(el);else if(kind==="bowling")r=await mgBowling(el);else r=await mgRhythm(el,{title:kind==="karaoke"?"Karaoke":"Dans ritmi",karaoke:kind==="karaoke"});
-  const key=meta.rec,rec=r.score>(S.rec[key]||0);if(rec&&kind!=="karaoke")S.rec[key]=r.score;
+  const key=meta.rec,rec=r.score>(S.rec[key]||0);if(kind!=="karaoke")arcSubmit(key,r.score);if(rec&&kind!=="karaoke")S.rec[key]=r.score;
   let extra="";S.moral+=Math.min(12,3+Math.floor(r.score/4));
   if(kind==="hockey"&&r.win){S.moral+=4;extra="Bilgisayarı yendin!"}
   if(kind==="ref"&&r.score>=18&&Math.random()<.4){S.st.hiz+=1;extra="Çeviklik +1."}

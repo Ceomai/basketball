@@ -19,6 +19,8 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
   - Eğlence merkezi: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling, karaoke.
   - Şans salonu: rulet, blackjack, slot.
   - Market, AVM (6 mağaza), kafe ve aile evi.
+- **Milli takım:** gençken U18 ve U20, profesyonelken A Milli Takım. FIBA arası kampları ve yaz turnuvalarında madalya.
+- **Arcade sıralaması:** haftalık ve aylık tablolar, ilk üçe ödül, aylık birinciye kupa.
 - **Ev:** aldığın eşyaların, kupaların ve formaların sergilendiği bir vitrin odası.
 - Kariyer tarayıcının `localStorage` alanına kaydediliyor.
 
@@ -36,6 +38,8 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 | `casino.js` | Şans salonu |
 | `shops.js` | AVM mağazaları, market ve eğlence merkezi |
 | `arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
-| `match.js` | Maç akışı, olaylar, sezon sonu ve teklifler |
+| `match.js` | Karar anları, maç sonu, olaylar, sezon sonu ve teklifler |
+| `match2.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
+| `extras.js` | Milli takım (U18, U20, A), arcade sıralamaları, yerel hikâye olayları |
 
 Lig adları gerçek, takımlar ise şehir adlarıyla üretilmiş hayali kulüpler. Karakterler özgün; dizideki karakterler kullanılmadı.

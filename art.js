@@ -211,7 +211,7 @@ async function vitrineCanvas(){
   const sx=14,sw=236,ys=[118,158];
   c.fillStyle=marble?"#e9e3d6":"#5d4037";ys.forEach(y=>{c.fillRect(sx,y,sw,7);c.fillStyle=shade(marble?"#e9e3d6":"#5d4037",-30);c.fillRect(sx,y+7,sw,3);c.fillStyle=marble?"#e9e3d6":"#5d4037"});
   // içerik
-  const tro=S.career.trophies.map(t=>({k:t.type==="champ"?["cup"]:t.type==="mvp"?["plaque"]:t.type==="final"?["medal"]:["cup","#c0c7cf"],label:t.label}));
+  const tro=S.career.trophies.map(t=>({k:trophyIcon(t),label:t.label}));
   const itemIcons={ayak1:["sneaker","#cfd8dc","#1e88e5"],ayak2:["sneaker",S.team.c1,S.team.c2==="#ffffff"?"#141414":S.team.c2],top:["ball"],telefon:["phone"],konsol:["console"],kiyafet:["hoodie","#37474f"],saat:["watch"],kulaklik:["headphones"],araba1:["car","#1e88e5","hatch"],araba2:["car","#eceff1","suv"],araba3:["car","#d0142c","super"],hoca:["whistle"]};
   const its=[...SHOP.filter(it=>S.items[it.id]).map(it=>({svg:it.ic()})),...(S.items.hoca?[{svg:icon("whistle")}]:[])];
   const slots=[...tro,...its];

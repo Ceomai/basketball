@@ -80,7 +80,7 @@ function finishMatch(win){
    <div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(S.team,36)}<span class="big-num">${M.us}–${M.them}</span>${crestSVG(opp,36)}</div><div style="text-align:right"><div class="eyebrow">Maç notu</div><div class="rating" style="color:${r>=7?"var(--good)":r>=5?"var(--text)":"var(--bad)"}">${r.toFixed(1)}</div></div></div>
    <div class="box"><div><b>${M.pts}</b><span class="eyebrow">Sayı</span></div><div><b>${M.ast}</b><span class="eyebrow">Asist</span></div><div><b>${M.reb}</b><span class="eyebrow">Ribaund</span></div><div><b>${M.blk+M.stl}</b><span class="eyebrow">Blok+Top çalma</span></div></div>
    <div class="who"><div id="cp"></div><div><div class="eyebrow">${esc(S.npc.coach)} · Koç</div><div class="say">${coach}</div></div></div>
-   <div class="kv"><span>Maç primi</span><b class="good">+${fmt(bonus)}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b><span>Takipçi</span><b>${kfmt(S.followers)}</b></div>
+   <div class="kv"><span>Süre</span><b>${Math.round((M.mins||0)/60)} dk · artı/eksi ${(M.plus||0)>=0?"+":""}${M.plus||0}</b><span>Maç primi</span><b class="good">+${fmt(bonus)}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b><span>Takipçi</span><b>${kfmt(S.followers)}</b></div>
    <button class="btn pri" id="nx">Devam</button>`,{noClose:true});
   const cl=LK.coach();cl[1].mood=r>=6.5?"mutlu":"kizgin";$("#cp").appendChild(portrait(cl[0],cl[1]));
   $("#nx").onclick=()=>afterMatch(win);
