@@ -6,7 +6,7 @@
 const PACE={1:420,2:200,4:90};
 const TR_CALLS=["Salon ayakta!","Ve basket!","Tribünler coştu!","Ne oyun ama!","Pota delindi resmen!"];
 function rosterNames(city,n){const c=cOf(city),out=new Set();while(out.size<n)out.add(`${pick(c.first)[0]}. ${pick(c.last)}`);return[...out]}
-function schoolRole(){const d=ovr()-TD();return d>=20?"star":d>=10?"rot":"bench"}
+function schoolRole(){return roleAt(ovr(),S.stage,"TR")}
 function stintPlan(role){
   const P={star:[[0,7],[10,18],[20,27],[30,40]],rot:[[3,9],[12,19],[23,30],[33,40]],bench:[[6,10],[16,20],[27,31],[36,40]]}[role].map(s=>s.slice());
   if(S.energy<35)P.forEach(s=>s[1]=Math.max(s[0]+2,s[1]-1));
@@ -15,6 +15,7 @@ function stintPlan(role){
 }
 const inStint=(plan,m)=>plan.some(([a,b])=>m>=a&&m<b);
 function modeChoice(){
+  if(window.__SIM)return Promise.resolve("key");
   return new Promise(r=>{
     const cur=S.matchMode||"full";
     $("#mview").innerHTML=`<div class="card sit"><div class="eyebrow">Maç öncesi</div><h2>Nasıl oynamak istersin?</h2>
@@ -31,9 +32,9 @@ async function playMatch(ctx){
   const opp=ctx.opp;arenaFor(opp);
   const role=isPro(S.stage)||ctx.comp==="nat"?(ctx.role||S.role):schoolRole();
   let plan=stintPlan(role);
-  const ourStr=S.team.str+(ovr()-TD()-30)/220,ppp=SC[S.stage]/70/2.25;
+  const ourStr=S.team.str+(ovr()-TD()-45)/220,ppp=SC[S.stage]/70/2.25;
   M={opp,home:ctx.home,us:0,them:0,q:1,clock:"10:00",rating:6.0,pts:0,ast:0,reb:0,blk:0,stl:0,stops:0,feed:[],mins:0,plus:0,fails:0,goods:0,tac:null,qs:[],speed:S.matchSpeed||1};
-  const mates=rosterNames(S.team.city,4),foes=rosterNames(opp.city,5),sur=S.last,PL=PLAYS[S.pos];
+  const mates=ctx.comp==="nat"?rosterNames(S.team.city,4):mateNames(4),foes=rosterNames(opp.city,5),sur=S.last,PL=PLAYS[S.pos];
   app.innerHTML=`<div id="bug"></div><div id="mstat" class="card" style="padding:10px 12px;gap:6px"></div><div id="mview"></div>
    <div class="card"><div class="row between"><div class="eyebrow">Maç akışı</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
@@ -42,12 +43,12 @@ async function playMatch(ctx){
     $$("#spd [data-s]").forEach(b=>b.onclick=()=>{M.speed=+b.dataset.s;S.matchSpeed=M.speed;renderSpd()});$("#spd [data-k]").onclick=()=>{mode=mode==="key"?"full":"key";S.matchMode=mode;renderSpd()}};
   renderSpd();
   let on=false;const statLine=()=>{$("#mstat").innerHTML=`<div class="row between nowrap"><span class="pill ${on?"w":""}">${on?"Sahadasın":"Kenardasın"}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> · ${Math.floor(M.mins/60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} rib. · artı/eksi ${M.plus>=0?"+":""}${M.plus}</div>`};
-  const banner=(t,good)=>{const d=document.createElement("div");d.className="say";d.style.borderLeftColor=good?"var(--good)":"var(--warn)";d.innerHTML=`<b>${t}</b>`;const mv=$("#mview");mv.prepend(d);setTimeout(()=>d.remove(),2600);buzz(good?20:10)};
-  addFeed(`${ctx.home?S.city:opp.city} salonu dolu. ${ctx.label}. Hakem topu havaya attı.`);
+  const banner=(t,good)=>{sfx("whistle");const d=document.createElement("div");d.className="say";d.style.borderLeftColor=good?"var(--good)":"var(--warn)";d.innerHTML=`<b>${t}</b>`;const mv=$("#mview");mv.prepend(d);setTimeout(()=>d.remove(),2600);buzz(good?20:10)};
+  addFeed(`${ctx.home?S.city:opp.city} salonu dolu. ${ctx.label}. Hakem topu havaya attı.`);crowd(true);sfx("whistle");
   statLine();
   const TOTAL=2400;let t=0,ourBall=Math.random()<.5,lastQ=1,benchFrom=null;
   const setClock=()=>{const q=Math.min(5,Math.floor(t/600)+1),inQ=t>=2400?(t-2400):t%600,len=t>=2400?300:600;M.q=q>4?4:q;const left=Math.max(0,len-inQ);M.clock=`${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`};
-  const pace=async()=>{const ms=mode==="key"&&!on?0:mode==="key"?PACE[4]:PACE[M.speed];if(ms)await wait(ms)};
+  const pace=async()=>{if(window.__SIM)return;const ms=mode==="key"&&!on?0:mode==="key"?PACE[4]:PACE[M.speed];if(ms)await wait(ms)};
   let end=TOTAL;
   while(t<end){
     const dur=ri(12,22);t=Math.min(end,t+dur);setClock();
@@ -70,10 +71,10 @@ async function playMatch(ctx){
     if(t>=end&&end>=TOTAL&&M.us===M.them){end+=300;addFeed("<b>Uzatma!</b> Beş dakika daha.");if(t===TOTAL){M.qs.push([M.us,M.them]);await quarterBreak(4,on,true)}}
     await pace();
   }
-  M.qs.push([M.us,M.them]);M.q=4;M.clock="00:00";updBug();
-  const win=M.us>M.them;M.rating=clamp(M.rating+(win?.4:-.2)+clamp(M.plus/25,-.5,.5),1,10);
+  M.qs.push([M.us,M.them]);M.q=4;M.clock="00:00";updBug();sfx("buzzer");crowd(false);
+  const win=M.us>M.them,sr=M.wsum?(M.wgood||0)/M.wsum:.5;M.rating=clamp(3.5+5.0*sr+(win?.2:-.15)+clamp(M.plus/35,-.35,.35)+clamp((M.autoPts||0)/50,0,.2),1,10);
   addFeed(`<b>Maç sona erdi.</b> ${M.us}-${M.them}.`);
-  await wait(500);
+  if(!window.__SIM)await wait(500);
   if(ctx.onEnd)ctx.onEnd(win);else finishMatch(win);
 
   function simPossession(us){
@@ -81,7 +82,11 @@ async function playMatch(ctx){
     const p=clamp(ppp*(us?ourStr/opp.str*tacU*(on?1:.97):opp.str/ourStr*tacT),.15,.85);
     const who=us?pick(mates):pick(foes),team=us?S.team.short:opp.short;
     if(Math.random()<p){const three=Math.random()<.32,pts=three?3:2;if(us)M.us+=pts;else M.them+=pts;
+      if(us&&on){const sk=(eff("sut")+eff("hiz")+eff("guc"))/3,share={star:.21,rot:.13,bench:.08}[role]*(.6+clamp(sk,0,100)/100*.8);
+        if(Math.random()<share){M.pts+=pts;M.autoPts=(M.autoPts||0)+pts;if(mode==="full")addFeed(`${S.team.short} · <b>${sur}</b> ${three?"üçlüğü soktu":pick(["pota altından 2 sayı","orta mesafeden 2 sayı","turnikeyle 2 sayı"])}`);return}
+        if(Math.random()<.12*(.6+eff("pas")/100)){M.ast++;M.autoAst=(M.autoAst||0)+1}}
       if(Math.random()<.55||mode==="full")addFeed(`${team} · ${who} ${three?"üçlüğü soktu":pick(["pota altından 2 sayı","orta mesafeden 2 sayı","turnikeyle 2 sayı","hızlı hücumda smaç"])}${us&&Math.random()<.12?" "+pick(TR_CALLS):""}`)}
+    else if(on&&Math.random()<{C:.2,PF:.16,SF:.1,SG:.06,PG:.05}[S.pos]*(.6+eff("guc")/100)){M.reb++}
     else if(Math.random()<.35&&mode==="full")addFeed(`${team} · ${who} ${pick(["şutu kaçırdı","top kaybı yaptı","faul yaptı","turnikeyi kaçırdı"])}`);
   }
   async function moment(us,clutch){
@@ -90,22 +95,23 @@ async function playMatch(ctx){
       opts=PL.off.map(([k,tt,st,d])=>({k,t:tt,d:`${d} · ${statName(st)} ${Math.round(eff(st))}`,e:eff(st)-(PEN[k]||0)}));if(!clutch&&opts.length>3)opts=shuffle(opts).slice(0,3)}
     else if(ty==="def"){head=pick(["Rakip hücumda, top tehlikeli bölgede","Rakibin yıldızı topla geliyor","Hızlı hücum yiyorsunuz"]);desc=`${dn} topla geliyor.`;opts=PL.def.map(([k,tt,st,d])=>({k,t:tt,d:`${d} · ${statName(st)} ${Math.round(eff(st))}`,e:eff(st)+(k==="safe"?15:0)}))}
     else{head="Faul aldın";desc="Çizgiye gidiyorsun. İki serbest atış.";opts=[{k:"free",t:"Serbest atış",d:`2 atış · Şut ${Math.round(eff("sut"))}`,e:eff("sut")+15}]}
-    $("#mview").innerHTML=`<div class="card sit"><div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch?" · son dakikalar":""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts.map(o=>{const[c,l]=o.k==="safe"?["i","Güvenli"]:odds(o.e);return`<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`}).join("")}</div></div>`;
+    $("#mview").innerHTML=`<div class="card sit">${S.tipMoment?"":`<div class="say" style="border-left-color:var(--gold)"><b>İpucu:</b> Kritik anlarda bir seçim yaparsın. Sağdaki etiket niteliklerine göre başarı şansını gösterir. Seçtikten sonra mini oyunu oynarsın; ekrandaki yönergeyi takip et.</div>`}<div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch?" · son dakikalar":""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts.map(o=>{const[c,l]=o.k==="safe"?["i","Güvenli"]:odds(o.e);return`<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`}).join("")}</div></div>`;
     try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
-    const k=await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));
+    const k=window.__SIM?window.__SIM.choose(opts):await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));S.tipMoment=1;
     const b0={pts:M.pts,ast:M.ast,stl:M.stl,stops:M.stops};
     const res=await resolvePlay(k,$("#mview"),sur,dn);
     M.us+=(M.pts-b0.pts)+(M.ast-b0.ast)*2+(M.stl-b0.stl)*2;
     if(ty==="def"&&M.stops===b0.stops&&M.stl===b0.stl)M.them+=Math.random()<.3?3:2;
-    M.rating+=res.good?rnd(.45,.75)*res.w:-rnd(.3,.5)*(k==="safe"?.6:1);
-    let txt=res.txt;if(res.good&&Math.random()<.2){S.st[res.st]+=1;txt+=` <span class="good">+1 ${statName(res.st)}</span>`}
+    M.wsum=(M.wsum||0)+res.w;if(res.good)M.wgood=(M.wgood||0)+res.w;sfx(res.good?"cheer":"ooh");crowdSwell(res.good?1.4:.6);
+    let txt=res.txt;if(res.good){S.stf=S.stf||{};S.stf[res.st]=(S.stf[res.st]||0)+BAL.play;if(S.stf[res.st]>=1){S.stf[res.st]-=1;S.st[res.st]+=1;txt+=` <span class="good">+1 ${statName(res.st)}</span>`}}
     addFeed(txt);$("#mview").innerHTML="";
     // koç tepkisi: üst üste kötü anlar kenar, iyi seri daha çok süre getirir
     if(res.good){M.goods++;M.fails=0;if(M.goods>=3){M.goods=0;const s=plan.find(([a,b])=>t/60>=a&&t/60<b);if(s&&s[1]<40){s[1]=Math.min(40,s[1]+2);addFeed(`${S.npc.coach}: "Bırakın oynasın!" Süren uzatıldı.`)}}}
     else{M.fails++;M.goods=0;if(M.fails>=2&&role!=="star"){M.fails=0;const s=plan.find(([a,b])=>t/60>=a&&t/60<b);if(s){s[1]=Math.ceil(t/60);const nx=plan.find(([a])=>a>t/60);if(nx)nx[0]+=2;addFeed(`${S.npc.coach} kenardan seslendi: "Otur biraz, kafanı topla."`)}}}
   }
   function quarterBreak(qn,onCourt,ot){
-    return new Promise(r=>{
+    if(window.__SIM){M.tac=null;return Promise.resolve()}
+    return new Promise(r=>{sfx("buzzer");
       const half=qn===2,last=qn===4&&!ot;
       const rows=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[0]-p[0]}</td>`}).join(""),rowsT=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[1]-p[1]}</td>`}).join("");
       const lines={win:["Böyle devam. Savunmayı bırakmayın.","Güzel gidiyoruz ama rehavete kapılmak yok."],lose:["Kendimize gelmemiz lazım. Ribaundlar bizim olacak!","Bu skor bize yakışmıyor. Daha sert oynayın!"],tie:["Maç başa baş. Detaylar kazandıracak.","Kim daha çok isterse o kazanır."]};

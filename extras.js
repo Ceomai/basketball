@@ -37,12 +37,9 @@ function boardSheet(g="arcade",period="w"){
   $$("[data-p]").forEach(x=>x.onclick=()=>boardSheet(g,x.dataset.p));$$("#gsel [data-g]").forEach(x=>x.onclick=()=>boardSheet(x.dataset.g,period));
   $("#bkE").onclick=()=>openLoc("eglence","arcade");
 }
-const _locE=locEglence;
-locEglence=function(I,tab="arcade"){_locE(I,tab);if(tab==="kulup")return;arcState();
+function arcBoardCard(){arcState();
   const rows=Object.entries(ARC_GAMES).map(([k,v])=>{const r=arcRank(k,"w"),s=S.arc.wb[k]||0;return`<div class="row between small"><span>${v.n}</span><span>${s?`<b>${r}.</b> sırada · ${s}`:'<span class="muted">oynanmadı</span>'}</span></div>`}).join("");
-  $("#egc").insertAdjacentHTML("afterbegin",`<div class="card"><div class="row between"><div><div class="eyebrow">Haftalık sıralama · ${esc(S.city)}</div><h3>Rekabet tablosu</h3></div><button class="btn gold sm" id="brd">Tabloyu aç</button></div>${rows}<div class="small muted">İlk 3'e girenler hafta sonunda para, moral ve takipçi kazanır. Aylık birinciye kupa.</div></div>`);
-  $("#brd").onclick=()=>boardSheet("arcade","w");
-};
+  return`<div class="card"><div class="row between"><div><div class="eyebrow">Haftalık sıralama · ${esc(S.city)}</div><h3>Rekabet tablosu</h3></div><button class="btn gold sm" id="brd">Tabloyu aç</button></div>${rows}<div class="small muted">İlk 3'e girenler hafta sonunda para, moral ve takipçi kazanır. Aylık birinciye kupa.</div></div>`}
 
 /* ================= MİLLİ TAKIM ================= */
 const NAT={TR:{c1:"#e30a17",c2:"#ffffff",str:1.0,s:"TÜR"},ES:{c1:"#c60b1e",c2:"#ffc400",str:1.08,s:"İSP"},IT:{c1:"#0064aa",c2:"#ffffff",str:.98,s:"İTA"},FR:{c1:"#0055a4",c2:"#ffffff",str:1.05,s:"FRA"},DE:{c1:"#f4f4f4",c2:"#141414",str:1.02,s:"ALM"},GR:{c1:"#0d5eaf",c2:"#ffffff",str:1.03,s:"YUN"},RS:{c1:"#c6363c",c2:"#0c4076",str:1.08,s:"SRB"},LT:{c1:"#fdb913",c2:"#006a44",str:1.0,s:"LİT"},US:{c1:"#0a3161",c2:"#b31942",str:1.22,s:"ABD"}};
@@ -51,12 +48,11 @@ function natCat(age=S.age){return age<=17?"U18":age<=19?"U20":"A"}
 function natTeam(cc,cat){const key=`nat|${cc}|${cat}`;if(S.teams[key])return S.teams[key];const n=NAT[cc];
   const t={key,name:cat==="A"?`${LEAGUES[cc].n} Milli Takımı`:`${LEAGUES[cc].n} ${cat} Milli Takımı`,short:n.s,city:CAPITAL[cc],cc,kind:"nat",c1:n.c1,c2:n.c2,str:n.str*(cat==="A"?1.05:1)};S.teams[key]=t;return t}
 function natPotential(avg){return ovr()+(avg-6)*5+Math.min(4,S.career.trophies.length)}
-function natSelected(avg,cat){const need={U18:31,U20:38,A:56}[cat];if(cat==="A"&&!isPro(S.stage))return false;return natPotential(avg)>=need}
-const seasonAvg=()=>S.results.length?S.results.reduce((a,r)=>a+r.rating,0)/S.results.length:6;
+function natSelected(avg,cat){const need={U18:38,U20:47,A:69}[cat];if(cat==="A"&&!isPro(S.stage))return false;return natPotential(avg)>=need}
 // Milli maçı oynatmak için kulüp takımı geçici olarak milli takımla değiştirilir, maç bitince geri alınır.
 function natMatch(cat,opp,label,after){
   const club=S.team,us=natTeam("TR",cat);S._club=club;S.team=us;setTeamVars();
-  const role=natPotential(seasonAvg())>={U18:40,U20:48,A:66}[cat]?"star":"rot";
+  const role=natPotential(seasonAvg())>={U18:44,U20:53,A:76}[cat]?"star":"rot";
   playMatch({opp,home:Math.random()<.5,comp:"nat",label,role,onEnd:win=>{
     const r=M.rating,line={pts:M.pts,ast:M.ast,reb:M.reb,us:M.us,them:M.them};
     S.team=club;delete S._club;setTeamVars();
@@ -83,15 +79,16 @@ function camp(cat,title,after){
 }
 // FIBA arası: sezonun 4. haftasından sonra, yalnızca A Milli Takım
 function fibaWindow(done){
-  const cat=natCat();if(cat!=="A"||S.natWin===S.season||!natSelected(seasonAvg(),cat)){done();return}
+  const cat=natCat();if(S.injury||cat!=="A"||S.natWin===S.season||!natSelected(seasonAvg(),cat)){done();return}
   S.natWin=S.season;const opp=natTeam(pick(EU_CC.filter(c=>c!=="TR")),"A");
   camp(cat,"FIBA Dünya Kupası elemeleri · ara dönem",()=>natMatch(cat,opp,"FIBA Dünya Kupası Elemeleri",()=>{renderMain();done()}));
 }
 // Yaz turnuvası: sezon sonunda, gençlerde U18/U20 Avrupa Şampiyonası, büyüklerde EuroBasket / Dünya Kupası
 function summerTournament(avg,done){
-  const cat=natCat(S.age-1);if(!natSelected(avg,cat)){done();return}
+  const cat=natCat(S.age-1);if(S.injury||!natSelected(avg,cat)){done();return}
   const name=cat==="U18"?"U18 Avrupa Şampiyonası":cat==="U20"?"U20 Avrupa Şampiyonası":(S.year%4===3?"FIBA Dünya Kupası":S.year%4===1?"EuroBasket":"Olimpiyat Elemeleri");
-  const pool=shuffle([...EU_CC.filter(c=>c!=="TR"),...(cat==="A"&&name==="FIBA Dünya Kupası"?["US"]:[])]);
+  // son turlarda güçlü rakipler
+  const pool=[...EU_CC.filter(c=>c!=="TR"),...(cat==="A"&&name==="FIBA Dünya Kupası"?["US"]:[])].sort((a,b)=>NAT[a].str-NAT[b].str+rnd(-.04,.04));pool.splice(0,pool.length-4);
   const stages=["Grup maçı","Yarı final","Final"];let i=0;
   const medal=(type,lab)=>{S.career.trophies.push({type,label:`${S.year} ${name} · ${lab}`});news(`${fullName()} ${name}'nda ${lab} madalyası kazandı!`);save()};
   const nextGame=()=>{const opp=natTeam(pool[i],cat);natMatch(cat,opp,`${name} · ${stages[i]}`,win=>{
@@ -103,16 +100,13 @@ function summerTournament(avg,done){
 }
 
 /* ================= HAFTA GEÇİŞ KANCALARI ================= */
-const _endWeek=endWeek;
-endWeek=function(){
-  const a=arcState();const prevW=S.week;
-  _endWeek();
-  const got=[];if(a.w!==weekId())got.push(...arcResolve("w"));if((prevW%4===0)&&a.m!==monthId())got.push(...arcResolve("m"));
+// endWeek sonunda çağrılır: arcade ödülleri ve sezon ortası FIBA arası
+function weeklyHooks(){
+  const got=[...arcResolve("w")];if((S.week-1)%4===0)got.push(...arcResolve("m"));
   if(got.length){save();toast(`Arcade ödülü: ${got[0]}${got.length>1?" ve fazlası":""}`)}
-  if(S.week===5&&S.phase==="regular")fibaWindow(()=>{});
-};
-const _transition=transition;
-transition=function(avg,champ,head){summerTournament(avg,()=>_transition(avg,champ,head))};
+  if(S.chips!=null&&S.chips<500)S.chips=500;
+  if(S.week===5&&S.phase==="regular")allStar(()=>fibaWindow(()=>{}));
+}
 
 /* ================= YEREL HİKAYE VE MİZAH ================= */
 function EVENTS_TR(){const n=S.npc,abroad=S.city!==S.home,home=!abroad;return[
@@ -153,4 +147,4 @@ function EVENTS_TR(){const n=S.npc,abroad=S.city!==S.home,home=!abroad;return[
    {t:"Sohbet et, imza ver",do:()=>{S.rel.taraf+=3;S.moral+=3;return"Taksimetreyi açmadı. Yol boyunca bütün oyuncu değişikliklerini sana anlattı."}},
    {t:"Kulaklığı tak",do:()=>{S.energy+=3;return"Şoför radyonun sesini açtı. Arabesk eşliğinde vardın."}}]},
 ]}
-randomEvent=function(after){const e=pick([...EVENTS(),...EVENTS_TR()]);eventSheet({...e,look:LK[e.w]()},after)};
+

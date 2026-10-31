@@ -95,6 +95,7 @@ const ICON={
  seven:()=>sv(`<rect x="6" y="6" width="52" height="52" rx="10" fill="#fff8e1"/><text x="32" y="50" font-family="Barlow Condensed" font-weight="800" font-size="48" text-anchor="middle" fill="#d0142c" stroke="#141414" stroke-width="1.5">7</text>`),
  star:()=>sv(`<path d="M32 6 L39 24 H58 L43 35 L49 54 L32 43 L15 54 L21 35 L6 24 H25Z" fill="#ffc107" ${ST}/>`),
  house:(c="#8d6e63")=>sv(`<path d="M8 30 L32 10 L56 30" fill="none" ${ST}/><rect x="14" y="28" width="36" height="28" fill="${c}" ${ST}/><rect x="28" y="40" width="10" height="16" fill="#3e2723" ${ST}/><rect x="18" y="34" width="8" height="8" fill="#fff59d" ${ST}/><rect x="40" y="34" width="6" height="8" fill="#fff59d" ${ST}/>`),
+ plus:()=>sv(`<circle cx="32" cy="32" r="24" fill="#1e2a40" ${ST}/><path d="M32 20 V44 M20 32 H44" stroke="#d8b25a" stroke-width="5" stroke-linecap="round"/>`),
  trophyRoom:()=>sv(`<rect x="6" y="10" width="52" height="44" rx="3" fill="#4e342e" ${ST}/><path d="M6 26 H58 M6 40 H58" stroke="#8d6e63" stroke-width="3"/><path d="M14 22 h8 v-6 h-8z M30 22 h6 v-8 h-6z" fill="#d8b25a"/><circle cx="46" cy="18" r="4" fill="#ee7a2c"/>`),
 };
 const icon=(id,...a)=>(ICON[id]||ICON.ball)(...a);
@@ -109,6 +110,7 @@ function sceneEl(kind,bubble,opts={}){
   return wrap;
 }
 function drawScene(c,kind,o){
+  if(kind==="store")return drawStoreScene(c,o);
   const W=360,H=190;c.lineJoin="round";
   const floor=(col,y=150)=>{c.fillStyle=col;c.fillRect(0,y,W,H-y)};
   const wall=(a,b)=>{const g=c.createLinearGradient(0,0,0,150);g.addColorStop(0,a);g.addColorStop(1,b);c.fillStyle=g;c.fillRect(0,0,W,150)};

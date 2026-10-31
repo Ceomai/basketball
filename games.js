@@ -12,7 +12,7 @@ function ppos(e){const r=CV.getBoundingClientRect();return{x:(e.clientX-r.left)*
 function loop(fn){let last=performance.now(),alive=true,T=0;const cv=CV;const f=t=>{if(!alive||!cv.isConnected)return;const dt=Math.min(.033,(t-last)/1000);last=t;T+=dt;fn(dt,T);requestAnimationFrame(f)};requestAnimationFrame(f);return()=>{alive=false}}
 let _info="";function info(t){if(t===_info)return;_info=t;const e=$("#mgI");if(e)e.textContent=t}
 function clearInput(){if(CV)CV.onpointerdown=CV.onpointermove=CV.onpointerup=CV.onpointercancel=null;window.onkeydown=null}
-const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(_){}};
+const buzz=ms=>{if(typeof SETTINGS!=="undefined"&&!SETTINGS.haptic)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(_){}};
 let CROWD=[];
 function buildCrowd(home,away){CROWD=Array.from({length:84},(_,i)=>({x:(i%14)*27+6+(Math.floor(i/14)%2)*13,y:226+Math.floor(i/14)*20,c:Math.random()<.75?home:away,s:pick(SKINS),b:Math.random()*6}))}
 function bigText(c,t,y=130,col="#ffffff",sz=36){c.save();const u=t.toLocaleUpperCase("tr-TR");const fs=Math.min(26,sz*.72);c.font=`700 ${fs}px "Barlow Condensed",sans-serif`;const w=c.measureText(u).width+44,h=fs+18,x=W/2-w/2;c.globalAlpha=.9;rr(c,x,y-h+6,w,h,6,"#05080e",false);c.globalAlpha=1;rr(c,x,y-h+6,5,h,2,col==="#ffffff"?"#8c99ae":col,false);c.fillStyle=col==="#ffffff"?"#eef2f8":col;c.textAlign="center";c.textBaseline="middle";c.fillText(u,W/2+2,y-h/2+6);c.restore()}
@@ -41,10 +41,10 @@ function drawHoopFront(c,sw=0){
 function stepBall(b,dt){
   let scored=false;const n=4,h=dt/n;
   for(let i=0;i<n;i++){const py=b.y;b.vy+=G*h;b.x+=b.vx*h;b.y+=b.vy*h;b.rot+=b.vx*h*.05;
-    for(const px of[HOOP.x-HOOP.r,HOOP.x+HOOP.r]){const dx=b.x-px,dy=b.y-HOOP.y,d=Math.hypot(dx,dy);if(d<BR+2&&d>0){const nx=dx/d,ny=dy/d,vn=b.vx*nx+b.vy*ny;if(vn<0){b.vx-=1.6*vn*nx;b.vy-=1.6*vn*ny;b.rim=(b.rim||0)+1}b.x=px+nx*(BR+2);b.y=HOOP.y+ny*(BR+2)}}
-    if(b.x+BR>BB.x&&b.x<BB.x+8&&b.y>BB.y1&&b.y<BB.y2&&b.vx>0){b.vx=-b.vx*.55;b.x=BB.x-BR}
-    if(b.y+BR>GROUND+20&&b.vy>0){b.vy=-b.vy*.5;b.vx*=.8;b.y=GROUND+20-BR;b.bounce=(b.bounce||0)+1}
-    if(!b.in&&py<HOOP.y&&b.y>=HOOP.y&&b.vy>0&&b.x>HOOP.x-HOOP.r+3&&b.x<HOOP.x+HOOP.r-3){b.in=true;scored=true}}
+    for(const px of[HOOP.x-HOOP.r,HOOP.x+HOOP.r]){const dx=b.x-px,dy=b.y-HOOP.y,d=Math.hypot(dx,dy);if(d<BR+2&&d>0){const nx=dx/d,ny=dy/d,vn=b.vx*nx+b.vy*ny;if(vn<0){b.vx-=1.6*vn*nx;b.vy-=1.6*vn*ny;b.rim=(b.rim||0)+1;sfx("rim")}b.x=px+nx*(BR+2);b.y=HOOP.y+ny*(BR+2)}}
+    if(b.x+BR>BB.x&&b.x<BB.x+8&&b.y>BB.y1&&b.y<BB.y2&&b.vx>0){b.vx=-b.vx*.55;b.x=BB.x-BR;sfx("board")}
+    if(b.y+BR>GROUND+20&&b.vy>0){b.vy=-b.vy*.5;b.vx*=.8;b.y=GROUND+20-BR;b.bounce=(b.bounce||0)+1;sfx("bounce")}
+    if(!b.in&&py<HOOP.y&&b.y>=HOOP.y&&b.vy>0&&b.x>HOOP.x-HOOP.r+3&&b.x<HOOP.x+HOOP.r-3){b.in=true;scored=true;sfx("swish");crowdSwell(1)}}
   return scored;
 }
 function aimAt(b,tx,ty,T){b.vx=(tx-b.x)/T;b.vy=(ty-b.y-.5*G*T*T)/T}
@@ -65,7 +65,7 @@ function mgShoot(el,{eff,shots=1,title="Şut",dist=null,def=true}){
     CV.onpointermove=e=>{if(!st.drag)return;const p=ppos(e);st.drag.x=p.x;st.drag.y=p.y};
     CV.onpointerup=CV.onpointercancel=()=>{if(!st.drag)return;const v=vel();st.drag=null;if(Math.hypot(v.x,v.y)<150)return;
       const nz=1-eff/100;const a=Math.atan2(v.y,v.x)+gauss()*(.006+.032*nz*(.45+st.pr*.75));const sp=Math.hypot(v.x,v.y)*(1+gauss()*.022*nz);
-      st.ball.vx=Math.cos(a)*sp;st.ball.vy=Math.sin(a)*sp;st.ph="fly";st.t=0;buzz(10)};
+      st.ball.vx=Math.cos(a)*sp;st.ball.vy=Math.sin(a)*sp;st.ph="fly";st.t=0;buzz(10);sfx("throw")};
     const stop=loop((dt,T)=>{const c=CX;drawArena(c,T,{cheer:st.ph==="done"&&st.ball.in});st.t+=dt;
       if(st.ph!=="aim"){if(stepBall(st.ball,dt)){made++;pts+=st.three?3:2;st.msg=st.three?"+3 sayı":"+2 sayı";st.sw=1;buzz(25)}
         if(st.ph==="fly"&&(st.t>3.2||st.ball.bounce>=2||st.ball.x<-30||st.ball.x>W+30||(st.ball.in&&st.ball.y>GROUND))){st.ph="done";st.t=0;if(!st.ball.in)st.msg="Iska"}}
@@ -92,7 +92,7 @@ function mgTiming(el,{eff,title,tries=2,label="At",kind="free"}){
     const sx=kind==="dunk"?250:150;
     const next=()=>{st={ph:"aim",zc:rnd(.3,.7),zw:(kind==="steal"?.05:kind==="dunk"?.09:.07)+eff*.0016,speed:2.4+lvl()*.35+rnd(0,.5),t:0,ball:{x:sx,y:GROUND-(kind==="dunk"?150:122),vx:0,vy:0,rot:0},msg:"",nv:.5,ok:false,jump:0}};next();
     const go=()=>{if(st.ph!=="aim")return;const good=Math.abs(st.nv-st.zc)<st.zw/2;
-      if(kind==="steal"){st.ok=good;st.ph="done";st.msg=good?"Top çalındı":"Faul";if(good){ok++;buzz(25)}}
+      if(kind==="steal"){st.ok=good;st.ph="done";st.msg=good?"Top çalındı":"Faul";if(good){ok++;buzz(25);sfx("steal")}}
       else{const off=good?rnd(-4,4):(Math.random()<.5?-1:1)*rnd(15,26);aimAt(st.ball,HOOP.x+off,HOOP.y-8,kind==="dunk"?.42:1.05);st.ph="fly";if(kind==="dunk")st.jump=1}
       st.t=0};
     CV.onpointerdown=go;window.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();go()}};
@@ -124,7 +124,7 @@ function mgPass(el,{eff,reps=1,title="Pas"}){
       const defs=Array.from({length:nd},(_,i)=>{const t=sp[i%3];const mx=(t.x+mp.x)/2,my=(t.y+mp.y)/2,ang=Math.atan2(t.y-mp.y,t.x-mp.x)+Math.PI/2,L=rnd(40,70);return{ax:mx-Math.cos(ang)*L,ay:my-Math.sin(ang)*L,bx:mx+Math.cos(ang)*L,by:my+Math.sin(ang)*L,ph:Math.random()*6,sp:(1.6+lvl()*.3+rnd(0,.8))*(1.25-eff/200)}});
       st={mates:sp,defs,ph:"aim",t:0,t2:0,clock:4.5,ball:{x:mp.x,y:mp.y},tgt:null,msg:"",ok:false}};next();
     const dpos=(d,t)=>{const k=.5+.5*Math.sin(t*d.sp+d.ph);return{x:d.ax+(d.bx-d.ax)*k,y:d.ay+(d.by-d.ay)*k}};
-    CV.onpointerdown=e=>{if(st.ph!=="aim")return;const p=ppos(e);let best=null,bd=60;st.mates.forEach(m=>{const d=Math.hypot(m.x-p.x,m.y-p.y);if(d<bd){bd=d;best=m}});if(best){st.tgt=best;st.ph="fly";buzz(8)}};
+    CV.onpointerdown=e=>{if(st.ph!=="aim")return;const p=ppos(e);let best=null,bd=60;st.mates.forEach(m=>{const d=Math.hypot(m.x-p.x,m.y-p.y);if(d<bd){bd=d;best=m}});if(best){st.tgt=best;st.ph="fly";buzz(8);sfx("pass")}};
     const mlooks=[0,1,2].map(()=>OPP_LOOK()),dl=OPP_LOOK();
     const stop=loop((dt,T)=>{const c=CX;st.t+=dt;
       c.fillStyle="#c58d55";c.fillRect(0,0,W,H);c.strokeStyle="rgba(0,0,0,.1)";c.lineWidth=1;for(let y=0;y<H;y+=20){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke()}
@@ -136,7 +136,7 @@ function mgPass(el,{eff,reps=1,title="Pas"}){
       if(st.ph==="aim"){st.clock-=dt;if(st.clock<=0){st.ph="done";st.t2=0;st.msg="Hücum süresi doldu";st.ok=false}}
       if(st.ph==="fly"){const sp=(300+eff*3.4)*dt,dx=st.tgt.x-st.ball.x,dy=st.tgt.y-st.ball.y,d=Math.hypot(dx,dy);
         if(d<=sp){st.ph="done";st.ok=true;st.msg="Asist pası";st.t2=0}else{st.ball.x+=dx/d*sp;st.ball.y+=dy/d*sp}
-        for(const p of dps)if(st.ph==="fly"&&Math.hypot(p.x-st.ball.x,p.y-st.ball.y)<17+lvl()){st.ph="done";st.ok=false;st.msg="Pas araya girdi";st.t2=0}}
+        for(const p of dps)if(st.ph==="fly"&&Math.hypot(p.x-st.ball.x,p.y-st.ball.y)<17+lvl()){st.ph="done";st.ok=false;st.msg="Pas araya girdi";sfx("ooh");st.t2=0}}
       drawBall(c,st.ball.x,st.ball.y,8);
       if(st.ph==="aim"){hint(c,"Boştaki takım arkadaşına dokun",H-14);c.font='800 30px "Barlow Condensed"';c.textAlign="right";c.lineWidth=5;c.strokeStyle="#05080e";c.strokeText(st.clock.toFixed(1),W-12,42);c.fillStyle=st.clock<1.5?"#ff5468":"#fff";c.fillText(st.clock.toFixed(1),W-12,42)}
       if(st.ph==="done"){st.t2+=dt;bigText(c,st.msg,250,st.ok?"#ffc54d":"#ffffff");if(st.t2>1.1){if(st.ok)ok++;n++;if(n>=reps)finish(stop,res,{ok,reps});else next()}}
@@ -150,7 +150,7 @@ function mgBlock(el,{eff,reps=1,title="Blok"}){
   return new Promise(res=>{
     let n=0,ok=0,st;const ol=OPP_LOOK();
     const next=()=>{st={ph:"run",t:0,ox:40,ring:95,rs:70+lvl()*12+rnd(0,15),tol:3+eff*.11,msg:"",ball:{x:0,y:0},ok:false}};next();
-    const tap=()=>{if(st.ph!=="jump")return;st.ok=Math.abs(st.ring-16)<st.tol;st.msg=st.ok?"Blok":"Zamanlama kaçtı";st.ph="done";st.t=0;st.bv={x:st.ok?-260:220,y:st.ok?-120:-200};if(st.ok)buzz(30)};
+    const tap=()=>{if(st.ph!=="jump")return;st.ok=Math.abs(st.ring-16)<st.tol;st.msg=st.ok?"Blok":"Zamanlama kaçtı";st.ph="done";st.t=0;st.bv={x:st.ok?-260:220,y:st.ok?-120:-200};if(st.ok){buzz(30);sfx("block");crowdSwell(1)}else sfx("ooh")};
     CV.onpointerdown=tap;window.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();tap()}};
     $("#mgC").innerHTML=`<button class="btn bad" id="bl">Blok</button>`;$("#bl").onpointerdown=e=>{e.preventDefault();tap()};
     const stop=loop((dt,T)=>{const c=CX;drawArena(c,T,{cheer:st.ph==="done"&&st.ok});st.t+=dt;
@@ -175,7 +175,7 @@ function mgDribble(el,{eff,reps=1,title="Çalım"}){
   return new Promise(res=>{
     let n=0,ok=0,st,sw=null;const ol=OPP_LOOK();
     const next=()=>{const len=4+(lvl()>=3?1:0);st={seq:Array.from({length:len},()=>pick("LRUD")),i:0,time:clamp(2.2+eff*.028-lvl()*.12,1.7,5),t:0,ph:"go",msg:"",sway:0,ok:false}};next();
-    const press=k=>{if(st.ph!=="go")return;if(st.seq[st.i]===k){st.i++;st.sway=(k==="L"?-1:1)*18;buzz(8);if(st.i>=st.seq.length){st.ph="done";st.ok=true;st.t=0;st.msg="Savunmacı geçildi"}}else{st.ph="done";st.ok=false;st.t=0;st.msg="Top kaybı"}};
+    const press=k=>{if(st.ph!=="go")return;if(st.seq[st.i]===k){st.i++;st.sway=(k==="L"?-1:1)*18;buzz(8);sfx("bounce");if(st.i>=st.seq.length){st.ph="done";st.ok=true;st.t=0;st.msg="Savunmacı geçildi"}}else{st.ph="done";st.ok=false;st.t=0;st.msg="Top kaybı";sfx("ooh")}};
     CV.onpointerdown=e=>{sw=ppos(e)};CV.onpointerup=CV.onpointercancel=e=>{if(!sw)return;const p=ppos(e),dx=p.x-sw.x,dy=p.y-sw.y;sw=null;if(Math.hypot(dx,dy)<22)return;press(Math.abs(dx)>Math.abs(dy)?(dx>0?"R":"L"):(dy>0?"D":"U"))};
     $("#mgC").innerHTML=["L","U","D","R"].map(k=>`<button class="btn" data-k="${k}" aria-label="${({L:"Sol",U:"Yukarı",D:"Aşağı",R:"Sağ"})[k]}">${AR[k]}</button>`).join("");
     $$("#mgC [data-k]").forEach(b=>b.onpointerdown=e=>{e.preventDefault();press(b.dataset.k)});
@@ -201,7 +201,7 @@ function mgPost(el,{eff,reps=1,title="Post-up"}){
   return new Promise(res=>{
     let n=0,ok=0,st;const ol=OPP_LOOK();
     const next=()=>{st={ph:"push",t:0,pos:.15,zc:rnd(.35,.65),nv:.5,ball:{x:0,y:0,vx:0,vy:0,rot:0},msg:"",ok:false}};next();
-    const act=()=>{if(st.ph==="push"){st.pos=Math.min(1,st.pos+.055*(.6+eff/100));buzz(5)}else if(st.ph==="aim"){const zw=.06+eff*.0012+st.pos*.1,good=Math.abs(st.nv-st.zc)<zw/2;const px=150+st.pos*90;st.ball={x:px+6,y:GROUND-150,vx:0,vy:0,rot:0};aimAt(st.ball,HOOP.x+(good?rnd(-3,3):(Math.random()<.5?-1:1)*rnd(15,24)),HOOP.y-8,.75);st.ph="fly";st.t=0}};
+    const act=()=>{if(st.ph==="push"){st.pos=Math.min(1,st.pos+.055*(.6+eff/100));buzz(5);sfx("thud")}else if(st.ph==="aim"){const zw=.06+eff*.0012+st.pos*.1,good=Math.abs(st.nv-st.zc)<zw/2;const px=150+st.pos*90;st.ball={x:px+6,y:GROUND-150,vx:0,vy:0,rot:0};aimAt(st.ball,HOOP.x+(good?rnd(-3,3):(Math.random()<.5?-1:1)*rnd(15,24)),HOOP.y-8,.75);st.ph="fly";st.t=0}};
     CV.onpointerdown=act;window.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();act()}};
     $("#mgC").innerHTML=`<button class="btn bad" id="pb">İt</button>`;$("#pb").onpointerdown=e=>{e.preventDefault();act()};
     const stop=loop((dt,T)=>{const c=CX;drawArena(c,T,{cheer:st.ph==="done"&&st.ok});st.t+=dt;
@@ -226,7 +226,7 @@ function mgRebound(el,{eff,reps=1,title="Ribaund"}){
   return new Promise(res=>{
     let n=0,ok=0,st;const ol=OPP_LOOK();
     const next=()=>{const b={x:60,y:GROUND-130,vx:0,vy:0,rot:0};aimAt(b,HOOP.x-HOOP.r+rnd(-6,4),HOOP.y,1);st={ph:"wait",t:0,b,kx:250,jump:0,ring:{x:250,y:GROUND-190},r:16+eff*.16,msg:"",ok:false}};next();
-    const tap=()=>{if(st.ph!=="wait"||st.jump)return;st.jump=.001;const d=Math.hypot(st.b.x-st.ring.x,st.b.y-st.ring.y);st.ok=d<st.r&&st.t>.8;st.ph="done";st.t=0;st.msg=st.ok?"Ribaund":"Ribaund kaçtı";if(st.ok){ok++;buzz(25)}};
+    const tap=()=>{if(st.ph!=="wait"||st.jump)return;st.jump=.001;const d=Math.hypot(st.b.x-st.ring.x,st.b.y-st.ring.y);st.ok=d<st.r&&st.t>.8;st.ph="done";st.t=0;st.msg=st.ok?"Ribaund":"Ribaund kaçtı";if(st.ok){ok++;buzz(25);sfx("bounce")}else sfx("ooh")};
     CV.onpointerdown=tap;window.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();tap()}};
     $("#mgC").innerHTML=`<button class="btn pri" id="rbb">Zıpla</button>`;$("#rbb").onpointerdown=e=>{e.preventDefault();tap()};
     const stop=loop((dt,T)=>{const c=CX;drawArena(c,T,{cheer:st.ph==="done"&&st.ok});st.t+=dt;
@@ -247,7 +247,7 @@ function mgGym(el,{title="Ağırlık"}){
   mkStage(el,title);
   return new Promise(res=>{
     let taps=0,t=0,started=false,done=false,lift=0;
-    const tap=()=>{if(done)return;started=true;taps++;lift=Math.min(1,lift+.18)};
+    const tap=()=>{if(done)return;started=true;taps++;sfx("clank");lift=Math.min(1,lift+.18)};
     $("#mgC").innerHTML=`<button class="btn bad" id="tp">Kaldır</button>`;$("#tp").onpointerdown=e=>{e.preventDefault();tap()};CV.onpointerdown=tap;window.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();tap()}};
     const stop=loop((dt,T)=>{const c=CX;if(started&&!done)t+=dt;lift=Math.max(0,lift-dt*1.1);
       c.fillStyle="#10182a";c.fillRect(0,0,W,H);c.fillStyle="#172238";for(let x=0;x<W;x+=60)c.fillRect(x,0,30,FLOOR);c.fillStyle="#2b2f38";c.fillRect(0,FLOOR,W,H-FLOOR);
@@ -267,7 +267,7 @@ function mgPhoto(el,{title="Çekim",bg="arena"}){
   mkStage(el,title);
   return new Promise(res=>{
     let shots=0,best=-1,bestImg=null,flash=0,t=0,last="";const pose=()=>Math.sin(t*2.3)>.55;
-    const shoot=()=>{if(shots>=3)return;const x=180+Math.sin(t*1.7)*120,d=Math.abs(x-180);let sc=clamp(Math.round(100-d*.9+(pose()?18:0)),0,100);shots++;flash=1;buzz(12);last=sc>=85?`Kare kalitesi ${sc} · çok iyi`:sc>=60?`Kare kalitesi ${sc}`:`Kare kalitesi ${sc} · bulanık`;
+    const shoot=()=>{if(shots>=3)return;const x=180+Math.sin(t*1.7)*120,d=Math.abs(x-180);let sc=clamp(Math.round(100-d*.9+(pose()?18:0)),0,100);shots++;flash=1;buzz(12);sfx("shutter");last=sc>=85?`Kare kalitesi ${sc} · çok iyi`:sc>=60?`Kare kalitesi ${sc}`:`Kare kalitesi ${sc} · bulanık`;
       if(sc>best){best=sc;requestAnimationFrame(()=>{try{bestImg=CV.toDataURL("image/jpeg",.72)}catch(e){bestImg=null}})}};
     $("#mgC").innerHTML=`<button class="btn gold" id="sh">● Çek</button>`;$("#sh").onpointerdown=e=>{e.preventDefault();shoot()};CV.onpointerdown=shoot;
     const stop=loop((dt,T)=>{const c=CX;t+=dt;

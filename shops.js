@@ -48,25 +48,26 @@ const STORES=[
  {id:"tekno",n:"Tekno Merkez",wall:"#141b2e",acc:"#58a6ff",disp:"tech",say:"Hepsinin garantisi iki yıl. Kutusunu atma.",seller:{skin:SKINS[0],hatStyle:"yok",hair:"#e2c15a"},kit:{jersey:"#1e3a8a",sleeves:true,glasses:true,mood:"mutlu"}},
  {id:"moda",n:"Moda Butik",wall:"#2a1f26",acc:"#d8b25a",disp:"fashion",say:"Bu ceket tam sana göre. Fotoğrafçılar bayılacak.",seller:{skin:SKINS[2],hatStyle:"uzun",hair:"#111"},kit:{adult:true,jersey:"#141414",sleeves:true,tie:"#d8b25a",mood:"mutlu"}},
  {id:"galeri",n:"Oto Galeri",wall:"#1a1f26",acc:"#ff5468",disp:"cars",say:"Test sürüşü ücretsiz. Kaza yapmazsan.",seller:{skin:SKINS[1],hatStyle:"yok",hair:"#333"},kit:{adult:true,jersey:"#37474f",sleeves:true,tie:"#ff5468",mustache:true,mood:"mutlu"}},
+ {id:"yatirim",n:"Yatırım & Miras",wall:"#1b2330",acc:"#d8b25a",disp:"invest",say:"Paranı çalıştır. Basketbol bir gün biter, mülk kalır.",seller:{skin:SKINS[1],hatStyle:"yok",hair:"#9e9e9e"},kit:{adult:true,jersey:"#22304a",sleeves:true,tie:"#d8b25a",glasses:true,mood:"mutlu"}},
  {id:"ev",n:"Ev & Yaşam",wall:"#2b2620",acc:"#ffc54d",disp:"home",say:"İyi uyuyan iyi oynar. Bilimsel gerçek.",seller:{skin:SKINS[4],hatStyle:"bere",hat:"#ffc54d",pom:"#fff"},kit:{jersey:"#6d4c41",sleeves:true,apron:"#ffc54d",mood:"mutlu"}},
 ];
 const SHOP=[
- {id:"ayak1",st:"sneaker",n:"Antrenman ayakkabısı",d:"+3 Çeviklik",p:60,ic:()=>icon("sneaker","#cfd8dc","#1e88e5"),fx:()=>S.st.hiz+=3},
- {id:"ayak2",st:"sneaker",n:"İmza serisi ayakkabı",d:"+5 Çeviklik, +2 Şut",p:260,ic:()=>icon("sneaker",S.team.c1,"#141414"),fx:()=>{S.st.hiz+=5;S.st.sut+=2}},
- {id:"ayak3",st:"sneaker",n:"Retro koleksiyon",d:"+3 Çeviklik, +6 Taraftar",p:900,ic:()=>icon("sneaker","#fafafa","#c8102e"),fx:()=>{S.st.hiz+=3;S.rel.taraf+=6}},
- {id:"ayak4",st:"sneaker",n:"Altın sınırlı seri",d:"+4 Çeviklik, +12 Taraftar",p:6000,ic:()=>icon("sneaker","#d8b25a","#141414"),fx:()=>{S.st.hiz+=4;S.rel.taraf+=12}},
- {id:"top",st:"spor",n:"Maç topu",d:"+4 Şut",p:140,ic:()=>icon("ball"),fx:()=>S.st.sut+=4},
- {id:"bileklik",st:"spor",n:"Şutör bilekliği",d:"+2 Şut",p:40,ic:()=>icon("wrist"),fx:()=>S.st.sut+=2},
- {id:"dizlik",st:"spor",n:"Profesyonel dizlik",d:"+3 Savunma",p:90,ic:()=>icon("knee"),fx:()=>S.st.sav+=3},
- {id:"agirlik",st:"spor",n:"Ev ağırlık seti",d:"+4 Güç",p:400,ic:()=>icon("weights"),fx:()=>S.st.guc+=4},
+ {id:"ayak1",st:"sneaker",n:"Antrenman ayakkabısı",d:"+2 Çeviklik",p:60,ic:()=>icon("sneaker","#cfd8dc","#1e88e5"),fx:()=>S.st.hiz+=2},
+ {id:"ayak2",st:"sneaker",n:"İmza serisi ayakkabı",d:"+3 Çeviklik, +1 Şut",p:260,ic:()=>icon("sneaker",S.team.c1,"#141414"),fx:()=>{S.st.hiz+=3;S.st.sut+=1}},
+ {id:"ayak3",st:"sneaker",n:"Retro koleksiyon",d:"+1 Çeviklik, +6 Taraftar",p:900,ic:()=>icon("sneaker","#fafafa","#c8102e"),fx:()=>{S.st.hiz+=1;S.rel.taraf+=6}},
+ {id:"ayak4",st:"sneaker",n:"Altın sınırlı seri",d:"+2 Çeviklik, +12 Taraftar",p:6000,ic:()=>icon("sneaker","#d8b25a","#141414"),fx:()=>{S.st.hiz+=2;S.rel.taraf+=12}},
+ {id:"top",st:"spor",n:"Maç topu",d:"+2 Şut",p:140,ic:()=>icon("ball"),fx:()=>S.st.sut+=2},
+ {id:"bileklik",st:"spor",n:"Şutör bilekliği",d:"+1 Şut",p:40,ic:()=>icon("wrist"),fx:()=>S.st.sut+=1},
+ {id:"dizlik",st:"spor",n:"Profesyonel dizlik",d:"+2 Savunma",p:90,ic:()=>icon("knee"),fx:()=>S.st.sav+=2},
+ {id:"agirlik",st:"spor",n:"Ev ağırlık seti",d:"+2 Güç",p:400,ic:()=>icon("weights"),fx:()=>S.st.guc+=2},
  {id:"forma",st:"spor",n:"Takım forması",d:"+4 Taraftar",p:120,ic:()=>icon("tshirt",S.team.c1),fx:()=>S.rel.taraf+=4},
  {id:"kulaklik",st:"spor",n:"Stüdyo kulaklık",d:"+8 Moral",p:180,ic:()=>icon("headphones"),fx:()=>S.moral+=8},
  {id:"telefon",st:"tekno",n:"Yeni nesil telefon",d:"Paylaşım etkisi ×1,5",p:380,ic:()=>icon("phone")},
  {id:"konsol",st:"tekno",n:"Oyun konsolu",d:"+15 Moral",p:220,ic:()=>icon("console"),fx:()=>S.moral+=15},
- {id:"tablet",st:"tekno",n:"Maç analizi tableti",d:"+3 Pas",p:300,ic:()=>icon("tablet"),fx:()=>S.st.pas+=3},
+ {id:"tablet",st:"tekno",n:"Maç analizi tableti",d:"+2 Pas",p:300,ic:()=>icon("tablet"),fx:()=>S.st.pas+=2},
  {id:"laptop",st:"tekno",n:"Dizüstü bilgisayar",d:"+8 Akademik",p:700,ic:()=>icon("laptop"),fx:()=>S.aka+=8},
  {id:"swatch",st:"tekno",n:"Akıllı saat",d:"Uyku takibi: +3 enerji/hafta",p:250,en:3,ic:()=>icon("swatch")},
- {id:"vr",st:"tekno",n:"VR seti",d:"+10 Moral, +2 Çeviklik",p:900,ic:()=>icon("vr"),fx:()=>{S.moral+=10;S.st.hiz+=2}},
+ {id:"vr",st:"tekno",n:"VR seti",d:"+10 Moral, +1 Çeviklik",p:900,ic:()=>icon("vr"),fx:()=>{S.moral+=10;S.st.hiz+=1}},
  {id:"kiyafet",st:"moda",n:"Sokak giyimi seti",d:"+6 Taraftar, +5 Moral",p:420,ic:()=>icon("hoodie","#37474f"),fx:()=>{S.rel.taraf+=6;S.moral+=5}},
  {id:"gozluk",st:"moda",n:"Güneş gözlüğü",d:"+4 Taraftar",p:300,ic:()=>icon("glasses"),fx:()=>S.rel.taraf+=4},
  {id:"parfum",st:"moda",n:"İmza parfüm",d:"+6 Moral, +5 Partner",p:250,ic:()=>icon("perfume"),fx:()=>{S.moral+=6;S.rel.partner+=5}},
@@ -83,7 +84,16 @@ const SHOP=[
  {id:"oyunkoltugu",st:"ev",n:"Oyuncu koltuğu",d:"+5 Moral",p:350,ic:()=>icon("chair"),fx:()=>S.moral+=5},
  {id:"robot",st:"ev",n:"Robot süpürge",d:"+3 Moral, ev hep temiz",p:400,ic:()=>icon("robot"),fx:()=>S.moral+=3},
  {id:"sinema",st:"ev",n:"Ev sineması",d:"+2 moral/hafta",p:1500,mo:2,ic:()=>icon("cinema")},
+ {id:"fizyo",st:"ev",n:"Kişisel fizyoterapist",d:"Sakatlık riski belirgin azalır",p:9000,ic:()=>icon("whistle")},
  {id:"kryo",st:"ev",n:"Buz banyosu küveti",d:"+5 enerji/hafta",p:2500,en:5,ic:()=>icon("kryo")},
+
+ {id:"kiradaire",st:"yatirim",n:"Kiralık daire yatırımı",d:"Her hafta kira geliri",p:60000,inc:150,ic:()=>icon("house","#90a4ae")},
+ {id:"dukkan",st:"yatirim",n:"Dükkân yatırımı",d:"Her hafta kira geliri",p:250000,inc:650,ic:()=>icon("house","#c96f4a")},
+ {id:"plaza",st:"yatirim",n:"Plazada ofis katı",d:"Her hafta kira geliri",p:1200000,inc:3200,ic:()=>icon("house","#3f5f8a")},
+ {id:"salon",st:"yatirim",n:"Memlekete spor salonu",d:"İstanbul'daki mahallene bağış. +20 Aile, +15 Taraftar, efsane puanı",p:900000,ic:()=>icon("hoop"),fx:()=>{S.rel.aile+=20;S.rel.taraf+=15;S.followers*=1.1;news(`${fullName()} memleketine spor salonu yaptırdı.`)}},
+ {id:"yat",st:"yatirim",n:"Yat",d:"+3 moral/hafta, +15 Taraftar",p:1500000,mo:3,up:2500,ic:()=>icon("car","#eceff1","suv"),fx:()=>S.rel.taraf+=15},
+ {id:"akademi",st:"yatirim",n:"Basketbol akademisi",d:"Gençlere kendi akademin. Takipçi ve büyük efsane puanı",p:4000000,ic:()=>icon("trophyRoom"),fx:()=>{S.followers*=1.2;S.career.trophies.push({type:"award",label:`${seasonLabel()} · ${S.last} Basketbol Akademisi kurucusu`});news(`${fullName()} kendi basketbol akademisini kurdu.`)}},
+ {id:"jet",st:"yatirim",n:"Özel jet",d:"+8 enerji/hafta, +20 Taraftar",p:7000000,en:8,up:9000,ic:()=>icon("car","#ffffff","super"),fx:()=>S.rel.taraf+=20},
 ];
 function locAvm(I,store="sneaker"){
   const S0=STORES.find(s=>s.id===store);
@@ -94,9 +104,7 @@ function locAvm(I,store="sneaker"){
   c.insertAdjacentHTML("beforeend",`<div class="pgrid">${items.map(it=>prodHTML({id:it.id,ic:it.ic(),t:it.n,d:it.d+(it.up?` · masraf ${fmt(it.up)}/hafta`:""),price:it.p,own:!!S.items[it.id]})).join("")}</div><p class="small muted">Aldığın her eşya evindeki vitrinde sergilenir.</p>`);
   const m={};items.forEach(it=>m[it.id]=()=>{if(S.money<it.p||S.items[it.id])return;tx(it.n,-it.p);S.items[it.id]=1;it.fx&&it.fx();norm();save();toast(`${it.n} alındı. Vitrine eklendi.`);locAvm(I,store)});bindActs(m);
 }
-const _ds=drawScene;
-drawScene=function(c,kind,o){
-  if(kind!=="store")return _ds(c,kind,o);
+function drawStoreScene(c,o){
   const s=o.store,W=360;c.lineJoin="round";c.strokeStyle=INK;c.lineWidth=2;
   let g=c.createLinearGradient(0,0,0,150);g.addColorStop(0,shade(s.wall,20));g.addColorStop(1,s.wall);c.fillStyle=g;c.fillRect(0,0,W,150);
   c.fillStyle=shade(s.wall,-15);c.fillRect(0,150,W,40);c.fillStyle="rgba(255,255,255,.05)";for(let x=0;x<W;x+=40)c.fillRect(x,150,20,40);
@@ -156,6 +164,7 @@ function locEglence(I,tab="arcade"){
   $$(".venue").forEach(x=>x.onclick=()=>locEglence(I,x.dataset.v));
   const c=$("#egc");
   if(tab==="arcade"){
+    c.insertAdjacentHTML("beforeend",arcBoardCard());$("#brd").onclick=()=>boardSheet("arcade","w");
     c.insertAdjacentHTML("beforeend",`<div class="eyebrow">Arcade oyunları</div><div class="pgrid">${ARCADE.map(g=>prodHTML({id:g.id,ic:icon(g.ic),t:g.n,d:`${g.d} Rekor: ${S.rec[g.rec]}`,price:1,fx:[["+Moral","p"]],btn:"Oyna · "+fmt(1)})).join("")}</div>`);
     const m={};ARCADE.forEach(g=>m[g.id]=()=>arcadeRun(g.id));bindActs(m);
   }else{

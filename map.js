@@ -17,7 +17,7 @@ function locInfo(id,P){
    aile:{n:away?`Aile · ${P.home}`:"Ailenin Evi",slot:true},
    kafe:{n:"Kafe",slot:true},
    eglence:{n:"Eğlence Merkezi",slot:false},
-   avm:{n:"AVM",slot:false},market:{n:"Market",slot:false},sans:{n:"Şans Salonu",slot:false}
+   avm:{n:"AVM",slot:false},market:{n:"Market",slot:false},sans:{n:"Oyun Kulübü",slot:false}
   }[id];
 }
 function box(x,y,w,h,d,f,s,t){const k=d*.6;return`<path d="M${x+w} ${y} L${x+w+d} ${y-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${s}"/><path d="M${x} ${y-h} L${x+d} ${y-h-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${t}"/><rect x="${x}" y="${y-h}" width="${w}" height="${h}" fill="${f}"/>`}

@@ -13,7 +13,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const hash=s=>{let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h)};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const INK="#141414";
-function toast(t){$$(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+function toast(t){if(typeof sfx==="function")sfx("notify");$$(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 const kfmt=n=>n>=1e6?(n/1e6).toFixed(1).replace(".",",")+"M":n>=1e4?Math.round(n/1e3)+"B":n>=1e3?(n/1e3).toFixed(1).replace(".",",")+"B":String(Math.round(n));
 const RATE=40; // para birimi: içeride €, ekranda ₺
 function fmt(eur){const v=Math.round(eur*RATE),a=Math.abs(v),s=a>=1e7?(a/1e6).toFixed(1).replace(".",",")+"M":a.toLocaleString("tr-TR");return(v<0?"−":"")+"₺"+s}
@@ -52,7 +52,6 @@ const LEAGUES={
    first:["Tyler","Jalen","Marcus","Devin","Chris","Brandon","Kevin","Jordan","Zach","Andre"],last:["Johnson","Williams","Brown","Davis","Miller","Moore","Taylor","Jackson","Harris","Walker"],fem:["Ashley","Jasmine","Emily","Kayla"]},
 };
 const EU_CC=["TR","ES","IT","FR","DE","GR","RS","LT"];
-const EURO_CITIES=["İstanbul","Ankara","Madrid","Barcelona","Valencia","Vitoria","Milano","Bologna","Paris","Monako","Münih","Berlin","Atina","Pire","Belgrad","Kaunas","Vilnius","Lyon"];
 const CITY_C={};for(const[k,c]of Object.entries(LEAGUES))for(const city of c.cities)CITY_C[city]=k;
 const cOf=city=>LEAGUES[CITY_C[city]]||LEAGUES.TR;
 
@@ -76,11 +75,24 @@ function cityTheme(city){const t=CITY_THEME[city]||{land:["skyline"],water:"-"};
 
 /* ================= KARİYER BASAMAKLARI ================= */
 const ORDER=["lise","uni","t3","t2","t1","euro","nba"];
-const TDB={lise:0,uni:8,t3:13,t2:21,t1:29,euro:36,nba:44};      // lig zorluğu
+// Lig zorluğu: o ligde "yerinde" bir oyuncunun genel puanı yaklaşık TDB+45'tir; bu durumda maçta etkin değer ~45 olur.
+const TDB={lise:-15,uni:-7,t3:-5,t2:5,t1:15,euro:25,nba:35};
+// Denge ayarları (denge simülasyonuyla belirlendi)
+const BAL={
+  train:2.6,            // antrenman kazanç katsayısı (kesirli birikir)
+  play:.06,             // başarılı maç anında niteliğe eklenen kesir
+  grow:[[18,0,2],[21,0,1],[25,0,1],[29,0,0],[31,-1,0],[33,-2,-1],[99,-3,-1]], // [yaşa kadar, min, maks] yaz gelişimi
+  need:{t3:0,t2:50,t1:61,euro:72,nba:82},   // teklif için gereken potansiyel
+  tax:{lise:0,uni:0,t3:.2,t2:.3,t1:.33,euro:.35,nba:.37}, // vergi oranı
+  agent:.05,            // profesyonel menajer payı
+  living:{lise:0,uni:0,t3:40,t2:110,t1:350,euro:1300,nba:4500}, // haftalık yaşam gideri (€)
+};
 const SC={lise:52,uni:60,t3:66,t2:72,t1:78,euro:80,nba:108};      // skor ölçeği
-const WAGE={lise:8,uni:20,t3:260,t2:720,t1:2400,euro:9000,nba:38000};
+const WAGE={lise:8,uni:20,t3:300,t2:900,t1:3000,euro:12000,nba:45000};
 const isPro=st=>ORDER.indexOf(st)>=2;
-function tdOf(stage,cc){return Math.round(TDB[stage]*(["t1","t2","t3"].includes(stage)?(LEAGUES[cc]||LEAGUES.TR).pr:1))}
+function tdOf(stage,cc){const pr=["t1","t2","t3"].includes(stage)?(LEAGUES[cc]||LEAGUES.TR).pr:1;return Math.round((TDB[stage]+15)*pr-15)}
+// rol: genel puanın lig seviyesine göre konumu
+function roleAt(o,stage,cc){const d=o-(tdOf(stage,cc)+45);return d>=6?"star":d>=-3?"rot":"bench"}
 function leagueName(stage,cc,ss){if(stage==="lise")return ss===1?"İstanbul Liseler Ligi":"Türkiye Liseler Şampiyonası";if(stage==="uni")return"Üniversiteler Ligi";if(stage==="euro")return"EuroLeague";if(stage==="nba")return"NBA";return(LEAGUES[cc]||LEAGUES.TR).t[{t1:0,t2:1,t3:2}[stage]]}
 const levelName=st=>({lise:"Lise",uni:"Üniversite",t3:"3. seviye",t2:"2. seviye",t1:"1. seviye",euro:"EuroLeague",nba:"NBA"})[st];
 const COLORS=[["#c8102e","#ffffff"],["#0b3d91","#ffd200"],["#00875a","#ffffff"],["#f0b323","#1b1b1b"],["#5b2a86","#f2c14e"],["#e03a3e","#111111"],["#0077c0","#c4ced4"],["#e56020","#1d1160"],["#00788c","#f9a01b"],["#7a0019","#ffcc33"],["#1d428a","#ffc72c"],["#2e7d32","#ffd54f"],["#f4f4f4","#0a0a0a"],["#ff4fa3","#111111"],["#3a2f8f","#e8e8e8"],["#b8860b","#101010"]];
