@@ -5,7 +5,7 @@ let CV,CX;
 const lvl=()=>clamp(ORDER.indexOf(S.stage)-1,0,5); // 0..5 zorluk kademesi
 function mkStage(el,title){
   el.innerHTML=`<div class="stage"><div class="mgtop"><span>${title||""}</span><span id="mgI" class="muted"></span></div><canvas id="mgcanvas"></canvas><div class="mgctrl" id="mgC"></div></div>`;
-  CV=$("#mgcanvas");CX=CV.getContext("2d");const d=Math.max(2,devicePixelRatio||1),w=CV.clientWidth||360;CV.width=w*d;CV.height=w*H/W*d;CV.style.height=(w*H/W)+"px";CX.setTransform(CV.width/W,0,0,CV.height/H,0,0);
+  CV=$("#mgcanvas");CV.oncontextmenu=e=>e.preventDefault();CX=CV.getContext("2d");const d=Math.max(2,devicePixelRatio||1),w=CV.clientWidth||360;CV.width=w*d;CV.height=w*H/W*d;CV.style.height=(w*H/W)+"px";CX.setTransform(CV.width/W,0,0,CV.height/H,0,0);
   try{el.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
 }
 function ppos(e){const r=CV.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
@@ -176,7 +176,7 @@ function mgDribble(el,{eff,reps=1,title="Çalım"}){
     let n=0,ok=0,st,sw=null;const ol=OPP_LOOK();
     const next=()=>{const len=4+(lvl()>=3?1:0);st={seq:Array.from({length:len},()=>pick("LRUD")),i:0,time:clamp(2.2+eff*.028-lvl()*.12,1.7,5),t:0,ph:"go",msg:"",sway:0,ok:false}};next();
     const press=k=>{if(st.ph!=="go")return;if(st.seq[st.i]===k){st.i++;st.sway=(k==="L"?-1:1)*18;buzz(8);sfx("bounce");if(st.i>=st.seq.length){st.ph="done";st.ok=true;st.t=0;st.msg="Savunmacı geçildi"}}else{st.ph="done";st.ok=false;st.t=0;st.msg="Top kaybı";sfx("ooh")}};
-    CV.onpointerdown=e=>{sw=ppos(e)};CV.onpointerup=CV.onpointercancel=e=>{if(!sw)return;const p=ppos(e),dx=p.x-sw.x,dy=p.y-sw.y;sw=null;if(Math.hypot(dx,dy)<22)return;press(Math.abs(dx)>Math.abs(dy)?(dx>0?"R":"L"):(dy>0?"D":"U"))};
+    CV.onpointerdown=e=>{sw=ppos(e);try{CV.setPointerCapture(e.pointerId)}catch(_){}};CV.onpointerup=CV.onpointercancel=e=>{if(!sw)return;const p=ppos(e),dx=p.x-sw.x,dy=p.y-sw.y;sw=null;if(Math.hypot(dx,dy)<22)return;press(Math.abs(dx)>Math.abs(dy)?(dx>0?"R":"L"):(dy>0?"D":"U"))};
     $("#mgC").innerHTML=["L","U","D","R"].map(k=>`<button class="btn" data-k="${k}" aria-label="${({L:"Sol",U:"Yukarı",D:"Aşağı",R:"Sağ"})[k]}">${AR[k]}</button>`).join("");
     $$("#mgC [data-k]").forEach(b=>b.onpointerdown=e=>{e.preventDefault();press(b.dataset.k)});
     window.onkeydown=e=>{const m={ArrowLeft:"L",ArrowRight:"R",ArrowUp:"U",ArrowDown:"D"}[e.key];if(m){e.preventDefault();press(m)}};

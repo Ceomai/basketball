@@ -83,7 +83,8 @@ function renderCreate(){
   <div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">Basketbol kariyer simülasyonu</div><h1>Pota<br>Kariyeri</h1></div><div class="tagx" style="text-align:right">İstanbul<small>Kariyerin burada başlıyor</small></div></div>
   <div class="row between"><div class="eyebrow">Yuva ${F.slot} · yeni kariyer</div><button class="btn ghost sm" id="bkS">Yuvalara dön</button></div>
   <div class="card">
-    <div class="grid2"><label class="small"><b>Ad</b><input type="text" id="fn" maxlength="14" placeholder="Ali" value="${esc(F.first)}"></label><label class="small"><b>Soyad</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" value="${esc(F.last)}"></label></div>
+    <div class="grid2"><label class="small"><b>Ad</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}"></label><label class="small"><b>Soyad</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}"></label></div>
+    <div class="grid2"><button class="btn ghost sm" id="npick">Listeden seç</button><button class="btn ghost sm" id="nrnd">Rastgele isim</button></div>
     <div class="row nowrap" style="align-items:flex-start">
       <canvas id="pv" style="width:132px;height:160px;border-radius:12px;flex-shrink:0"></canvas>
       <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
@@ -101,10 +102,25 @@ function renderCreate(){
   const keep=()=>{F.first=$("#fn").value.trim();F.last=$("#ln").value.trim()};
   const bind=(id,fn)=>{const el=$("#"+id);if(el)el.querySelectorAll("button").forEach(b=>b.onclick=()=>{keep();fn(b.dataset.v);renderCreate()})};
   $("#bkS").onclick=renderSlots;
+  $("#fn").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();$("#ln").focus()}};$("#ln").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();e.target.blur()}};
+  $("#nrnd").onclick=()=>{F.first=pick(NAME_FIRST);F.last=pick(NAME_LAST);renderCreate()};
+  $("#npick").onclick=()=>{keep();namePicker()};
   const cv=$("#pv"),d=Math.max(2,devicePixelRatio||1);cv.width=132*d;cv.height=160*d;const c=cv.getContext("2d");c.scale(d,d);const g=c.createLinearGradient(0,0,0,160);g.addColorStop(0,"#2a3a58");g.addColorStop(1,"#141d2e");c.fillStyle=g;c.fillRect(0,0,132,160);
   drawKid(c,66,156,1.0,F.look,{jersey:"#c8102e",trim:"#ffffff",number:F.num,mood:"mutlu"});
   bind("skin",v=>F.look.skin=v);bind("hs",v=>F.look.hatStyle=v);bind("hc",v=>{if(F.look.hatStyle==="yok")F.look.hair=v;else F.look.hat=v});bind("hc2",v=>F.look.hair=v);bind("pos",v=>F.pos=v);bind("num",v=>F.num=+v);
   $("#go").onclick=()=>{keep();if(!F.first||!F.last){toast("Ad ve soyad gir.");return}startCareer()};
+}
+// Klavye açmadan isim seçmek için dokunmatik liste
+const NAME_FIRST=["Ali","Emre","Can","Burak","Mert","Kerem","Arda","Yusuf","Efe","Kaan","Barış","Onur","Serkan","Tolga","Sinan","Cedi","Ömer","Furkan","Enes","Berk","Ozan","Doruk","Alper","Hakan","Deniz","Umut","Eren","Tarık"];
+const NAME_LAST=["Yılmaz","Kaya","Demir","Şahin","Çelik","Aydın","Arslan","Doğan","Kurt","Öztürk","Koç","Aksoy","Erdem","Polat","Güler","Korkmaz","Yıldız","Taş","Bulut","Özkan","Ateş","Kılıç","Turan","Uçar","Karaca","Sarı","Bozkurt","Tekin"];
+function namePicker(){
+  const chips=(arr,cur,k)=>`<div class="opts">${arr.map(n=>`<button class="opt ${cur===n?"on":""}" data-${k}="${esc(n)}">${esc(n)}</button>`).join("")}</div>`;
+  const draw=()=>{sheet("İsim seç","Klavye gerekmez",`<div class="card" style="text-align:center"><div class="eyebrow">Seçilen</div><h2 id="npv">${esc((F.first||"—")+" "+(F.last||"—"))}</h2></div>
+    <div class="eyebrow">Ad</div>${chips(NAME_FIRST,F.first,"nf")}<div class="eyebrow">Soyad</div>${chips(NAME_LAST,F.last,"nl")}
+    <div class="grid2"><button class="btn ghost" id="nr2">Rastgele</button><button class="btn pri" id="nok2">Tamam</button></div>`,{onClose:renderCreate});
+    $$("[data-nf]").forEach(b=>b.onclick=()=>{F.first=b.dataset.nf;draw()});$$("[data-nl]").forEach(b=>b.onclick=()=>{F.last=b.dataset.nl;draw()});
+    $("#nr2").onclick=()=>{F.first=pick(NAME_FIRST);F.last=pick(NAME_LAST);draw()};$("#nok2").onclick=()=>{closeSheet();renderCreate()}};
+  draw();
 }
 function startCareer(){
   const co=LEAGUES.TR;
