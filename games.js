@@ -75,7 +75,7 @@ function mgShoot(el,{eff,shots=1,title="Şut",dist=null,def=true}){
       drawBall(c,st.ball.x,st.ball.y,BR,st.ball.rot);drawHoopFront(c,st.sw);st.sw*=.92;
       if(st.ph==="aim"&&st.drag){const v=vel();const b={x:st.ball.x,y:st.ball.y,vx:v.x,vy:v.y};const dots=4+Math.floor(eff/7);c.fillStyle="#fff";
         for(let i=1;i<=dots;i++){for(let k=0;k<3;k++){b.vy+=G*.018;b.x+=b.vx*.018;b.y+=b.vy*.018}c.globalAlpha=1-i/(dots+2);c.beginPath();c.arc(b.x,b.y,3.4,0,7);c.fill()}c.globalAlpha=1;
-        c.strokeStyle="rgba(255,255,255,.5)";c.lineWidth=2;c.setLineDash([5,5]);c.beginPath();c.moveTo(st.drag.x0,st.drag.y0);c.lineTo(st.drag.x,st.drag.y);c.stroke();c.setLineDash([])}
+        c.strokeStyle="rgba(255,255,255,.5)";c.lineWidth=2;c.setLineDash([5,5]);c.beginPath();c.moveTo(st.drag.x0,st.drag.y0);c.lineTo(st.drag.x,st.drag.y);c.stroke();c.setLineDash([]);powerArrow(c,st.ball.x,st.ball.y,v.x,v.y,clamp(Math.hypot(v.x,v.y)/880,0,1),[.5,.72])}
       if(st.ph==="aim"){hint(c,"Bas, aşağı-geri çek, bırak");
         if(def){c.font='700 11px Manrope';c.fillStyle="#8c99ae";c.textAlign="left";c.fillText("SAVUNMA BASKISI",14,64);rr(c,14,70,100,6,3,"#24314a",false);rr(c,14,70,Math.max(4,100*st.pr),6,3,st.pr>.66?"#ff5468":st.pr>.33?"#ffc54d":"#36d38e",false)}
         c.font='800 15px "Barlow Condensed"';c.textAlign="right";c.fillStyle="#fff";c.fillText(st.three?"3 SAYI MESAFESİ":"2 SAYI MESAFESİ",W-14,72)}
