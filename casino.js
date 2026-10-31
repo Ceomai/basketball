@@ -16,6 +16,7 @@ function betBar(){const bets=[10,50,100,250,500,1000].filter(b=>b<=Math.max(10,c
 function bindBets(re){$$("#bets [data-b]").forEach(b=>b.onclick=()=>{BET=+b.dataset.b;re()})}
 const updBal=()=>{const e=$("#bal");if(e)e.textContent=fis(chips())};
 function locSans(I,game="rulet"){
+  if(S.age<18){const y=18-S.age;sheet("Oyun Kulübü","18 yaş sınırı",`<div class="card"><div class="eyebrow">Kapıdaki görevli</div><div class="say">"Kimliğine bakayım... ${S.age} yaşındasın. Kusura bakma, kurallar net: 18 yaşından küçükler giremez. Git antrenmanını yap, ${y===1?"seneye":y+" yıl sonra"} gel."</div><p class="small muted">Oyun Kulübü 18 yaşından itibaren açılır. O zamana kadar eğlence merkezindeki arcade oyunlarını oynayabilirsin.</p><button class="btn pri" id="bk">Haritaya dön</button></div>`);$("#bk").onclick=()=>renderMain();return}
   const tabs=[["rulet","Rulet","wheel"],["bj","Blackjack","cards"],["slot","Slot","seven"]];
   const b=sheet(I.n,"Fişler yalnızca eğlence içindir",`${tabsHTML(tabs,game,"g")}<div id="gc" style="display:flex;flex-direction:column;gap:12px"></div>`);
   $$(".tabs button").forEach(x=>x.onclick=()=>locSans(I,x.dataset.g));

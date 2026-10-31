@@ -17,7 +17,7 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
   - Okul: sınıfta soru-cevap.
   - Medya merkezi: fotoğraf çekimi ve röportaj.
   - Eğlence merkezi: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling, karaoke.
-  - Oyun Kulübü: rulet, blackjack, slot. Gerçek para yok; haftalık yenilenen fişlerle oynanır.
+  - Oyun Kulübü: rulet, blackjack, slot. Gerçek para yok; haftalık yenilenen fişlerle oynanır. 18 yaşından önce girilemez.
   - Market, AVM (6 mağaza), kafe ve aile evi.
 - **Milli takım:** gençken U18 ve U20, profesyonelken A Milli Takım. FIBA arası kampları ve yaz turnuvalarında madalya.
 - **Arcade sıralaması:** haftalık ve aylık tablolar, ilk üçe ödül, aylık birinciye kupa.

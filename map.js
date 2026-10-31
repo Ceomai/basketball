@@ -17,7 +17,7 @@ function locInfo(id,P){
    aile:{n:away?`Aile · ${P.home}`:"Ailenin Evi",slot:true},
    kafe:{n:"Kafe",slot:true},
    eglence:{n:"Eğlence Merkezi",slot:false},
-   avm:{n:"AVM",slot:false},market:{n:"Market",slot:false},sans:{n:"Oyun Kulübü",slot:false}
+   avm:{n:"AVM",slot:false},market:{n:"Market",slot:false},sans:{n:P.age<18?"Oyun Kulübü · 18+":"Oyun Kulübü",slot:false,locked:P.age<18}
   }[id];
 }
 function box(x,y,w,h,d,f,s,t){const k=d*.6;return`<path d="M${x+w} ${y} L${x+w+d} ${y-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${s}"/><path d="M${x} ${y-h} L${x+d} ${y-h-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${t}"/><rect x="${x}" y="${y-h}" width="${w}" height="${h}" fill="${f}"/>`}
@@ -122,7 +122,7 @@ function mapSVG(P){
    market:(x,y)=>box(x-36,y+30,60,32,12,"#e9e6df","#c9c5bc",roof)+`<path d="M${x-38} ${y-2}h64l-4 9h-56z" fill="#1f7a5c"/>`+windows(x-36,y+30,60,20,3,1,lit),
    sans:(x,y)=>box(x-38,y+30,64,44,12,"#2a1013","#1c0a0c","#3d171c")+`<rect x="${x-30}" y="${y-8}" width="48" height="16" rx="3" fill="${lit?"#ffd34d":"#a8862d"}"/><text x="${x-6}" y="${y+4}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="10" fill="#2a1013">♠ ♥ ♦ ♣</text>`+windows(x-38,y+30,64,14,4,1,lit),
   };
-  LOCS.forEach(Lc=>{const I=locInfo(Lc.id,P);const off=I.slot&&P.slot<=0;const big=Lc.id==="stad";
+  LOCS.forEach(Lc=>{const I=locInfo(Lc.id,P);const off=(I.slot&&P.slot<=0)||I.locked;const big=Lc.id==="stad";
     const lab=I.n.toLocaleUpperCase("tr-TR"),lw=Math.max(56,lab.length*6.1+24),ly=Lc.y+(big?78:46);
     g+=`<g class="loc${off?" off":""}" data-loc="${Lc.id}" tabindex="0" role="button" aria-label="${esc(I.n)}">
       <ellipse class="hl" cx="${Lc.x}" cy="${Lc.y+8}" rx="${big?112:62}" ry="${big?70:46}" fill="#d8b25a" fill-opacity=".16"/>
