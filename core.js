@@ -21,10 +21,15 @@ const bestCar=()=>S.items.araba3?icon("car","#d0142c","super"):S.items.araba2?ic
 
 /* ---- Takımlar ---- */
 // kind: lise | uni | pro ; pro takımlar şehir + seviye tuzuyla sabit kimlik taşır
+const MY_LISE="Mavi Martı Spor Lisesi";
+const MY_UNI={"İstanbul|0":"Çınaraltı Üniversitesi","İstanbul|2":"Kıyıkent Spor Akademisi","Ankara|0":"Bozkır Teknik Üniversitesi"};
 function makeTeam(kind,city,salt=0){
   S.teams=S.teams||{};const key=`${kind}|${city}|${salt}`;if(S.teams[key])return S.teams[key];
   const cc=CITY_C[city]||"TR",h=hash(city+kind)+salt*7;let name,short;
-  if(kind==="lise"){if(city==="İstanbul"){const d=IST_DIST[(h+salt)%IST_DIST.length];name=`${d} ${IST_TYPE[(h>>3)%IST_TYPE.length]}`;short=d.slice(0,3)}else{name=`${city} ${IST_TYPE[h%IST_TYPE.length]}`}}
+  const h0=hash(city+kind);
+  if(kind==="mylise"){name=MY_LISE;short="MMS"}                                        // kendi okulumuz: gerçekte olmayan isim
+  else if(kind==="myuni"){name=MY_UNI[`${city}|${salt}`]||`${city} Yıldızkent Üniversitesi`;short=name.slice(0,3)}
+  else if(kind==="lise"){if(city==="İstanbul"){const d=IST_DIST[(salt-1+h0+IST_DIST.length)%IST_DIST.length];name=`${d} ${IST_TYPE[(salt*2+h0)%IST_TYPE.length]}`;short=d.slice(0,3)}else{name=`${city} ${IST_TYPE[h0%IST_TYPE.length]}`}}
   else if(kind==="uni"){name=`${city} ${["Üniversitesi","Teknik Üniversitesi","Spor Akademisi"][salt%3]}`}
   else{const p=PAT[cc]||PAT.TR;name=p[(salt+(h>>2))%p.length](city)}
   short=(short||city).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-zıİ]/g,"").slice(0,3).toLocaleUpperCase("tr-TR");
@@ -117,12 +122,12 @@ function startCareer(){
     housing:"oda",items:{},buffs:{train:0,motive:0,offer:0},tx:[],wage:WAGE.lise,career:{games:0,pts:0,ast:0,reb:0,blk:0,wins:0,trophies:[],mvps:0,earned:0},hist:[],news:[],rec:{arcade:0,reflex:0},
     npc:{mom:pick(["Ayşe","Fatma","Hülya","Sevgi"]),dad:pick(["Mehmet","Ahmet","Mustafa","Hasan"]),friend:pick(co.first),rival:pick(co.first)+" "+pick(co.last),agent:pick(co.first)+" "+pick(co.last),journalist:pick(co.fem)+" "+pick(co.last),coach:pick(co.first)+" "+pick(co.last)},
     chapters:{},teams:{},gamble:0,studied:false,tryout:null,clubDeal:null};
-  S.team=makeTeam("lise","İstanbul",0);
+  S.team=makeTeam("mylise","İstanbul",0);
   newSeasonLeague();
   news(`${fullName()}, ${S.team.name} kadrosuna girdi.`);
   save();setTeamVars();chapter("lise1",renderMain);
 }
-function migrate(){S.buffs=S.buffs||{train:0,motive:0,offer:0};S.rec=S.rec||{arcade:0,reflex:0};S.news=S.news||[];S.teams=S.teams||{};setTeamVars()}
+function migrate(){if(S.team&&S.team.key==="lise|İstanbul|0"){S.team.name=MY_LISE;S.team.short="MMS";if(S.teams[S.team.key])Object.assign(S.teams[S.team.key],{name:MY_LISE,short:"MMS"})}S.buffs=S.buffs||{train:0,motive:0,offer:0};S.rec=S.rec||{arcade:0,reflex:0};S.news=S.news||[];S.teams=S.teams||{};setTeamVars()}
 
 /* ================= HİKAYE BÖLÜMLERİ ================= */
 function chapter(id,after){

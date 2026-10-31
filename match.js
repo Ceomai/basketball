@@ -225,8 +225,8 @@ function transition(avg,champ,head){
       title="Kariyer değerlendirmesi";
       intro=`<div class="card"><div class="eyebrow">Gözlemci raporu</div><div class="row between nowrap"><div><h3>${esc(fullName())}</h3><div class="small muted">${POS[S.pos].n} · ${S.age} yaş · ${S.career.games} maç, ${S.career.pts} sayı</div></div><div class="big-num gold">${grade(P)}</div></div><p class="small muted">${P>=43?"2. lig kulüplerinden ciddi ilgi var.":"3. lig seviyesinde süre alarak gelişmeli."} Üniversite sınavı puanın: <b>${exam}</b>.</p></div>`;
       offers=genOffers(avg,champ,4);
-      const uc=exam>65?["İstanbul","Ankara"]:exam>40?["İstanbul"]:[];uc.forEach(c=>{const t=makeTeam("uni",c,0);offers.push({team:t,stage:"uni",wage:WAGE.uni+(avg>=6.3?20:0),note:"Üniversiteler Ligi · bir yıl gelişim",uni:true})});
-      if(!uc.length)offers.push({team:makeTeam("uni","İstanbul",2),stage:"uni",wage:WAGE.uni,note:"Spor akademisi · bir yıl gelişim",uni:true});
+      const uc=exam>65?["İstanbul","Ankara"]:exam>40?["İstanbul"]:[];uc.forEach(c=>{const t=makeTeam("myuni",c,0);offers.push({team:t,stage:"uni",wage:WAGE.uni+(avg>=6.3?20:0),note:"Üniversiteler Ligi · bir yıl gelişim",uni:true})});
+      if(!uc.length)offers.push({team:makeTeam("myuni","İstanbul",2),stage:"uni",wage:WAGE.uni,note:"Spor akademisi · bir yıl gelişim",uni:true});
     }else{title="Lisede yeni yıl";offers=[{team:S.team,stage:"lise",wage:WAGE.lise,stay:true}]}
   }else if(S.stage==="uni"){
     title="Gözlemci raporu";intro=`<p>Potansiyel notun: <b class="gold">${grade(P)}</b>. Kulüplerden teklifler geldi.</p>`;
