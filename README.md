@@ -17,12 +17,20 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
   - Okul: sınıfta soru-cevap.
   - Medya merkezi: fotoğraf çekimi ve röportaj.
   - Eğlence merkezi: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling, karaoke.
-  - Şans salonu: rulet, blackjack, slot.
+  - Oyun Kulübü: rulet, blackjack, slot. Gerçek para yok; haftalık yenilenen fişlerle oynanır. 18 yaşından önce girilemez.
   - Market, AVM (6 mağaza), kafe ve aile evi.
 - **Milli takım:** gençken U18 ve U20, profesyonelken A Milli Takım. FIBA arası kampları ve yaz turnuvalarında madalya.
 - **Arcade sıralaması:** haftalık ve aylık tablolar, ilk üçe ödül, aylık birinciye kupa.
 - **Ev:** aldığın eşyaların, kupaların ve formaların sergilendiği bir vitrin odası.
-- Kariyer tarayıcının `localStorage` alanına kaydediliyor.
+- **Gerçek kulüpler:** 1. ve 2. liglerde, EuroLeague'de ve NBA'de gerçek kulüp adları. 3. ligler, lise ve üniversite takımları hayali.
+- **Sakatlıklar:** yorgunluk ve yaşla artan risk. Sakatken maçları tribünden izlersin, fizyoterapi iyileşmeyi hızlandırır.
+- **Sözleşme pazarlığı:** maaş, süre, rol ya da imza parası istenebilir. Fazla zorlarsan kulüp masadan kalkar.
+- **İstatistik ve ödüller:** sezon sezon istatistik geçmişi; MVP, krallıklar, yılın çaylağı, final MVP ve All-Star (üçlük yarışmasıyla).
+- **Takım arkadaşları:** kadro ekranı, kimya, takım yemeği ve ekstra antrenman.
+- **Ses:** Web Audio ile sentezlenen efektler ve maç boyunca tribün uğultusu. Ayarlar'dan kapatılabilir.
+- **Kılavuz:** ilk oyunda kısa tur, istendiğinde ayrıntılı rehber.
+- **Kayıt:** 5 kayıt yuvası, her yuva için otomatik yedek ve kayıt kodu ile dışa/içe aktarma.
+- **Denge:** ilerleme, teklif eşikleri ve ödüller otomatik oynayan bir simülasyonla ayarlandı. Zayıf bir oyuncu genelde 1. lig veya EuroLeague'de kalır, ortalama bir oyuncunun NBA şansı yaklaşık dörtte birdir, yetenekli bir oyuncu 25-26 yaşlarında NBA'e ulaşır.
 
 ## Dosyalar
 
@@ -33,13 +41,17 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 | `art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
 | `map.js` | Şehir haritası |
 | `games.js` | Maç ve antrenman mini oyunları |
+| `clubs.js` | Gerçek kulüp listeleri (1. ve 2. ligler, EuroLeague, NBA) |
 | `core.js` | Oyun durumu, ana ekran, panel sistemi |
+| `save.js` | 5 kayıt yuvası, yedekleme, kayıt kodu |
 | `places.js` | Ev, stadyum, okul, medya, aile, kafe |
-| `casino.js` | Şans salonu |
+| `casino.js` | Oyun Kulübü (fişle oynanan masa oyunları) |
 | `shops.js` | AVM mağazaları, market ve eğlence merkezi |
 | `arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
 | `match.js` | Karar anları, maç sonu, olaylar, sezon sonu ve teklifler |
-| `match2.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
+| `engine.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
 | `extras.js` | Milli takım (U18, U20, A), arcade sıralamaları, yerel hikâye olayları |
+| `systems.js` | Ayarlar, istatistikler, ödüller, sakatlıklar, kadro, sözleşme pazarlığı, kılavuz |
+| `audio.js` | Ses efektleri ve tribün sesi |
 
-Lig adları gerçek, takımlar ise şehir adlarıyla üretilmiş hayali kulüpler. Karakterler özgün; dizideki karakterler kullanılmadı.
+Kulüp adları yalnızca tanınırlık için kullanıldı; logolar ve renkler basit temsillerdir. Oyuncunun lisesi ve üniversitesi hayali. Karakterler özgün; dizideki karakterler kullanılmadı.

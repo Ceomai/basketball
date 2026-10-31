@@ -9,7 +9,7 @@ const addScene=(el,kind,bubble,opts)=>el.prepend(sceneEl(kind,bubble,opts));
 
 /* --- Ev / yaşam alanı --- */
 function locEv(I,tab="vitrin"){
-  const tabs=[["vitrin","Vitrin","trophyRoom"],["genel","Genel"],["yetenek","Yetenek"],["finans","Finans"],["kariyer","Kariyer"],["ev","Taşın"]];
+  const tabs=[["vitrin","Vitrin","trophyRoom"],["genel","Genel"],["yetenek","Yetenek"],["finans","Finans"],["kariyer","İstatistik"],["ev","Taşın"]];
   sheet(I.n,`Yaşam alanı · ${S.city}`,`${tabsHTML(tabs,tab)}<div id="evc" style="display:flex;flex-direction:column;gap:10px"></div>`);
   $$(".tabs button").forEach(x=>x.onclick=()=>locEv(I,x.dataset.t));
   const c=$("#evc");
@@ -21,7 +21,7 @@ function locEv(I,tab="vitrin"){
     bindActs({rest:restAct});
   }
   if(tab==="genel"){
-    const rs=S.results;const avg=rs.length?(rs.reduce((a,r)=>a+r.rating,0)/rs.length).toFixed(2):"–";
+    const rs=rated();const avg=rs.length?(rs.reduce((a,r)=>a+r.rating,0)/rs.length).toFixed(2):"–";
     c.innerHTML=`<div class="card"><div class="row nowrap" style="align-items:flex-start"><div id="pp"></div><div style="flex:1;min-width:0"><div class="eyebrow">${POS[S.pos].n} · #${S.num}</div><h2>${esc(fullName())}</h2><div class="small muted">${S.age} yaş · İstanbul</div><div class="small muted">${esc(S.team.name)}</div></div><div style="text-align:right"><div class="eyebrow">Genel</div><div class="big-num">${ovr()}</div></div></div>
      <div class="kv"><span>Lig</span><b>${esc(lgName())}</b><span>Rol</span><b>${isPro(S.stage)?ROLE_N[S.role]:"Okul takımı"}</b>${S.contract?`<span>Sözleşme</span><b>${S.contract} yıl</b>`:""}<span>Sezon ortalaması</span><b>${avg}</b><span>Şöhret</span><b>${fame()}/100</b><span>Takipçi</span><b>${kfmt(S.followers)}</b>${S.studying?`<span>Akademik</span><b>${S.aka}</b>`:""}${S.graduated?`<span>Eğitim</span><b>Mezun</b>`:""}</div></div>
      <div class="card"><div class="eyebrow">Bu sezonun maçları</div>${sparkHTML()}</div>
@@ -34,16 +34,12 @@ function locEv(I,tab="vitrin"){
      <div class="card"><div class="eyebrow">${POS[S.pos].n} antrenmanları</div>${[...DRILLS[S.pos],...COMMON_DRILLS].map(d=>`<div class="small">${d[1]} · <span class="muted">${statName(d[2])}</span></div>`).join("")}<p class="small muted">24 yaşına kadar her yaz doğal gelişim alırsın; 30'dan sonra çeviklik ve güç düşer.</p></div>`;
   }
   if(tab==="finans"){
-    const h=HOUSING[S.housing],up=carUpkeep();
+    const h=HOUSING[S.housing],up=carUpkeep(),tx_=Math.round(S.wage*((BAL.tax[S.stage]||0)+(isPro(S.stage)?BAL.agent:0))),liv=BAL.living[S.stage]||0,inc=itemWeekly("inc");
     c.innerHTML=`<div class="card"><div class="eyebrow">Bakiye</div><div class="big-num gold">${fmt(S.money)}</div>
-     <div class="kv"><span>${S.stage==="lise"?"Harçlık":S.stage==="uni"?"Burs":"Maaş"} (haftalık)</span><b class="good">+${fmt(S.wage)}</b><span>Kira · ${h.n}</span><b class="${h.rent?"bad":""}">${h.rent?"−"+fmt(h.rent):fmt(0)}</b><span>Araç masrafı</span><b class="${up?"bad":""}">${up?"−"+fmt(up):fmt(0)}</b><span><b>Net haftalık</b></span><b>${fmt(S.wage-h.rent-up)}</b><span>Kariyer kazancı</span><b>${fmt(S.career.earned)}</b></div></div>
+     <div class="kv"><span>${S.stage==="lise"?"Harçlık":S.stage==="uni"?"Burs":"Brüt maaş"} (haftalık)</span><b class="good">+${fmt(S.wage)}</b>${tx_?`<span>Vergi ve menajer payı</span><b class="bad">−${fmt(tx_)}</b>`:""}${liv?`<span>Yaşam giderleri</span><b class="bad">−${fmt(liv)}</b>`:""}<span>Kira · ${h.n}</span><b class="${h.rent?"bad":""}">${h.rent?"−"+fmt(h.rent):fmt(0)}</b><span>Araç ve tekne masrafı</span><b class="${up?"bad":""}">${up?"−"+fmt(up):fmt(0)}</b>${inc?`<span>Yatırım geliri</span><b class="good">+${fmt(inc)}</b>`:""}<span><b>Net haftalık</b></span><b>${fmt(S.wage-tx_-liv-h.rent-up+inc)}</b><span>Kariyer kazancı</span><b>${fmt(S.career.earned)}</b></div></div>
      <div class="card"><div class="eyebrow">Hesap hareketleri</div><div class="tbl"><table><tr><th>Hafta</th><th>Açıklama</th><th style="text-align:right">Tutar</th></tr>${S.tx.slice(0,15).map(t=>`<tr><td class="muted">${t.w}</td><td>${esc(t.d)}</td><td style="text-align:right" class="${t.a<0?"bad":"good"}">${t.a<0?"":"+"}${fmt(t.a)}</td></tr>`).join("")||'<tr><td colspan="3" class="muted">Henüz hareket yok.</td></tr>'}</table></div></div>`;
   }
-  if(tab==="kariyer"){
-    const k=S.career;
-    c.innerHTML=`<div class="box"><div><b>${k.games}</b><span class="eyebrow">Maç</span></div><div><b>${k.pts}</b><span class="eyebrow">Sayı</span></div><div><b>${k.ast}</b><span class="eyebrow">Asist</span></div><div><b>${k.reb||0}</b><span class="eyebrow">Ribaund</span></div></div>
-     <div class="card"><div class="eyebrow">Sezonlar</div><div class="tbl"><table><tr><th>Sezon</th><th>Takım</th><th>G-M</th><th>Ort.</th></tr>${S.hist.map(h=>`<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">İlk sezonun devam ediyor.</td></tr>'}</table></div></div>`;
-  }
+  if(tab==="kariyer")statsTab(c);
   if(tab==="ev"){
     const can=S.stage!=="lise";const opts=Object.entries(HOUSING).filter(([k])=>(k!=="oda"||S.city===S.home)&&(k!=="yurt"||S.studying));
     c.innerHTML=`<div class="card"><div class="row nowrap"><div style="width:52px">${icon("house")}</div><div><div class="eyebrow">Şu anki ev</div><h3>${HOUSING[S.housing].n}</h3><p class="small muted">Haftalık kira ${fmt(HOUSING[S.housing].rent)} · haftalık +${HOUSING[S.housing].en} enerji</p></div></div></div>
@@ -53,7 +49,7 @@ function locEv(I,tab="vitrin"){
 }
 function restAct(){useSlot();S.energy+=35;S.moral+=2;norm();save();resultView("Dinlendin",pick(["Deliksiz bir uyku çektin. Telefonu sessize almak iyi fikirdi.","Bütün gün koltuktaydın. Vücudun teşekkür ediyor.","Buz banyosu, esneme, erken yatış. Tam bir profesyonel gibi."]),[["+35 Enerji","p"]])}
 function sparkHTML(){
-  const rs=S.results.slice(-10);if(!rs.length)return'<p class="small muted">Bu sezon henüz maç yok.</p>';
+  const rs=rated().slice(-10);if(!rs.length)return'<p class="small muted">Bu sezon henüz maç yok.</p>';
   const w=300,h=70,n=rs.length;const xs=i=>n===1?w/2:12+i*(w-24)/(n-1),ys=v=>h-8-(v-1)/9*(h-16);
   const pts=rs.map((r,i)=>`${xs(i).toFixed(1)},${ys(r.rating).toFixed(1)}`).join(" ");
   return`<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="Maç notları"><line x1="0" x2="${w}" y1="${ys(6)}" y2="${ys(6)}" stroke="#24314a" stroke-dasharray="4 4"/><text x="2" y="${ys(6)-3}" fill="#5d6b82" font-size="9">6.0</text><polygon points="${xs(0)},${h} ${pts} ${xs(n-1)},${h}" fill="var(--team)" opacity=".15"/><polyline points="${pts}" fill="none" stroke="var(--team)" stroke-width="2.5"/>${rs.map((r,i)=>`<circle cx="${xs(i)}" cy="${ys(r.rating)}" r="${i===n-1?4.5:3}" fill="${r.win?"#36d38e":"#ff5468"}"/>`).join("")}</svg><div class="row" style="gap:4px">${rs.map(r=>`<span class="pill ${r.win?"w":"l"}">${r.us}-${r.them} · ${r.rating.toFixed(1)}</span>`).join("")}</div>`;
@@ -63,11 +59,13 @@ function sparkHTML(){
 const momentCount=()=>clamp(3+Math.round(S.rel.koc/30)+(isPro(S.stage)?1:0)+(S.role==="star"?1:S.role==="bench"?-1:0),3,7);
 const DRILL_IC={shoot:"ball",shootmid:"ball",pass:"chat",dribble:"sneaker",steal:"whistle",post:"dumbbell",rebound:"hoop",block:"hoop",free:"ball",gym:"dumbbell"};
 function locStad(I,tab="mac"){
-  const tabs=[["mac","Maç"],["idman","Antrenman"],["tablo","Puan durumu"]];
+  const tabs=[["mac","Maç"],["idman","Antrenman"],["kadro","Kadro"],["tablo","Puan durumu"]];
   if(S.tryout&&!S.tryout.done)tabs.push(["secme","Seçmeler"]);
   sheet(I.n,`${S.team.name} · ${S.city}`,`${tabsHTML(tabs,tab)}<div id="stc" style="display:flex;flex-direction:column;gap:10px"></div>`,{icon:crestSVG(S.team,36)});
   $$(".tabs button").forEach(x=>x.onclick=()=>locStad(I,x.dataset.t));
   const c=$("#stc");
+  if(tab==="kadro")rosterTab(c);
+  if(tab==="mac"&&S.injury){const fx=fixture(),opp=teamByKey(fx.opp);c.innerHTML=`<div class="card"><div class="eyebrow">Sakatlık raporu</div><h2 class="bad">${esc(S.injury.n)}</h2><div class="kv"><span>Kalan süre</span><b>${S.injury.w} hafta</b><span>Bu haftaki maç</span><b>${esc(opp.name)}</b></div><div class="bar"><i style="width:${100-S.injury.w/S.injury.total*100}%;background:var(--good)"></i></div><p class="small muted">Sakatken maçlara çıkamazsın. Fizyoterapi iyileşmeyi hızlandırabilir.</p></div>`+actHTML({id:"fizyo",ic:icon("kryo"),t:"Fizyoterapi",d:"Yarı yarıya ihtimalle iyileşmeyi bir hafta kısaltır.",slot:1,fx:[["+10 Enerji","p"]],btn:"Seansa gir"})+`<button class="btn pri big" id="watch">Maçı tribünden izle</button>`;bindActs({fizyo:physioAct});$("#watch").onclick=()=>{closeSheet();simWithoutMe()};return}
   if(tab==="mac"){
     const fx=fixture(),opp=teamByKey(fx.opp),row=S.league.find(r=>r.key===opp.key),mr=S.league.find(r=>r.key===S.team.key);
     c.innerHTML=`<div class="card" style="text-align:center"><div class="eyebrow">${phaseName()} · Hafta ${S.week}</div>
@@ -77,6 +75,7 @@ function locStad(I,tab="mac"){
      <button class="btn pri big" id="play">Maça çık</button>`;
     $("#play").onclick=()=>{closeSheet();playMatch()};
   }
+  if(tab==="idman"&&S.injury){c.innerHTML=`<div class="say" style="border-left-color:var(--bad)">Sakatken antrenman yapamazsın. Sadece fizyoterapiye girebilirsin.</div>`+actHTML({id:"fizyo",ic:icon("kryo"),t:"Fizyoterapi",d:"Yarı yarıya ihtimalle iyileşmeyi bir hafta kısaltır.",slot:1,fx:[["+10 Enerji","p"]],btn:"Seansa gir"});bindActs({fizyo:physioAct});return}
   if(tab==="idman"){
     const list=[...DRILLS[S.pos],...COMMON_DRILLS];
     c.innerHTML=`<div class="eyebrow">${POS[S.pos].n} programı</div>`+list.map(([id,n,k,g,d])=>actHTML({id,ic:icon(DRILL_IC[g]),t:n,d:`${d} ${statName(k)} şu an ${S.st[k]}.`,slot:1,fx:[["−18 Enerji","n"],[`${statName(k)} +0–5`,"p"]],btn:"Başla",disabled:S.energy<18})).join("")+
@@ -110,14 +109,16 @@ function runGame(kind,el,e,reps,title){
   if(kind==="free")return mgTiming(el,{eff:e,tries:reps+1,title,label:"At"}).then(r=>r.ok/(reps+1));
   return mgGym(el,{title}).then(r=>clamp(r.taps/40,0,1));
 }
+// antrenman kazancı: başarı oranı, mevcut nitelik ve bonuslar; denge simülasyonu da aynı fonksiyonu kullanır
+function drillGain(k,ratio){S.stf=S.stf||{};const f=BAL.train*Math.pow(ratio,2.5)*Math.pow(Math.max(0,100-S.st[k])/70,2.2)*(S.items.hoca?1.25:1)*(S.buffs.train>0?1.2:1)*(S.age<=21?1.3:S.age<=24?1.12:S.age>=34?.15:S.age>=32?.3:S.age>=30?.5:1);
+  if(S.buffs.train>0)S.buffs.train--;S.stf[k]=(S.stf[k]||0)+f;const g=Math.floor(S.stf[k]);S.stf[k]-=g;return g}
 async function runDrill([id,name,k,kind]){
   useSlot();S.energy-=18;save();arenaFor(null);
   app.innerHTML=`<div class="row between" style="padding-top:12px"><div><div class="eyebrow">Antrenman · ${esc(S.team.short)} · ${POS[S.pos].n}</div><h2>${name}</h2></div></div><div id="stg"></div><div id="res"></div>`;
   const ratio=await runGame(kind,$("#stg"),clamp(eff(k)+10,5,100),3,name);
-  const gain=Math.max(0,Math.round(ratio*4.5*(1.3-S.st[k]/100))+(S.items.hoca?1:0)+(ratio>0?1:0)+(S.buffs.train>0?1:0));
-  if(S.buffs.train>0)S.buffs.train--;
+  const gain=drillGain(k,ratio);
   S.st[k]+=gain;if(ratio>.6)S.rel.koc+=2;norm();save();
-  $("#res").innerHTML=`<div class="card" style="margin-top:12px"><div class="row between"><div><div class="eyebrow">Sonuç · başarı %${Math.round(ratio*100)}</div><h2>${gain>=4?"Mükemmel seans":gain>=2?"Verimli seans":gain>0?"İdare eder":"Bugün olmadı"}</h2></div><div class="big-num ${gain?"good":""}">+${gain}</div></div><p class="small muted">${statName(k)} şimdi ${S.st[k]}.</p><button class="btn pri" id="bk">Haritaya dön</button></div>`;
+  $("#res").innerHTML=`<div class="card" style="margin-top:12px"><div class="row between"><div><div class="eyebrow">Sonuç · başarı %${Math.round(ratio*100)}</div><h2>${gain>=4?"Mükemmel seans":gain>=2?"Verimli seans":gain>0?"İdare eder":"Bugün olmadı"}</h2></div><div class="big-num ${gain?"good":""}">+${gain}</div></div><p class="small muted">${statName(k)} şimdi ${S.st[k]}. Bir sonraki puana ilerleme: %${Math.round((S.stf[k]||0)*100)}.</p><div class="bar"><i style="width:${Math.round((S.stf[k]||0)*100)}%"></i></div><button class="btn pri" id="bk">Haritaya dön</button></div>`;
   $("#bk").onclick=renderMain;
 }
 async function runTryout(){
@@ -171,9 +172,10 @@ function locOkul(I){
     const sp=Math.max(50,Math.round(fame()*fame()*({nba:9,euro:4,t1:2}[S.stage]||1.2)));
     const b=sheet("Menajer Ofisi",`Menajerin ${S.npc.agent}`,`<div class="card"><div class="kv"><span>Sözleşme</span><b>${esc(S.team.name)}</b><span>Kalan süre</span><b>${S.contract||0} yıl</b><span>Haftalık maaş</span><b>${fmt(S.wage)}</b><span>Rol</span><b>${ROLE_N[S.role]}</b><span>Şöhret</span><b>${fame()}/100</b></div></div>`+
      (S.buffs.sponsorSeason===S.season?'<p class="small muted">Bu sezonun sponsorluk anlaşmasını zaten imzaladın.</p>':actHTML({id:"sp",ic:icon("handshake"),t:"Sponsorluk anlaşması",d:fame()<15?"Şöhretin henüz yetmiyor.":"Sezonda bir kez. Pazarlıkta ne kadar zorlarsan o kadar risk.",fx:[[`~${fmt(sp)}`,"p"]],btn:"Pazarlık",disabled:fame()<15}))+
-     actHTML({id:"pr",ic:icon("mic"),t:"Basın toplantısı",d:"Menajerin soruları önceden ayarladı.",slot:1,fx:[["+Taraftar","p"],["+Takipçi","p"]],btn:"Düzenle"}));
+     actHTML({id:"pr",ic:icon("mic"),t:"Basın toplantısı",d:"Menajerin soruları önceden ayarladı.",slot:1,fx:[["+Taraftar","p"],["+Takipçi","p"]],btn:"Düzenle"})
+     +(S.transferReq===S.season?'<p class="small warn">Transfer talebin kulübe iletildi. Sezon sonunda daha fazla teklif gelecek.</p>':actHTML({id:"tr",ic:icon("door"),t:"Transfer talebi",d:"Kulübe ayrılmak istediğini bildir. Sezon sonunda daha fazla ve daha iyi teklif gelir, ama koçun bundan hoşlanmaz.",fx:[["+1 teklif","p"],["−12 Koç","n"]],btn:"Talep et",cls:"bad"})));
     addScene(b,"ofis",fame()>40?"Telefonum susmuyor. Markalar seninle çalışmak istiyor.":"Daha çok kazan, daha çok paylaş. Sponsorlar takipçiye bakıyor.");
-    bindActs({sp:()=>negotiate(sp),pr:()=>{useSlot();const g=ri(2,6);S.rel.taraf+=g;S.followers*=1.04;norm();save();resultView("Basın toplantısı",`Sakin ve kendinden emin konuştun. ${S.npc.journalist} yazısında "olgun bir profesyonel" dedi.`,[[`+${g} Taraftar`,"p"],["+%4 Takipçi","p"]])}});
+    bindActs({tr:()=>{S.transferReq=S.season;S.buffs.offer=1;S.rel.koc-=12;norm();news(`${fullName()} kulübünden transfer talebinde bulundu.`);save();resultView("Talep iletildi",`${S.npc.agent} kulübe yazılı talebi iletti. ${S.npc.coach} antrenmanda seninle göz göze gelmedi.`,[["Sezon sonu +1 teklif","p"],["−12 Koç","n"]])},sp:()=>negotiate(sp),pr:()=>{useSlot();const g=ri(2,6);S.rel.taraf+=g;S.followers*=1.04;norm();save();resultView("Basın toplantısı",`Sakin ve kendinden emin konuştun. ${S.npc.journalist} yazısında "olgun bir profesyonel" dedi.`,[[`+${g} Taraftar`,"p"],["+%4 Takipçi","p"]])}});
   }
 }
 function negotiate(base){
