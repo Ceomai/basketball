@@ -18,7 +18,8 @@
     "test:economy": "npm run build:single && node tests/economy.js 6 economy.json",
     "build:single": "vite build --mode single",
     "analysis": "npm run build:single && node tests/analysis.js",
-    "analysis:report": "node tools/analysis-report.js"
+    "analysis:report": "node tools/analysis-report.js",
+    "test:fuzz": "npm run build:single && node tests/fuzz.js 8 45 && node tests/fuzz-state.js 24"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",

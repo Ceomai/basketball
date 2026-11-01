@@ -216,6 +216,11 @@ npm test
 - `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
 - `tests/balance.js`: kısa denge koşusu.
 
+Sağlamlık testleri (`npm run test:fuzz`; CI'da her güncellemede farklı tohumla çalışır):
+- `tests/fuzz.js`: "maymun oyuncu". Gerçek oyunda rastgele öğelere dokunur, mini oyunlarda rastgele dokunur ve kaydırır. Dil, ekran boyutu, düşük grafik ve pozisyon her koşuda değişir. Sayfa hatası, ekranda `undefined`/`NaN`/ham anahtar ve 25 sn takılma yakalanır. Aynı tohum aynı koşuyu üretir: `FUZZ_SEED=123 node tests/fuzz.js 1 90`.
+- `tests/fuzz-state.js`: uç durumlar (eksi para, 42 yaş, sakatlık, her lig, emeklilik, bozuk görev verisi…) ve bozuk/eski kayıtlarla her ekranı ve paneli iki seviye derinliğe kadar açar.
+- `node tests/analysis.js rastgele 8 out.json`: rastgele kararlarla (teklif, program, madde, erken emeklilik) tam kariyerler ve oğul kariyerleri.
+
 Ekonomi deneyi ("hepsini satın al" stratejisi, reklamsız / günlük sınırda / tam reklam): `npm run test:economy` (sonuç `economy.json`).
 
 Ayrıntılı denge raporu için profil başına 10 kariyer:

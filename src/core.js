@@ -67,6 +67,7 @@ export function norm() {
   S.followers = Math.max(0, Math.round(S.followers));
 }
 export function tx(d, a) {
+  if (!S) return; // açık kariyer yok (gecikmeli bir geri çağrı)
   a = Math.round(a);
   if (a > 0 && /prim|bonus|ödül|Sponsor|Reklam|kazanc|prize|award|sponsor|\bad\b|earning/i.test(d)) late.sfx("coin");
   S.tx.unshift({ w: `S${S.season}·H${S.week}`, d, a });

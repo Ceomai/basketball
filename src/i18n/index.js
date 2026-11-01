@@ -2,6 +2,7 @@
    t("anahtar", { ad: değer }) seçili dildeki metni döndürür; çeviri yoksa Türkçeye, o da yoksa anahtara düşer.
    Yeni dil eklemek: src/i18n/<kod>.js sözlüğü + LANGS listesi. Olay metinleri ayrıca src/content/events.<kod>.js'tedir.
    Not: Arayüz metinlerinin taşınması kademelidir; henüz taşınmamış metinler Türkçe görünür. */
+import { loadPack } from "./pack-load.js";
 import trManual from "./tr.js";
 import trAuto from "./tr.auto.js";
 // elle yazılmış anahtarlar (ekran.öğe) ve araçla çıkarılmış anahtarlar (dosya.no) birlikte.
@@ -19,7 +20,7 @@ const DICT = { tr, en };
 /** Seçili dil Türkçe değilse sözlüğünü yükle. Oyun modülleri bundan sonra yüklenir (main.js). */
 export async function loadLang() {
   if (LANG !== "en") return;
-  const m = await import("./pack.en.js");
+  const m = await loadPack();
   Object.assign(DICT.en, m.dict);
   PACKS.events = m.events;
 }

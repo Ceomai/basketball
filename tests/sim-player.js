@@ -175,6 +175,10 @@
     function pickOffer() {
       const L = window.__lastOffers || [];
       if (!L.length) return 0;
+      if (window.__SIM.random) {
+        const ok = L.map((o, i) => i).filter(i => !L[i].withdrawn);
+        return ok.length ? ok[Math.floor(Math.random() * ok.length)] : 0;
+      }
       const pro = L.map((o, i) => ({ o, i })).filter(x => isPro(x.o.stage) && !x.o.withdrawn);
       const sc = x =>
         ORDER.indexOf(x.o.stage) * 100 +
@@ -214,6 +218,13 @@
       if (done === null || g !== GEN) return;
       const again = () => setTimeout(() => pump(g), 0);
       try {
+        if (window.__SIM.random && S && !S.retired && $("#ret") && S.age >= 30 && REC.retireRoll !== S.season) {
+          REC.retireRoll = S.season;
+          if (Math.random() < 0.2) {
+            $("#ret").click();
+            return again();
+          }
+        }
         if (S && !S.retired && $("#ret") && (S.age >= 37 || !$("[data-o]"))) {
           $("#ret").click();
           return again();
@@ -329,6 +340,10 @@
         clauses: Object.keys(S.clauses || {}).join(",")
       });
       if (window.__SIM.program === "focus") S.program = FOCUS[S.pos];
+      if (window.__SIM.random) {
+        S.program = pick(["denge", "sut", "pas", "hiz", "guc", "sav", "toparlanma"]);
+        window.__SIM.clauses = Math.random() < 0.5;
+      }
     });
     Bus.on("match:moment", d => {
       if (!REC) return;

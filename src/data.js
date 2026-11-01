@@ -74,10 +74,7 @@ export const Bus = {
 // Otomatik test modu (denge simülasyonu): kayıt, ses, bildirim ve olay panelleri kapatılır
 export const SIM = () => !!window.__SIM;
 export const esc = s =>
-  String(s).replace(
-    /[&<>"']/g,
-    c => ({ "&": $t("data.139"), "<": $t("data.140"), ">": $t("data.141"), '"': $t("data.142"), "'": "&#39;" })[c]
-  );
+  String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 export const hash = s => {
   let h = 2166136261;
   for (const ch of String(s)) {

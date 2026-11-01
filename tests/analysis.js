@@ -1,6 +1,7 @@
 // Yeni özellik analizi: node tests/analysis.js <grup> <kariyer sayısı> <çıktı.json>
 //   reklam : profil (zayıf/ortalama/güçlü) × reklam kullanımı (yok/günlük/tam); emeklilik sonrası + oğul kariyeri
 //   gercekci: profil × gerçekçi reklam (yok / hızlı oyuncu / elle oyuncu, günlük sınıra göre)
+//   rastgele: sağlamlık için rastgele kararlar (teklif, program, madde, erken emeklilik), oğul kariyeri
 //   ozellik: ortalama profil × antrenman programı (dengeli/odaklı) × sözleşme maddesi (istemez/ister)
 // Sonuçlar tools/analysis-report.js ile özetlenir.
 const { chromium } = require("playwright");
@@ -26,6 +27,16 @@ else if (GROUP === "gercekci")
   for (const pr of ["weak", "avg", "strong"])
     for (const [ad, apw] of Object.entries(REAL))
       for (let i = 0; i < N; i++) jobs.push({ pr, ad, cfg: { adsPerWeek: apw, after: true }, pos: POS[i % 5] });
+else if (GROUP === "rastgele")
+  // sağlamlık: rastgele teklif, program, madde ve emeklilik; her profil, her pozisyon, emeklilik sonrası ve oğul
+  for (const pr of ["weak", "avg", "strong"])
+    for (let i = 0; i < N; i++)
+      jobs.push({
+        pr,
+        ad: "gunluk",
+        cfg: { adsPerWeek: [0, 0.5, 1.6][i % 3], random: true, after: true, heir: i % 2 === 0 },
+        pos: POS[i % 5]
+      });
 else
   for (const program of ["denge", "focus"])
     for (const clauses of [false, true])
@@ -55,7 +66,19 @@ if (process.env.LIMIT) jobs.splice(+process.env.LIMIT);
     await load();
     while (next < jobs.length) {
       const j = jobs[next++];
-      await p.evaluate(cfg => Object.assign(window.__SIM, { buyAll: false, program: "denge", clauses: false, ...cfg }), j.cfg);
+      await p.evaluate(
+        cfg =>
+          Object.assign(window.__SIM, {
+            buyAll: false,
+            program: "denge",
+            clauses: false,
+            random: false,
+            heir: false,
+            after: false,
+            ...cfg
+          }),
+        j.cfg
+      );
       const r = await Promise.race([
         p.evaluate(([a, c]) => window.__runCareer(a, c), [j.pr, j.pos]),
         new Promise(res => setTimeout(() => res({ timeout: true, seasons: [] }), 600000))
