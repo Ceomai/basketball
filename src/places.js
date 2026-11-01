@@ -5,6 +5,7 @@ import {
   $,
   $$,
   BAL,
+  Bus,
   COMMON_DRILLS,
   DRILLS,
   ORDER,
@@ -270,6 +271,7 @@ export function locEv(I, tab = "vitrin") {
               -dep
             );
           S.housing = k;
+          Bus.emit("housing", { to: k });
           news(
             $t("places.327", {
               v: fullName(),

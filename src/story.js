@@ -539,6 +539,7 @@ export function roleReview() {
   }
   if (!to) return false;
   const up = order.indexOf(to) > i;
+  Bus.emit("role:change", { from: S.role, to });
   S.role = to;
   S.moral += up ? 8 : -8;
   news(`${S.team.short}: ${fullName()} ${up ? $t("story.162") : $t("story.163")} (${ROLE_N[to]}).`);
@@ -560,11 +561,19 @@ export function roleReview() {
 }
 
 /* ================= BASIN TOPLANTISI ================= */
+// Basın toplantısı: derbi ve finalde her zaman; diğer önemli maçlarda en az 4 hafta arayla (sezonda ~3-4 kez)
 export function pressDue(win) {
   if (M.rating == null || (M.auto && !isDerby(M.opp))) return false;
-  if (isDerby(M.opp) || S.phase !== "regular") return true;
-  if (M.rating >= 8.3 || M.rating <= 4.5) return S.stage !== "lise" || coin(0.5);
-  return isPro(S.stage) && coin(0.18);
+  const now = S.season * 20 + S.week,
+    due = isDerby(M.opp) || S.phase === "final" || !S.pressLast || now - S.pressLast >= 4;
+  if (!due) return false;
+  let go = false;
+  if (isDerby(M.opp) || S.phase === "final") go = true;
+  else if (S.phase !== "regular") go = coin(0.6);
+  else if (M.rating >= 8.3 || M.rating <= 4.5) go = S.stage !== "lise" || coin(0.5);
+  else go = isPro(S.stage) && coin(0.12);
+  if (go) S.pressLast = now;
+  return go;
 }
 export function pressFollowUp(win) {
   const p = S.press;
@@ -655,6 +664,7 @@ export function pressConference(win, after) {
   $$("[data-press]").forEach(
     b =>
       (b.onclick = () => {
+        Bus.emit("press", { tone: b.dataset.press });
         const k = b.dataset.press,
           quote = A.find(a => a[0] === k)[1].replace(/"/g, "");
         let out;
@@ -740,11 +750,13 @@ export function storyTick() {
       const f = a.steps[st.step];
       st.step++;
       st.next = a.gaps && a.gaps[st.step] ? S.week + a.gaps[st.step] : 0;
+      Bus.emit("arc", { id, step: st.step });
       f(st);
       return true;
     }
     if ((!st || (a.repeat && st.season !== S.season)) && a.when() && coin(a.p)) {
       A[id] = { season: S.season, step: 1, next: a.gaps ? S.week + a.gaps[1] : 0, choice: null };
+      Bus.emit("arc", { id, step: 1 });
       a.steps[0](A[id]);
       return true;
     }

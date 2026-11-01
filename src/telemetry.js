@@ -81,6 +81,7 @@ Bus.on("minigame:end", d => {
 });
 Bus.on("season:end", d => log("season_end", { champ: !!d.champ, avg: +late.seasonAvg().toFixed(2), ovr: late.ovr() }));
 Bus.on("ad", d => log("ad", d));
+for (const ev of ["role:change", "arc", "press", "event:show", "purchase", "housing"]) Bus.on(ev, d => log(ev, d));
 Bus.on("week:start", () => log("week"));
 window.addEventListener("error", e =>
   log("error", {

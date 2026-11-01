@@ -525,8 +525,10 @@ export function afterMatchFlow(win) {
   maybeEvent(next);
 }
 // window.__TEST.noEvents: duman testinde rastgele olaylar kapatılır
+// Rastgele olay: haftaların yaklaşık üçte birinde; aynı olay 4 sezon (60 hafta) içinde tekrar çıkmaz
+export const weekIndex = () => S.season * 20 + S.week;
 export function maybeEvent(next) {
-  if (!(window.__TEST && window.__TEST.noEvents) && Math.random() < 0.6) randomEvent(next);
+  if (!(window.__TEST && window.__TEST.noEvents) && Math.random() < 0.35) randomEvent(next);
   else next();
 }
 export function endWeek() {
@@ -658,7 +660,13 @@ export function eventSheet(ev, after) {
 }
 export function randomEvent(after) {
   // olaylar veri paketlerinden gelir: src/content/events.tr.js (motor: src/content/events.js)
-  const e = pick(late.eventPool());
+  S.evSeen = S.evSeen || {};
+  const now = weekIndex(),
+    fresh = late.eventPool().filter(x => !(S.evSeen[x.title] && now - S.evSeen[x.title] < 60));
+  if (!fresh.length) return after();
+  const e = pick(fresh);
+  S.evSeen[e.title] = now;
+  Bus.emit("event:show", { title: e.title });
   eventSheet({ ...e, look: LK[e.w]() }, after);
 }
 

@@ -187,6 +187,8 @@ npm test
 - `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
 - `tests/balance.js`: kısa denge koşusu.
 
+Ekonomi deneyi ("hepsini satın al" stratejisi, reklamsız / günlük sınırda / tam reklam): `npm run test:economy` (sonuç `economy.json`).
+
 Ayrıntılı denge raporu için profil başına 10 kariyer:
 
 ```bash

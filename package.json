@@ -14,7 +14,8 @@
     "test:balance": "npm run build && node tests/balance.js 10",
     "android": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
-    "playtest:report": "node tools/playtest-report.js"
+    "playtest:report": "node tools/playtest-report.js",
+    "test:economy": "npm run build && node tests/economy.js 6 economy.json"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",
