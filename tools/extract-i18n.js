@@ -34,7 +34,20 @@ const EXCL_VARS = new Set([
 ]);
 const EXCL_FUNCS = new Set(["makeTeam", "parseClubs", "rosterNames", "mateNames", "saltOf", "cOf", "cityTheme", "makeRival"]);
 const EXCL_PROPS = new Set(["cities", "first", "last", "fem"]); // LEAGUES içindeki adlar (lig adları "t" dizisi ayrıca)
-const EXCL_WORDS = new Set(["Space", "Enter", "LRUD", "AbortError", "MMS", "Escape", "POST", "PATCH", "Bearer", "REQUIRED", "Error", "pota-kariyeri@1.0.0"]);
+const EXCL_WORDS = new Set([
+  "Space",
+  "Enter",
+  "LRUD",
+  "AbortError",
+  "MMS",
+  "Escape",
+  "POST",
+  "PATCH",
+  "Bearer",
+  "REQUIRED",
+  "Error",
+  "pota-kariyeri@1.0.0"
+]);
 const EXCL_CALLS = new Set([
   "$",
   "$$",
@@ -524,7 +537,7 @@ for (const f of FILES) {
   if (!DRY) fs.writeFileSync(file, out);
 }
 // koda zaten taşınmış anahtarlar ($t("...")) da kullanılıyor sayılır; araç tekrar çalıştırıldığında silinmez
-for (const f of FILES) for (const m of fs.readFileSync(path.join(SRC, f), "utf8").matchAll(/\$t\("([\w.]+)"/g)) used.add(m[1]);
+for (const f of FILES) for (const m of fs.readFileSync(path.join(SRC, f), "utf8").matchAll(/\$t\(\s*"([\w.]+)"/g)) used.add(m[1]);
 for (const k of Object.keys(dict)) if (!used.has(k)) delete dict[k];
 const sorted = Object.fromEntries(Object.entries(dict).sort((a, b) => a[0].localeCompare(b[0], "en", { numeric: true })));
 const body =

@@ -2,8 +2,8 @@ import { t as $t } from "./i18n/index.js";
 /* ================= BİLDİRİMLER (yalnızca uygulamada) =================
    Sunucu yok: uygulama arka plana alınırken cihazda yerel bildirim planlanır, açılınca hepsi iptal edilir.
    Kural: aynı anda en fazla bir bildirim planlı; Ayarlar'dan kapatılabilir. Öncelik sırası:
-   1. Enerji düşükse 6 saat sonra "enerjin doldu"
-   2. Görev ödülü/açık görev varsa ertesi gün 19:00'da hatırlatma
+   1. Alınmamış görev ödülü varsa 3 saat sonra
+   2. Açık görev varsa ertesi gün 19:00'da (görevler gece yarısı yenilenir)
    3. Her durumda 2 gün sonra "kariyerin seni bekliyor" */
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -23,14 +23,15 @@ async function permitted() {
     return false;
   }
 }
-/** Bir sonraki bildirimi seç (test edilebilir saf mantık) */
+/** Bir sonraki bildirimi seç (test edilebilir saf mantık).
+    Oyunda enerji gerçek zamanla dolmaz (oyun haftasıyla dolar); bu yüzden yalnızca doğru olan şeyler hatırlatılır. */
 export function nextNotification(state, now = new Date()) {
   if (!state) return null;
-  if (state.energy < 50)
+  if (state.claimable > 0)
     return {
-      at: new Date(now.getTime() + 6 * 3600e3),
+      at: new Date(now.getTime() + 3 * 3600e3),
       title: $t("notify.1"),
-      body: $t("notify.2")
+      body: $t("notify.2", { c: state.claimable })
     };
   if (state.openMissions > 0) {
     const at = new Date(now);
@@ -41,11 +42,7 @@ export function nextNotification(state, now = new Date()) {
   return {
     at: new Date(now.getTime() + 2 * 24 * 3600e3),
     title: $t("notify.5"),
-    body: state.next
-      ? $t("notify.6", {
-          next: state.next
-        })
-      : $t("notify.7")
+    body: state.next ? $t("notify.6", { next: state.next }) : $t("notify.7")
   };
 }
 async function schedule() {
@@ -57,7 +54,7 @@ async function schedule() {
   } catch (e) {
     /* takvim yok */
   }
-  const n = nextNotification({ energy: S.energy, openMissions: late.openMissions ? late.openMissions() : 0, next });
+  const n = nextNotification({ claimable: late.claimable(), openMissions: late.openMissions(), next });
   if (!n) return;
   await LocalNotifications.cancel({ notifications: [{ id: ID }] }).catch(() => {});
   await LocalNotifications.schedule({

@@ -6,7 +6,8 @@ import { t as $t } from "./i18n/index.js";
    - Perde savunması: değiş, perdenin üstünden geç, yardım iste
    - Tahrik: rakip sataşıyor; sakin kal ya da karşılık ver (teknik faul riski)
    - Son hücum: skor yakınken son saniyeler; standart seçenekler özel başlıkla gelir */
-import { pick } from "./data.js";
+import { pick, statName } from "./data.js";
+import { late } from "./late.js";
 import { S, eff } from "./core.js";
 import { autoSuccess } from "./logic/rules.js";
 import { M } from "./match.js";
@@ -19,6 +20,7 @@ export function pickSpecial(us, clutch, diff, dn) {
   // son hücum: maçın son anları, 3 sayı ya da daha az geride/eşit, top bizde
   if (us && clutch && diff <= 0 && diff >= -3)
     return {
+      id: "lastshot",
       head:
         diff === 0
           ? $t("moments.1")
@@ -32,15 +34,16 @@ export function pickSpecial(us, clutch, diff, dn) {
       keys: ["pull", "catch", "drive", "kick", "step", "mid"]
     };
   if (clutch) return null;
-  const r = Math.random();
-  if (us && r < 0.12) return fastBreak(dn);
-  if (!us && r < 0.14) return screenDefense(dn);
-  if (r < 0.05) return provocation(dn);
+  // her an türü kendi zarını atar (önceki sürümde sataşma hiç gelmiyordu: aynı sayı önce diğer koşullara takılıyordu)
+  if (Math.random() < 0.04) return provocation(dn);
+  if (us && Math.random() < 0.12) return fastBreak(dn);
+  if (!us && Math.random() < 0.14) return screenDefense(dn);
   return null;
 }
 
 function fastBreak(dn) {
   return {
+    id: "fastbreak",
     ty: "off",
     head: $t("moments.4"),
     desc: $t("moments.5", {
@@ -54,7 +57,12 @@ function fastBreak(dn) {
         d: `${$t("moments.9")} ${Math.round(eff("pas"))}`,
         e: eff("pas") + 10
       },
-      { k: "fb_wait", t: $t("moments.10"), d: $t("moments.11"), e: 75 }
+      {
+        k: "fb_wait",
+        t: $t("moments.10"),
+        d: `${$t("moments.11")} · ${statName("sut")} ${Math.round(eff("sut"))}`,
+        e: eff("sut") - 4
+      }
     ],
     resolve(k, sur) {
       if (k === "fb_finish") {
@@ -88,20 +96,16 @@ function fastBreak(dn) {
             : $t("moments.14")
         };
       }
-      return {
-        good: true,
-        w: 0.4,
-        st: "pas",
-        txt: $t("moments.15", {
-          sur: sur
-        })
-      };
+      // yavaşlamak risksiz değil: set hücumu orta mesafe şutla biter (hızlı hücumun avantajı kaybolur)
+      const r = late.autoResolve("mid", sur);
+      return { ...r, w: 0.8, txt: `${$t("moments.15", { sur: sur })} ${r.txt}` };
     }
   };
 }
 
 function screenDefense(dn) {
   return {
+    id: "screen",
     ty: "def",
     head: $t("moments.16"),
     desc: $t("moments.17", {
@@ -142,6 +146,7 @@ function screenDefense(dn) {
 
 function provocation(dn) {
   return {
+    id: "provoke",
     ty: "prov",
     head: $t("moments.29"),
     desc: $t("moments.30", {
@@ -154,10 +159,19 @@ function provocation(dn) {
     ],
     resolve(k, sur) {
       if (k === "pv_calm") {
+        if (coin(0.2))
+          return {
+            good: false,
+            w: 0.4,
+            st: "sav",
+            txt: $t("moments.42", {
+              sur: sur
+            })
+          };
         S.rel.koc += 1;
         return {
           good: true,
-          w: 0.5,
+          w: 0.4,
           st: "sav",
           txt: $t("moments.37", {
             sur: sur

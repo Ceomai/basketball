@@ -9,7 +9,9 @@
       done = null,
       stuckT = 0,
       lastSig = "",
-      GEN = 0;
+      GEN = 0,
+      negTries = 0;
+    const FOCUS = { PG: "pas", SG: "sut", SF: "sut", PF: "guc", C: "guc" };
     const pS = e => clamp(BASE + (e - 40) * 0.0075, 0.08, 0.92);
     const bin = (n, p) => {
       let k = 0;
@@ -173,7 +175,7 @@
     function pickOffer() {
       const L = window.__lastOffers || [];
       if (!L.length) return 0;
-      const pro = L.map((o, i) => ({ o, i })).filter(x => isPro(x.o.stage));
+      const pro = L.map((o, i) => ({ o, i })).filter(x => isPro(x.o.stage) && !x.o.withdrawn);
       const sc = x =>
         ORDER.indexOf(x.o.stage) * 100 +
         ({ star: 40, rot: 20, bench: -35 }[x.o.role] || 0) +
@@ -183,7 +185,7 @@
         const top = pro[0];
         if (S.stage === "lise" || S.stage === "uni") {
           if (top.o.role === "bench") {
-            const u = L.findIndex(o => o.uni || o.stay);
+            const u = L.findIndex(o => (o.uni || o.stay) && !o.withdrawn);
             if (u >= 0 && ORDER.indexOf(top.o.stage) < 4) return u;
           }
         }
@@ -226,6 +228,21 @@
           pick(ar).click();
           return again();
         }
+        if ($("#ng-x")) {
+          REC.walkAway = (REC.walkAway || 0) + 1;
+          $("#ng-x").click();
+          return again();
+        }
+        if (window.__SIM.clauses && $("#ng-ok") && negTries < 2) {
+          const want = ["release", "perf"].map(k => $(`[data-ask="${k}"]`)).find(b => b && !b.disabled);
+          if (want) {
+            negTries++;
+            REC.clauseAsk++;
+            want.click();
+            return again();
+          }
+        }
+        if (window.__simPause) return again();
         for (const s of BTN) {
           const b = $(s);
           if (b) {
@@ -244,7 +261,13 @@
             return again();
           }
           const i = pickOffer();
-          $$("[data-o]")[i].click();
+          const L = window.__lastOffers || [];
+          if (L[i]) {
+            const fee = buyoutFor(L[i]);
+            if (fee) REC.fees.push({ age: S.age, fee, wage: S.wage, from: S.stage, to: L[i].stage });
+          }
+          negTries = 0;
+          ($(`[data-o="${i}"]`) || $("[data-o]")).click();
           return again();
         }
         if ($("#gostad") && !$("#ovl").innerHTML) {
@@ -300,11 +323,25 @@
         rival: S.rival ? S.rival.stage : null,
         owned: Object.keys(S.items).length,
         housing: S.housing,
-        weeks: REC.weeks
+        weeks: REC.weeks,
+        fit: systemFit(),
+        program: S.program,
+        clauses: Object.keys(S.clauses || {}).join(",")
       });
+      if (window.__SIM.program === "focus") S.program = FOCUS[S.pos];
+    });
+    Bus.on("match:moment", d => {
+      if (!REC) return;
+      const m = (REC.moments[d.id] = REC.moments[d.id] || { n: 0, good: 0, picks: {} });
+      m.n++;
+      if (d.good) m.good++;
+      m.picks[d.k] = (m.picks[d.k] || 0) + 1;
+      REC.momentsN++;
     });
     Bus.on("match:end", d => {
       if (!REC || d.rating == null) return;
+      REC.matches++;
+      if (S.clauses && S.clauses.perf && d.rating >= 7.5) REC.perf += Math.round(S.wage * 0.15);
       if (useAd("double")) {
         const bonus = Math.round(
           (S.stage === "lise" ? 2 : S.stage === "uni" ? 6 : S.wage * 0.12) * (d.rating / 6) * (d.win ? 1.5 : 1)
@@ -330,13 +367,56 @@
         REC[key][k] = (REC[key][k] || 0) + 1;
       });
     Bus.on("career:retire", () => {
-      if (REC) {
-        REC.retired = S.age;
-        finishCareer();
-      }
+      if (!REC || REC.retired) return;
+      REC.retired = S.age;
+      if (!window.__SIM.after) return finishCareer();
+      window.__simPause = true;
+      setTimeout(afterCareer, 0);
     });
-    function finishCareer() {
-      if (!done) return;
+    // emeklilik sonrası: en yüksek puanlı son bölümü seç, istenirse oğulla devam et
+    function afterCareer() {
+      const before = legacyScore(),
+        tierB = hofTier(before)[1];
+      app.innerHTML = afterCareerHTML();
+      bindAfterCareer(() => {});
+      const eps = $$("[data-ep]").sort(
+        (a, b) => EPILOGUES.find(e => e.id === b.dataset.ep).pts - EPILOGUES.find(e => e.id === a.dataset.ep).pts
+      );
+      REC.epOptions = eps.map(e => e.dataset.ep);
+      if (eps[0]) eps[0].click();
+      REC.epilogue = S.epilogue;
+      REC.legacyBeforeEp = before;
+      REC.tierBeforeEp = tierB;
+      if (!window.__SIM.heir || REC.gen === 2) {
+        window.__simPause = false;
+        return finishCareer();
+      }
+      // oğul kariyeri
+      app.innerHTML = afterCareerHTML();
+      bindAfterCareer(() => {});
+      const parentMoney = S.money;
+      const parent = snapshot();
+      $("#heir").click();
+      const h = F.heir;
+      startCareer();
+      S.tut = 1;
+      closeSheet();
+      REC = newRec(parent.profile, F.pos);
+      REC.gen = 2;
+      REC.heir = {
+        bonus: h.bonus,
+        money: h.money,
+        parentMoney: Math.round(parentMoney),
+        tier: h.tier,
+        startOvr: ovr(),
+        startMoney: S.money
+      };
+      REC.parent = parent;
+      adCredit = 0;
+      renderMain();
+      window.__simPause = false;
+    }
+    function snapshot() {
       REC.trophies = S ? S.career.trophies.map(t => t.type) : [];
       REC.tlab = S ? S.career.trophies.map(t => t.label) : [];
       REC.caps = S ? S.career.natCaps || 0 : 0;
@@ -351,30 +431,48 @@
         items: S && Object.keys(S.items).length,
         housing: S && S.housing
       };
+      REC.missions = S && S.missions ? 1 : 0;
+      return REC;
+    }
+    function finishCareer() {
+      if (!done) return;
+      const r = snapshot();
+      const out = r.gen === 2 ? { ...r.parent, heirRec: { ...r, parent: undefined } } : r;
       const d = done;
       done = null;
-      d(REC);
+      window.__simPause = false;
+      d(out);
+    }
+    function newRec(profile, pos) {
+      return {
+        profile,
+        pos,
+        gen: 1,
+        seasons: [],
+        trainGain: 0,
+        buys: [],
+        house: [],
+        weeks: 0,
+        ads: {},
+        adMoney: 0,
+        events: {},
+        arcs: {},
+        press: {},
+        roles: {},
+        allOwned: null,
+        moments: {},
+        momentsN: 0,
+        matches: 0,
+        fees: [],
+        perf: 0,
+        clauseAsk: 0
+      };
     }
     window.__runCareer = (profile, pos) =>
       new Promise(res => {
         BASE = P[profile];
         window.__SIM.base = BASE;
-        REC = {
-          profile,
-          pos,
-          seasons: [],
-          trainGain: 0,
-          buys: [],
-          house: [],
-          weeks: 0,
-          ads: {},
-          adMoney: 0,
-          events: {},
-          arcs: {},
-          press: {},
-          roles: {},
-          allOwned: null
-        };
+        REC = newRec(profile, pos);
         adCredit = 0;
         done = res;
         stuckT = 0;
@@ -384,6 +482,7 @@
         F.slot = 1;
         startCareer();
         S.tut = 1;
+        if (window.__SIM.program === "focus") S.program = FOCUS[pos];
         closeSheet();
         renderMain();
         const g = ++GEN;
