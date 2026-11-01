@@ -611,7 +611,7 @@ export function rosterTab(c) {
 
 /* ================= SÖZLEŞME PAZARLIĞI ================= */
 export function negotiateOffer(o, done) {
-  if (!isPro(o.stage) || o.uni) {
+  if (!isPro(o.stage) || o.uni || o.noNego) {
     done(o);
     return;
   }
@@ -667,6 +667,7 @@ export function negotiateOffer(o, done) {
                 })}</div><button class="btn pri" id="ng-x">${$t("systems.76")}</button>`,
                 { noClose: true }
               );
+              o.withdrawn = true; // masadan kalkan kulüp bu yaz yeniden pazarlığa oturmaz
               $("#ng-x").onclick = () => done(null, o);
               return;
             }

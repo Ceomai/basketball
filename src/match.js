@@ -916,12 +916,28 @@ export function transition(avg, champ, head) {
   const retire = S.age >= 34 || !!S.farewell,
     force = S.age >= 38 || (S.farewell && S.season > S.farewell); // veda turu sezonu bitince emeklilik
   const show = () => {
+    // bütün kulüpler masadan kalktıysa ilk tekliflerinde (pazarlıksız) dururlar; oyuncu teklifsiz kalmaz
+    if (offers.length && offers.every(o => o.withdrawn))
+      offers.forEach(o => {
+        o.withdrawn = false;
+        o.noNego = true;
+      });
     sheet(
       title,
       $t("match.79", {
         v: seasonLabel()
       }),
-      `${head}${intro}${force ? `<div class="say">${$t("match.80")}</div><button class="btn bad" id="ret">${$t("match.81")}</button>` : `<div class="choices">${offers.map(offerHTML).join("")}</div>${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`}`,
+      `${head}${intro}${
+        force
+          ? `<div class="say">${$t("match.80")}</div><button class="btn bad" id="ret">${$t("match.81")}</button>`
+          : `<div class="choices">${offers
+              .map((o, i) =>
+                o.withdrawn
+                  ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.135")}</span></button>`
+                  : offerHTML(o, i)
+              )
+              .join("")}</div>${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
+      }`,
       { noClose: true }
     );
     $$("[data-o]").forEach(
@@ -943,7 +959,8 @@ export function buyoutFor(o) {
 export function acceptOffer(o) {
   const fee = buyoutFor(o);
   if (fee) tx($t("match.134"), -fee);
-  if (!o.stay) S.clauses = o.clauses || {};
+  // yeni kulüpte maddeler sözleşmeyle gelir; aynı kulüpte yenilemede yeni kazanılan maddeler eskilere eklenir
+  S.clauses = o.stay ? { ...(S.clauses || {}), ...(o.clauses || {}) } : o.clauses || {};
   const prevStage = S.stage,
     prevCity = S.city,
     t = o.team;
@@ -1005,7 +1022,7 @@ export function acceptOffer(o) {
   chapter(ch, renderMain);
 }
 export function retireScreen() {
-  Bus.emit("career:retire");
+  if (!S.retired) Bus.emit("career:retire"); // ekran yeniden çizilince (son bölüm seçimi, kaydı açma) tekrar tetiklenmez
   if (SIM()) return;
   closeSheet();
   const k = S.career;
@@ -1018,9 +1035,9 @@ export function retireScreen() {
    <div class="box"><div><b>${k.games}</b><span class="eyebrow">${$t("match.88")}</span></div><div><b>${k.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${k.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${k.trophies.length}</b><span class="eyebrow">${$t("match.89")}</span></div></div>
    <div class="kv"><span>${$t("match.32")}</span><b>${k.wins}</b><span>${$t("match.90")}</span><b>${fmt(k.earned)}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b><span>${$t("match.91")}</span><b>${legend}</b></div>
    <p>${
-     legend > 900
+     legend >= late.HOF[1][0]
        ? $t("match.83")
-       : legend > 350
+       : legend >= late.HOF[2][0]
          ? $t("match.84")
          : $t("match.85", {
              last: esc(S.last)

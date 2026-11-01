@@ -322,6 +322,13 @@ const check = (ok, msg) => {
     let sp = null;
     for (let i = 0; i < 400 && !(sp && sp.opts); i++) sp = Game.pickSpecial(true, false, 0, "Rakip");
     out.special = !!(sp && sp.opts && sp.opts.length >= 2 && typeof sp.resolve === "function");
+    // her özel an gerçekten çıkabiliyor (sataşma önceden hiç çıkmıyordu)
+    const ids = {};
+    for (let i = 0; i < 3000; i++) {
+      const x = Game.pickSpecial(i % 2 === 0, false, 0, "Rakip");
+      if (x) ids[x.id] = (ids[x.id] || 0) + 1;
+    }
+    out.special = out.special && ids.fastbreak > 0 && ids.screen > 0 && ids.provoke > 0;
     const last = Game.pickSpecial(true, true, -2, "Rakip");
     out.lastShot = !!(last && last.keys && last.keys.length);
     // emeklilik sonrası: son bölüm seçimi ve oğulla devam
@@ -330,9 +337,9 @@ const check = (ok, msg) => {
     out.epi = /data-ep="koc"/.test(html) && /id="heir"/.test(html);
     out.heir = Game.heirBonus(99999) === 4 && Game.heirBonus(0) === 1;
     // teknik: bildirim seçimi, Sentry adresi, durum modülü, bulut eşitleme kararı
-    const n1 = Game.nextNotification({ energy: 20 }),
-      n2 = Game.nextNotification({ energy: 90, openMissions: 2 });
-    out.notify = !!n1 && n2.at.getHours() === 19;
+    const n1 = Game.nextNotification({ claimable: 2 }),
+      n2 = Game.nextNotification({ claimable: 0, openMissions: 2 });
+    out.notify = /2/.test(n1.body) && n2.at.getHours() === 19;
     out.sentry =
       Game.envelopeURL("https://abc@o1.ingest.sentry.io/123") ===
         "https://o1.ingest.sentry.io/api/123/envelope/?sentry_key=abc&sentry_version=7" &&

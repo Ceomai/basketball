@@ -27,7 +27,9 @@ export const WEEKLY = [
   D("press", $t("missions.12"), 1, "press", () => true, "chips"),
   D("buy", $t("missions.13"), 1, "purchase", () => true, "chips")
 ];
-const today = () => new Date().toISOString().slice(0, 10);
+// yerel gün (gece yarısı yenilenir; UTC kullanılsaydı Türkiye'de 03:00'te yenilenirdi)
+const today = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 function weekKey(d = new Date()) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7;

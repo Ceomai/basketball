@@ -50,7 +50,7 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 - **Sözleşme maddeleri:** pazarlıkta serbest kalma (üst ligden teklif gelince bedelsiz ayrılma), NBA çıkışı ve performans primi (7,5+ notlu maçta haftalık ücretin %15'i) istenebilir. Sözleşme sürerken başka kulübe gitmek fesih bedeli ister.
 - **Günlük ve haftalık görevler:** gerçek takvime göre her gün 3, her hafta 3 görev. Oyunu oynayarak ilerler (maç, antrenman, mini oyun, basın, satın alma); ödül para, enerji ya da fiş.
 - **Emeklilik sonrası:** antrenörlük, televizyon yorumculuğu ya da kulüp başkanlığı ile son bölüm (miras puanı kazandırır). İstersen oğlunla aynı soyadı ve formayla yeni bir kariyere başlarsın; Şöhretler Müzesi kademene göre nitelik bonusu alır.
-- **Bildirimler (uygulamada):** uygulama kapanınca tek bir yerel bildirim planlanır (enerji doldu, görevler yenilendi ya da "kariyerin seni bekliyor"). Ayarlar'dan kapatılabilir.
+- **Bildirimler (uygulamada):** uygulama kapanınca tek bir yerel bildirim planlanır (alınmamış görev ödülü, görevler yenilendi ya da "kariyerin seni bekliyor"; oyunda enerji gerçek zamanla dolmadığı için enerji bildirimi yok). Ayarlar'dan kapatılabilir.
 - **Bulut kayıt (hazır, kapalı):** Google ile giriş ve Firebase üzerinden kayıt yedekleme. Yapılandırılınca açılır (docs/STORE.md).
 - **Mekanlar:**
   - Okul: sınıfta soru-cevap.

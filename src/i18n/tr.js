@@ -3,7 +3,7 @@ export default {
   "settings.errorReports": "Hata raporları",
   "settings.errorReportsDesc": "Oyun hatalarını anonim olarak geliştiriciye gönderir (kişisel veri yok).",
   "settings.notify": "Bildirimler",
-  "settings.notifyDesc": "Uygulamada günde en fazla bir hatırlatma: enerji, görevler, sıradaki maç.",
+  "settings.notifyDesc": "Uygulamada günde en fazla bir hatırlatma: görev ödülleri, yeni görevler, sıradaki maç.",
   "test.title": "Oyun testi",
   "test.sub": "İsteğe bağlı · anonim",
   "test.intro":

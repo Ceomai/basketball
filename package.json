@@ -16,7 +16,9 @@
     "android:open": "npx cap open android",
     "playtest:report": "node tools/playtest-report.js",
     "test:economy": "npm run build:single && node tests/economy.js 6 economy.json",
-    "build:single": "vite build --mode single"
+    "build:single": "vite build --mode single",
+    "analysis": "npm run build:single && node tests/analysis.js",
+    "analysis:report": "node tools/analysis-report.js"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",

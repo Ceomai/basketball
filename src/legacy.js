@@ -211,6 +211,7 @@ export function autoLegacy() {
 export const EPILOGUES = [
   {
     id: "koc",
+    perk: () => $t("legacy.65"),
     n: $t("legacy.53"),
     pts: 50,
     need: () => true,
@@ -221,6 +222,7 @@ export const EPILOGUES = [
   },
   {
     id: "tv",
+    perk: () => $t("legacy.66"),
     n: $t("legacy.55"),
     pts: 30,
     need: () => true,
@@ -231,6 +233,7 @@ export const EPILOGUES = [
   },
   {
     id: "baskan",
+    perk: () => $t("legacy.67"),
     n: $t("legacy.57"),
     pts: 80,
     need: () => (S.legacy && S.legacy.club) >= CLUB.majority,
@@ -251,7 +254,7 @@ export function afterCareerHTML() {
             e =>
               `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.59", {
                 pts: e.pts
-              })}</span></button>`
+              })} · ${e.perk()}</span></button>`
           )
           .join("")}</div>`
   }</div>
@@ -292,8 +295,10 @@ function startHeir() {
   F.heir = {
     parent: fullName(),
     parentFirst: S.first,
-    bonus: heirBonus(score),
-    money: Math.min(4000, Math.round(S.money * 0.05)),
+    // son bölümün oğula etkisi: antrenör baba nitelik, yorumcu baba para ve tanınırlık, başkan baba ikisi birden
+    bonus: heirBonus(score) + (S.epilogue === "koc" || S.epilogue === "baskan" ? 1 : 0),
+    money: Math.min(S.epilogue === "tv" || S.epilogue === "baskan" ? 8000 : 4000, Math.round(S.money * 0.05)),
+    fame: S.epilogue === "tv" || S.epilogue === "baskan" ? 2000 : 0,
     tier: hofTier(score)[1]
   };
   late.save();
@@ -303,6 +308,7 @@ function startHeir() {
 export function applyHeir(h) {
   for (const k in S.st) S.st[k] += h.bonus;
   S.money += h.money;
+  S.followers += h.fame || 0;
   S.npc.dad = h.parentFirst;
   S.heir = h;
   news(

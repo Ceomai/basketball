@@ -409,6 +409,7 @@ export async function playMatch(ctx) {
       sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(k, sur) : await resolvePlay(k, $("#mview"), sur, dn);
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
+    Bus.emit("match:moment", { id: (sp && sp.id) || ty, k, good: !!res.good, clutch: !!clutch, auto: !!AUTO });
     M.wsum = (M.wsum || 0) + res.w;
     if (res.good) M.wgood = (M.wgood || 0) + res.w;
     late.sfx(res.good ? "cheer" : "ooh");
