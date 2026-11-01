@@ -71,7 +71,7 @@ function statsHTML() {
   const box = (v, l) => `<div><b>${v}</b><span class="eyebrow">${l}</span></div>`;
   const avg = late.seasonAvg ? late.seasonAvg() : 0;
   const hist = (S.hist || []).slice(-6).reverse();
-  return `<div class="box">${box(g, $t("lc.games"))}${box(f1(per(s.pts || 0, g)), $t("lc.ppg"))}${box(f1(per(s.ast || 0, g)), $t("lc.apg"))}${box(f1(per(s.reb || 0, g)), $t("lc.rpg"))}</div>
+  return `${late.traitsHTML()}<div class="box">${box(g, $t("lc.games"))}${box(f1(per(s.pts || 0, g)), $t("lc.ppg"))}${box(f1(per(s.ast || 0, g)), $t("lc.apg"))}${box(f1(per(s.reb || 0, g)), $t("lc.rpg"))}</div>
    <div class="kv"><span>${$t("lc.mpg")}</span><b>${f1(per(s.min || 0, g))}</b><span>${$t("lc.avgRating")}</span><b>${avg ? f1(avg) : "-"}</b><span>${$t("lc.dnpCount")}</span><b>${s.dnp || 0}</b><span>${$t("lc.career")}</span><b>${S.career.games} · ${S.career.pts} ${$t("lc.ptsShort")}</b></div>
    ${
      hist.length

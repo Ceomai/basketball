@@ -277,7 +277,7 @@ export function seasonAwards(avg, champ) {
     g = Math.max(1, s.g),
     ln = lgName();
   const kinds = seasonAwardKinds({
-    games: s.g,
+    games: s.g * late.modeGamesMul(),
     avg,
     ppg: s.pts / g,
     apg: s.ast / g,
@@ -414,7 +414,9 @@ export function injuryRisk() {
   });
 }
 export function rollInjury() {
-  if (S.injury || Math.random() >= injuryRisk()) return null;
+  const re = late.reinjury(); // konservatif tedavi sonrası tekrar (src/dilemmas.js)
+  if (re) return re;
+  if (S.injury || Math.random() >= injuryRisk() * late.modeInjuryMul()) return null;
   let r = Math.random(),
     pick2 = INJ[0];
   for (const x of INJ) {

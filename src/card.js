@@ -102,6 +102,16 @@ export async function careerCardCanvas() {
   c.font = `600 34px ${BODY}`;
   c.fillStyle = "rgba(255,255,255,.85)";
   c.fillText(`${(POS[S.pos] || {}).n || S.pos} · #${S.num} · ${$t("card.seasons", { n: st.seasons })}`, 70, 400);
+  // oyun kimliği: özellikler ve mod
+  const ids = [
+    ...(late.traitNames ? late.traitNames() : []),
+    ...(S.mode && S.mode !== "normal" && late.modeName ? [late.modeName(S.mode)] : [])
+  ];
+  if (ids.length) {
+    c.fillStyle = "#d8b25a";
+    fit(c, up(ids.join(" · ")), 560, 30, DISP);
+    c.fillText(up(ids.join(" · ")), 70, 450);
+  }
   // Şöhretler Müzesi
   c.fillStyle = "#d8b25a";
   c.font = `700 52px ${DISP}`;

@@ -545,7 +545,7 @@ export function roleReview() {
   // koçun kişiliği ve takım arkadaşlarıyla ilişkiler (src/chars.js) güvenin hesabını değiştirir
   const tm = late.trustMods(),
     rec = last.reduce((a, r) => a + r.rating, 0) / last.length,
-    trust = S.rel.koc + tm.base + (rec - 6.5) * tm.recW + dominance() * 1.2 + late.systemFit() * tm.fitW;
+    trust = S.rel.koc + tm.base + late.traitTrust() + (rec - 6.5) * tm.recW + dominance() * 1.2 + late.systemFit() * tm.fitW;
   const order = ["bench", "rot", "star"],
     i = order.indexOf(S.role);
   let to = null,

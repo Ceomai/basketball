@@ -58,8 +58,8 @@ export function legacyBreakdown() {
   // istatistik ağırlığı düşük, başarılar (kupa, MVP, All-Star, milli takım, üst lig) belirleyici
   const top = S.hist.filter(h => /EuroLeague|NBA/.test(h.league)).length;
   const parts = [
-    [$t("legacy.20"), Math.round(k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25)],
-    [$t("legacy.21"), Math.round(k.wins * 0.6)],
+    [$t("legacy.20"), Math.round((k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25) * late.modeLegacy().stat)],
+    [$t("legacy.21"), Math.round(k.wins * 0.6 * late.modeLegacy().stat)],
     [$t("legacy.22"), k.trophies.length * 30 + k.mvps * 60 + (k.allStars || 0) * 50],
     [$t("legacy.23"), top * 40],
     [$t("legacy.24"), (k.natCaps || 0) * 3 + (S.natCaptain ? 80 : 0)],
@@ -69,6 +69,9 @@ export function legacyBreakdown() {
     [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
     [$t("legacy.52"), S.epiloguePts || 0]
   ];
+  const sum = parts.reduce((a, p) => a + p[1], 0),
+    mul = late.modeLegacy().total;
+  if (mul > 1) parts.push([$t("mode.legacyPart"), Math.round(sum * (mul - 1))]);
   return { parts, total: parts.reduce((a, p) => a + p[1], 0) };
 }
 export const legacyScore = () => legacyBreakdown().total;
@@ -295,6 +298,7 @@ function startHeir() {
   F.look = { ...S.look };
   F.num = S.num;
   F.slot = slot;
+  F.mode = S.mode || "normal";
   F.heir = {
     parent: fullName(),
     parentFirst: S.first,

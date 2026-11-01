@@ -52,6 +52,11 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 - **Sözleşme maddeleri:** pazarlıkta serbest kalma (üst ligden teklif gelince bedelsiz ayrılma), NBA çıkışı ve performans primi (7,5+ notlu maçta haftalık ücretin %15'i) istenebilir. Sözleşme sürerken başka kulübe gitmek fesih bedeli ister.
 - **Günlük ve haftalık görevler:** gerçek takvime göre her gün 3, her hafta 3 görev. Oyunu oynayarak ilerler (maç, antrenman, mini oyun, basın, satın alma); ödül para, enerji ya da fiş.
 - **Emeklilik sonrası:** antrenörlük, televizyon yorumculuğu ya da kulüp başkanlığı ile son bölüm (miras puanı kazandırır). İstersen oğlunla aynı soyadı ve formayla yeni bir kariyere başlarsın; Şöhretler Müzesi kademene göre nitelik bonusu alır.
+- **Oyun kimliği:** oynayışına göre en fazla üç özellik kazanırsın: Clutch (son hücumda "Topu bana verin"), Şutör, Oyun kurucu, Savunma canavarı, Lider. Özellikler karar anlarındaki seçenekleri güçlendirir.
+- **İmza hareket:** profesyonelde 150 sayıdan sonra pozisyonuna göre bir hareket seçersin (step-back üçlük, euro step, hook, bakmadan pas, arkadan blok). Maçta bir kez çıkar; olursa tribün coşar.
+- **Kariyer albümü:** önemli anlar (ilk maç, ilk profesyonel/NBA maçı, 30 sayı, ilk beş, şampiyonluk, MVP, özellikler, oğlunun ilk maçı, emeklilik) kendiliğinden albüme düşer. Ev → Kariyer ve emeklilik ekranından gezilir.
+- **Zor kararlar:** ağrı kesiciyle playoff, ameliyat ya da konservatif tedavi, ailenin dükkânı, bahis sitesi sponsorluğu, kaptanlık. Her seçeneğin bir bedeli var.
+- **Kariyer modları:** Normal (14 maç), Hızlı kariyer (7 maçlık sezonlar, yaklaşık yarı süre; gelişim buna göre ayarlı), Efsane modu (daha zor, miras puanı %25 fazla). Oluşturma ekranında seçilir, oğul kariyeri babanın modunu sürdürür.
 - **Maç koşulları:** rakip alan savunması ya da adam adama oynar (çeyrek aralarında değişebilir). Alan savunmasında dış şut ve pas, adam adamada içeri oyun daha etkili. Sahada kesintisiz kaldıkça yorgunluk artar ve atletik seçenekler zorlaşır; kenarda ve arada dinlenilir. Karar anında rozet olarak görünür, başarı şansına yansır.
 - **Sezon hedefleri:** her sezon başında koç, menajer ve (okuldayken) ailenden 2-3 hedef. Lig merkezi → Hedefler'de ilerleme; sezon sonunda tutan hedef koçun güvenini, teklifleri ve aile ilişkisini artırır, hepsi tutarsa prim.
 - **Kademeli açılış:** ilk sezon sade (antrenman ve maç). Antrenman programı ve koçun sistemi profesyonel ligde, görevler ikinci sezonda, miras 28 yaşında açılır; açılınca kısa bir panel çıkar.
@@ -179,6 +184,10 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 | `src/goals.js` | Sezon hedefleri |
 | `src/unlock.js` | Kademeli açılış |
 | `src/chars.js` | Takım arkadaşı ve koç kişilikleri |
+| `src/traits.js` | Oyun kimliği özellikleri ve imza hareket |
+| `src/album.js` | Kariyer albümü |
+| `src/dilemmas.js` | Bedeli olan kararlar |
+| `src/modes.js` | Kariyer modları |
 | `src/moments.js` | Özel maç anları |
 | `src/coach.js` | Antrenman programı ve koç sistemi |
 | `src/missions.js` | Günlük ve haftalık görevler |

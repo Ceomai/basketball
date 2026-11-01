@@ -415,7 +415,7 @@ export function slotSummary(s) {
   })} ${
     s.retired
       ? `${$t("save.18")}${s.epilogue && late.EPILOGUES ? ` · ${esc((late.EPILOGUES.find(e => e.id === s.epilogue) || {}).n || "")}` : ""}`
-      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}${s.heir ? ` · ${$t("slots.father", { v: esc(s.heir.parent) })}` : ""}`
+      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}${s.heir ? ` · ${$t("slots.father", { v: esc(s.heir.parent) })}` : ""}${s.mode && s.mode !== "normal" && late.modeName ? ` · ${late.modeName(s.mode)}` : ""}`
   }`;
 }
 export function renderSlots() {
