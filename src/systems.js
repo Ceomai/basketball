@@ -746,6 +746,7 @@ export const TOUR = [
 ];
 export function startTour(step = 0) {
   $$(".tour").forEach(x => x.remove());
+  if (!S) return; // tur sürerken kariyerden çıkıldı (kayıt ekranı)
   if (step >= TOUR.length) {
     S.tut = 1;
     save();
@@ -759,13 +760,14 @@ export function startTour(step = 0) {
   }
   el.scrollIntoView({ block: "center" });
   setTimeout(() => {
+    if (!S || !document.contains(el)) return; // bu arada ekran değişti
     const r = el.getBoundingClientRect(),
       pad = 6;
     const ring = document.createElement("div");
     ring.className = "tour";
     ring.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border-radius:14px;box-shadow:0 0 0 2px var(--gold),0 0 0 9999px rgba(3,6,12,.72);z-index:45;pointer-events:none`;
     const card = document.createElement("div");
-    card.className = $t("systems.111");
+    card.className = "tour card";
     const below = r.bottom < innerHeight * 0.55;
     card.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);${below ? `top:${Math.min(innerHeight - 200, r.bottom + 14)}px` : `bottom:${Math.min(innerHeight - 200, innerHeight - r.top + 14)}px`};width:min(420px,calc(100% - 32px));z-index:46;border-color:var(--gold)`;
     card.innerHTML = `<div class="eyebrow">${$t("systems.114", {

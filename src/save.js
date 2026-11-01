@@ -28,6 +28,24 @@ export function upgradeSave(s, from) {
   return s;
 }
 export function normalizeState(s) {
+  // Bozuk ya da eksik alanları onar (depolama hatası, yarım yazılmış kayıt, eski sürüm): oyun hiçbir kayıtta çökmemeli
+  for (const k of ["hist", "tx", "news", "arcQ", "results"]) if (!Array.isArray(s[k])) s[k] = [];
+  for (const k of ["items", "teams", "arcs", "chapters", "clauses", "evSeen", "npc", "rel"])
+    if (!s[k] || typeof s[k] !== "object" || Array.isArray(s[k])) s[k] = {};
+  for (const [k, v] of [
+    ["money", 30],
+    ["energy", 85],
+    ["moral", 65],
+    ["followers", 140],
+    ["aka", 55],
+    ["wage", 2],
+    ["contract", 0]
+  ])
+    if (typeof s[k] !== "number" || !isFinite(s[k])) s[k] = v;
+  for (const k of ["sut", "pas", "hiz", "guc", "sav"]) if (typeof s.st[k] !== "number" || !isFinite(s.st[k])) s.st[k] = 20;
+  if (s.missions && (typeof s.missions !== "object" || !Array.isArray(s.missions.daily) || !Array.isArray(s.missions.weekly)))
+    s.missions = null;
+  if (s.legacy && (typeof s.legacy !== "object" || typeof s.legacy.found !== "object" || !s.legacy.found)) s.legacy = null;
   s.buffs = s.buffs || { train: 0, motive: 0, offer: 0 };
   s.rec = s.rec || { arcade: 0, reflex: 0 };
   s.news = s.news || [];
@@ -35,6 +53,7 @@ export function normalizeState(s) {
   s.arcs = s.arcs || {};
   s.arcQ = s.arcQ || [];
   s.career = s.career || { games: 0, pts: 0, ast: 0, reb: 0, blk: 0, wins: 0, trophies: [], mvps: 0, earned: 0 };
+  if (!Array.isArray(s.career.trophies)) s.career.trophies = [];
   if (s.team && s.team.key === "lise|İstanbul|0") {
     s.team.name = MY_LISE;
     s.team.short = "MMS";

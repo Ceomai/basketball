@@ -186,6 +186,8 @@ export async function playMatch(ctx) {
   };
   let end = TOTAL;
   while (t < end) {
+    // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
+    if (!AUTO && !$("#mstat")) return;
     const dur = ri(12, 22);
     t = Math.min(end, t + dur);
     setClock();

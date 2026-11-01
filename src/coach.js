@@ -18,7 +18,7 @@ export const PROGRAMS = [
   ["sav", $t("data.34"), $t("coach.10")],
   ["toparlanma", $t("coach.11"), $t("coach.12")]
 ];
-export const program = () => (S && S.program) || "denge";
+export const program = () => (S && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
 /** Antrenman kazancı çarpanı */
 export function programMul(stat) {
   const pg = program();

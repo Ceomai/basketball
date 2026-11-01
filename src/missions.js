@@ -44,12 +44,17 @@ const fresh = (list, n) =>
 /** Görev durumunu güncelle (gün/hafta değiştiyse yenile) */
 export function missions() {
   if (!S) return null;
-  const M = (S.missions = S.missions || {});
+  const M = (S.missions = S.missions && typeof S.missions === "object" ? S.missions : {});
+  // bozuk ya da eski sürümden kalan görevler (silinmiş görev türü) yenilenir
+  if (!Array.isArray(M.daily) || M.daily.some(m => !m || !def(m.id))) M.day = null;
+  if (!Array.isArray(M.weekly) || M.weekly.some(m => !m || !def(m.id))) M.week = null;
   if (M.day !== today()) Object.assign(M, { day: today(), daily: fresh(DAILY, 3), bonus: false });
   if (M.week !== weekKey()) Object.assign(M, { week: weekKey(), weekly: fresh(WEEKLY, 3) });
   return M;
 }
-const def = id => DAILY.find(d => d.id === id) || WEEKLY.find(d => d.id === id);
+function def(id) {
+  return DAILY.find(d => d.id === id) || WEEKLY.find(d => d.id === id);
+}
 function progress(ev, data) {
   const M = missions();
   if (!M || window.__SIM) return;

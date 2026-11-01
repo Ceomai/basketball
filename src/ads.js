@@ -76,25 +76,23 @@ export function adStat(place, k) {
 /* ---- Rıza (KVKK/GDPR): ilk reklamdan önce bir kez sorulur ---- */
 export function adsConsent() {
   if (ADS.consent !== null || window.__SIM) return Promise.resolve();
+  // Ayrı katmanda sorulur: sheet() kullanılsaydı o an açık olan paneli (maç sonucu, enerji, sakatlık) silerdi ve
+  // izin verildikten sonra oyuncu devam düğmesi olmayan bir ekranda kalırdı.
   return new Promise(r => {
-    sheet(
-      $t("ads.1"),
-      $t("ads.2"),
-      `<p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div>`,
-      { noClose: true }
-    );
-    $("#ac-no").onclick = () => {
-      ADS.consent = false;
+    const el = document.createElement("div");
+    el.id = "acov";
+    el.className = "sheet-bg";
+    el.style.zIndex = "55";
+    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div style="min-width:0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
+    document.body.appendChild(el);
+    const done = v => {
+      ADS.consent = v;
       adsSave();
-      closeSheet();
+      el.remove();
       r();
     };
-    $("#ac-yes").onclick = () => {
-      ADS.consent = true;
-      adsSave();
-      closeSheet();
-      r();
-    };
+    el.querySelector("#ac-no").onclick = () => done(false);
+    el.querySelector("#ac-yes").onclick = () => done(true);
   });
 }
 
@@ -250,7 +248,10 @@ export function bindAdDouble(bonus) {
   if (!b) return;
   b.onclick = async () => {
     b.disabled = true;
-    if (await showRewarded("double_bonus")) {
+    const ok = await showRewarded("double_bonus");
+    // reklam sürerken kariyerden çıkıldıysa ya da ekran değiştiyse ödül yazılmaz (kapalı kariyere yazmak çöküyordu)
+    if (!S || !document.body.contains(b)) return;
+    if (ok) {
       tx($t("ads.51"), bonus);
       save();
       b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.29", {
@@ -277,7 +278,10 @@ export function bindAdEnergy(after) {
   if (!b) return;
   b.onclick = async () => {
     b.disabled = true;
-    if (await showRewarded("energy")) {
+    const ok = await showRewarded("energy");
+    // reklam sürerken kariyerden çıkıldıysa ya da ekran değiştiyse ödül yazılmaz (kapalı kariyere yazmak çöküyordu)
+    if (!S || !document.body.contains(b)) return;
+    if (ok) {
       S.adEnergyN++;
       S.energy += 30;
       norm();
@@ -295,7 +299,10 @@ export function bindAdHeal(after) {
   if (!b) return;
   b.onclick = async () => {
     b.disabled = true;
-    if (await showRewarded("heal")) {
+    const ok = await showRewarded("heal");
+    // reklam sürerken kariyerden çıkıldıysa ya da ekran değiştiyse ödül yazılmaz (kapalı kariyere yazmak çöküyordu)
+    if (!S || !document.body.contains(b)) return;
+    if (ok) {
       S.injury.w--;
       S.injury.adHealed = true;
       save();
@@ -312,7 +319,10 @@ export function bindAdHalf() {
   if (!b) return;
   b.onclick = async () => {
     b.disabled = true;
-    if (await showRewarded("halftime")) {
+    const ok = await showRewarded("halftime");
+    // reklam sürerken kariyerden çıkıldıysa ya da ekran değiştiyse ödül yazılmaz (kapalı kariyere yazmak çöküyordu)
+    if (!S || !document.body.contains(b)) return;
+    if (ok) {
       M.adHalf = true;
       S.energy += 10;
       S.moral += 4;

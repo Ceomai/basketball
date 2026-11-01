@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
 // İki derleme biçimi:
 // - Varsayılan (npm run build → dist/): GitHub Pages ve Android uygulaması için. Kod parçalara bölünür;
 //   İngilizce dil paketi ayrı dosyadır ve yalnızca İngilizce seçiliyse indirilir.
@@ -8,6 +9,16 @@ export default defineConfig(({ mode }) => {
   const single = mode === "single";
   return {
     base: "./",
+    resolve: single
+      ? {
+          alias: [
+            {
+              find: /^\.\/pack-load\.js$/,
+              replacement: fileURLToPath(new URL("./src/i18n/pack-load.single.js", import.meta.url))
+            }
+          ]
+        }
+      : {},
     build: {
       target: "es2022",
       modulePreload: false,
@@ -25,7 +36,11 @@ export default defineConfig(({ mode }) => {
                 if (chunk.type !== "chunk" || !name.endsWith(".js")) continue;
                 html.source = html.source
                   .replace(new RegExp(`<script[^>]*src="[^"]*${name.replace(/[.]/g, "\\.")}"[^>]*></script>\\s*`), "")
-                  .replace("</body>", () => `<script type="module">\n${chunk.code.replace(/__VITE_PRELOAD__/g, "void 0").replace(/<\/script/gi, "<\\/script")}</script>\n</body>`);
+                  .replace(
+                    "</body>",
+                    () =>
+                      `<script type="module">\n${chunk.code.replace(/__VITE_PRELOAD__/g, "void 0").replace(/<\/script/gi, "<\\/script")}</script>\n</body>`
+                  );
                 delete bundle[name];
               }
             }
