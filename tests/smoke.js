@@ -386,6 +386,26 @@ const check = (ok, msg) => {
     Game.applyA11y();
     return out;
   });
+  // 7f) lig merkezi: puan durumu, fikstür, istatistik, krallıklar; gündemde skor yok
+  const lc = await p.evaluate(() => {
+    Game.setS(Game.loadSlot(1).S);
+    const out = {};
+    for (const t of ["tablo", "fikstur", "istat", "kral"]) {
+      Game.leagueSheet(t);
+      out[t] = document.querySelector("#ovl").innerText.length > 40;
+    }
+    Game.closeSheet();
+    const L = Game.leaders();
+    out.leaders = L.ppg.length >= 3 && L.ppg.every(x => x.v < 22) === !L.ppg.some(x => x.me && x.v >= 22);
+    Game.renderMain();
+    out.btn = !!document.querySelector("#lgc");
+    out.noScore = !Game.S.news.some(n => /\d+-\d+\./.test(n.t) && /not|rating/i.test(n.t));
+    return out;
+  });
+  check(
+    lc.tablo && lc.fikstur && lc.istat && lc.kral && lc.leaders && lc.btn,
+    "lig merkezi: puan durumu, fikstür, istatistik ve krallıklar"
+  );
   check(nf.big && nf.invite, "önemli maç (derbi) tanınıyor ve hızlı haftada kendin oynama öne çıkıyor");
   check(nf.card && nf.cardSheet, "paylaşılabilir kariyer kartı çiziliyor ve önizleme paneli açılıyor");
   check(nf.diff && nf.a11y, "mini oyun zorluğu, yazı boyutu ve renk körlüğü modu çalışıyor");

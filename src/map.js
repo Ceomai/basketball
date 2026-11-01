@@ -227,7 +227,7 @@ export function mapSVG(P) {
     wallC = lit ? shade(sty.wall, -70) : sty.wall;
   const silh = lit ? "#0f1730" : shade(sty.roof, -10);
   const tc = P.team || { c1: "#c8102e", c2: "#fff", short: "???" };
-  let g = `<svg viewBox="0 0 400 670" role="img" aria-label="${esc(P.city)} haritası" xmlns="http://www.w3.org/2000/svg">
+  let g = `<svg viewBox="0 0 400 670" preserveAspectRatio="xMidYMax slice" role="img" aria-label="${esc(P.city)} haritası" xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient>
   <radialGradient id="glow"><stop offset="0" stop-color="#fff2c4" stop-opacity=".9"/><stop offset="1" stop-color="#fff2c4" stop-opacity="0"/></radialGradient></defs>
   <rect width="400" height="160" fill="url(#sky)"/>`;

@@ -522,7 +522,7 @@ export function locStad(I, tab = "mac") {
         return `<tr class="${t.key === S.team.key ? "me" : ""}"><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${r.pf - r.pa > 0 ? "+" : ""}${r.pf - r.pa}</td></tr>`;
       })
       .join("")}</table></div><p class="small muted">${$t("places.90", {
-      v: S.stage === "lise" ? "turnuvaya" : "playoffa"
+      v: S.stage === "lise" ? $t("lc.toTour") : $t("lc.toPlayoff")
     })}</p></div>`;
   }
   if (tab === "secme") {

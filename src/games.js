@@ -1108,10 +1108,18 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
       if (st.ph === "push") {
         st.pos = Math.max(0, st.pos - dt * 0.16 * (1 + lvl() * 0.12));
         if (st.t > 2.6) {
-          st.ph = "aim";
+          // itme bitti: 1 sn hazırlık (bu sürede dokunuş yok sayılır; yoksa "İt"e basan parmak hemen şut atıyordu)
+          st.ph = "ready";
           st.t = 0;
-          $("#pb").textContent = $t("games.32");
+          $("#pb").textContent = $t("games.ready");
+          $("#pb").style.opacity = ".55";
         }
+      }
+      if (st.ph === "ready" && st.t > 1) {
+        st.ph = "aim";
+        st.t = 0;
+        $("#pb").textContent = $t("games.32");
+        $("#pb").style.opacity = "";
       }
       if (st.ph === "aim") st.nv = 0.5 + 0.5 * Math.sin(st.t * (2.6 + lvl() * 0.3));
       if (st.ph === "fly" || st.ph === "done") {
@@ -1133,10 +1141,10 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         ...me(),
         flip: true,
         dribble: st.ph === "push",
-        armsUp: st.ph === "aim",
+        armsUp: st.ph === "aim" || st.ph === "ready",
         mood: st.ph === "done" ? (st.ok ? "mutlu" : "uzgun") : "kizgin"
       });
-      if (st.ph === "push" || st.ph === "aim")
+      if (st.ph === "push" || st.ph === "aim" || st.ph === "ready")
         drawBall(
           c,
           st.ph === "push" ? px - 30 : px + 6,
@@ -1155,6 +1163,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         c.textAlign = "right";
         c.fillText(`${Math.max(0, 2.6 - st.t).toFixed(1)} SN`, W - 14, 104);
       }
+      if (st.ph === "ready") bigText(c, $t("games.ready"), 160, "#fff");
       if (st.ph === "aim") {
         const zw = 0.06 + eff * 0.0012 + st.pos * 0.1;
         rr(c, 30, 70, 300, 20, 10, "#141d2e", false);
