@@ -62,7 +62,7 @@ import { chemAvg, dominance, rated, seasonAvg, seasonAvgOf, simWithoutMe } from 
 
 /* ---- Otomatik çözüm: mini oyun oynanmadan niteliklere göre sonuç ----
    Ortalama bir oyuncudan biraz düşük isabet verir; maçı kendin oynamak daha iyi not getirir. */
-export const autoP = e => autoSuccess(e, (window.__SIM && window.__SIM.base) || 0.46);
+export const autoP = e => autoSuccess(e + ((M && M.mmod) || 0), (window.__SIM && window.__SIM.base) || 0.46);
 export const coin = p => Math.random() < p;
 export function autoChoose(opts) {
   return opts.map(o => ({ k: o.k, v: (o.k === "safe" ? o.e - 10 : o.e) + rnd(0, 10) })).sort((a, b) => b.v - a.v)[0].k;
@@ -542,8 +542,10 @@ export function roleReview() {
   if (!isPro(S.stage) || S.phase !== "regular" || ![5, 9, 13].includes(S.week)) return false;
   const last = rated().slice(-4);
   if (last.length < 3) return false;
-  const rec = last.reduce((a, r) => a + r.rating, 0) / last.length,
-    trust = S.rel.koc + (rec - 6.5) * 14 + dominance() * 1.2 + late.systemFit() * 1.5;
+  // koçun kişiliği ve takım arkadaşlarıyla ilişkiler (src/chars.js) güvenin hesabını değiştirir
+  const tm = late.trustMods(),
+    rec = last.reduce((a, r) => a + r.rating, 0) / last.length,
+    trust = S.rel.koc + tm.base + (rec - 6.5) * tm.recW + dominance() * 1.2 + late.systemFit() * tm.fitW;
   const order = ["bench", "rot", "star"],
     i = order.indexOf(S.role);
   let to = null,

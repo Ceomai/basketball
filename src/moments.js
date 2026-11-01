@@ -12,10 +12,45 @@ import { S, eff } from "./core.js";
 import { autoSuccess } from "./logic/rules.js";
 import { M } from "./match.js";
 
-const p = (e, base = 0.5) => autoSuccess(e, base);
+const p = (e, base = 0.5) => autoSuccess(e + (M.mmod || 0), base);
 const coin = x => Math.random() < x;
 
 /** Bu an özel bir an mı? Değilse null döner. */
+/* ---- Maç koşulları: rakibin savunma tipi ve yorgunluk ----
+   Alan savunması dış şutu ve topu döndürmeyi ödüllendirir, boyalı alanı kapatır; adam adama tersine.
+   Yorgunluk sahada kesintisiz kalınan süre ve enerjiyle artar; atletik seçenekleri (penetrasyon, smaç, hızlı hücum,
+   top çalma, blok) en çok etkiler. Etki hem ekranda gösterilen başarı şansına hem sonuca yansır, böylece maçın
+   durumuna göre en iyi seçenek değişir (sabit "doğru düğme" kalmaz). */
+const OUT = ["pull", "catch", "wing", "step", "pop", "mid"],
+  PASS = ["kick", "lob", "pnr", "fb_pass"],
+  IN = ["drive", "dunk", "post", "hook", "putback", "break", "fb_finish"],
+  ATH = ["drive", "dunk", "break", "putback", "fb_finish", "steal", "block", "rim", "charge", "sc_over"];
+/** Yorgunluk 0..1 */
+export function fatigue() {
+  if (!M || !S) return 0;
+  const stint = (M.stint || 0) / 60;
+  return Math.max(0, Math.min(1, ((stint - 5) / 12) * 0.65 + Math.max(0, (55 - S.energy) / 55) * 0.35));
+}
+/** Seçeneğin başarı değerine eklenecek koşul etkisi */
+export function momentMod(k) {
+  if (!M) return 0;
+  let m = 0;
+  if (M.dz === "zone") m += OUT.includes(k) ? 6 : PASS.includes(k) ? 5 : IN.includes(k) ? -7 : 0;
+  else if (M.dz === "man") m += IN.includes(k) ? 6 : OUT.includes(k) ? -4 : PASS.includes(k) ? -2 : 0;
+  const f = fatigue();
+  if (ATH.includes(k)) m -= Math.round(f * 14);
+  else if (OUT.includes(k)) m -= Math.round(f * 6);
+  return m;
+}
+/** Karar anı başlığındaki bilgi rozetleri */
+export function conditionsHTML(us) {
+  const f = Math.round(fatigue() * 100);
+  const dz = us && M.dz ? `<span class="pill">${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}</span>` : "";
+  const ft = f >= 15 ? `<span class="pill ${f >= 50 ? "l" : ""}">${$t("cond.tired", { v: f })}</span>` : "";
+  return dz || ft ? `<div class="row" style="gap:6px;flex-wrap:wrap">${dz}${ft}</div>` : "";
+}
+export const conditionsHint = () => (M.dz === "zone" ? $t("cond.zoneHint") : $t("cond.manHint"));
+
 export function pickSpecial(us, clutch, diff, dn) {
   // son hücum: maçın son anları, 3 sayı ya da daha az geride/eşit, top bizde
   if (us && clutch && diff <= 0 && diff >= -3)

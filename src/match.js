@@ -707,6 +707,7 @@ export function seasonEnd(playoff, champ, final) {
     });
   }
   awards.push(...late.seasonAwards(avg, champ));
+  late.evalGoals(!!playoff); // sezon hedefleri: teklifler oluşmadan önce (menajer hedefi teklifleri etkiler)
   S.hist.push({
     label,
     team: S.team.name,
@@ -763,7 +764,7 @@ export function seasonEnd(playoff, champ, final) {
   })}</div><h2>${$t("match.54", {
     w: w,
     v: res.length - w
-  })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.rivalCard(avg)}`;
+  })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}${late.rivalCard(avg)}`;
   late.summerTournament(avg, () => transition(avg, champ, head));
 }
 export function potential(avg, champ) {

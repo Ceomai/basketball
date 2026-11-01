@@ -82,7 +82,12 @@ export async function playMatch(ctx) {
     ourStr = S.team.str + (ovr() - TD() - 45) / 220 + fit * 0.002,
     ppp = SC[S.stage] / 70 / 2.25;
   const big = ctx.comp === "nat" || ctx.onEnd ? null : late.bigMatch();
+  // rakibin savunma tipi (maça göre; çeyrek aralarında değişebilir) ve sahada kesintisiz süre (yorgunluk)
+  const dz = ctx.comp === "nat" || Math.random() < 0.5 ? "man" : "zone";
   setM({
+    dz,
+    stint: 0,
+    mmod: 0,
     big,
     opp,
     home: ctx.home,
@@ -199,6 +204,11 @@ export async function playMatch(ctx) {
       M.qs.push([M.us, M.them]);
       await quarterBreak(lastQ, on);
       lastQ = q;
+      M.stint *= 0.4; // ara dinlendirir
+      if (Math.random() < 0.3) {
+        M.dz = M.dz === "zone" ? "man" : "zone";
+        addFeed(`<b>${$t("cond.switch")}</b> ${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}`);
+      }
     }
     // rotasyon
     const minute = t / 60,
@@ -245,7 +255,10 @@ export async function playMatch(ctx) {
       }
       statLine();
     }
-    if (on) M.mins += dur;
+    if (on) {
+      M.mins += dur;
+      M.stint += dur;
+    } else M.stint = Math.max(0, M.stint - dur * 2);
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
     const involve = 0.08 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0);
@@ -386,6 +399,8 @@ export async function playMatch(ctx) {
       desc = $t("engine.48");
       opts = [{ k: "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }];
     }
+    // maç koşulları (savunma tipi, yorgunluk) seçeneklerin başarı değerine eklenir
+    opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));
     if (!AUTO)
       $("#mview").innerHTML =
         `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
@@ -394,7 +409,7 @@ export async function playMatch(ctx) {
             q: M.q,
             clock: M.clock
           }
-        )}${clutch ? $t("engine.51") : ""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts
+        )}${clutch ? $t("engine.51") : ""}</div><h2>${head}</h2><p class="muted">${desc}</p>${late.conditionsHTML(us)}<div class="choices">${opts
           .map(o => {
             const [c, l] = o.k === "safe" ? ["i", $t("engine.52")] : odds(o.e);
             return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`;
@@ -409,8 +424,10 @@ export async function playMatch(ctx) {
       : await new Promise(r => $$(".choice").forEach(b => (b.onclick = () => r(b.dataset.k))));
     if (!AUTO) S.tipMoment = 1;
     const b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
+    M.mmod = late.momentMod(k);
     const res =
       sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(k, sur) : await resolvePlay(k, $("#mview"), sur, dn);
+    M.mmod = 0;
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
     Bus.emit("match:moment", { id: (sp && sp.id) || ty, k, good: !!res.good, clutch: !!clutch, auto: !!AUTO });

@@ -46,6 +46,8 @@ export function normalizeState(s) {
   if (s.missions && (typeof s.missions !== "object" || !Array.isArray(s.missions.daily) || !Array.isArray(s.missions.weekly)))
     s.missions = null;
   if (s.legacy && (typeof s.legacy !== "object" || typeof s.legacy.found !== "object" || !s.legacy.found)) s.legacy = null;
+  // kademeli açılıştan önceki kayıtlar: her şey açık ve görülmüş sayılır (toplu bildirim çıkmaz)
+  if (!s.unlocks || typeof s.unlocks !== "object") s.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 };
   s.buffs = s.buffs || { train: 0, motive: 0, offer: 0 };
   s.rec = s.rec || { arcade: 0, reflex: 0 };
   s.news = s.news || [];

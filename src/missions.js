@@ -56,6 +56,7 @@ function def(id) {
   return DAILY.find(d => d.id === id) || WEEKLY.find(d => d.id === id);
 }
 function progress(ev, data) {
+  if (!late.unlocked("gorev")) return;
   const M = missions();
   if (!M || window.__SIM) return;
   let changed = false;
@@ -157,6 +158,7 @@ export function missionsSheet() {
 }
 /** Ana ekran düğmesi */
 export function missionsButtonHTML() {
+  if (!late.unlocked("gorev")) return "";
   const c = claimable(),
     o = openMissions();
   return `<button class="btn ${c ? "team" : "ghost"}" id="msb">${$t("missions.27")} ${

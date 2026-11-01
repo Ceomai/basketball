@@ -33,7 +33,7 @@ import { WAGE } from "./logic/rules.js";
  * @property {{arcade:number, reflex:number}} rec @property {Npc} npc @property {Record<string, number>} chapters
  * @property {Record<string, any>} teams @property {boolean} studied @property {any} tryout @property {any} clubDeal
  * @property {Record<string, any>} arcs @property {string[]} arcQ @property {Record<string, boolean>} clauses
- * @property {string} program @property {number} [saveSlot] @property {number} [schema] @property {number} [wk14]
+ * @property {string} program @property {Record<string, number>} unlocks @property {number} [saveSlot] @property {number} [schema] @property {number} [wk14]
  */
 
 /** Pozisyonun başlangıç nitelik bonusları ile taban nitelikler. @param {Partial<Stats>} posBonus @returns {Stats} */
@@ -98,6 +98,7 @@ export function createState(profile, ctx) {
     arcs: {},
     arcQ: [],
     clauses: {},
-    program: "denge"
+    program: "denge",
+    unlocks: {}
   };
 }
