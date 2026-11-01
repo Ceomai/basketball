@@ -199,6 +199,7 @@ export function newSeasonLeague() {
   S.slot = 3;
   S.playoffOpp = null;
   S.ss = late.blankSS();
+  late.newGoals(); // sezon hedefleri (src/goals.js)
 }
 export const teamByKey = k => S.teams[k];
 export function standings() {
@@ -696,7 +697,8 @@ export function renderMain() {
   });
   $("#gostad").onclick = () => late.openLoc("stad", "mac");
   $("#quickw").onclick = late.quickWeek;
-  $("#msb").onclick = () => late.missionsSheet();
+  const msb = $("#msb");
+  if (msb) msb.onclick = () => late.missionsSheet();
   $("#lgc").onclick = () => late.leagueSheet();
   const fbk = $("#fbk");
   if (fbk) fbk.onclick = () => late.feedbackSheet("main");

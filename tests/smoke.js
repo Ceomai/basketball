@@ -289,6 +289,9 @@ const check = (ok, msg) => {
     Game.setS(Game.loadSlot(1).S);
     const S = Game.S;
     // görevler: maç sonu olayıyla ilerler, ödül alınır
+    // görevler ikinci sezonda, program profesyonelde açılır (kademeli açılış)
+    S.season = Math.max(S.season, 2);
+    S.stage = "t2";
     S.missions = null;
     const M = Game.missions();
     M.daily = [{ id: "win", p: 0, done: false, claimed: false }, ...M.daily.slice(1)];
@@ -402,6 +405,51 @@ const check = (ok, msg) => {
     out.noScore = !Game.S.news.some(n => /\d+-\d+\./.test(n.t) && /not|rating/i.test(n.t));
     return out;
   });
+  // 7g) maç koşulları, sezon hedefleri, kademeli açılış, karakterler
+  const g4 = await p.evaluate(() => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const S = Game.S;
+    Game.setM({ dz: "zone", stint: 0, mmod: 0 });
+    const z = [Game.momentMod("catch"), Game.momentMod("drive")];
+    Game.M.dz = "man";
+    const m = [Game.momentMod("catch"), Game.momentMod("drive")];
+    Game.M.stint = 20 * 60;
+    S.energy = 30;
+    out.cond = z[0] > z[1] && m[1] > m[0] && Game.momentMod("drive") < m[1] && Game.fatigue() > 0.5;
+    S.energy = 80;
+    S.stage = "t2";
+    S.role = "rot";
+    Game.newGoals();
+    out.goals = S.goals.list.length >= 2 && S.goals.list.some(g => g.id === "role") && Game.goalsHTML(true).length > 50;
+    const before = S.rel.koc;
+    S.role = "star";
+    Game.evalGoals(true);
+    out.goalsEval = !!S.goals.result && S.rel.koc !== before && Game.goalsResultHTML().length > 50;
+    S.stage = "lise";
+    S.season = 1;
+    S.age = 16;
+    out.locked =
+      !Game.unlocked("program") &&
+      !Game.unlocked("gorev") &&
+      !Game.unlocked("miras") &&
+      Game.missionsButtonHTML() === "" &&
+      Game.systemFit() === 0;
+    S.stage = "t1";
+    S.season = 3;
+    S.age = 29;
+    out.open = Game.unlocked("program") && Game.unlocked("gorev") && Game.unlocked("miras");
+    const c = Game.chars();
+    out.chars = !!(c && c.yildiz.n && c.mentor.n && c.dost.n) && ["disiplinci", "dost", "taktisyen"].includes(Game.coachType());
+    c.mentor.rel = 80;
+    out.mentor = Game.charTrainMul() > 1;
+    out.card = Game.charactersHTML().length > 100;
+    return out;
+  });
+  check(g4.cond, "maç koşulları: alan/adam adama savunma ve yorgunluk seçenekleri değiştiriyor");
+  check(g4.goals && g4.goalsEval, "sezon hedefleri veriliyor ve sezon sonunda değerlendiriliyor");
+  check(g4.locked && g4.open, "kademeli açılış: ilk sezon sade, özellikler sırayla açılıyor");
+  check(g4.chars && g4.mentor && g4.card, "kişilik sahibi takım arkadaşları ve koç kişiliği");
   check(
     lc.tablo && lc.fikstur && lc.istat && lc.kral && lc.leaders && lc.btn,
     "lig merkezi: puan durumu, fikstür, istatistik ve krallıklar"

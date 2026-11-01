@@ -111,7 +111,7 @@ export function locEv(I, tab = "vitrin") {
     ["yetenek", $t("places.2")],
     ["finans", $t("places.3")],
     ["kariyer", $t("places.4")],
-    ["miras", $t("places.350")],
+    ...(late.unlocked("miras") ? [["miras", $t("places.350")]] : []),
     ["ev", $t("places.5")]
   ];
   sheet(
@@ -581,7 +581,9 @@ export function runGame(kind, el, e, reps, title) {
 export function drillGain(k, ratio) {
   S.stf = S.stf || {};
   const f =
-    trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) * late.programMul(k);
+    trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) *
+    late.programMul(k) *
+    late.charTrainMul();
   if (S.buffs.train > 0) S.buffs.train--;
   S.stf[k] = (S.stf[k] || 0) + f;
   const g = Math.floor(S.stf[k]);

@@ -8,6 +8,7 @@ import { t as $t } from "./i18n/index.js";
 import { $$, Bus, esc, hash, isPro, statName } from "./data.js";
 import { S } from "./core.js";
 import { save } from "./save.js";
+import { late } from "./late.js";
 
 export const PROGRAMS = [
   ["denge", $t("coach.1"), $t("coach.2")],
@@ -18,7 +19,7 @@ export const PROGRAMS = [
   ["sav", $t("data.34"), $t("coach.10")],
   ["toparlanma", $t("coach.11"), $t("coach.12")]
 ];
-export const program = () => (S && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
+export const program = () => (S && late.unlocked("program") && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
 /** Antrenman kazancı çarpanı */
 export function programMul(stat) {
   const pg = program();
@@ -30,6 +31,7 @@ Bus.on("week:start", () => {
   if (S && program() === "toparlanma") S.energy = Math.min(100, S.energy + 6);
 });
 export function programHTML() {
+  if (!late.unlocked("program")) return "";
   const pg = program();
   return `<div class="card"><div class="eyebrow">${$t("coach.13")}</div><div class="opts">${PROGRAMS.map(([k, n]) => `<button class="opt ${pg === k ? "on" : ""}" data-pg="${k}">${esc(n)}</button>`).join("")}</div><p class="small muted">${esc(PROGRAMS.find(p => p[0] === pg)[2])} ${$t("coach.14")}</p></div>`;
 }
@@ -58,7 +60,7 @@ export const teamSystem = team => {
 };
 /** Sistem uyumu: -8 (uyumsuz) … +8 (biçilmiş kaftan) */
 export function systemFit(team = S && S.team) {
-  if (!S || !team) return 0;
+  if (!S || !team || !late.unlocked("sistem")) return 0;
   const w = SYSTEMS[teamSystem(team)].w,
     st = S.st,
     ks = Object.keys(st);
@@ -71,6 +73,7 @@ export function systemFit(team = S && S.team) {
 export const fitLabel = f =>
   f >= 5 ? $t("coach.19") : f >= 2 ? $t("coach.25") : f > -2 ? $t("coach.26") : f > -5 ? $t("coach.20") : $t("coach.27");
 export function systemHTML(team = S.team) {
+  if (!late.unlocked("sistem")) return "";
   const sys = SYSTEMS[teamSystem(team)],
     f = systemFit(team),
     best = Object.entries(sys.w).sort((a, b) => b[1] - a[1])[0][0];

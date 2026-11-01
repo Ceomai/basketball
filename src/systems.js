@@ -591,6 +591,7 @@ export function rosterTab(c) {
     best = r.reduce((a, b) => (b.chem > a.chem ? b : a));
   c.innerHTML =
     late.systemHTML() +
+    late.charactersHTML() +
     `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("systems.50", {
       name: esc(S.team.name)
     })}</div><h3>${$t("systems.51")} ${Math.round(chemAvg())}/100</h3></div><span class="pill ${chemAvg() >= 60 ? "w" : ""}">${chemAvg() >= 60 ? $t("systems.48") : $t("systems.49")}</span></div><p class="small muted">${$t("systems.52")} <b>${esc(best.n)}</b>.</p>

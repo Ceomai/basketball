@@ -34,6 +34,9 @@ import * as state from "./state.js";
 import * as cloud from "./cloud.js";
 import * as card from "./card.js";
 import * as league from "./league.js";
+import * as goals from "./goals.js";
+import * as unlock from "./unlock.js";
+import * as chars from "./chars.js";
 
 const MODULES = [
   data,
@@ -68,7 +71,10 @@ const MODULES = [
   state,
   cloud,
   card,
-  league
+  league,
+  goals,
+  unlock,
+  chars
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

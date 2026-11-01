@@ -52,6 +52,10 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 - **Sözleşme maddeleri:** pazarlıkta serbest kalma (üst ligden teklif gelince bedelsiz ayrılma), NBA çıkışı ve performans primi (7,5+ notlu maçta haftalık ücretin %15'i) istenebilir. Sözleşme sürerken başka kulübe gitmek fesih bedeli ister.
 - **Günlük ve haftalık görevler:** gerçek takvime göre her gün 3, her hafta 3 görev. Oyunu oynayarak ilerler (maç, antrenman, mini oyun, basın, satın alma); ödül para, enerji ya da fiş.
 - **Emeklilik sonrası:** antrenörlük, televizyon yorumculuğu ya da kulüp başkanlığı ile son bölüm (miras puanı kazandırır). İstersen oğlunla aynı soyadı ve formayla yeni bir kariyere başlarsın; Şöhretler Müzesi kademene göre nitelik bonusu alır.
+- **Maç koşulları:** rakip alan savunması ya da adam adama oynar (çeyrek aralarında değişebilir). Alan savunmasında dış şut ve pas, adam adamada içeri oyun daha etkili. Sahada kesintisiz kaldıkça yorgunluk artar ve atletik seçenekler zorlaşır; kenarda ve arada dinlenilir. Karar anında rozet olarak görünür, başarı şansına yansır.
+- **Sezon hedefleri:** her sezon başında koç, menajer ve (okuldayken) ailenden 2-3 hedef. Lig merkezi → Hedefler'de ilerleme; sezon sonunda tutan hedef koçun güvenini, teklifleri ve aile ilişkisini artırır, hepsi tutarsa prim.
+- **Kademeli açılış:** ilk sezon sade (antrenman ve maç). Antrenman programı ve koçun sistemi profesyonel ligde, görevler ikinci sezonda, miras 28 yaşında açılır; açılınca kısa bir panel çıkar.
+- **Karakterler:** her takımda kıskanç bir yıldız, bir mentor ve en yakın arkadaşın; koçun kişiliği disiplinci, oyuncu dostu ya da taktisyen. İlişkiler antrenmanı, morali, takım kimyasını ve rol kararlarını etkiler; soyunma odası olaylarıyla değişir (Stadyum → Kadro).
 - **Lig merkezi:** ana ekrandaki Gündem kartından açılır: puan durumu (playoff çizgisi), fikstür ve sonuçlar (skor, not, ligde bu haftanın diğer maçları), sezon istatistiklerim ve son sezonlar, sayı/asist/ribaund krallıkları. Gündemde rutin skorlar yerine anlamlı olaylar yer alır: seriler, zirve, playoff hattı, kariyer rekoru, 30 sayılık maç, triple-double, transferler.
 - **Önemli maç daveti:** final, yarı final, rakip oyuncuyla derbi ve zirve maçlarında hızlı haftada "kendim oynayayım" öne çıkar; bu maçları kendin oynarsan taraftar ve takipçi bonusu kazanırsın.
 - **Kariyer kartı:** emeklilik ekranında ve Ev → Miras sekmesinde kariyerin tek görselde özeti (1080×1350): istatistikler, kupalar, Şöhretler Müzesi kademesi, kulüpler, en iyi sezon. Paylaşılır ya da PNG olarak indirilir.
@@ -172,6 +176,9 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 | `src/state.js` | Oyun durumunun tanımı |
 | `src/card.js` | Paylaşılabilir kariyer kartı |
 | `src/league.js` | Lig merkezi ve maç sonu gündemi |
+| `src/goals.js` | Sezon hedefleri |
+| `src/unlock.js` | Kademeli açılış |
+| `src/chars.js` | Takım arkadaşı ve koç kişilikleri |
 | `src/moments.js` | Özel maç anları |
 | `src/coach.js` | Antrenman programı ve koç sistemi |
 | `src/missions.js` | Günlük ve haftalık görevler |

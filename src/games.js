@@ -278,7 +278,8 @@ export const me = () => ({ ...late.jersey() });
 export let MG_KIND = "";
 // Mini oyun zorluğu (Ayarlar → Erişilebilirlik): oyunun beceri değerine eklenir. Arcade sıralama oyunları etkilenmez.
 export const DIFF_SHIFT = { kolay: 15, normal: 0, zor: -12 };
-export const dEff = e => clamp((e || 0) + (DIFF_SHIFT[(late.SETTINGS && late.SETTINGS.diff) || "normal"] || 0), 1, 100);
+export const dEff = e =>
+  clamp((e || 0) + (DIFF_SHIFT[(late.SETTINGS && late.SETTINGS.diff) || "normal"] || 0) + ((late.M && late.M.mmod) || 0), 1, 100);
 export function setMgKind(k) {
   MG_KIND = k;
 }

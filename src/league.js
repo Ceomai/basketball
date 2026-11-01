@@ -137,14 +137,17 @@ function leadersHTML() {
 }
 
 /** Lig merkezi paneli */
-export function leagueSheet(tab = "tablo") {
+export function leagueSheet(tab = "hedef") {
   const tabs = [
+    ["hedef", $t("lc.goals")],
     ["tablo", $t("lc.table")],
     ["fikstur", $t("lc.fixtures")],
     ["istat", $t("lc.stats")],
     ["kral", $t("lc.leaders")]
   ];
-  const body = { tablo: tableHTML, fikstur: fixturesHTML, istat: statsHTML, kral: leadersHTML }[tab] || tableHTML;
+  const body =
+    { hedef: () => late.goalsHTML(true), tablo: tableHTML, fikstur: fixturesHTML, istat: statsHTML, kral: leadersHTML }[tab] ||
+    tableHTML;
   sheet(
     $t("lc.title"),
     `${esc(lgName())} · ${seasonLabel()}`,
