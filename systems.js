@@ -1,17 +1,18 @@
 "use strict";
 /* ================= AYARLAR ================= */
 // Ayarlar kariyer yuvalarından bağımsız tutulur.
-const SETTINGS=(()=>{try{return Object.assign({sound:true,vol:.7,haptic:true,crowd:true},JSON.parse(localStorage.getItem("pota-settings")||"{}"))}catch(e){return{sound:true,vol:.7,haptic:true,crowd:true}}})();
+const SETTINGS=(()=>{try{return Object.assign({sound:true,vol:.7,haptic:true,crowd:true,backupNag:true,music:true,lowfx:false},JSON.parse(localStorage.getItem("pota-settings")||"{}"))}catch(e){return{sound:true,vol:.7,haptic:true,crowd:true}}})();
 const saveSettings=()=>{try{localStorage.setItem("pota-settings",JSON.stringify(SETTINGS))}catch(e){}};
 function settingsSheet(){
   const tog=(k,label,desc)=>`<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k]?"team":"ghost"} sm" data-tg="${k}">${SETTINGS[k]?"Açık":"Kapalı"}</button></div>`;
-  sheet("Ayarlar","Ses, titreşim ve kayıt",`${tog("sound","Ses efektleri","Top, file, düdük, tribün ve arayüz sesleri.")}${tog("crowd","Tribün uğultusu","Maç boyunca arka planda seyirci sesi.")}${tog("haptic","Titreşim","Destekleyen telefonlarda kısa titreşimler.")}
+  sheet("Ayarlar","Ses, grafik ve kayıt",`${tog("sound","Ses efektleri","Top, file, düdük, tribün ve arayüz sesleri.")}${tog("music","Müzik","Haritada sakin bir tema, eğlence merkezinde 8-bit tema.")}${tog("crowd","Tribün uğultusu","Maç boyunca arka planda seyirci sesi.")}${tog("haptic","Titreşim","Destekleyen telefonlarda kısa titreşimler.")}${tog("lowfx","Düşük grafik modu","Eski ya da yavaş telefonlar için: daha düşük çözünürlük, animasyonsuz arayüz.")}${tog("backupNag","Yedek hatırlatması","Birkaç sezonda bir yedek dosyası almanı hatırlatır.")}
+   ${isInstalled()?"":`<div class="act"><div><h3>Ana ekrana ekle</h3><p>Uygulama gibi açılır, internetsiz çalışır, kayıtlar daha güvende olur.</p></div><button class="btn team sm" id="st-inst">Nasıl?</button></div>`}
    <div class="act"><div><h3>Ses düzeyi</h3><p>Efektlerin yüksekliği.</p></div><div class="opts" style="grid-column:1/-1">${[[.35,"Kısık"],[.7,"Orta"],[1,"Yüksek"]].map(([v,n])=>`<button class="opt ${SETTINGS.vol===v?"on":""}" data-vol="${v}">${n}</button>`).join("")}</div></div>
-   <div class="grid2"><button class="btn" id="st-exp">Kayıt kodu</button><button class="btn" id="st-help">Kılavuz</button></div>
+   <div class="grid2"><button class="btn" id="st-exp">Yedek al</button><button class="btn" id="st-help">Kılavuz</button></div>
    <button class="btn ghost" id="st-tour">Tanıtım turunu tekrar göster</button>`);
-  $$("[data-tg]").forEach(b=>b.onclick=()=>{SETTINGS[b.dataset.tg]=!SETTINGS[b.dataset.tg];saveSettings();if(!SETTINGS.crowd)crowd(false);settingsSheet()});
-  $$("[data-vol]").forEach(b=>b.onclick=()=>{SETTINGS.vol=+b.dataset.vol;saveSettings();sfx("click");settingsSheet()});
-  $("#st-exp").onclick=exportSheet;$("#st-help").onclick=()=>guideSheet();$("#st-tour").onclick=()=>{S.tut=0;closeSheet();renderMain();startTour()};
+  $$("[data-tg]").forEach(b=>b.onclick=()=>{SETTINGS[b.dataset.tg]=!SETTINGS[b.dataset.tg];saveSettings();if(!SETTINGS.crowd)crowd(false);applyLowFx();musicFor(MUS.want||"menu");settingsSheet()});
+  $$("[data-vol]").forEach(b=>b.onclick=()=>{SETTINGS.vol=+b.dataset.vol;saveSettings();sfx("click");musicVolume();settingsSheet()});
+  $("#st-exp").onclick=exportSheet;const ib=$("#st-inst");if(ib)ib.onclick=installSheet;$("#st-help").onclick=()=>guideSheet();$("#st-tour").onclick=()=>{S.tut=0;closeSheet();renderMain();startTour()};
 }
 
 /* ================= İSTATİSTİK GEÇMİŞİ ================= */
@@ -33,19 +34,20 @@ function statsTab(c){
    <div class="card"><div class="eyebrow">Sezon sezon</div><div class="tbl"><table><tr><th>Sezon</th><th>Takım</th><th>M</th><th>DK</th><th>SAY</th><th>AST</th><th>RİB</th><th>Not</th></tr>${rows.map(r=>`<tr class="${r.live?"me":""}"><td>${r.label}</td><td>${esc(r.team)}<div class="small muted">${esc(r.league||"")}</div></td><td>${r.g??"–"}</td><td>${per(r.min,r.g)}</td><td>${per(r.pts,r.g)}</td><td>${per(r.ast,r.g)}</td><td>${per(r.reb,r.g)}</td><td>${r.g?(r.rs/r.g).toFixed(1):r.avg!=null?r.avg.toFixed(1):"–"}</td></tr>`).join("")}</table></div></div>
    <div class="card"><div class="eyebrow">Kariyer toplamı</div><div class="kv"><span>Maç</span><b>${k.games}</b><span>Dakika</span><b>${k.min||0}</b><span>Sayı</span><b>${k.pts} (${per(k.pts,k.games)})</b><span>Asist</span><b>${k.ast} (${per(k.ast,k.games)})</b><span>Ribaund</span><b>${k.reb||0} (${per(k.reb||0,k.games)})</b><span>Blok · top çalma</span><b>${k.blk} · ${k.stl||0}</b><span>Galibiyet</span><b>${k.wins}</b><span>Milli maç</span><b>${k.natCaps||0}</b></div></div>
    <div class="card"><div class="eyebrow">Kariyer rekorları</div><div class="kv"><span>Sayı</span><b>${h.pts||0}</b>${h.ptsVs?`<span class="small muted" style="grid-column:1/-1;margin-top:-4px">${esc(h.ptsVs)}</span>`:""}<span>Asist</span><b>${h.ast||0}</b><span>Ribaund</span><b>${h.reb||0}</b></div></div>`;
+  if(S.rival)c.insertAdjacentHTML("beforeend",rivalInfo());
 }
 
 /* ================= ÖDÜLLER ================= */
 // eşikler denge simülasyonuyla ayarlandı (bkz. balance notları)
-const AWARD_T={mvp:7.9,ppg:20,apg:6.5,rpg:9,dpg:2.8,roy:7.3,fmvp:7.8,allstar:7.5};
+const AWARD_T={mvp:8.0,ppg:22,apg:7,rpg:10,dpg:3,roy:7.3,fmvp:7.8,allstar:7.5};
 // ligdeki üstünlük: genel reyting ile lig seviyesinin farkı; ödüller bu farka da bakar
 function dominance(){return ovr()-(tdOf(S.stage,S.team.cc)+45)}
 function award(type,label){S.career.trophies.push({type,label:`${seasonLabel()} · ${label}`});S.followers*=1.04;return label}
 function seasonAwards(avg,champ){
-  const s=S.ss||blankSS(),g=Math.max(1,s.g),ln=lgName(),out=[];if(s.g<4)return out;
+  const s=S.ss||blankSS(),g=Math.max(1,s.g),ln=lgName(),out=[];if(s.g<7)return out;
   const wr=S.results.length?S.results.filter(r=>r.win).length/S.results.length:0;
-  if(avg>=AWARD_T.mvp&&dominance()>=8&&wr>=.6){out.push(award("mvp",`${ln} MVP`));S.career.mvps++}
-  const dm=dominance(),lead=dm>=4;
+  if(avg>=AWARD_T.mvp&&dominance()>=10&&wr>=.65){out.push(award("mvp",`${ln} MVP`));S.career.mvps++}
+  const dm=dominance(),lead=dm>=6;
   if(lead&&s.pts/g>=AWARD_T.ppg)out.push(award("award",`${ln} sayı kralı (${per(s.pts,g)})`));
   if(lead&&s.ast/g>=AWARD_T.apg)out.push(award("award",`${ln} asist kralı (${per(s.ast,g)})`));
   if(lead&&s.reb/g>=AWARD_T.rpg)out.push(award("award",`${ln} ribaund kralı (${per(s.reb,g)})`));
@@ -68,7 +70,7 @@ function allStar(done){
 
 /* ================= SAKATLIKLAR ================= */
 const INJ=[["Ayak bileği burkulması",1,2,.5],["Hamstring zorlanması",2,3,.24],["Kasık sakatlığı",2,4,.12],["Parmak kırığı",1,3,.08],["Diz bağı yırtığı",6,9,.06]];
-function injuryRisk(){return clamp(.016+Math.max(0,50-S.energy)/650+(S.age>29?(S.age-29)*.004:0)-(S.items.kryo?.006:0)-(S.items.fizyo?.008:0),.004,.12)}
+function injuryRisk(){const mul=S.buffs&&S.buffs.injWk>0?(S.buffs.injMul||1):1;return clamp((.009+Math.max(0,50-S.energy)/1100+(S.age>29?(S.age-29)*.0025:0)-(S.items.kryo?.0035:0)-(S.items.fizyo?.0045:0))*mul,.0025,.1)}
 function rollInjury(){
   if(S.injury||Math.random()>=injuryRisk())return null;
   let r=Math.random(),pick2=INJ[0];for(const x of INJ){if(r<x[3]){pick2=x;break}r-=x[3]}
@@ -179,3 +181,19 @@ function startTour(step=0){
 const tapGuard=new WeakMap();
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".btn,.choice");if(!b)return;const now=performance.now(),t=tapGuard.get(b);
   if(t&&now-t<450){e.stopImmediatePropagation();e.preventDefault();return}tapGuard.set(b,now)},true);
+
+/* ================= UYGULAMA OLARAK KURULUM (PWA) =================
+   GitHub Pages gibi https üzerinden açıldığında service worker oyunu önbelleğe alır: internetsiz açılır,
+   ana ekrana eklenebilir. Ana ekrana eklenen site, tarayıcının veri temizliğinden de korunur. */
+let installEvt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e});
+function registerPWA(){
+  if(!("serviceWorker" in navigator)||(location.protocol!=="https:"&&location.hostname!=="localhost")||window.top!==window)return;
+  try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
+}
+function installSheet(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  sheet("Ana ekrana ekle","Uygulama gibi oyna",`${installEvt?`<p>Tek dokunuşla kurabilirsin.</p><button class="btn pri" id="in-go">Şimdi kur</button>`:ios?`<div class="card"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>Safari'de alttaki <b>Paylaş</b> simgesine dokun (yukarı ok olan kare).</li><li>Listeyi kaydırıp <b>Ana Ekrana Ekle</b>'yi seç.</li><li>Sağ üstte <b>Ekle</b>'ye dokun.</li></ol></div>`:`<div class="card"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>Tarayıcının menüsünü aç (sağ üstteki üç nokta).</li><li><b>Ana ekrana ekle</b> ya da <b>Uygulamayı yükle</b>'yi seç.</li></ol></div>`}
+   <p class="small muted">Not: Kurulum, oyun bir web adresinden (ör. GitHub Pages) açıldığında çalışır. Önizleme pencerelerinde bu seçenek görünmeyebilir.</p>`);
+  const g=$("#in-go");if(g)g.onclick=async()=>{installEvt.prompt();try{const r=await installEvt.userChoice;if(r.outcome==="accepted")toast("Oyun ana ekrana eklendi.")}catch(e){}installEvt=null;closeSheet()};
+}

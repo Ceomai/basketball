@@ -1,0 +1,15 @@
+{
+  "name": "pota-kariyeri",
+  "version": "1.0.0",
+  "private": true,
+  "description": "İstanbul'dan NBA'e basketbol kariyer simülasyonu",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "npm run lint && node tests/smoke.js && node tests/balance.js 3",
+    "test:balance": "node tests/balance.js 10"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
+  }
+}

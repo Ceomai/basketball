@@ -105,7 +105,8 @@ function weeklyHooks(){
   const got=[...arcResolve("w")];if((S.week-1)%4===0)got.push(...arcResolve("m"));
   if(got.length){save();toast(`Arcade ödülü: ${got[0]}${got.length>1?" ve fazlası":""}`)}
   if(S.chips!=null&&S.chips<500)S.chips=500;
-  if(S.week===5&&S.phase==="regular")allStar(()=>fibaWindow(()=>{}));
+  if(S.week===8&&S.phase==="regular")allStar(()=>fibaWindow(()=>{}));
+  else if(S.week===3)backupNudge();
 }
 
 /* ================= YEREL HİKAYE VE MİZAH ================= */

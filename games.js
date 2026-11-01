@@ -5,11 +5,11 @@ let CV,CX;
 const lvl=()=>clamp(ORDER.indexOf(S.stage)-1,0,5); // 0..5 zorluk kademesi
 function mkStage(el,title){
   el.innerHTML=`<div class="stage"><div class="mgtop"><span>${title||""}</span><span id="mgI" class="muted"></span></div><canvas id="mgcanvas"></canvas><div class="mgctrl" id="mgC"></div></div>`;
-  CV=$("#mgcanvas");CV.oncontextmenu=e=>e.preventDefault();CX=CV.getContext("2d");const d=Math.max(2,devicePixelRatio||1),w=CV.clientWidth||360;CV.width=w*d;CV.height=w*H/W*d;CV.style.height=(w*H/W)+"px";CX.setTransform(CV.width/W,0,0,CV.height/H,0,0);
+  CV=$("#mgcanvas");CV.oncontextmenu=e=>e.preventDefault();CX=CV.getContext("2d");const d=SETTINGS.lowfx?1:Math.min(3,Math.max(2,devicePixelRatio||1)),w=CV.clientWidth||360;CV.width=w*d;CV.height=w*H/W*d;CV.style.height=(w*H/W)+"px";CX.setTransform(CV.width/W,0,0,CV.height/H,0,0);
   try{el.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
 }
 function ppos(e){const r=CV.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
-function loop(fn){let last=performance.now(),alive=true,T=0;const cv=CV;const f=t=>{if(!alive||!cv.isConnected)return;const dt=Math.min(.033,(t-last)/1000);last=t;T+=dt;fn(dt,T);requestAnimationFrame(f)};requestAnimationFrame(f);return()=>{alive=false}}
+function loop(fn){let last=performance.now(),alive=true,T=0;const cv=CV;const f=t=>{if(!alive||!cv.isConnected)return;if(SETTINGS.lowfx&&t-last<30){requestAnimationFrame(f);return}const dt=Math.min(.033,(t-last)/1000);last=t;T+=dt;fn(dt,T);requestAnimationFrame(f)};requestAnimationFrame(f);return()=>{alive=false}}
 let _info="";function info(t){if(t===_info)return;_info=t;const e=$("#mgI");if(e)e.textContent=t}
 function clearInput(){if(CV)CV.onpointerdown=CV.onpointermove=CV.onpointerup=CV.onpointercancel=null;window.onkeydown=null}
 const buzz=ms=>{if(typeof SETTINGS!=="undefined"&&!SETTINGS.haptic)return;try{navigator.vibrate&&navigator.vibrate(ms)}catch(_){}};

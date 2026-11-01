@@ -79,16 +79,17 @@ const ORDER=["lise","uni","t3","t2","t1","euro","nba"];
 const TDB={lise:-15,uni:-7,t3:-5,t2:5,t1:15,euro:25,nba:35};
 // Denge ayarları (denge simülasyonuyla belirlendi)
 const BAL={
-  train:2.6,            // antrenman kazanç katsayısı (kesirli birikir)
-  play:.06,             // başarılı maç anında niteliğe eklenen kesir
+  train:1.45,            // antrenman kazanç katsayısı (kesirli birikir)
+  play:.035,             // başarılı maç anında niteliğe eklenen kesir
   grow:[[18,0,2],[21,0,1],[25,0,1],[29,0,0],[31,-1,0],[33,-2,-1],[99,-3,-1]], // [yaşa kadar, min, maks] yaz gelişimi
-  need:{t3:0,t2:50,t1:61,euro:72,nba:82},   // teklif için gereken potansiyel
+  need:{t3:0,t2:50,t1:61,euro:72,nba:83},   // teklif için gereken potansiyel
   tax:{lise:0,uni:0,t3:.2,t2:.3,t1:.33,euro:.35,nba:.37}, // vergi oranı
   agent:.05,            // profesyonel menajer payı
-  living:{lise:0,uni:0,t3:40,t2:110,t1:350,euro:1300,nba:4500}, // haftalık yaşam gideri (€)
+  living:{lise:0,uni:0,t3:20,t2:55,t1:175,euro:650,nba:2250}, // haftalık yaşam gideri (€)
 };
 const SC={lise:52,uni:60,t3:66,t2:72,t1:78,euro:80,nba:108};      // skor ölçeği
-const WAGE={lise:8,uni:20,t3:300,t2:900,t1:3000,euro:12000,nba:45000};
+// Haftalık ücretler. Sezon 14 hafta (çift devreli lig) olduğu için değerler yarı ölçekte.
+const WAGE={lise:4,uni:10,t3:150,t2:450,t1:1500,euro:6000,nba:22500};
 const isPro=st=>ORDER.indexOf(st)>=2;
 function tdOf(stage,cc){const pr=["t1","t2","t3"].includes(stage)?(LEAGUES[cc]||LEAGUES.TR).pr:1;return Math.round((TDB[stage]+15)*pr-15)}
 // rol: genel puanın lig seviyesine göre konumu

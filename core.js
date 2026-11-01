@@ -47,7 +47,11 @@ function leagueTeams(){
 function newSeasonLeague(){
   const opps=leagueTeams();
   S.league=[S.team,...opps].map(t=>({key:t.key,w:0,l:0,pf:0,pa:0}));
-  S.sched=shuffle(opps.map(t=>t.key)).map((k,i)=>({opp:k,home:i%2===0}));
+  // çift devreli lig: her rakiple biri iç sahada biri deplasmanda iki maç
+  const first=shuffle(opps.map(t=>t.key)).map((k,i)=>({opp:k,home:i%2===0})),homeOf=Object.fromEntries(first.map(f=>[f.opp,f.home]));
+  const second=shuffle(opps.map(t=>t.key)).map(k=>({opp:k,home:!homeOf[k]}));
+  if(second.length>1&&second[0].opp===first[first.length-1].opp)[second[0],second[1]]=[second[1],second[0]];
+  S.sched=[...first,...second];
   S.phase="regular";S.results=[];S.week=1;S.slot=3;S.playoffOpp=null;S.ss=blankSS();
 }
 const teamByKey=k=>S.teams[k];
@@ -131,13 +135,13 @@ function startCareer(){
     housing:"oda",items:{},buffs:{train:0,motive:0,offer:0},tx:[],wage:WAGE.lise,career:{games:0,pts:0,ast:0,reb:0,blk:0,wins:0,trophies:[],mvps:0,earned:0},hist:[],news:[],rec:{arcade:0,reflex:0},
     npc:{mom:pick(["Ayşe","Fatma","Hülya","Sevgi"]),dad:pick(["Mehmet","Ahmet","Mustafa","Hasan"]),friend:pick(co.first),rival:pick(co.first)+" "+pick(co.last),agent:pick(co.first)+" "+pick(co.last),journalist:pick(co.fem)+" "+pick(co.last),coach:pick(co.first)+" "+pick(co.last)},
     chapters:{},teams:{},studied:false,tryout:null,clubDeal:null};
-  S.saveSlot=F.slot||1;
+  S.saveSlot=F.slot||1;S.wk14=1;
   S.team=makeTeam("mylise","İstanbul",0);
-  newSeasonLeague();
+  newSeasonLeague();migrateStory();
   news(`${fullName()}, ${S.team.name} kadrosuna girdi.`);
   save();setTeamVars();chapter("lise1",()=>{renderMain();if(!S.tut)startTour()});
 }
-function migrate(){if(S.team&&S.team.key==="lise|İstanbul|0"){S.team.name=MY_LISE;S.team.short="MMS";if(S.teams[S.team.key])Object.assign(S.teams[S.team.key],{name:MY_LISE,short:"MMS"})}S.buffs=S.buffs||{train:0,motive:0,offer:0};S.rec=S.rec||{arcade:0,reflex:0};S.news=S.news||[];S.teams=S.teams||{};setTeamVars()}
+function migrate(){if(!S.wk14){S.wk14=1;if(S.wage>20)S.wage=Math.round(S.wage/2)}migrateStory();if(S.team&&S.team.key==="lise|İstanbul|0"){S.team.name=MY_LISE;S.team.short="MMS";if(S.teams[S.team.key])Object.assign(S.teams[S.team.key],{name:MY_LISE,short:"MMS"})}S.buffs=S.buffs||{train:0,motive:0,offer:0};S.rec=S.rec||{arcade:0,reflex:0};S.news=S.news||[];S.teams=S.teams||{};setTeamVars()}
 
 /* ================= HİKAYE BÖLÜMLERİ ================= */
 function chapter(id,after){
@@ -183,18 +187,21 @@ function renderMain(){
   <div class="card"><div class="row between"><div class="eyebrow">Bu hafta · ${S.slot} zaman dilimi kaldı</div>${S.injury?`<span class="pill l">Sakat · ${S.injury.w} hafta</span>`:`<span class="pill g">${isPro(S.stage)?ROLE_N[S.role]:"Okul takımı"}</span>`}</div>
    <div class="timebar">${[2,1,0].map(i=>`<i class="${S.slot>i?"on":""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team,40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home?"İç saha":"Deplasman"}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">vs</span> ${esc(opp.name)}</div></div>${crestSVG(opp,40)}</div>
-   <button class="btn pri" id="gostad">Stadyuma git · Maça hazırlan</button></div>
+   ${isDerby(opp)?`<div class="small" style="color:var(--bad);text-align:center;font-weight:700">DERBİ · rakibin ${esc(rivalName())} karşında</div>`:""}
+   <div class="grid2"><button class="btn" id="quickw">Haftayı hızlı geç</button><button class="btn pri" id="gostad">Maça hazırlan</button></div></div>
   <div class="card"><div class="eyebrow">Gündem</div><div class="news">${S.news.map(n=>`<div><time>${n.w}</time><span>${n.t}</span></div>`).join("")||'<div class="small muted">Henüz haber yok.</div>'}</div></div>
   <div class="row between small muted"><span>${S.career.games} maç · ${S.career.pts} sayı · ${S.career.trophies.length} ödül</span><div class="row" style="gap:6px"><button class="btn ghost sm" id="opt">Ayarlar</button><button class="btn ghost sm" id="rst">Kayıtlar</button></div></div>`;
   $("#hav").appendChild(portrait(S.look,{...jersey(),mood:S.moral>45?"mutlu":"uzgun"},42,42,S.team.c1));
   $$(".loc").forEach(g=>{const go=()=>openLoc(g.dataset.loc);g.onclick=go;g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
-  $("#gostad").onclick=()=>openLoc("stad","mac");
+  $("#gostad").onclick=()=>openLoc("stad","mac");$("#quickw").onclick=quickWeek;
   $("#rst").onclick=renderSlots;$("#opt").onclick=settingsSheet;
 }
 
 /* ================= BAŞLAT ================= */
 function start(data){if(data&&data.S){S=data.S;migrate();renderMain()}else renderSlots()}
-window.addEventListener("load",()=>{
+window.addEventListener("load",async()=>{
   window.claude?.hot?.snapshot?.(()=>({S}));
+  await storageRestore().catch(()=>0);
   window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+  registerPWA();
 });

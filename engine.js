@@ -29,7 +29,7 @@ function modeChoice(){
 async function playMatch(ctx){
   closeSheet();window.scrollTo(0,0);
   if(!ctx){const fx=fixture();ctx={opp:teamByKey(fx.opp),home:fx.home,comp:"lig",label:`${lgName()} · ${phaseName()}`}}
-  const opp=ctx.opp;arenaFor(opp);
+  const opp=ctx.opp,AUTO=!!ctx.auto||!!window.__SIM;arenaFor(opp);
   const role=isPro(S.stage)||ctx.comp==="nat"?(ctx.role||S.role):schoolRole();
   let plan=stintPlan(role);
   const ourStr=S.team.str+(ovr()-TD()-45)/220,ppp=SC[S.stage]/70/2.25;
@@ -38,7 +38,7 @@ async function playMatch(ctx){
   app.innerHTML=`<div id="bug"></div><div id="mstat" class="card" style="padding:10px 12px;gap:6px"></div><div id="mview"></div>
    <div class="card"><div class="row between"><div class="eyebrow">Maç akışı</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
-  let mode=await modeChoice();$("#mview").innerHTML="";
+  let mode=AUTO?"key":await modeChoice();$("#mview").innerHTML="";
   const renderSpd=()=>{$("#spd").innerHTML=`${[1,2,4].map(s=>`<button class="opt ${M.speed===s?"on":""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode==="key"?"on":""}" data-k="1" style="padding:4px 9px">Önemli anlar</button>`;
     $$("#spd [data-s]").forEach(b=>b.onclick=()=>{M.speed=+b.dataset.s;S.matchSpeed=M.speed;renderSpd()});$("#spd [data-k]").onclick=()=>{mode=mode==="key"?"full":"key";S.matchMode=mode;renderSpd()}};
   renderSpd();
@@ -48,7 +48,7 @@ async function playMatch(ctx){
   statLine();
   const TOTAL=2400;let t=0,ourBall=Math.random()<.5,lastQ=1,benchFrom=null;
   const setClock=()=>{const q=Math.min(5,Math.floor(t/600)+1),inQ=t>=2400?(t-2400):t%600,len=t>=2400?300:600;M.q=q>4?4:q;const left=Math.max(0,len-inQ);M.clock=`${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`};
-  const pace=async()=>{if(window.__SIM)return;const ms=mode==="key"&&!on?0:mode==="key"?PACE[4]:PACE[M.speed];if(ms)await wait(ms)};
+  const pace=async()=>{if(AUTO)return;const ms=mode==="key"&&!on?0:mode==="key"?PACE[4]:PACE[M.speed];if(ms)await wait(ms)};
   let end=TOTAL;
   while(t<end){
     const dur=ri(12,22);t=Math.min(end,t+dur);setClock();
@@ -74,7 +74,7 @@ async function playMatch(ctx){
   M.qs.push([M.us,M.them]);M.q=4;M.clock="00:00";updBug();sfx("buzzer");crowd(false);
   const win=M.us>M.them,sr=M.wsum?(M.wgood||0)/M.wsum:.5;M.rating=clamp(3.5+5.0*sr+(win?.2:-.15)+clamp(M.plus/35,-.35,.35)+clamp((M.autoPts||0)/50,0,.2),1,10);
   addFeed(`<b>Maç sona erdi.</b> ${M.us}-${M.them}.`);
-  if(!window.__SIM)await wait(500);
+  if(!AUTO)await wait(500);M.auto=!!ctx.auto;
   if(ctx.onEnd)ctx.onEnd(win);else finishMatch(win);
 
   function simPossession(us){
@@ -95,22 +95,22 @@ async function playMatch(ctx){
       opts=PL.off.map(([k,tt,st,d])=>({k,t:tt,d:`${d} · ${statName(st)} ${Math.round(eff(st))}`,e:eff(st)-(PEN[k]||0)}));if(!clutch&&opts.length>3)opts=shuffle(opts).slice(0,3)}
     else if(ty==="def"){head=pick(["Rakip hücumda, top tehlikeli bölgede","Rakibin yıldızı topla geliyor","Hızlı hücum yiyorsunuz"]);desc=`${dn} topla geliyor.`;opts=PL.def.map(([k,tt,st,d])=>({k,t:tt,d:`${d} · ${statName(st)} ${Math.round(eff(st))}`,e:eff(st)+(k==="safe"?15:0)}))}
     else{head="Faul aldın";desc="Çizgiye gidiyorsun. İki serbest atış.";opts=[{k:"free",t:"Serbest atış",d:`2 atış · Şut ${Math.round(eff("sut"))}`,e:eff("sut")+15}]}
-    $("#mview").innerHTML=`<div class="card sit">${S.tipMoment?"":`<div class="say" style="border-left-color:var(--gold)"><b>İpucu:</b> Kritik anlarda bir seçim yaparsın. Sağdaki etiket niteliklerine göre başarı şansını gösterir. Seçtikten sonra mini oyunu oynarsın; ekrandaki yönergeyi takip et.</div>`}<div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch?" · son dakikalar":""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts.map(o=>{const[c,l]=o.k==="safe"?["i","Güvenli"]:odds(o.e);return`<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`}).join("")}</div></div>`;
-    try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
-    const k=window.__SIM?window.__SIM.choose(opts):await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));S.tipMoment=1;
+    if(!AUTO)$("#mview").innerHTML=`<div class="card sit">${S.tipMoment?"":`<div class="say" style="border-left-color:var(--gold)"><b>İpucu:</b> Kritik anlarda bir seçim yaparsın. Sağdaki etiket niteliklerine göre başarı şansını gösterir. Seçtikten sonra mini oyunu oynarsın; ekrandaki yönergeyi takip et.</div>`}<div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch?" · son dakikalar":""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts.map(o=>{const[c,l]=o.k==="safe"?["i","Güvenli"]:odds(o.e);return`<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`}).join("")}</div></div>`;
+    if(!AUTO)try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
+    const k=AUTO?autoChoose(opts):await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));if(!AUTO)S.tipMoment=1;
     const b0={pts:M.pts,ast:M.ast,stl:M.stl,stops:M.stops};
-    const res=await resolvePlay(k,$("#mview"),sur,dn);
+    const res=AUTO?autoResolve(k,sur):await resolvePlay(k,$("#mview"),sur,dn);
     M.us+=(M.pts-b0.pts)+(M.ast-b0.ast)*2+(M.stl-b0.stl)*2;
     if(ty==="def"&&M.stops===b0.stops&&M.stl===b0.stl)M.them+=Math.random()<.3?3:2;
     M.wsum=(M.wsum||0)+res.w;if(res.good)M.wgood=(M.wgood||0)+res.w;sfx(res.good?"cheer":"ooh");crowdSwell(res.good?1.4:.6);
-    let txt=res.txt;if(res.good){S.stf=S.stf||{};S.stf[res.st]=(S.stf[res.st]||0)+BAL.play;if(S.stf[res.st]>=1){S.stf[res.st]-=1;S.st[res.st]+=1;txt+=` <span class="good">+1 ${statName(res.st)}</span>`}}
+    let txt=res.txt;if(res.good){S.stf=S.stf||{};S.stf[res.st]=(S.stf[res.st]||0)+BAL.play*(AUTO?.5:1);if(S.stf[res.st]>=1){S.stf[res.st]-=1;S.st[res.st]+=1;txt+=` <span class="good">+1 ${statName(res.st)}</span>`}}
     addFeed(txt);$("#mview").innerHTML="";
     // koç tepkisi: üst üste kötü anlar kenar, iyi seri daha çok süre getirir
     if(res.good){M.goods++;M.fails=0;if(M.goods>=3){M.goods=0;const s=plan.find(([a,b])=>t/60>=a&&t/60<b);if(s&&s[1]<40){s[1]=Math.min(40,s[1]+2);addFeed(`${S.npc.coach}: "Bırakın oynasın!" Süren uzatıldı.`)}}}
     else{M.fails++;M.goods=0;if(M.fails>=2&&role!=="star"){M.fails=0;const s=plan.find(([a,b])=>t/60>=a&&t/60<b);if(s){s[1]=Math.ceil(t/60);const nx=plan.find(([a])=>a>t/60);if(nx)nx[0]+=2;addFeed(`${S.npc.coach} kenardan seslendi: "Otur biraz, kafanı topla."`)}}}
   }
   function quarterBreak(qn,onCourt,ot){
-    if(window.__SIM){M.tac=null;return Promise.resolve()}
+    if(AUTO){M.tac=null;return Promise.resolve()}
     return new Promise(r=>{sfx("buzzer");
       const half=qn===2,last=qn===4&&!ot;
       const rows=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[0]-p[0]}</td>`}).join(""),rowsT=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[1]-p[1]}</td>`}).join("");

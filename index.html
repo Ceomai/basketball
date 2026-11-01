@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pota Kariyeri</title>
+<meta name="description" content="İstanbul'dan NBA'e basketbol kariyer simülasyonu">
+<meta name="theme-color" content="#090d15">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pota Kariyeri">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap">
 <style>
@@ -96,6 +105,11 @@ canvas{display:block;max-width:100%}
 .x{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;flex-shrink:0}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
+/* ekran geçişi ve düşük grafik modu */
+.app.enter>*{animation:enter .26s ease both}.app.enter>*:nth-child(2){animation-delay:.03s}.app.enter>*:nth-child(3){animation-delay:.06s}.app.enter>*:nth-child(4){animation-delay:.09s}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation:none!important;transition:none!important}
+body.lowfx .sheet-bg{backdrop-filter:none}
 .act{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .act .ai{width:52px;height:52px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}
@@ -222,7 +236,7 @@ textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-w
 .venue.on .vlab b{color:var(--gold)}
 .venue:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
 @media (max-width:380px){.hud-stats{grid-template-columns:repeat(2,1fr)}h1{font-size:2.1rem}.reel{width:70px}}
-@media (prefers-reduced-motion:reduce){.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
+@media (prefers-reduced-motion:reduce){.app.enter>*,.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
 </style>
 </head>
 <body>
@@ -245,6 +259,8 @@ textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-w
 <script src="engine.js"></script>
 <script src="extras.js"></script>
 <script src="systems.js"></script>
+<script src="story.js"></script>
 <script src="audio.js"></script>
+<script src="music.js"></script>
 </body>
 </html>

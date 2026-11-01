@@ -4,7 +4,7 @@ function openLoc(id,tab){
   const I=locInfo(id,mapState());
   ({ev:locEv,stad:locStad,okul:locOkul,medya:locMedya,aile:locAile,kafe:locKafe,eglence:locEglence,avm:locAvm,market:locMarket,sans:locSans})[id](I,tab);
 }
-const HOUSING={oda:{n:"Ailenin evindeki odan",rent:0,en:0},yurt:{n:"Öğrenci yurdu",rent:12,en:0},daire:{n:"Kiralık daire",rent:140,en:4},lux:{n:"Rezidans dairesi",rent:950,en:8,mo:2},villa:{n:"Villa",rent:4200,en:12,mo:4},malikane:{n:"Malikâne",rent:15000,en:15,mo:6}};
+const HOUSING={oda:{n:"Ailenin evindeki odan",rent:0,en:0},yurt:{n:"Öğrenci yurdu",rent:6,en:0},daire:{n:"Kiralık daire",rent:70,en:4},lux:{n:"Rezidans dairesi",rent:475,en:8,mo:2},villa:{n:"Villa",rent:2100,en:12,mo:4},malikane:{n:"Malikâne",rent:7500,en:15,mo:6}};
 const addScene=(el,kind,bubble,opts)=>el.prepend(sceneEl(kind,bubble,opts));
 
 /* --- Ev / yaşam alanı --- */
@@ -72,8 +72,8 @@ function locStad(I,tab="mac"){
      <div class="row nowrap" style="justify-content:space-around"><div>${crestSVG(S.team,64)}<div style="font-weight:800">${esc(S.team.short)}</div><div class="small muted">${mr.w}-${mr.l}</div></div><div class="disp" style="font-size:1.6rem;color:var(--muted)">VS</div><div>${crestSVG(opp,64)}<div style="font-weight:800">${esc(opp.short)}</div><div class="small muted">${row.w}-${row.l}</div></div></div>
      <div style="font-weight:700">${esc(opp.name)}</div><div class="small muted">${fx.home?`İç saha · ${esc(S.city)}`:`Deplasman · ${esc(opp.city)}`}</div></div>
      <div class="card"><div class="kv"><span>Enerjin</span><b class="${S.energy<35?"bad":""}">${S.energy}</b><span>Rolün</span><b>${isPro(S.stage)?ROLE_N[S.role]:"Okul takımı"}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b><span>Beklenen kritik an</span><b>${momentCount()}</b></div>${S.energy<35?'<p class="small bad">Yorgunsun. Maçta isabetin düşecek.</p>':""}${S.slot>0?`<p class="small muted">Bu hafta ${S.slot} zaman dilimin daha var. Maça çıkınca hafta biter.</p>`:""}</div>
-     <button class="btn pri big" id="play">Maça çık</button>`;
-    $("#play").onclick=()=>{closeSheet();playMatch()};
+     ${derbyNote(opp)}<button class="btn pri big" id="play">Maça çık</button><button class="btn ghost" id="qplay">Maçı hızlı oynat</button>`;
+    $("#play").onclick=()=>{closeSheet();playMatch()};$("#qplay").onclick=()=>{closeSheet();playMatch({opp,home:fx.home,comp:"lig",label:`${lgName()} · ${phaseName()}`,auto:true})};
   }
   if(tab==="idman"&&S.injury){c.innerHTML=`<div class="say" style="border-left-color:var(--bad)">Sakatken antrenman yapamazsın. Sadece fizyoterapiye girebilirsin.</div>`+actHTML({id:"fizyo",ic:icon("kryo"),t:"Fizyoterapi",d:"Yarı yarıya ihtimalle iyileşmeyi bir hafta kısaltır.",slot:1,fx:[["+10 Enerji","p"]],btn:"Seansa gir"});bindActs({fizyo:physioAct});return}
   if(tab==="idman"){

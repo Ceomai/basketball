@@ -31,7 +31,7 @@ async function resolvePlay(k,el,sur,dn){
 function finishMatch(win){
   recordGame();sfx(win?"win":"lose");
   const r=M.rating,opp=M.opp;S.buffs.motive=0;
-  const bonus=Math.round((S.stage==="lise"?4:S.stage==="uni"?12:S.wage*.12)*(r/6)*(win?1.5:1));
+  const bonus=Math.round((S.stage==="lise"?2:S.stage==="uni"?6:S.wage*.12)*(r/6)*(win?1.5:1));
   tx(`Maç primi · ${opp.short}`,bonus);
   S.rel.koc+=Math.round((r-6)*3);S.rel.taraf+=Math.round((r-5.5)*2+(win?2:0));S.rel.takim+=win?3:-1;S.moral+=win?6:-6;S.energy-=22;
   S.followers+=Math.round(S.followers*(r>=8?.06:r>=7?.03:.005)*(win?1.3:1));
@@ -62,7 +62,7 @@ function afterMatch(win){
     if(win){S.phase="final";const o=S._otherSemi,a=teamByKey(o[0]),b=teamByKey(o[1]);S.playoffOpp=Math.random()<a.str/(a.str+b.str)?a.key:b.key;news(`${S.team.short} finalde! Rakip ${teamByKey(S.playoffOpp).name}.`)}
     else{news(`${S.team.short} yarı finalde elendi.`);next=()=>seasonEnd(true,false)}
   }else if(S.phase==="final"){news(win?`${S.team.name} şampiyon!`:`${S.team.name} finali kaybetti.`);next=()=>seasonEnd(true,win,true)}
-  if(S.phase==="regular"&&S.week===3&&S.stage==="uni"&&!S.clubDeal&&!S.tryout){
+  if(S.phase==="regular"&&S.week===5&&S.stage==="uni"&&!S.clubDeal&&!S.tryout){
     const avg=seasonAvg();
     if(ovr()>=32||avg>=6){const stg=ovr()>=40?"t2":"t3",cc=pick(EU_CC),club=pick(leaguePool(stg,cc));S.tryout={club:club.key,stage:stg,until:S.sched.length,done:false};news(`${club.name} (${leagueName(stg,cc)}) seni seçmelere davet etti.`);save();const go=next;return chapter("tryout",()=>maybeEvent(go))}
   }
@@ -160,8 +160,8 @@ function seasonEnd(playoff,champ,final){
   let schoolMsg="";
   if(S.studying&&S.stage!=="lise"){if(S.aka>=40){S.uniYear++;if(S.uniYear>4){S.studying=false;S.graduated=true;schoolMsg="Üniversiteden mezun oldun!";S.rel.aile+=15;news(`${fullName()} üniversiteden mezun oldu.`)}else schoolMsg=`Sınıfını geçtin: ${S.uniYear}. sınıf.`}else{schoolMsg="Akademik puan düşük, sınıf tekrarı.";S.moral-=6}}
   if(S.contract>0)S.contract--;
-  S.age++;S.year++;S.season++;S.stageSeason++;norm();save();
-  const head=`<div class="card"><div class="eyebrow">${label} sezonu bitti · ${esc(tn)}</div><h2>${w} galibiyet · ${res.length-w} mağlubiyet</h2><div class="kv"><span>Ortalama not</span><b>${avg.toFixed(2)}</b><span>Sonuç</span><b>${champ?"Şampiyon":final?"Finalist":playoff?"Playoff":"Playoff dışı"}</b><span>Yeni yaşın</span><b>${S.age}</b><span>Genel</span><b>${ovr()}</b></div>${awards.length?`<div class="say">${awards.join(" · ")}</div>`:""}${schoolMsg?`<p class="small">${schoolMsg}</p>`:""}</div>`;
+  S.age++;S.year++;S.season++;S.stageSeason++;rivalSeason();norm();save();
+  const head=`<div class="card"><div class="eyebrow">${label} sezonu bitti · ${esc(tn)}</div><h2>${w} galibiyet · ${res.length-w} mağlubiyet</h2><div class="kv"><span>Ortalama not</span><b>${avg.toFixed(2)}</b><span>Sonuç</span><b>${champ?"Şampiyon":final?"Finalist":playoff?"Playoff":"Playoff dışı"}</b><span>Yeni yaşın</span><b>${S.age}</b><span>Genel</span><b>${ovr()}</b></div>${awards.length?`<div class="say">${awards.join(" · ")}</div>`:""}${schoolMsg?`<p class="small">${schoolMsg}</p>`:""}</div>${rivalCard(avg)}`;
   summerTournament(avg,()=>transition(avg,champ,head));
 }
 function potential(avg,champ){return ovr()+(avg-6.5)*5+(champ?2:0)+fame()*.03}
@@ -209,6 +209,7 @@ function transition(avg,champ,head){
     if(stayOk)offers.push({team:S.team,stage:S.stage,role,wage:S.contract>0?S.wage:Math.round(S.wage*(avg>=7?1.25:avg>=6?1.08:.92)),years:S.contract>0?S.contract:ri(1,3),stay:true,note:S.contract>0?`Sözleşmen sürüyor · ${S.contract} yıl`:"Sözleşme yenileme"});
     offers.push(...genOffers(avg,champ,S.transferReq===S.season-1?4:3));
   }
+  offers=storyOffers(offers);
   S.buffs.offer=0;save();window.__lastOffers=offers;
   const retire=S.age>=34,force=S.age>=38;
   const show=()=>{
