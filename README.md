@@ -4,12 +4,27 @@
 
 ## Nasıl oynanır
 
-Kurulum ya da derleme gerekmez. `index.html` dosyasını bir tarayıcıda açman yeterli.
+Oyunun derlenmiş hali tek bir dosya: `dist/index.html`. Bu dosya bir tarayıcıda çift tıklanarak da açılır.
 
-GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branch → `main` / root**.
+```bash
+npm install
+```
+
+```bash
+npm run build
+```
+
+Geliştirirken canlı yenilenen sunucu için `npm run dev` kullanılır.
+
+**GitHub Pages ile yayın:** Settings → Pages → Source: **GitHub Actions** seç, sonra Actions sekmesinden **Pages** iş akışını çalıştır. Pages üzerinden açılan oyun telefonda ana ekrana eklenebilir ve internetsiz çalışır.
 
 ## Öne çıkanlar
 
+- **Sezon akışı:** her sezon çift devreli 14 maç ve playoff. "Haftayı hızlı geç" boş zaman dilimlerini mantıklı bir planla doldurur; maçı otomatik oynatabilir ya da kendin oynayabilirsin. Kendin oynamak daha yüksek not getirir.
+- **Rakip oyuncu:** seninle aynı yaşta, aynı şehirden bir rakip. Kariyeri seninkiyle paralel ilerler; aynı ligde olduğunuzda maçlar derbiye döner, sezon sonunda kıyaslanırsınız.
+- **Koçun güveni:** profesyonelken koç her 4 haftada bir rolünü değerlendirir; iyi oynarsan ilk beşe yükselirsin, kötü gidersen yedeğe düşersin.
+- **Basın toplantısı:** önemli maçlardan sonra mütevazı, özgüvenli ya da iddialı cevap verirsin. İddialı sözlerin bir sonraki maçta karşılığı olur.
+- **Hikâye zincirleri:** birkaç hafta süren olaylar: transfer söylentisi (sezon sonu teklifini etkiler), uzun sakatlıktan dönüş, ailenin dükkânı, lise kaptanlığı, üniversite final haftası.
 - **Kariyer yolu:** İstanbul'da lise, ardından gözlemci raporu, sonra 8 ülkenin (TR, ES, IT, FR, DE, GR, RS, LT) 3., 2. ve 1. ligleri, EuroLeague ve NBA. Her teklifte rol, maaş ve sözleşme süresi var.
 - **Şehir haritası:** oynadığın takımın şehrine göre değişiyor. Her şehrin kendi simge yapıları ve silueti var. Stadyum ve ev görselleri kariyer ilerledikçe büyüyor.
 - **Maç anları:** pozisyona özel kritik anlar oynanıyor. Çek-bırak şut, kaydırarak çalım, pas, blok, post-up, ribaund ve alley-oop var.
@@ -27,32 +42,116 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 - **Sözleşme pazarlığı:** maaş, süre, rol ya da imza parası istenebilir. Fazla zorlarsan kulüp masadan kalkar.
 - **İstatistik ve ödüller:** sezon sezon istatistik geçmişi; MVP, krallıklar, yılın çaylağı, final MVP ve All-Star (üçlük yarışmasıyla).
 - **Takım arkadaşları:** kadro ekranı, kimya, takım yemeği ve ekstra antrenman.
-- **Ses:** Web Audio ile sentezlenen efektler ve maç boyunca tribün uğultusu. Ayarlar'dan kapatılabilir.
+- **Ses ve müzik:** Web Audio ile sentezlenen efektler, maç boyunca tribün uğultusu, haritada sakin bir tema ve eğlence merkezinde 8-bit tema. Ayarlar'dan ayrı ayrı kapatılabilir.
+- **Düşük grafik modu:** eski telefonlar için daha düşük çözünürlük, animasyonsuz arayüz, 30 FPS mini oyunlar.
 - **Mobil uyum:** hiçbir yerde klavye tuşu gerekmez; mini oyunlar dokunma, kaydırma ve ekrandaki butonlarla oynanır. İsim listeden dokunarak seçilebilir, kayıt kodu panodan yapıştırılabilir. Yatay ekranda oyun alanı ekrana sığar, butonlar parmak boyutunda.
 - **Kılavuz:** ilk oyunda kısa tur, istendiğinde ayrıntılı rehber.
-- **Kayıt:** 5 kayıt yuvası, her yuva için otomatik yedek ve kayıt kodu ile dışa/içe aktarma.
+- **Kayıt:** 5 kayıt yuvası. Her kayıt hem tarayıcı hafızasına hem IndexedDB'ye yazılır; biri silinir ya da bozulursa diğerinden geri gelir. Yedek dosyası (`.pota`) indirilebilir, paylaşılabilir ve geri yüklenebilir. Oyun birkaç sezonda bir yedek almayı hatırlatır.
 - **Denge:** ilerleme, teklif eşikleri ve ödüller otomatik oynayan bir simülasyonla ayarlandı. Zayıf bir oyuncu genelde 1. lig veya EuroLeague'de kalır, ortalama bir oyuncunun NBA şansı yaklaşık dörtte birdir, yetenekli bir oyuncu 25-26 yaşlarında NBA'e ulaşır.
+
+## Gelir modeli: reklamlar
+
+Reklam oyuncunun tercihidir; geçiş reklamları seyrek ve sınırlıdır. Ayrıntılar `src/ads.js` başında.
+
+| Yerleşim | Ne zaman | Karşılık |
+|---|---|---|
+| Primi ikiye katla | Maç sonu ekranı | Maç primi bir kez daha ödenir |
+| Enerji | Enerji 60'ın altındayken, haftada 2 kez | +30 enerji |
+| Soyunma odası | Devre arası | +10 enerji, +4 moral |
+| Erken dönüş | Sakatken, sakatlık başına 1 kez | İyileşme 1 hafta kısalır |
+| Geçiş reklamı | Maçlar arası, en erken 6. maçtan sonra, en az 3 maç ve 4 dakika arayla | — |
+
+- **Sınır:** günde en fazla 8 ödüllü reklam.
+- **Rıza:** ilk reklamdan önce kişiselleştirme izni (KVKK/GDPR) bir kez sorulur.
+- **Reklamsız paket:** geçiş reklamlarını kapatır, ödülleri reklamsız verir. Satın alma, mağaza sürümünde `window.PotaStore.buy` kancasına bağlanır.
+- **Sağlayıcı:** Capacitor ile paketlenmiş uygulamada AdMob eklentisi (`@capacitor-community/admob`) kullanılır; `src/ads.js` içinde şu an Google'ın test kimlikleri var. Web sürümünde gerçek reklam yoktur, akışı gösteren bir tanıtım ekranı çıkar.
+
+## Mimari
+
+```
+index.html          stiller ve sayfa iskeleti
+src/main.js         giriş: modülleri sırayla yükler, "late" kaydını doldurur
+src/logic/rules.js  saf oyun kuralları (denge, ekonomi, teklifler, ödüller, sakatlık); DOM ve global durum yok
+src/content/        veri olarak yazılmış olaylar (events.tr.js, events.en.js) ve motoru (events.js)
+src/i18n/           çok dil altyapısı: t("anahtar"), tr.js, en.js
+src/*.js            ekranlar ve sistemler (harita, mekanlar, maç motoru, kayıt, hikâye, reklam, ses...)
+public/             service worker, manifest, ikonlar
+tests/              birim testleri (unit/), duman testi, denge simülasyonu
+tools/              tek seferlik dönüşüm araçları (klasik betikten ES modülüne geçiş)
+```
+
+- **Modüller:** her dosya ES modülü. Önceki modüllere `import` ile bağlanır. Sonra yüklenen bir modülü çağırmak gerektiğinde `late.ad` kaydı kullanılır. Bu, eski yükleme sırasını koruyarak döngüsel bağımlılık hatalarını önler.
+- **Olay sistemi (`Bus`, `src/data.js`):** modüller birbirinin fonksiyonlarını değiştirmez, olaylara abone olur:
+  - `on`/`emit`: bildirim (ör. "sakatlık bitti").
+  - `use`/`run`: akışı durdurup sürdürebilen ara katman (ör. maç sonu basın toplantısı).
+  - `offer`/`first`: haftada tek panel için sıralı sağlayıcılar.
+- **Saf kurallar:** denge formülleri `src/logic/rules.js` içinde. Birim testleri (`tests/unit/`) ve `tsc` tip denetimi (JSDoc, sıkı mod) buradan geçer.
+- **Kayıt şeması:** `SAVE_V` ve `MIGRATIONS` (`src/save.js`). Yapı değişince sürüm artırılır, eski kayıtlar açılırken adımlar sırayla uygulanır.
+- **İçerik:** rastgele olaylar `src/content/events.tr.js` içinde veri olarak duruyor; yeni olay için kod gerekmez. Paket biçimi dosyanın başında anlatılıyor. Çeviriler aynı `id` ile `events.<dil>.js` dosyasına yazılır.
+- **Çok dil:** Ayarlar → Dil (Türkçe / English). Tüm ekranlar çevrildi.
+  - `src/i18n/tr.js` / `en.js`: elle yazılan anahtarlar.
+  - `tr.auto.js` / `en.auto.js`: koddan otomatik çıkarılan yaklaşık 1650 metin.
+  - Kişi, şehir ve kulüp adları özel ad olarak çevrilmez.
+  - Dil değiştirilince oyun yeniden yüklenir ve aynı kariyer kaldığı yerden açılır.
+  - Yeni bir metin eklendiğinde `I18N_SEED=src/i18n/tr.auto.js node tools/extract-i18n.js` çalıştırılır. Var olan anahtarlar korunur, yalnızca yeni metinler yeni anahtar alır ve `en.auto.js`'e çevirisi eklenir.
 
 ## Dosyalar
 
 | Dosya | İçerik |
 |---|---|
 | `index.html` | Stiller ve sayfa iskeleti |
-| `data.js` | Ligler, şehirler, pozisyonlar, yardımcılar |
-| `art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
-| `map.js` | Şehir haritası |
-| `games.js` | Maç ve antrenman mini oyunları |
-| `clubs.js` | Gerçek kulüp listeleri (1. ve 2. ligler, EuroLeague, NBA) |
-| `core.js` | Oyun durumu, ana ekran, panel sistemi |
-| `save.js` | 5 kayıt yuvası, yedekleme, kayıt kodu |
-| `places.js` | Ev, stadyum, okul, medya, aile, kafe |
-| `casino.js` | Oyun Kulübü (fişle oynanan masa oyunları) |
-| `shops.js` | AVM mağazaları, market ve eğlence merkezi |
-| `arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
-| `match.js` | Karar anları, maç sonu, olaylar, sezon sonu ve teklifler |
-| `engine.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
-| `extras.js` | Milli takım (U18, U20, A), arcade sıralamaları, yerel hikâye olayları |
-| `systems.js` | Ayarlar, istatistikler, ödüller, sakatlıklar, kadro, sözleşme pazarlığı, kılavuz |
-| `audio.js` | Ses efektleri ve tribün sesi |
+| `src/main.js`, `src/late.js` | Giriş noktası ve geç bağlama kaydı |
+| `src/logic/rules.js` | Saf oyun kuralları |
+| `src/content/` | Veri olarak rastgele olaylar ve olay motoru |
+| `src/i18n/` | Çok dil altyapısı |
+| `src/ads.js` | Reklam gelir modeli |
+| `src/data.js` | Ligler, şehirler, pozisyonlar, yardımcılar |
+| `src/art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
+| `src/map.js` | Şehir haritası |
+| `src/games.js` | Maç ve antrenman mini oyunları |
+| `src/clubs.js` | Gerçek kulüp listeleri (1. ve 2. ligler, EuroLeague, NBA) |
+| `src/core.js` | Oyun durumu, ana ekran, panel sistemi |
+| `src/save.js` | 5 kayıt yuvası, IndexedDB kopyası, yedek dosyası, kayıt kodu |
+| `src/places.js` | Ev, stadyum, okul, medya, aile, kafe |
+| `src/casino.js` | Oyun Kulübü (fişle oynanan masa oyunları) |
+| `src/shops.js` | AVM mağazaları, market ve eğlence merkezi |
+| `src/arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
+| `src/match.js` | Karar anları, maç sonu, sezon sonu ve teklifler |
+| `src/engine.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
+| `src/extras.js` | Milli takım (U18, U20, A), arcade sıralamaları |
+| `src/systems.js` | Ayarlar, istatistikler, ödüller, sakatlıklar, kadro, sözleşme pazarlığı, kılavuz |
+| `src/audio.js` | Ses efektleri ve tribün sesi |
+| `src/story.js` | Haftayı hızlı geç, otomatik maç, rakip oyuncu, koçun güveni, basın toplantısı, hikâye zincirleri |
+| `src/music.js` | Müzik ve görsel cila (sayı animasyonları, ekran geçişleri, düşük grafik modu) |
+| `public/` | Service worker, manifest ve ikonlar (uygulama olarak kurulum, internetsiz çalışma) |
+| `tests/` | Birim testleri, duman testi ve denge simülasyonu |
 
-Kulüp adları yalnızca tanınırlık için kullanıldı; logolar ve renkler basit temsillerdir. Oyuncunun lisesi ve üniversitesi hayali. Karakterler özgün; dizideki karakterler kullanılmadı.
+## Geliştirme
+
+Node.js 22 gerekir. Tarayıcı testleri için Playwright gerekir.
+
+```bash
+npm test
+```
+
+`npm test` sırasıyla şunları çalıştırır:
+- `eslint`: tanımsız değişken ve import hataları.
+- `tsc`: `src/logic` tip denetimi.
+- Birim testleri: kurallar ve içerik paketleri.
+- Derleme.
+- `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
+- `tests/balance.js`: kısa denge koşusu.
+
+Ayrıntılı denge raporu için profil başına 10 kariyer:
+
+```bash
+npm run test:balance
+```
+
+Kod biçimlendirme:
+
+```bash
+npm run format
+```
+
+Her push'ta GitHub Actions aynı testleri çalıştırır.

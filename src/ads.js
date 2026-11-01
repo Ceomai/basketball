@@ -1,0 +1,365 @@
+import { t as $t } from "./i18n/index.js";
+import { late } from "./late.js";
+import { $, fmt, pick, toast } from "./data.js";
+import { S, closeSheet, norm, sheet, tx } from "./core.js";
+import { save } from "./save.js";
+import { M } from "./match.js";
+import { settingsSheet } from "./systems.js";
+/* ================= REKLAM GELİR MODELİ =================
+   İlke: reklam oyuncunun tercihidir. Ödüllü reklamlar bir karşılık verir; zorunlu geçiş reklamı seyrek ve
+   sıklık sınırlıdır, ilk saatlerde hiç gösterilmez.
+
+   Yerleşimler (ADS.place):
+   - double_bonus  Maç sonu: maç primini ikiye katla (her maçta bir kez)
+   - energy        Enerji 60'ın altındayken: +30 enerji (haftada 2, günde 8 ödüllü reklam sınırı içinde)
+   - halftime      Devre arası: soyunma odası konuşması, +10 enerji ve +4 moral (maç başına bir kez)
+   - heal          Sakatken: iyileşmeyi bir hafta kısalt (sakatlık başına bir kez)
+   - between       Maçlar arası geçiş reklamı: en erken 6. maçtan sonra, en az 3 maç ve 4 dakika arayla
+
+   Sağlayıcı: Capacitor ile paketlenmiş uygulamada AdMob eklentisi (@capacitor-community/admob) kullanılır.
+   Web sürümünde gerçek reklam yoktur; akışı göstermek için oyun içi tanıtım ekranı çıkar.
+   "Reklamsız paket" alındığında geçiş reklamları kapanır, ödüllü reklamların ödülü reklamsız verilir. */
+export const ADS_CFG = {
+  // Mağaza sürümünde AdMob reklam birimi kimlikleri buraya yazılır (şimdilik Google'ın test kimlikleri)
+  admob: {
+    rewarded: { android: "ca-app-pub-3940256099942544/5224354917", ios: "ca-app-pub-3940256099942544/1712485313" },
+    interstitial: { android: "ca-app-pub-3940256099942544/1033173712", ios: "ca-app-pub-3940256099942544/4411468910" }
+  },
+  dailyRewardCap: 8,
+  energyPerWeek: 2,
+  interstitial: { minGames: 6, everyGames: 3, minGapMs: 4 * 60 * 1000 },
+  webAdSeconds: { rewarded: 5, interstitial: 3 }
+};
+export const ADS = (() => {
+  let st = {};
+  try {
+    st = JSON.parse(localStorage.getItem("pota-ads") || "{}");
+  } catch (e) {}
+  return Object.assign(
+    { adFree: false, consent: null, day: "", today: 0, games: 0, lastInter: 0, lastInterGame: 0, stats: {} },
+    st
+  );
+})();
+export const adsSave = () => {
+  try {
+    localStorage.setItem("pota-ads", JSON.stringify(ADS));
+  } catch (e) {}
+};
+export const admob = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
+export const platform = () => {
+  try {
+    return window.Capacitor.getPlatform();
+  } catch (e) {
+    return "web";
+  }
+};
+export function adsDayTick() {
+  const d = new Date().toISOString().slice(0, 10);
+  if (ADS.day !== d) {
+    ADS.day = d;
+    ADS.today = 0;
+  }
+}
+export const rewardLeft = () => {
+  adsDayTick();
+  return Math.max(0, ADS_CFG.dailyRewardCap - ADS.today);
+};
+export function adStat(place, k) {
+  ADS.stats[place] = ADS.stats[place] || { shown: 0, done: 0 };
+  ADS.stats[place][k]++;
+  adsSave();
+}
+
+/* ---- Rıza (KVKK/GDPR): ilk reklamdan önce bir kez sorulur ---- */
+export function adsConsent() {
+  if (ADS.consent !== null || window.__SIM) return Promise.resolve();
+  return new Promise(r => {
+    sheet(
+      $t("ads.1"),
+      $t("ads.2"),
+      `<p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div>`,
+      { noClose: true }
+    );
+    $("#ac-no").onclick = () => {
+      ADS.consent = false;
+      adsSave();
+      closeSheet();
+      r();
+    };
+    $("#ac-yes").onclick = () => {
+      ADS.consent = true;
+      adsSave();
+      closeSheet();
+      r();
+    };
+  });
+}
+
+/* ---- Sağlayıcılar ---- */
+export let admobReady = false;
+export async function admobInit() {
+  const A = admob();
+  if (!A || admobReady) return !!A;
+  try {
+    await A.initialize({ initializeForTesting: false });
+    admobReady = true;
+  } catch (e) {}
+  return admobReady;
+}
+export async function nativeAd(kind) {
+  const A = admob();
+  if (!A || !(await admobInit())) return null;
+  const id = ADS_CFG.admob[kind][platform() === "ios" ? "ios" : "android"];
+  try {
+    if (kind === "rewarded") {
+      await A.prepareRewardVideoAd({ adId: id, npa: ADS.consent === false });
+      const rw = await A.showRewardVideoAd();
+      return !!rw;
+    }
+    await A.prepareInterstitial({ adId: id, npa: ADS.consent === false });
+    await A.showInterstitial();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+// Web: tam ekran oyun içi tanıtım; ödüllü reklamda süre dolmadan kapatılırsa ödül verilmez
+export const AD_PROMOS = [
+  [$t("ads.7"), $t("ads.8")],
+  [$t("ads.9"), $t("ads.10")],
+  [$t("ads.11"), $t("ads.12")],
+  [$t("ads.13"), $t("ads.14")],
+  [$t("ads.15"), $t("ads.16")]
+];
+export function webAd(kind) {
+  return new Promise(res => {
+    const secs = ADS_CFG.webAdSeconds[kind],
+      [h, t] = pick(AD_PROMOS),
+      el = document.createElement("div");
+    el.id = "adov";
+    el.innerHTML = `<div class="adbox"><div class="row between"><span class="pill">${$t("ads.19")}</span><span class="small muted" id="adt">${$t(
+      "ads.20",
+      {
+        secs: secs
+      }
+    )}</span></div><div class="adbody"><div class="eyebrow">${$t("ads.21")}</div><h2>${h}</h2><p>${t}</p><p class="small muted">${$t("ads.22")}</p></div><button class="btn ghost" id="adx">${kind === "rewarded" ? $t("ads.17") : $t("ads.18")}</button></div>`;
+    document.body.appendChild(el);
+    let left = secs,
+      done = false;
+    const btn = el.querySelector("#adx"),
+      tl = el.querySelector("#adt");
+    if (kind === "interstitial") btn.disabled = true;
+    const iv = setInterval(() => {
+      left--;
+      tl.textContent =
+        left > 0
+          ? $t("ads.48", {
+              left: left
+            })
+          : $t("ads.23");
+      if (left <= 0) {
+        clearInterval(iv);
+        done = true;
+        btn.disabled = false;
+        btn.textContent = kind === "rewarded" ? $t("ads.24") : $t("ads.25");
+        btn.className = "btn pri";
+      }
+    }, 1000);
+    btn.onclick = () => {
+      clearInterval(iv);
+      el.remove();
+      res(kind === "rewarded" ? done : true);
+    };
+  });
+}
+export async function playAd(kind) {
+  const n = await nativeAd(kind);
+  if (n !== null) return n;
+  return webAd(kind);
+}
+
+/* ---- Genel arayüz ---- */
+// Ödüllü reklam: ödül verildiyse true döner
+export async function showRewarded(place) {
+  if (ADS.adFree) {
+    adStat(place, "done");
+    return true;
+  }
+  if (!rewardLeft()) {
+    toast($t("ads.26"));
+    return false;
+  }
+  await adsConsent();
+  adStat(place, "shown");
+  late.sfx("click");
+  const ok = await playAd("rewarded");
+  if (ok) {
+    ADS.today++;
+    adStat(place, "done");
+    adsSave();
+    late.sfx("coin");
+  } else toast($t("ads.27"));
+  return ok;
+}
+// Maçlar arası geçiş reklamı (sıklık sınırlı); bittiğinde next() çağrılır
+export async function adsBetween(next) {
+  ADS.games++;
+  adsSave();
+  const C = ADS_CFG.interstitial,
+    now = Date.now();
+  const due =
+    !ADS.adFree &&
+    !window.__SIM &&
+    ADS.games >= C.minGames &&
+    ADS.games - ADS.lastInterGame >= C.everyGames &&
+    now - ADS.lastInter >= C.minGapMs;
+  if (due) {
+    await adsConsent();
+    adStat("between", "shown");
+    ADS.lastInter = now;
+    ADS.lastInterGame = ADS.games;
+    adsSave();
+    await playAd("interstitial");
+    adStat("between", "done");
+  }
+  next();
+}
+export const adBtn = (id, label, sub) =>
+  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+
+/* ---- Yerleşimler ---- */
+export function adDoubleHTML(bonus) {
+  return bonus > 0 && !window.__SIM
+    ? adBtn(
+        "ad-x2",
+        $t("ads.49", {
+          bonus: fmt(bonus)
+        }),
+        $t("ads.50")
+      )
+    : "";
+}
+export function bindAdDouble(bonus) {
+  const b = $("#ad-x2");
+  if (!b) return;
+  b.onclick = async () => {
+    b.disabled = true;
+    if (await showRewarded("double_bonus")) {
+      tx($t("ads.51"), bonus);
+      save();
+      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.29", {
+        bonus: fmt(bonus)
+      })}</div>`;
+    } else b.disabled = false;
+  };
+}
+export function adEnergyHTML() {
+  const wk = `${S.season}-${S.week}`;
+  if (S.adEnergyWk !== wk) {
+    S.adEnergyWk = wk;
+    S.adEnergyN = 0;
+  }
+  if (window.__SIM || S.energy >= 60 || S.adEnergyN >= ADS_CFG.energyPerWeek) return "";
+  return `<div class="card"><div class="row between nowrap"><div><div class="eyebrow">${$t("ads.30", {
+    energy: S.energy
+  })}</div><p class="small muted" style="margin:2px 0 0">${$t("ads.31", {
+    v: ADS_CFG.energyPerWeek - S.adEnergyN
+  })}</p></div></div>${adBtn("ad-en", $t("ads.32"), $t("ads.50"))}</div>`;
+}
+export function bindAdEnergy(after) {
+  const b = $("#ad-en");
+  if (!b) return;
+  b.onclick = async () => {
+    b.disabled = true;
+    if (await showRewarded("energy")) {
+      S.adEnergyN++;
+      S.energy += 30;
+      norm();
+      save();
+      toast($t("ads.32"));
+      after && after();
+    } else b.disabled = false;
+  };
+}
+export function adHealHTML() {
+  return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed ? adBtn("ad-heal", $t("ads.52"), $t("ads.53")) : "";
+}
+export function bindAdHeal(after) {
+  const b = $("#ad-heal");
+  if (!b) return;
+  b.onclick = async () => {
+    b.disabled = true;
+    if (await showRewarded("heal")) {
+      S.injury.w--;
+      S.injury.adHealed = true;
+      save();
+      toast($t("ads.33"));
+      after && after();
+    } else b.disabled = false;
+  };
+}
+export function adHalfHTML() {
+  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.54"), $t("ads.55"));
+}
+export function bindAdHalf() {
+  const b = $("#ad-half");
+  if (!b) return;
+  b.onclick = async () => {
+    b.disabled = true;
+    if (await showRewarded("halftime")) {
+      M.adHalf = true;
+      S.energy += 10;
+      S.moral += 4;
+      norm();
+      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.34")}</div>`;
+    } else b.disabled = false;
+  };
+}
+
+/* ---- Ayarlar bölümü ---- */
+export function adsSettingsHTML() {
+  const total = Object.values(ADS.stats).reduce((a, s) => a + s.done, 0);
+  return `<div class="act"><div><h3>${$t("ads.40")}</h3><p>${
+    ADS.adFree
+      ? $t("ads.35")
+      : `${$t("ads.36")} ${rewardLeft()}${$t("ads.56", {
+          total: total
+        })}`
+  }</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${$t("ads.39")}</button>`}</div></div>`;
+}
+export function bindAdsSettings(re) {
+  const c = $("#ad-cons");
+  if (c)
+    c.onclick = () => {
+      ADS.consent = !ADS.consent;
+      adsSave();
+      re();
+    };
+  const f = $("#ad-free");
+  if (f) f.onclick = () => buyAdFree(re);
+}
+// Satın alma: mağaza sürümünde uygulama içi satın alma eklentisine bağlanır (window.PotaStore.buy)
+export async function buyAdFree(re) {
+  if (window.PotaStore && window.PotaStore.buy) {
+    try {
+      if (await window.PotaStore.buy("adfree")) {
+        ADS.adFree = true;
+        adsSave();
+        toast($t("ads.42"));
+        re && re();
+      }
+    } catch (e) {
+      toast($t("ads.43"));
+    }
+    return;
+  }
+  sheet(
+    $t("ads.39"),
+    $t("ads.44"),
+    `<p>${$t("ads.45")}</p><p class="small muted">${$t("ads.46")}</p><button class="btn pri" id="af-ok">${$t("ads.47")}</button>`
+  );
+  $("#af-ok").onclick = () => {
+    closeSheet();
+    settingsSheet();
+  };
+}

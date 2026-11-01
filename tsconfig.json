@@ -1,0 +1,16 @@
+{
+  // Tip denetimi: saf oyun mantığı (src/logic) sıkı modda denetlenir. JavaScript olarak kalır,
+  // tipler JSDoc yorumlarıyla verilir; derleme Vite ile yapılır, tsc yalnızca denetler.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "skipLibCheck": true
+  },
+  "include": ["src/logic/**/*.js"]
+}

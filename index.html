@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pota Kariyeri</title>
+<meta name="description" content="İstanbul'dan NBA'e basketbol kariyer simülasyonu">
+<meta name="theme-color" content="#090d15">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icons/favicon-64.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pota Kariyeri">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap">
 <style>
@@ -71,6 +80,7 @@ canvas{display:block;max-width:100%}
 /* Harita */
 .mapwrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
 .mapwrap svg{display:block;width:100%;height:auto}
+.mapin{position:relative;width:100%}
 .maphead{position:absolute;left:10px;top:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
 .tagx{background:rgba(9,13,21,.84);border:1px solid rgba(216,178,90,.25);border-radius:8px;padding:5px 9px;font-family:var(--display);font-weight:700;letter-spacing:.8px;text-transform:uppercase;font-size:.85rem;line-height:1.1;color:var(--text)}
 .tagx small{display:block;font-family:var(--body);font-weight:600;letter-spacing:0;text-transform:none;font-size:.7rem;color:var(--muted)}
@@ -96,6 +106,11 @@ canvas{display:block;max-width:100%}
 .x{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;flex-shrink:0}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}}
+/* ekran geçişi ve düşük grafik modu */
+.app.enter>*{animation:enter .26s ease both}.app.enter>*:nth-child(2){animation-delay:.03s}.app.enter>*:nth-child(3){animation-delay:.06s}.app.enter>*:nth-child(4){animation-delay:.09s}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation:none!important;transition:none!important}
+body.lowfx .sheet-bg{backdrop-filter:none}
 .act{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .act .ai{width:52px;height:52px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}
@@ -221,8 +236,42 @@ textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-w
 .venue.on canvas{filter:none}
 .venue.on .vlab b{color:var(--gold)}
 .venue:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
-@media (max-width:380px){.hud-stats{grid-template-columns:repeat(2,1fr)}h1{font-size:2.1rem}.reel{width:70px}}
-@media (prefers-reduced-motion:reduce){.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
+@media (max-width:380px){h1{font-size:2.1rem}.reel{width:70px}}
+@media (prefers-reduced-motion:reduce){.app.enter>*,.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
+/* Reklam */
+.adbtn{display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;padding-top:12px}
+.adbtn small{font-family:var(--body);font-size:.7rem;font-weight:600;text-transform:none;letter-spacing:0;opacity:.75}
+.adtag{position:absolute;top:4px;left:8px;font-size:.58rem;letter-spacing:1px;background:rgba(0,0,0,.35);border-radius:4px;padding:1px 5px}
+#adov{position:fixed;inset:0;z-index:60;background:rgba(3,6,12,.94);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .2s}
+.adbox{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--line2);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.adbody{background:linear-gradient(160deg,var(--card2),var(--card));border-radius:12px;padding:22px 16px;min-height:220px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.btn:disabled{opacity:.5;cursor:default}
+/* Mobil sığdırma: kaydırma çubukları gizli (kaydırma çalışmaya devam eder);
+   ana ekranda şerit, harita ve "Bu hafta" kartı tek ekrana sığar */
+@media (pointer:coarse),(max-width:700px){
+  html,body,*{scrollbar-width:none;-ms-overflow-style:none}
+  *::-webkit-scrollbar{width:0!important;height:0!important;display:none}
+}
+@media (max-width:600px){
+  .app{gap:10px}
+  .hud{padding-top:8px;padding-bottom:8px;gap:6px}
+  .avatar{width:36px;height:36px;border-radius:9px}
+  .hud-id .nm{font-size:1.1rem}
+  .hud-money b{font-size:1.15rem}
+  .hud-stats{gap:5px}
+  .hs{padding:4px 6px}
+  .hs .k{font-size:.58rem;letter-spacing:.5px}
+  .hs .v{font-size:.95rem}
+  .mapwrap{display:flex;justify-content:center;background:#121a28}
+  .mapin{width:auto;max-width:100%}
+  /* harita oranı 400x670: yükseklik ekrana göre sınırlanır, genişlik orana göre hesaplanır */
+  .mapwrap svg{--mh:max(300px,calc(100dvh - 345px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:min(var(--mh),calc((100vw - 34px)*1.675));width:auto;aspect-ratio:400/670;max-width:100%}
+  .maphead{left:6px;right:6px;top:6px;gap:5px}
+  .maphead .tagx{font-size:.8rem;padding:4px 7px;max-width:50%}
+  .maphead .tagx small{font-size:.62rem}
+  .weekcard{padding:10px 12px;gap:8px}
+  .weekcard .next{padding:6px 0}
+}
 </style>
 </head>
 <body>
@@ -230,21 +279,6 @@ textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-w
 <div class="app" id="app"></div>
 <div id="ovl"></div>
 
-<script src="data.js"></script>
-<script src="clubs.js"></script>
-<script src="art.js"></script>
-<script src="map.js"></script>
-<script src="games.js"></script>
-<script src="core.js"></script>
-<script src="save.js"></script>
-<script src="places.js"></script>
-<script src="casino.js"></script>
-<script src="shops.js"></script>
-<script src="arcade.js"></script>
-<script src="match.js"></script>
-<script src="engine.js"></script>
-<script src="extras.js"></script>
-<script src="systems.js"></script>
-<script src="audio.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
