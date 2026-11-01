@@ -131,6 +131,13 @@ ads.forEach(a => {
 });
 L.push("| Yerleşim | Gösterim | Tamamlanan |\n|---|---|---|");
 Object.entries(ap).forEach(([k, v]) => L.push(`| ${k} | ${v.n} | ${pct(v.ok, v.n)} |`));
+const caps = P.flatMap(p => p.events.filter(e => e.e === "ad:cap"));
+const capPlayers = P.filter(p => p.events.some(e => e.e === "ad:cap")).length;
+L.push(`\nGünlük reklam sınırına takılma: ${caps.length} kez, ${capPlayers} oyuncu.`);
+if (capPlayers / Math.max(1, P.length) > 0.3)
+  advice.push(
+    "- Oyuncuların %30'undan fazlası günlük ödüllü reklam sınırına takılıyor; `src/ads.js` → `ADS_CFG.dailyRewardCap` değerini artırmayı düşün."
+  );
 L.push(
   `\nOturum başına ödüllü reklam: ${(ads.filter(a => a.kind === "rewarded").length / Math.max(1, allS.length)).toFixed(2)} · geçiş reklamı: ${(ads.filter(a => a.kind === "interstitial").length / Math.max(1, allS.length)).toFixed(2)}`
 );

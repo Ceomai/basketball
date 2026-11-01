@@ -912,8 +912,8 @@ export function transition(avg, champ, head) {
   S.buffs.offer = 0;
   save();
   window.__lastOffers = offers;
-  const retire = S.age >= 34,
-    force = S.age >= 38;
+  const retire = S.age >= 34 || !!S.farewell,
+    force = S.age >= 38 || (S.farewell && S.season > S.farewell); // veda turu sezonu bitince emeklilik
   const show = () => {
     sheet(
       title,
@@ -997,19 +997,7 @@ export function retireScreen() {
   if (SIM()) return;
   closeSheet();
   const k = S.career;
-  const legend = Math.round(
-    (S.items.akademi ? 150 : 0) +
-      (S.items.salon ? 80 : 0) +
-      (k.allStars || 0) * 25 +
-      (k.natCaps || 0) * 2 +
-      k.pts * 0.3 +
-      k.ast * 0.6 +
-      (k.reb || 0) * 0.4 +
-      k.blk * 0.8 +
-      k.trophies.length * 40 +
-      k.mvps * 30 +
-      k.wins * 2
-  );
+  const legend = late.legacyScore(); // miras puanı: src/legacy.js
   app.innerHTML = `<div style="padding-top:18px"><div class="eyebrow">${seasonLabel()}</div><h1>${$t("match.86")}</h1></div>
   <div class="card"><div class="who"><div id="rp"></div><div><h2>${esc(fullName())}</h2><p class="muted">${$t("match.87", {
     age: S.age,
@@ -1027,6 +1015,7 @@ export function retireScreen() {
            })
    }</p>
    <button class="btn pri big" id="nw">${$t("match.92")}</button></div>
+  ${late.hofCard()}
   <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
   $("#rp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   if (!S.retired) {

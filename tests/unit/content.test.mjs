@@ -1,8 +1,12 @@
 // İçerik paketlerinin doğrulaması: yazarlar/çevirmenler veri dosyasını bozarsa test yakalar.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import TR from "../../src/content/events.tr.js";
-import EN from "../../src/content/events.en.js";
+import TR_BASE from "../../src/content/events.tr.js";
+import TR_MORE from "../../src/content/events.more.tr.js";
+const TR = [...TR_BASE, ...TR_MORE];
+import EN_BASE from "../../src/content/events.en.js";
+import EN_MORE from "../../src/content/events.more.en.js";
+const EN = [...EN_BASE, ...EN_MORE];
 import tr from "../../src/i18n/tr.js";
 import en from "../../src/i18n/en.js";
 import trAuto from "../../src/i18n/tr.auto.js";
@@ -10,7 +14,35 @@ import enAuto from "../../src/i18n/en.auto.js";
 import fs from "node:fs";
 
 const PORTRAITS = ["friend", "coach", "rival", "mom", "dad", "agent", "press", "partner", "mate", "neighbor", "odd"];
-const WHEN = [undefined, "home", "abroad", "coast", "lise", "studying", "single", "pro"];
+const WHEN_NAMES = [
+  "home",
+  "abroad",
+  "coast",
+  "lise",
+  "studying",
+  "single",
+  "pro",
+  "school",
+  "lower",
+  "top",
+  "euro",
+  "nba",
+  "star",
+  "bench",
+  "young",
+  "veteran",
+  "rich",
+  "broke",
+  "famous",
+  "partner",
+  "national",
+  "rivalAhead",
+  "lowMorale",
+  "tired"
+];
+const WHEN = {
+  includes: w => w === undefined || (Array.isArray(w) ? w.every(x => WHEN_NAMES.includes(x)) : WHEN_NAMES.includes(w))
+};
 const PH = [
   "friend",
   "coach",
@@ -30,7 +62,7 @@ const PH = [
   "M"
 ];
 const FX = ["moral", "energy", "aka", "followers", "rel", "money", "buffs", "st", "statUp", "partner"];
-const REL = ["koc", "takim", "taraf", "aile", "ark"];
+const REL = ["koc", "takim", "taraf", "aile", "ark", "partner"];
 const placeholders = s => [...String(s).matchAll(/\{(\w+)(?::-?[\d.]+)?\}/g)].map(m => m[1]);
 const texts = ev =>
   [

@@ -510,7 +510,16 @@ for (const f of FILES) {
     const need = [];
     if (added) need.push("t as $t");
     if (out.includes("(LOCALE)")) need.push("LOCALE");
-    out = `import { ${need.join(", ")} } from "./i18n/index.js";\n` + out;
+    // var olan i18n importlarıyla birleştir (araç tekrar çalıştırıldığında çift import olmasın)
+    const re = /^import \{([^}]*)\} from "\.\/i18n\/index\.js";\n/gm;
+    const have = [...out.matchAll(re)].flatMap(m =>
+      m[1]
+        .split(",")
+        .map(x => x.trim())
+        .filter(Boolean)
+    );
+    const names = [...new Set([...have, ...need])];
+    out = `import { ${names.join(", ")} } from "./i18n/index.js";\n` + out.replace(re, "");
   }
   if (!DRY) fs.writeFileSync(file, out);
 }

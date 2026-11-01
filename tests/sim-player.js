@@ -74,6 +74,7 @@
           REC.house.push(`${S.age}:${nx}`);
         }
       }
+      if (!buyable().length && S.housing === "malikane") autoLegacy(); // her şey alındıysa vakıf ve kulüp payı
       if (!REC.allOwned && !buyable().length && S.housing === "malikane")
         REC.allOwned = { week: REC.weeks, age: S.age, season: S.season, stage: S.stage };
       if (S.energy < 50 && S.money > 6) {
@@ -211,7 +212,7 @@
       if (done === null || g !== GEN) return;
       const again = () => setTimeout(() => pump(g), 0);
       try {
-        if (S && S.age >= 37 && !S.retired && $("#ret")) {
+        if (S && !S.retired && $("#ret") && (S.age >= 37 || !$("[data-o]"))) {
           $("#ret").click();
           return again();
         }
@@ -340,6 +341,9 @@
       REC.tlab = S ? S.career.trophies.map(t => t.label) : [];
       REC.caps = S ? S.career.natCaps || 0 : 0;
       REC.arcs = S ? Object.keys(S.arcs || {}) : [];
+      REC.legacy = S ? legacyScore() : 0;
+      REC.legacyParts = S ? legacyBreakdown().parts : [];
+      REC.hof = S ? hofTier(legacyScore())[1] : "";
       REC.final = {
         age: S && S.age,
         money: S && Math.round(S.money),

@@ -1,5 +1,4 @@
-import { t as $t } from "./i18n/index.js";
-import { LANG, LANGS, setLang, t } from "./i18n/index.js";
+import { t as $t, LANG, LANGS, setLang, t } from "./i18n/index.js";
 import { AWARD_T, dominanceOf, injuryChance, seasonAwardKinds } from "./logic/rules.js";
 import { late } from "./late.js";
 import {

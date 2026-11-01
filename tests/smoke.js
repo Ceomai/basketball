@@ -249,6 +249,40 @@ const check = (ok, msg) => {
   check(tel.noConsent, "oyun testi kapalıyken hiçbir şey kaydedilmiyor");
   check(tel.events && tel.fb && tel.mg, "oyun testi açıkken ekran, maç, mini oyun ve geri bildirim kaydediliyor");
 
+  // 7c) miras: vakıf, kulüp payı, Şöhretler Müzesi; yeni hikâye zincirleri
+  const lg = await p.evaluate(() => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const S = Game.S;
+    S.stage = "t1";
+    S.money = 5e6;
+    Game.openLoc("ev", "miras");
+    out.tab = !!document.querySelector("[data-fd]");
+    const before = Game.legacyScore();
+    document.querySelector('[data-fd="saha"]').click();
+    document.querySelector("#lg-share").click();
+    out.legacy = Game.legacyScore() > before && S.legacy.found.saha && S.legacy.club === 10;
+    out.hof = /Şöhretler|Kulüp|Saygın/.test(Game.hofCard());
+    Game.closeSheet();
+    // geç açılan çiçek: zincirin ikinci adımı sezon sonu teklifi üretir
+    S.stage = "t3";
+    S.age = 24;
+    S.week = 6;
+    S.phase = "regular";
+    S.results = [7, 7, 7, 7].map(r => ({ rating: r, win: true }));
+    S.arcs = {};
+    const step = Game.ARCS.bloomer;
+    S.arcs.bloomer = { season: S.season, step: 1, next: 0, choice: "yes" };
+    step.steps[1](S.arcs.bloomer);
+    Game.closeSheet();
+    S.season++;
+    const offers = Game.storyOffers([{ team: S.team, stage: "t3", stay: true, wage: 10 }]);
+    out.bloomer = offers.some(o => o.stage === "t2");
+    return out;
+  });
+  check(lg.tab && lg.legacy && lg.hof, "miras sekmesi, vakıf, kulüp payı ve Şöhretler Müzesi çalışıyor");
+  check(lg.bloomer, "geç açılan çiçek zinciri sezon sonu teklifi üretiyor");
+
   // 8) veri tabanlı olaylar ve dil seçimi
   const ev = await p.evaluate(() => {
     const out = {};

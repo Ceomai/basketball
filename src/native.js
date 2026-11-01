@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 /* ================= UYGULAMA (Capacitor) KATMANI =================
    Oyun Android/iOS uygulaması olarak paketlendiğinde çalışır; web'de hiçbir şey yapmaz.
    - Geri tuşu: açık paneli kapatır, ana ekranda uygulamayı arka plana alır
@@ -96,7 +97,7 @@ function initStore() {
       new Promise((resolve, reject) => {
         const p = store.get(id, platform),
           offer = p && p.getOffer();
-        if (!offer) return reject(new Error("ürün bulunamadı"));
+        if (!offer) return reject(new Error($t("native.2")));
         const timer = setInterval(() => {
           if (store.owned(id)) {
             clearInterval(timer);

@@ -1,4 +1,4 @@
-import { t as $t, LOCALE } from "./i18n/index.js";
+import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, INK, ORDER, cOf, fmt, pick, shade, toast } from "./data.js";
 import { ICON, SKINS, ST, drawBall, drawKid, drawScene, ell, hiCanvas, icon, rr, sceneEl, sv } from "./art.js";

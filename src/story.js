@@ -1,5 +1,4 @@
-import { t as $t } from "./i18n/index.js";
-import { t } from "./i18n/index.js";
+import { t as $t, t } from "./i18n/index.js";
 import { autoSuccess, rivalGrowthRange } from "./logic/rules.js";
 import { late } from "./late.js";
 import {
@@ -533,7 +532,8 @@ export function roleReview() {
   if (i < 2 && trust >= (i === 0 ? 58 : 70) && rec >= (i === 0 ? 6.7 : 7.2) && dominance() >= (i === 0 ? -8 : 0)) {
     to = order[i + 1];
     why = i === 0 ? $t("story.40") : $t("story.41");
-  } else if (i > 0 && (trust < (i === 2 ? 34 : 24) || rec < (i === 2 ? 5.8 : 5.4))) {
+  } else if (i > 0 && (trust < (i === 2 ? 46 : 30) || rec < (i === 2 ? 6.2 : 5.6))) {
+    // ilk beşte kalmak da emek ister: kötü seri ya da koçla bozulan ilişki yedek kulübesine götürür
     to = order[i - 1];
     why = i === 2 ? $t("story.42") : $t("story.43");
   }
@@ -783,6 +783,7 @@ export const ARCS = {
           cc = nx === "nba" ? "US" : coin(0.4) ? "TR" : pick(EU_CC),
           t = pick(leaguePool(nx, cc));
         a.club = t.key;
+        a.team = t; // takım listesine kayıtlı olmayabilir; teklif için nesneyi sakla
         a.stage = nx;
         a.cc = t.cc;
         arcSheet(
@@ -1037,6 +1038,350 @@ export const ARCS = {
           () => {}
         )
     ]
+  },
+  // Mentor: deneyimli bir takım arkadaşı genç oyuncuyu kanatları altına alır
+  mentor: {
+    p: 0.5,
+    gaps: [0, 6],
+    when: () => isPro(S.stage) && S.age >= 18 && S.age <= 22 && S.week === 3 && S.phase === "regular" && !S.arcs.mentor,
+    steps: [
+      a => {
+        const m = late.roster().find(r => r.age >= 30) || late.roster()[0];
+        a.name = m.n;
+        arcSheet(
+          $t("story.164"),
+          $t("story.165", {
+            n: m.n
+          }),
+          LK.mate(),
+          $t("story.166", {
+            n: esc(m.n)
+          }),
+          [
+            {
+              t: $t("places.172"),
+              d: $t("story.167"),
+              do: () => {
+                a.choice = "yes";
+                S.buffs.train = (S.buffs.train || 0) + 6;
+                S.rel.koc += 3;
+                S.rel.takim += 4;
+                return $t("story.168");
+              }
+            },
+            {
+              t: $t("story.169"),
+              d: $t("story.170"),
+              do: () => {
+                a.choice = "no";
+                S.rel.takim -= 2;
+                S.moral += 2;
+                return $t("story.171", {
+                  n: esc(m.n)
+                });
+              }
+            }
+          ],
+          () => {}
+        );
+      },
+      a => {
+        if (a.choice !== "yes")
+          return msg(
+            $t("story.172"),
+            $t("story.173", {
+              name: a.name
+            }),
+            LK.mate(),
+            $t("story.174", {
+              name: esc(a.name)
+            })
+          );
+        const weak = Object.entries(S.st).sort((x, y) => x[1] - y[1])[0][0];
+        S.st[weak] += 2;
+        msg(
+          $t("story.175"),
+          $t("story.173", {
+            name: a.name
+          }),
+          LK.mate(),
+          $t("story.176", {
+            weak: statName(weak),
+            name: esc(a.name)
+          })
+        );
+      }
+    ]
+  },
+  // Milli takım kaptanlığı
+  natcap: {
+    p: 0.6,
+    gaps: [0, 5],
+    when: () =>
+      (S.career.natCaps || 0) >= 10 &&
+      S.age >= 26 &&
+      S.role === "star" &&
+      S.week === 2 &&
+      S.phase === "regular" &&
+      !S.arcs.natcap,
+    steps: [
+      a =>
+        arcSheet(
+          $t("story.177"),
+          `${S.npc.natCoach || $t("story.178")} ${$t("story.179")}`,
+          LK.coach(),
+          $t("story.180"),
+          [
+            {
+              t: $t("story.181"),
+              d: $t("story.182"),
+              do: () => {
+                a.choice = "yes";
+                S.natCaptain = true;
+                S.rel.taraf += 10;
+                S.rel.aile += 8;
+                S.moral += 6;
+                news(
+                  $t("story.183", {
+                    v: fullName()
+                  })
+                );
+                return $t("story.184");
+              }
+            },
+            {
+              t: $t("story.185"),
+              d: $t("story.186"),
+              do: () => {
+                a.choice = "no";
+                S.rel.takim += 4;
+                return $t("story.187");
+              }
+            }
+          ],
+          () => {}
+        ),
+      a =>
+        a.choice === "yes"
+          ? msg($t("story.188"), $t("story.81"), LK.press(), $t("story.189"))
+          : msg($t("story.190"), $t("story.81"), LK.press(), $t("story.191"))
+    ]
+  },
+  // Rakip takım arkadaşı oluyor
+  rivalmate: {
+    p: 0.3,
+    gaps: [0, 5],
+    when: () =>
+      S.rival &&
+      isPro(S.stage) &&
+      S.rival.stage === S.stage &&
+      S.rival.team.key !== S.team.key &&
+      S.age >= 23 &&
+      S.age <= 30 &&
+      S.week === 2 &&
+      !S.arcs.rivalmate,
+    steps: [
+      a => {
+        const R = S.rival;
+        R.team = { key: S.team.key, name: S.team.name, city: S.team.city, cc: S.team.cc, c1: S.team.c1, c2: S.team.c2 };
+        news(
+          $t("story.192", {
+            v: rivalName(),
+            name: S.team.name
+          })
+        );
+        arcSheet(
+          $t("story.193"),
+          $t("story.194", {
+            v: rivalName()
+          }),
+          LK.rival(),
+          $t("story.195", {
+            v: esc(rivalName())
+          }),
+          [
+            {
+              t: $t("story.196"),
+              d: $t("story.197"),
+              do: () => {
+                a.choice = "peace";
+                S.rel.takim += 8;
+                S.moral += 3;
+                return $t("story.198", {
+                  first: esc(R.first)
+                });
+              }
+            },
+            {
+              t: $t("story.199"),
+              d: $t("story.200"),
+              do: () => {
+                a.choice = "rival";
+                S.rel.koc += 4;
+                S.rel.takim -= 4;
+                S.buffs.train = (S.buffs.train || 0) + 4;
+                return $t("story.201", {
+                  first: esc(R.first)
+                });
+              }
+            }
+          ],
+          () => {}
+        );
+      },
+      a => {
+        const R = S.rival;
+        if (a.choice === "peace") {
+          S.rel.takim += 4;
+          msg(
+            $t("story.202"),
+            $t("story.81"),
+            LK.press(),
+            $t("story.203", {
+              first: esc(R.first)
+            })
+          );
+        } else {
+          S.moral -= 2;
+          msg($t("story.204"), $t("story.81"), LK.press(), $t("story.205"));
+        }
+      }
+    ]
+  },
+  // Emeklilik kararı ve veda turu
+  farewell: {
+    p: 1,
+    gaps: [0, 8],
+    when: () => S.age >= 33 && S.week === 4 && S.phase === "regular" && !S.arcs.farewell && isPro(S.stage),
+    steps: [
+      a =>
+        arcSheet(
+          $t("story.206"),
+          $t("story.93", {
+            mom: S.npc.mom
+          }),
+          LK.mom(),
+          $t("story.207"),
+          [
+            {
+              t: $t("story.208"),
+              d: $t("story.209"),
+              do: () => {
+                a.choice = "last";
+                S.farewell = S.season;
+                S.rel.taraf += 10;
+                S.moral += 6;
+                news(
+                  $t("story.210", {
+                    v: fullName()
+                  })
+                );
+                return $t("story.211");
+              }
+            },
+            {
+              t: $t("story.212"),
+              d: $t("story.213"),
+              do: () => {
+                a.choice = "go";
+                S.buffs.injWk = 10;
+                S.buffs.injMul = 1.3;
+                S.moral += 3;
+                return $t("story.214");
+              }
+            },
+            {
+              t: $t("story.215"),
+              d: $t("story.216"),
+              do: () => {
+                a.choice = "coach";
+                S.coachCourse = true;
+                S.rel.koc += 6;
+                return $t("story.217");
+              }
+            }
+          ],
+          () => {}
+        ),
+      a => {
+        if (a.choice === "last") {
+          S.rel.taraf += 15;
+          S.followers = Math.round(S.followers * 1.1);
+          msg($t("story.218"), $t("story.219"), LK.press(), $t("story.220"));
+        } else if (a.choice === "coach") msg($t("story.221"), $t("legacy.25"), LK.coach(), $t("story.222"));
+        else msg($t("story.223"), $t("story.81"), LK.press(), $t("story.224"));
+      }
+    ]
+  },
+  // Geç açılan çiçek: alt liglerde kalmış ama iyi oynayan oyuncuya ikinci şans
+  bloomer: {
+    p: 0.6,
+    gaps: [0, 5],
+    when: () =>
+      ["t3", "t2"].includes(S.stage) &&
+      S.age >= 22 &&
+      S.age <= 27 &&
+      S.week === 6 &&
+      S.phase === "regular" &&
+      rated().length >= 4 &&
+      seasonAvg() >= 6.5 &&
+      !S.arcs.bloomer,
+    steps: [
+      a => {
+        const cost = Math.max(40, Math.round(S.wage * 2));
+        a.cost = cost;
+        arcSheet(
+          $t("story.225"),
+          $t("story.226"),
+          LK.coach(),
+          $t("story.227", {
+            cost: fmt(cost)
+          }),
+          [
+            {
+              t: `Kampa katıl (${fmt(cost)})`,
+              d: $t("story.228"),
+              do: () => {
+                a.choice = "yes";
+                tx($t("story.229"), -cost);
+                for (const k in S.st) S.st[k] += 1;
+                S.buffs.train = (S.buffs.train || 0) + 10;
+                S.moral += 5;
+                return $t("story.230");
+              }
+            },
+            {
+              t: $t("story.231"),
+              d: $t("story.232"),
+              do: () => {
+                a.choice = "no";
+                return $t("story.233");
+              }
+            }
+          ],
+          () => {}
+        );
+      },
+      a => {
+        if (a.choice !== "yes") return msg($t("story.234"), $t("story.235"), LK.agent(), $t("story.236"));
+        const nx = ORDER[ORDER.indexOf(S.stage) + 1],
+          cc = coin(0.5) ? "TR" : pick(EU_CC),
+          t = pick(leaguePool(nx, cc));
+        a.club = t.key;
+        a.team = t; // takım listesine kayıtlı olmayabilir
+        a.stage = nx;
+        msg(
+          $t("story.237"),
+          $t("story.75", {
+            agent: S.npc.agent
+          }),
+          LK.agent(),
+          $t("story.238", {
+            name: esc(t.name)
+          })
+        );
+      }
+    ]
   }
 };
 // Tek seferlik kuyruk anları
@@ -1104,10 +1449,26 @@ Bus.use("match:after", (ctx, next) => {
 });
 // Sezon sonu teklifleri: transfer söylentisinin sonucu
 export function storyOffers(offers) {
+  const bl = S.arcs && S.arcs.bloomer;
+  if (bl && bl.club && !bl.done && bl.season === S.season - 1) {
+    bl.done = true;
+    const t = teamByKey(bl.club) || bl.team;
+    if (t && !offers.some(o => o.team.key === t.key))
+      offers.push({
+        team: t,
+        stage: bl.stage,
+        role: "rot",
+        wage: Math.round(WAGE[bl.stage] * ((LEAGUES[t.cc] || LEAGUES.TR).pr || 1)),
+        years: 2,
+        note: $t("story.239", {
+          stage: levelName(bl.stage)
+        })
+      });
+  }
   const a = S.arcs && S.arcs.rumor;
   if (!a || a.season !== S.season - 1 || a.done) return offers;
   a.done = true;
-  const t = teamByKey(a.club);
+  const t = teamByKey(a.club) || a.team;
   if (!t) return offers;
   const avg = seasonAvgOf();
   if (a.choice === "loyal") {
