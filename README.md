@@ -20,6 +20,8 @@ Geliştirirken canlı yenilenen sunucu için `npm run dev` kullanılır.
 
 **Oyna ve test et (QR):** https://ceomai.github.io/basketball/qr.html
 
+**Android APK (her güncellemede yenilenir):** https://github.com/Ceomai/basketball/releases/download/apk-latest/pota-kariyeri.apk
+
 <img src="public/qr/qr-test.png" width="180" alt="Oyun testi QR kodu"> <img src="public/qr/qr-oyna.png" width="180" alt="Oyna QR kodu">
 
 Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorulur), sağdaki yalnızca oyunu açar.
