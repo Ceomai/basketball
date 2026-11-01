@@ -20,6 +20,8 @@ import * as story from "./story.js";
 import * as ads from "./ads.js";
 import * as audio from "./audio.js";
 import * as music from "./music.js";
+import * as events from "./content/events.js";
+import * as i18n from "./i18n/index.js";
 
 const MODULES = [
   data,
@@ -40,7 +42,9 @@ const MODULES = [
   story,
   ads,
   audio,
-  music
+  music,
+  events,
+  i18n
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

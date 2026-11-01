@@ -1,3 +1,4 @@
+import { t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, SIM, esc, toast } from "./data.js";
 import { icon, portrait } from "./art.js";
@@ -371,20 +372,20 @@ export function renderSlots() {
   migrateLegacy();
   const rows = [];
   for (let i = 1; i <= SLOT_N; i++) rows.push([i, loadSlot(i)]);
-  app.innerHTML = `<div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">Basketbol kariyer simülasyonu</div><h1>Pota<br>Kariyeri</h1></div><button class="btn ghost sm" id="help0">Kılavuz</button></div>
-   ${storageOK ? "" : `<div class="say" style="border-left-color:var(--bad)">Tarayıcı kaydı kapalı (gizli sekme ya da engellenmiş site verisi). Oynayabilirsin ama sayfa kapanınca ilerleme kaybolur. Oyun içinden kayıt kodunu kopyalayarak saklayabilirsin.</div>`}
-   <div class="eyebrow">Kariyer yuvaları · en fazla ${SLOT_N}</div>
+  app.innerHTML = `<div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div>
+   ${storageOK ? "" : `<div class="say" style="border-left-color:var(--bad)">${t("slots.storageOff")}</div>`}
+   <div class="eyebrow">${t("slots.header", { n: SLOT_N })}</div>
    <div class="choices">${rows
      .map(([i, r]) =>
        !r
-         ? `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>Yuva ${i} · boş</h3><p>Yeni bir kariyer başlat.</p></div><button class="btn pri sm" data-new="${i}">Yeni kariyer</button></div>`
+         ? `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${t("slots.empty", { i })}</h3><p>${t("slots.emptyDesc")}</p></div><button class="btn pri sm" data-new="${i}">${t("btn.newCareer")}</button></div>`
          : r.from === "corrupt"
-           ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>Yuva ${i} · okunamadı</h3><p>Kayıt bozulmuş ve yedek bulunamadı.</p></div><button class="btn bad sm" data-del="${i}">Yuvayı temizle</button></div>`
-           : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ' · <span class="warn">yedekten açılacak</span>' : ""}</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" data-del="${i}">Sil</button><button class="btn team sm" data-go="${i}">${r.S.retired ? "Görüntüle" : "Devam et"}</button></div></div>`
+           ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${t("slots.corrupt", { i })}</h3><p>${t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${t("slots.clear")}</button></div>`
+           : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn team sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
      )
      .join("")}</div>
-   <div class="card"><div class="eyebrow">Kayıt kodu</div><p class="small muted">Başka bir cihazdan getirdiğin kayıt kodunu buraya yapıştır. Kod ilk boş yuvaya yüklenir.</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:16px" placeholder="Kayıt kodunu yapıştır" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">Panodan yapıştır</button><button class="btn sm" id="impb">Kodu yükle</button></div><label class="btn team sm" style="text-align:center">Yedek dosyasından yükle<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
-   ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">İpucu</div><p class="small">Oyunu telefonunda ana ekrana eklersen uygulama gibi açılır, internetsiz çalışır ve kayıtların daha güvende olur. Ayarlar → Ana ekrana ekle.</p></div>`}`;
+   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn team sm" style="text-align:center">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
+   ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${t("slots.tip")}</div><p class="small">${t("slots.tipInstall")}</p></div>`}`;
   rows.forEach(([i, r]) => {
     if (r && r.S) {
       const el = $(`[data-pp="${i}"]`);

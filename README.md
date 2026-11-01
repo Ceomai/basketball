@@ -4,9 +4,19 @@
 
 ## Nasıl oynanır
 
-Kurulum ya da derleme gerekmez. `index.html` dosyasını bir tarayıcıda açman yeterli.
+Oyunun derlenmiş hali tek bir dosya: `dist/index.html`. Bu dosya bir tarayıcıda çift tıklanarak da açılır.
 
-GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branch → `main` / root**. Pages üzerinden açıldığında oyun telefonda ana ekrana eklenebilir ve internetsiz çalışır.
+```bash
+npm install
+```
+
+```bash
+npm run build
+```
+
+Geliştirirken canlı yenilenen sunucu için `npm run dev` kullanılır.
+
+**GitHub Pages ile yayın:** Settings → Pages → Source: **GitHub Actions** seç, sonra Actions sekmesinden **Pages** iş akışını çalıştır. Pages üzerinden açılan oyun telefonda ana ekrana eklenebilir ve internetsiz çalışır.
 
 ## Öne çıkanlar
 
@@ -39,55 +49,104 @@ GitHub Pages ile yayınlamak için: **Settings → Pages → Deploy from a branc
 - **Kayıt:** 5 kayıt yuvası. Her kayıt hem tarayıcı hafızasına hem IndexedDB'ye yazılır; biri silinir ya da bozulursa diğerinden geri gelir. Yedek dosyası (`.pota`) indirilebilir, paylaşılabilir ve geri yüklenebilir. Oyun birkaç sezonda bir yedek almayı hatırlatır.
 - **Denge:** ilerleme, teklif eşikleri ve ödüller otomatik oynayan bir simülasyonla ayarlandı. Zayıf bir oyuncu genelde 1. lig veya EuroLeague'de kalır, ortalama bir oyuncunun NBA şansı yaklaşık dörtte birdir, yetenekli bir oyuncu 25-26 yaşlarında NBA'e ulaşır.
 
+## Gelir modeli: reklamlar
+
+Reklam oyuncunun tercihidir; geçiş reklamları seyrek ve sınırlıdır. Ayrıntılar `src/ads.js` başında.
+
+| Yerleşim | Ne zaman | Karşılık |
+|---|---|---|
+| Primi ikiye katla | Maç sonu ekranı | Maç primi bir kez daha ödenir |
+| Enerji | Enerji 60'ın altındayken, haftada 2 kez | +30 enerji |
+| Soyunma odası | Devre arası | +10 enerji, +4 moral |
+| Erken dönüş | Sakatken, sakatlık başına 1 kez | İyileşme 1 hafta kısalır |
+| Geçiş reklamı | Maçlar arası, en erken 6. maçtan sonra, en az 3 maç ve 4 dakika arayla | — |
+
+- **Sınır:** günde en fazla 8 ödüllü reklam.
+- **Rıza:** ilk reklamdan önce kişiselleştirme izni (KVKK/GDPR) bir kez sorulur.
+- **Reklamsız paket:** geçiş reklamlarını kapatır, ödülleri reklamsız verir. Satın alma, mağaza sürümünde `window.PotaStore.buy` kancasına bağlanır.
+- **Sağlayıcı:** Capacitor ile paketlenmiş uygulamada AdMob eklentisi (`@capacitor-community/admob`) kullanılır; `src/ads.js` içinde şu an Google'ın test kimlikleri var. Web sürümünde gerçek reklam yoktur, akışı gösteren bir tanıtım ekranı çıkar.
+
+## Mimari
+
+```
+index.html          stiller ve sayfa iskeleti
+src/main.js         giriş: modülleri sırayla yükler, "late" kaydını doldurur
+src/logic/rules.js  saf oyun kuralları (denge, ekonomi, teklifler, ödüller, sakatlık); DOM ve global durum yok
+src/content/        veri olarak yazılmış olaylar (events.tr.js, events.en.js) ve motoru (events.js)
+src/i18n/           çok dil altyapısı: t("anahtar"), tr.js, en.js
+src/*.js            ekranlar ve sistemler (harita, mekanlar, maç motoru, kayıt, hikâye, reklam, ses...)
+public/             service worker, manifest, ikonlar
+tests/              birim testleri (unit/), duman testi, denge simülasyonu
+tools/              tek seferlik dönüşüm araçları (klasik betikten ES modülüne geçiş)
+```
+
+- **Modüller:** her dosya ES modülü. Önceki modüllere `import` ile bağlanır. Sonra yüklenen bir modülü çağırmak gerektiğinde `late.ad` kaydı kullanılır. Bu, eski yükleme sırasını koruyarak döngüsel bağımlılık hatalarını önler.
+- **Olay sistemi (`Bus`, `src/data.js`):** modüller birbirinin fonksiyonlarını değiştirmez, olaylara abone olur:
+  - `on`/`emit`: bildirim (ör. "sakatlık bitti").
+  - `use`/`run`: akışı durdurup sürdürebilen ara katman (ör. maç sonu basın toplantısı).
+  - `offer`/`first`: haftada tek panel için sıralı sağlayıcılar.
+- **Saf kurallar:** denge formülleri `src/logic/rules.js` içinde. Birim testleri (`tests/unit/`) ve `tsc` tip denetimi (JSDoc, sıkı mod) buradan geçer.
+- **Kayıt şeması:** `SAVE_V` ve `MIGRATIONS` (`src/save.js`). Yapı değişince sürüm artırılır, eski kayıtlar açılırken adımlar sırayla uygulanır.
+- **İçerik:** rastgele olaylar `src/content/events.tr.js` içinde veri olarak duruyor; yeni olay için kod gerekmez. Paket biçimi dosyanın başında anlatılıyor. Çeviriler aynı `id` ile `events.<dil>.js` dosyasına yazılır.
+- **Çok dil:** Ayarlar → Dil. İngilizce şimdilik kısmi: kayıt ekranı, ayarlar, ana ekran kartı, hızlı hafta ve rastgele olaylar çevrildi. Diğer ekranlardaki metinler henüz Türkçe ve `t()` altyapısına kademeli taşınacak.
+
 ## Dosyalar
 
 | Dosya | İçerik |
 |---|---|
 | `index.html` | Stiller ve sayfa iskeleti |
-| `data.js` | Ligler, şehirler, pozisyonlar, yardımcılar |
-| `art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
-| `map.js` | Şehir haritası |
-| `games.js` | Maç ve antrenman mini oyunları |
-| `clubs.js` | Gerçek kulüp listeleri (1. ve 2. ligler, EuroLeague, NBA) |
-| `core.js` | Oyun durumu, ana ekran, panel sistemi |
-| `save.js` | 5 kayıt yuvası, IndexedDB kopyası, yedek dosyası, kayıt kodu |
-| `places.js` | Ev, stadyum, okul, medya, aile, kafe |
-| `casino.js` | Oyun Kulübü (fişle oynanan masa oyunları) |
-| `shops.js` | AVM mağazaları, market ve eğlence merkezi |
-| `arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
-| `match.js` | Karar anları, maç sonu, olaylar, sezon sonu ve teklifler |
-| `engine.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
-| `extras.js` | Milli takım (U18, U20, A), arcade sıralamaları, yerel hikâye olayları |
-| `systems.js` | Ayarlar, istatistikler, ödüller, sakatlıklar, kadro, sözleşme pazarlığı, kılavuz |
-| `audio.js` | Ses efektleri ve tribün sesi |
-| `story.js` | Haftayı hızlı geç, otomatik maç, rakip oyuncu, koçun güveni, basın toplantısı, hikâye zincirleri |
-| `music.js` | Müzik ve görsel cila (sayı animasyonları, ekran geçişleri, düşük grafik modu) |
-| `sw.js`, `manifest.webmanifest`, `icons/` | Uygulama olarak kurulum ve internetsiz çalışma |
-| `tests/` | Duman testi ve denge simülasyonu |
-
-Kulüp adları yalnızca tanınırlık için kullanıldı; logolar ve renkler basit temsillerdir. Oyuncunun lisesi ve üniversitesi hayali. Karakterler özgün; dizideki karakterler kullanılmadı.
+| `src/main.js`, `src/late.js` | Giriş noktası ve geç bağlama kaydı |
+| `src/logic/rules.js` | Saf oyun kuralları |
+| `src/content/` | Veri olarak rastgele olaylar ve olay motoru |
+| `src/i18n/` | Çok dil altyapısı |
+| `src/ads.js` | Reklam gelir modeli |
+| `src/data.js` | Ligler, şehirler, pozisyonlar, yardımcılar |
+| `src/art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
+| `src/map.js` | Şehir haritası |
+| `src/games.js` | Maç ve antrenman mini oyunları |
+| `src/clubs.js` | Gerçek kulüp listeleri (1. ve 2. ligler, EuroLeague, NBA) |
+| `src/core.js` | Oyun durumu, ana ekran, panel sistemi |
+| `src/save.js` | 5 kayıt yuvası, IndexedDB kopyası, yedek dosyası, kayıt kodu |
+| `src/places.js` | Ev, stadyum, okul, medya, aile, kafe |
+| `src/casino.js` | Oyun Kulübü (fişle oynanan masa oyunları) |
+| `src/shops.js` | AVM mağazaları, market ve eğlence merkezi |
+| `src/arcade.js` | Arcade oyunları: pota makinesi, refleks, hava hokeyi, dans ritmi, bowling |
+| `src/match.js` | Karar anları, maç sonu, sezon sonu ve teklifler |
+| `src/engine.js` | Maç motoru: çeyrekler, rotasyon, oyuncu değişikliği bildirimleri, mola taktikleri |
+| `src/extras.js` | Milli takım (U18, U20, A), arcade sıralamaları |
+| `src/systems.js` | Ayarlar, istatistikler, ödüller, sakatlıklar, kadro, sözleşme pazarlığı, kılavuz |
+| `src/audio.js` | Ses efektleri ve tribün sesi |
+| `src/story.js` | Haftayı hızlı geç, otomatik maç, rakip oyuncu, koçun güveni, basın toplantısı, hikâye zincirleri |
+| `src/music.js` | Müzik ve görsel cila (sayı animasyonları, ekran geçişleri, düşük grafik modu) |
+| `public/` | Service worker, manifest ve ikonlar (uygulama olarak kurulum, internetsiz çalışma) |
+| `tests/` | Birim testleri, duman testi ve denge simülasyonu |
 
 ## Geliştirme
 
-Oyunun kendisi derleme gerektirmez. Testler için Node.js 22 ve Playwright gerekir.
-
-```bash
-npm install
-```
+Node.js 22 gerekir. Tarayıcı testleri için Playwright gerekir.
 
 ```bash
 npm test
 ```
 
-`npm test` üç adımı çalıştırır:
-- `eslint`: dosyalar arası paylaşılan adları otomatik tanır, tanımsız değişken gibi hataları yakalar.
-- `tests/smoke.js`: oyunu gerçek tarayıcıda açıp ana akışları dolaşır.
-- `tests/balance.js`: profil başına 3 kariyerlik kısa denge koşusu.
+`npm test` sırasıyla şunları çalıştırır:
+- `eslint`: tanımsız değişken ve import hataları.
+- `tsc`: `src/logic` tip denetimi.
+- Birim testleri: kurallar ve içerik paketleri.
+- Derleme.
+- `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
+- `tests/balance.js`: kısa denge koşusu.
 
-Ayrıntılı denge raporu için (profil başına 10 kariyer):
+Ayrıntılı denge raporu için profil başına 10 kariyer:
 
 ```bash
 npm run test:balance
+```
+
+Kod biçimlendirme:
+
+```bash
+npm run format
 ```
 
 Her push'ta GitHub Actions aynı testleri çalıştırır.

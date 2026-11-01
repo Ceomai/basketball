@@ -1,3 +1,4 @@
+import { t } from "./i18n/index.js";
 import { autoSuccess, rivalGrowthRange } from "./logic/rules.js";
 import { late } from "./late.js";
 import {
@@ -224,11 +225,11 @@ export function quickWeek() {
   const fx = fixture(),
     opp = teamByKey(fx.opp);
   sheet(
-    "Hafta özeti",
+    t("quick.title"),
     `${seasonLabel()} · Hafta ${S.week}`,
-    `<div class="card"><div class="eyebrow">Bu hafta yaptıkların</div>${plan.length ? `<div class="kv">${plan.map(([a, b]) => `<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>` : `<p class="small muted">Bu haftanın zaman dilimleri zaten dolmuştu.</p>`}</div>
-   <div class="card"><div class="eyebrow">Sıradaki maç</div><div class="row nowrap" style="gap:10px">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? "İç saha" : "Deplasman"} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">Sakatsın, maçı tribünden izleyeceksin.</p>` : `<p class="small muted">Otomatik maçta kritik anlar niteliklerine göre çözülür. Kendin oynarsan daha yüksek not alabilirsin.</p>`}</div>
-   ${S.injury ? `<button class="btn pri" id="qw-sim">Maçı izle</button>` : `<div class="grid2"><button class="btn" id="qw-self">Maçı kendim oynayayım</button><button class="btn pri" id="qw-sim">Maçı hızlı oynat</button></div>`}`,
+    `<div class="card"><div class="eyebrow">${t("quick.did")}</div>${plan.length ? `<div class="kv">${plan.map(([a, b]) => `<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>` : `<p class="small muted">${t("quick.full")}</p>`}</div>
+   <div class="card"><div class="eyebrow">${t("quick.next")}</div><div class="row nowrap" style="gap:10px">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? t("main.home") : t("main.away")} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">${t("quick.injured")}</p>` : `<p class="small muted">${t("quick.autoNote")}</p>`}</div>
+   ${S.injury ? `<button class="btn pri" id="qw-sim">${t("quick.watch")}</button>` : `<div class="grid2"><button class="btn" id="qw-self">${t("quick.self")}</button><button class="btn pri" id="qw-sim">${t("quick.sim")}</button></div>`}`,
     { noClose: true }
   );
   $("#qw-sim").onclick = () => {

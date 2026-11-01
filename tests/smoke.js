@@ -165,6 +165,17 @@ const check = (ok, msg) => {
   check(sv.backup, "bozuk kayıt yedekten açılıyor");
   check(sv.code, "kayıt kodu dışa/içe aktarılıyor");
   check(sv.idb, "silinen kayıt IndexedDB kopyasından geri geliyor");
+  const mig = await p.evaluate(() => {
+    const old = JSON.parse(JSON.stringify(Game.S));
+    old.wage = 300;
+    delete old.wk14;
+    delete old.schema;
+    localStorage.setItem("pota-slot-5", JSON.stringify({ v: 4, ts: Date.now(), S: old }));
+    const r = Game.loadSlot(5);
+    localStorage.removeItem("pota-slot-5");
+    return r && r.S.wage === 150 && r.S.schema === Game.SAVE_V;
+  });
+  check(mig, "eski sürüm kayıt açılırken sürüm geçişleri uygulanıyor");
 
   // 7) mini oyunlar açılıyor
   const games = await p.evaluate(async () => {
@@ -196,6 +207,24 @@ const check = (ok, msg) => {
   });
   check(games >= 12, `mini oyunlar açıldı (${games})`);
   await p.evaluate(() => Game.renderSlots());
+
+  // 8) veri tabanlı olaylar ve dil seçimi
+  const ev = await p.evaluate(() => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const pool = Game.eventPool();
+    out.pool = pool.length;
+    out.ran = pool.every(e => typeof e.choices[0].do() === "string" && !/\{\w+\}/.test(e.text));
+    Game.setLang("en");
+    out.en = Game.eventPool().length > 0 && Game.eventPool().every(e => !/[ğışçöü]/i.test(e.title));
+    Game.renderSlots();
+    out.ui = document.querySelector("#app").textContent.includes("Career slots");
+    Game.setLang("tr");
+    Game.renderSlots();
+    return out;
+  });
+  check(ev.pool >= 10 && ev.ran, `veri tabanlı olaylar çalışıyor (${ev.pool} olay)`);
+  check(ev.en && ev.ui, "İngilizce dil seçeneği arayüzü ve olayları çeviriyor");
 
   check(errs.length === 0, "sayfa hatası yok" + (errs.length ? ": " + errs.slice(0, 3).join(" | ") : ""));
   await b.close();

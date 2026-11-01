@@ -1,3 +1,4 @@
+import { LANG, LANGS, setLang, t } from "./i18n/index.js";
 import { AWARD_T, dominanceOf, injuryChance, seasonAwardKinds } from "./logic/rules.js";
 import { late } from "./late.js";
 import {
@@ -70,22 +71,23 @@ export const saveSettings = () => {
 };
 export function settingsSheet() {
   const tog = (k, label, desc) =>
-    `<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k] ? "team" : "ghost"} sm" data-tg="${k}">${SETTINGS[k] ? "Açık" : "Kapalı"}</button></div>`;
+    `<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k] ? "team" : "ghost"} sm" data-tg="${k}">${SETTINGS[k] ? t("btn.on") : t("btn.off")}</button></div>`;
   sheet(
-    "Ayarlar",
-    "Ses, grafik ve kayıt",
-    `${tog("sound", "Ses efektleri", "Top, file, düdük, tribün ve arayüz sesleri.")}${tog("music", "Müzik", "Haritada sakin bir tema, eğlence merkezinde 8-bit tema.")}${tog("crowd", "Tribün uğultusu", "Maç boyunca arka planda seyirci sesi.")}${tog("haptic", "Titreşim", "Destekleyen telefonlarda kısa titreşimler.")}${tog("lowfx", "Düşük grafik modu", "Eski ya da yavaş telefonlar için: daha düşük çözünürlük, animasyonsuz arayüz.")}${tog("backupNag", "Yedek hatırlatması", "Birkaç sezonda bir yedek dosyası almanı hatırlatır.")}
-   ${isInstalled() ? "" : `<div class="act"><div><h3>Ana ekrana ekle</h3><p>Uygulama gibi açılır, internetsiz çalışır, kayıtlar daha güvende olur.</p></div><button class="btn team sm" id="st-inst">Nasıl?</button></div>`}
-   <div class="act"><div><h3>Ses düzeyi</h3><p>Efektlerin yüksekliği.</p></div><div class="opts" style="grid-column:1/-1">${[
-     [0.35, "Kısık"],
-     [0.7, "Orta"],
-     [1, "Yüksek"]
+    t("settings.title"),
+    t("settings.sub"),
+    `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts" style="grid-column:1/-1">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
+   ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
+   ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
+   <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+     [0.35, t("settings.volLow")],
+     [0.7, t("settings.volMid")],
+     [1, t("settings.volHigh")]
    ]
      .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}">${n}</button>`)
      .join("")}</div></div>
    ${late.adsSettingsHTML()}
-   <div class="grid2"><button class="btn" id="st-exp">Yedek al</button><button class="btn" id="st-help">Kılavuz</button></div>
-   <button class="btn ghost" id="st-tour">Tanıtım turunu tekrar göster</button>`
+   <div class="grid2"><button class="btn" id="st-exp">${t("settings.backup")}</button><button class="btn" id="st-help">${t("btn.guide")}</button></div>
+   <button class="btn ghost" id="st-tour">${t("settings.tour")}</button>`
   );
   $$("[data-tg]").forEach(
     b =>
@@ -108,6 +110,7 @@ export function settingsSheet() {
         settingsSheet();
       })
   );
+  $$("[data-lang]").forEach(b => (b.onclick = () => (setLang(b.dataset.lang), settingsSheet())));
   late.bindAdsSettings(settingsSheet);
   $("#st-exp").onclick = exportSheet;
   const ib = $("#st-inst");

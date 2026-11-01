@@ -1,3 +1,4 @@
+import { t } from "./i18n/index.js";
 import { late } from "./late.js";
 import {
   $,
@@ -655,13 +656,13 @@ export function renderMain() {
     tods = ["Gece", "Akşam", "Öğleden sonra", "Sabah"];
   app.innerHTML = `${hudHTML()}
   <div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${seasonLabel()} · Hafta ${S.week} · ${tods[S.slot]}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
-  <div class="card weekcard"><div class="row between"><div class="eyebrow">Bu hafta · ${S.slot} zaman dilimi kaldı</div>${S.injury ? `<span class="pill l">Sakat · ${S.injury.w} hafta</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : "Okul takımı"}</span>`}</div>
+  <div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
-   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? "İç saha" : "Deplasman"}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">vs</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
-   ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">DERBİ · rakibin ${esc(late.rivalName())} karşında</div>` : ""}
-   <div class="grid2"><button class="btn" id="quickw">Haftayı hızlı geç</button><button class="btn pri" id="gostad">Maça hazırlan</button></div></div>
-  <div class="card"><div class="eyebrow">Gündem</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || '<div class="small muted">Henüz haber yok.</div>'}</div></div>
-  <div class="row between small muted"><span>${S.career.games} maç · ${S.career.pts} sayı · ${S.career.trophies.length} ödül</span><div class="row" style="gap:6px"><button class="btn ghost sm" id="opt">Ayarlar</button><button class="btn ghost sm" id="rst">Kayıtlar</button></div></div>`;
+   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">vs</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
+   ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
+   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div></div>
+  <div class="card"><div class="eyebrow">${t("main.news")}</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
+  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px"><button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   $$(".loc").forEach(g => {
     const go = () => late.openLoc(g.dataset.loc);
