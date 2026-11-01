@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { INK, fmt, hash, luma, shade } from "./data.js";
 /* ================= KARAKTER ÇİZİMİ (South Park kesik kağıt tarzı) ================= */
@@ -347,7 +348,7 @@ export const ICON = {
     ),
   tub: () =>
     sv(
-      `<rect x="14" y="16" width="36" height="40" rx="6" fill="#263238" ${ST}/><rect x="12" y="10" width="40" height="9" rx="3" fill="#ff7043" ${ST}/><rect x="18" y="26" width="28" height="18" rx="3" fill="#ffca28" ${ST}/><text x="32" y="39" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="10" text-anchor="middle" fill="#141414">WHEY</text>`
+      `<rect x="14" y="16" width="36" height="40" rx="6" fill="#263238" ${ST}/><rect x="12" y="10" width="40" height="9" rx="3" fill="#ff7043" ${ST}/><rect x="18" y="26" width="28" height="18" rx="3" fill="#ffca28" ${ST}/><text x="32" y="39" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="10" text-anchor="middle" fill="#141414">${$t("art.1")}</text>`
     ),
   bottle: () =>
     sv(
@@ -605,7 +606,7 @@ export function drawScene(c, kind, o) {
     c.fillStyle = "#fff";
     c.font = '800 16px "Barlow Condensed"';
     c.textAlign = "center";
-    c.fillText("MAHALLE MARKET", 275, 27);
+    c.fillText($t("art.2"), 275, 27);
     c.textAlign = "left";
   }
   if (kind === "kafe") {
@@ -622,9 +623,9 @@ export function drawScene(c, kind, o) {
     rr(c, 14, 14, 110, 70, 4, "#22312a");
     c.fillStyle = "#f5f5f5";
     c.font = '800 14px "Barlow Condensed"';
-    c.fillText("MENÜ", 24, 32);
+    c.fillText($t("art.3"), 24, 32);
     c.font = "600 10px Manrope";
-    ["Türk kahvesi", "Latte", "Çay", "Kek"].forEach((t, i) => c.fillText(t, 24, 48 + i * 10));
+    [$t("art.4"), $t("art.5"), $t("art.6"), $t("art.7")].forEach((t, i) => c.fillText(t, 24, 48 + i * 10));
     for (let i = 0; i < 5; i++) {
       c.beginPath();
       c.moveTo(150 + i * 40, 0);
@@ -678,7 +679,7 @@ export function drawScene(c, kind, o) {
     c.fillStyle = "#d8b25a";
     c.font = '800 13px "Barlow Condensed"';
     c.textAlign = "center";
-    c.fillText("SNEAKER LAB", 105, 26);
+    c.fillText($t("art.8"), 105, 26);
     c.textAlign = "left";
     drawKid(
       c,
@@ -822,7 +823,7 @@ export function drawScene(c, kind, o) {
     c.fillStyle = "#ff9fd2";
     c.font = '800 22px "Barlow Condensed"';
     c.textAlign = "center";
-    c.fillText("ARCADE", 180, 22);
+    c.fillText($t("art.9"), 180, 22);
     c.restore();
     drawKid(
       c,
@@ -1053,9 +1054,9 @@ export async function vitrineCanvas() {
     c.fillStyle = "rgba(255,255,255,.75)";
     c.font = "700 12px Manrope";
     c.textAlign = "center";
-    c.fillText("Vitrin henüz boş.", 132, 145);
+    c.fillText($t("art.10"), 132, 145);
     c.font = "600 10px Manrope";
-    c.fillText("Kupa kazandıkça ve AVM'den aldıkça dolacak.", 132, 162);
+    c.fillText($t("art.11"), 132, 162);
     c.textAlign = "left";
   }
   // halı ve top

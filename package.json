@@ -14,9 +14,11 @@
     "test:balance": "npm run build && node tests/balance.js 10"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.12",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "prettier": "^3.9.10",
+    "recast": "^0.23.21",
     "typescript": "^5.9.3",
     "vite": "^6.4.5"
   }

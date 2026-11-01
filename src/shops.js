@@ -1,3 +1,4 @@
+import { t as $t, LOCALE } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, INK, ORDER, cOf, fmt, pick, shade, toast } from "./data.js";
 import { ICON, SKINS, ST, drawBall, drawKid, drawScene, ell, hiCanvas, icon, rr, sceneEl, sv } from "./art.js";
@@ -48,7 +49,7 @@ Object.assign(ICON, {
     ),
   choco: () =>
     sv(
-      `<rect x="14" y="8" width="36" height="48" rx="3" fill="#5d4037" ${ST}/><path d="M14 22 H50 M14 36 H50 M32 8 V56" stroke="#3e2723" stroke-width="2"/><path d="M14 40 L50 30 V56 H14Z" fill="#c62828" ${ST}/><text x="32" y="50" font-family="Barlow Condensed" font-weight="800" font-size="10" text-anchor="middle" fill="#fff">ÇİKO</text>`
+      `<rect x="14" y="8" width="36" height="48" rx="3" fill="#5d4037" ${ST}/><path d="M14 22 H50 M14 36 H50 M32 8 V56" stroke="#3e2723" stroke-width="2"/><path d="M14 40 L50 30 V56 H14Z" fill="#c62828" ${ST}/><text x="32" y="50" font-family="Barlow Condensed" font-weight="800" font-size="10" text-anchor="middle" fill="#fff">${$t("shops.1")}</text>`
     ),
   sandwich: () =>
     sv(
@@ -192,71 +193,71 @@ export const carUpkeep = () => itemWeekly("up");
 export const STORES = [
   {
     id: "sneaker",
-    n: "Sneaker Lab",
+    n: $t("shops.46"),
     wall: "#20242c",
     acc: "#ff6a2b",
     disp: "shoes",
-    say: "Yeni sezon modelleri geldi. Numaran kaç?",
+    say: $t("shops.47"),
     seller: { skin: SKINS[3], hatStyle: "kep", hat: "#ff6a2b" },
     kit: { jersey: "#141414", sleeves: true, mood: "mutlu" }
   },
   {
     id: "spor",
-    n: "Pro Spor",
+    n: $t("shops.48"),
     wall: "#123a2a",
     acc: "#36d38e",
     disp: "sport",
-    say: "Profesyoneller buradan alışveriş yapar.",
+    say: $t("shops.49"),
     seller: { skin: SKINS[1], hatStyle: "band", hat: "#36d38e", hair: "#111" },
     kit: { jersey: "#1b5e20", sleeves: true, mood: "mutlu", whistle: true }
   },
   {
     id: "tekno",
-    n: "Tekno Merkez",
+    n: $t("shops.50"),
     wall: "#141b2e",
     acc: "#58a6ff",
     disp: "tech",
-    say: "Hepsinin garantisi iki yıl. Kutusunu atma.",
+    say: $t("shops.51"),
     seller: { skin: SKINS[0], hatStyle: "yok", hair: "#e2c15a" },
     kit: { jersey: "#1e3a8a", sleeves: true, glasses: true, mood: "mutlu" }
   },
   {
     id: "moda",
-    n: "Moda Butik",
+    n: $t("shops.52"),
     wall: "#2a1f26",
     acc: "#d8b25a",
     disp: "fashion",
-    say: "Bu ceket tam sana göre. Fotoğrafçılar bayılacak.",
+    say: $t("shops.53"),
     seller: { skin: SKINS[2], hatStyle: "uzun", hair: "#111" },
     kit: { adult: true, jersey: "#141414", sleeves: true, tie: "#d8b25a", mood: "mutlu" }
   },
   {
     id: "galeri",
-    n: "Oto Galeri",
+    n: $t("shops.54"),
     wall: "#1a1f26",
     acc: "#ff5468",
     disp: "cars",
-    say: "Test sürüşü ücretsiz. Kaza yapmazsan.",
+    say: $t("shops.55"),
     seller: { skin: SKINS[1], hatStyle: "yok", hair: "#333" },
     kit: { adult: true, jersey: "#37474f", sleeves: true, tie: "#ff5468", mustache: true, mood: "mutlu" }
   },
   {
     id: "yatirim",
-    n: "Yatırım & Miras",
+    n: $t("shops.56"),
     wall: "#1b2330",
     acc: "#d8b25a",
     disp: "invest",
-    say: "Paranı çalıştır. Basketbol bir gün biter, mülk kalır.",
+    say: $t("shops.57"),
     seller: { skin: SKINS[1], hatStyle: "yok", hair: "#9e9e9e" },
     kit: { adult: true, jersey: "#22304a", sleeves: true, tie: "#d8b25a", glasses: true, mood: "mutlu" }
   },
   {
     id: "ev",
-    n: "Ev & Yaşam",
+    n: $t("shops.58"),
     wall: "#2b2620",
     acc: "#ffc54d",
     disp: "home",
-    say: "İyi uyuyan iyi oynar. Bilimsel gerçek.",
+    say: $t("shops.59"),
     seller: { skin: SKINS[4], hatStyle: "bere", hat: "#ffc54d", pom: "#fff" },
     kit: { jersey: "#6d4c41", sleeves: true, apron: "#ffc54d", mood: "mutlu" }
   }
@@ -265,8 +266,8 @@ export const SHOP = [
   {
     id: "ayak1",
     st: "sneaker",
-    n: "Antrenman ayakkabısı",
-    d: "+2 Çeviklik",
+    n: $t("shops.60"),
+    d: $t("shops.61"),
     p: 60,
     ic: () => icon("sneaker", "#cfd8dc", "#1e88e5"),
     fx: () => (S.st.hiz += 2)
@@ -274,8 +275,8 @@ export const SHOP = [
   {
     id: "ayak2",
     st: "sneaker",
-    n: "İmza serisi ayakkabı",
-    d: "+3 Çeviklik, +1 Şut",
+    n: $t("shops.62"),
+    d: $t("shops.63"),
     p: 260,
     ic: () => icon("sneaker", S.team.c1, "#141414"),
     fx: () => {
@@ -286,8 +287,8 @@ export const SHOP = [
   {
     id: "ayak3",
     st: "sneaker",
-    n: "Retro koleksiyon",
-    d: "+1 Çeviklik, +6 Taraftar",
+    n: $t("shops.64"),
+    d: $t("shops.65"),
     p: 900,
     ic: () => icon("sneaker", "#fafafa", "#c8102e"),
     fx: () => {
@@ -298,8 +299,8 @@ export const SHOP = [
   {
     id: "ayak4",
     st: "sneaker",
-    n: "Altın sınırlı seri",
-    d: "+2 Çeviklik, +12 Taraftar",
+    n: $t("shops.66"),
+    d: $t("shops.67"),
     p: 6000,
     ic: () => icon("sneaker", "#d8b25a", "#141414"),
     fx: () => {
@@ -307,23 +308,31 @@ export const SHOP = [
       S.rel.taraf += 12;
     }
   },
-  { id: "top", st: "spor", n: "Maç topu", d: "+2 Şut", p: 140, ic: () => icon("ball"), fx: () => (S.st.sut += 2) },
-  { id: "bileklik", st: "spor", n: "Şutör bilekliği", d: "+1 Şut", p: 40, ic: () => icon("wrist"), fx: () => (S.st.sut += 1) },
+  { id: "top", st: "spor", n: $t("shops.68"), d: $t("shops.69"), p: 140, ic: () => icon("ball"), fx: () => (S.st.sut += 2) },
+  { id: "bileklik", st: "spor", n: $t("shops.70"), d: $t("shops.71"), p: 40, ic: () => icon("wrist"), fx: () => (S.st.sut += 1) },
   {
     id: "dizlik",
     st: "spor",
-    n: "Profesyonel dizlik",
-    d: "+2 Savunma",
+    n: $t("shops.72"),
+    d: $t("shops.73"),
     p: 90,
     ic: () => icon("knee"),
     fx: () => (S.st.sav += 2)
   },
-  { id: "agirlik", st: "spor", n: "Ev ağırlık seti", d: "+2 Güç", p: 400, ic: () => icon("weights"), fx: () => (S.st.guc += 2) },
+  {
+    id: "agirlik",
+    st: "spor",
+    n: $t("shops.74"),
+    d: $t("shops.75"),
+    p: 400,
+    ic: () => icon("weights"),
+    fx: () => (S.st.guc += 2)
+  },
   {
     id: "forma",
     st: "spor",
-    n: "Takım forması",
-    d: "+4 Taraftar",
+    n: $t("shops.76"),
+    d: $t("shops.77"),
     p: 120,
     ic: () => icon("tshirt", S.team.c1),
     fx: () => (S.rel.taraf += 4)
@@ -331,19 +340,27 @@ export const SHOP = [
   {
     id: "kulaklik",
     st: "spor",
-    n: "Stüdyo kulaklık",
-    d: "+8 Moral",
+    n: $t("shops.78"),
+    d: $t("places.244"),
     p: 180,
     ic: () => icon("headphones"),
     fx: () => (S.moral += 8)
   },
-  { id: "telefon", st: "tekno", n: "Yeni nesil telefon", d: "Paylaşım etkisi ×1,5", p: 380, ic: () => icon("phone") },
-  { id: "konsol", st: "tekno", n: "Oyun konsolu", d: "+15 Moral", p: 220, ic: () => icon("console"), fx: () => (S.moral += 15) },
+  { id: "telefon", st: "tekno", n: $t("shops.79"), d: $t("shops.80"), p: 380, ic: () => icon("phone") },
+  {
+    id: "konsol",
+    st: "tekno",
+    n: $t("shops.81"),
+    d: $t("shops.82"),
+    p: 220,
+    ic: () => icon("console"),
+    fx: () => (S.moral += 15)
+  },
   {
     id: "tablet",
     st: "tekno",
-    n: "Maç analizi tableti",
-    d: "+2 Pas",
+    n: $t("shops.83"),
+    d: $t("shops.84"),
     p: 300,
     ic: () => icon("tablet"),
     fx: () => (S.st.pas += 2)
@@ -351,18 +368,18 @@ export const SHOP = [
   {
     id: "laptop",
     st: "tekno",
-    n: "Dizüstü bilgisayar",
-    d: "+8 Akademik",
+    n: $t("shops.85"),
+    d: $t("shops.86"),
     p: 700,
     ic: () => icon("laptop"),
     fx: () => (S.aka += 8)
   },
-  { id: "swatch", st: "tekno", n: "Akıllı saat", d: "Uyku takibi: +3 enerji/hafta", p: 250, en: 3, ic: () => icon("swatch") },
+  { id: "swatch", st: "tekno", n: $t("shops.87"), d: $t("shops.88"), p: 250, en: 3, ic: () => icon("swatch") },
   {
     id: "vr",
     st: "tekno",
-    n: "VR seti",
-    d: "+10 Moral, +1 Çeviklik",
+    n: $t("shops.89"),
+    d: $t("shops.90"),
     p: 900,
     ic: () => icon("vr"),
     fx: () => {
@@ -373,8 +390,8 @@ export const SHOP = [
   {
     id: "kiyafet",
     st: "moda",
-    n: "Sokak giyimi seti",
-    d: "+6 Taraftar, +5 Moral",
+    n: $t("shops.91"),
+    d: $t("shops.92"),
     p: 420,
     ic: () => icon("hoodie", "#37474f"),
     fx: () => {
@@ -385,8 +402,8 @@ export const SHOP = [
   {
     id: "gozluk",
     st: "moda",
-    n: "Güneş gözlüğü",
-    d: "+4 Taraftar",
+    n: $t("shops.93"),
+    d: $t("shops.77"),
     p: 300,
     ic: () => icon("glasses"),
     fx: () => (S.rel.taraf += 4)
@@ -394,8 +411,8 @@ export const SHOP = [
   {
     id: "parfum",
     st: "moda",
-    n: "İmza parfüm",
-    d: "+6 Moral, +5 Partner",
+    n: $t("shops.94"),
+    d: $t("shops.95"),
     p: 250,
     ic: () => icon("perfume"),
     fx: () => {
@@ -403,12 +420,20 @@ export const SHOP = [
       S.rel.partner += 5;
     }
   },
-  { id: "ceket", st: "moda", n: "Deri ceket", d: "+8 Taraftar", p: 1200, ic: () => icon("jacket"), fx: () => (S.rel.taraf += 8) },
+  {
+    id: "ceket",
+    st: "moda",
+    n: $t("shops.96"),
+    d: $t("shops.97"),
+    p: 1200,
+    ic: () => icon("jacket"),
+    fx: () => (S.rel.taraf += 8)
+  },
   {
     id: "zincir",
     st: "moda",
-    n: "Altın zincir",
-    d: "+10 Taraftar, −3 Koç",
+    n: $t("shops.98"),
+    d: $t("shops.99"),
     p: 3000,
     ic: () => icon("chain"),
     fx: () => {
@@ -419,18 +444,18 @@ export const SHOP = [
   {
     id: "saat",
     st: "moda",
-    n: "İsviçre saati",
-    d: "+10 Taraftar",
+    n: $t("shops.100"),
+    d: $t("shops.101"),
     p: 4500,
     ic: () => icon("watch"),
     fx: () => (S.rel.taraf += 10)
   },
-  { id: "scooter", st: "galeri", n: "Elektrikli scooter", d: "+2 enerji/hafta", p: 900, en: 2, up: 2, ic: () => icon("scooter") },
+  { id: "scooter", st: "galeri", n: $t("shops.102"), d: $t("shops.103"), p: 900, en: 2, up: 2, ic: () => icon("scooter") },
   {
     id: "araba1",
     st: "galeri",
-    n: "Hatchback",
-    d: "+4 enerji/hafta",
+    n: $t("shops.104"),
+    d: $t("shops.105"),
     p: 5200,
     en: 4,
     up: 8,
@@ -439,8 +464,8 @@ export const SHOP = [
   {
     id: "moto",
     st: "galeri",
-    n: "Motosiklet",
-    d: "+5 enerji/hafta, +6 Taraftar",
+    n: $t("shops.106"),
+    d: $t("shops.107"),
     p: 14000,
     en: 5,
     up: 15,
@@ -450,8 +475,8 @@ export const SHOP = [
   {
     id: "araba2",
     st: "galeri",
-    n: "Elektrikli SUV",
-    d: "+7 enerji/hafta, +8 Taraftar",
+    n: $t("shops.108"),
+    d: $t("shops.109"),
     p: 42000,
     en: 7,
     up: 30,
@@ -461,8 +486,8 @@ export const SHOP = [
   {
     id: "araba3",
     st: "galeri",
-    n: "İtalyan süper otomobil",
-    d: "+10 enerji/hafta, +15 Taraftar",
+    n: $t("shops.110"),
+    d: $t("shops.111"),
     p: 260000,
     en: 10,
     up: 120,
@@ -472,27 +497,35 @@ export const SHOP = [
       S.moral += 12;
     }
   },
-  { id: "yatak", st: "ev", n: "Ortopedik yatak", d: "+4 enerji/hafta", p: 300, en: 4, ic: () => icon("bed") },
-  { id: "koltuk", st: "ev", n: "Rahat koltuk takımı", d: "+1 moral/hafta", p: 500, mo: 1, ic: () => icon("sofa") },
-  { id: "oyunkoltugu", st: "ev", n: "Oyuncu koltuğu", d: "+5 Moral", p: 350, ic: () => icon("chair"), fx: () => (S.moral += 5) },
+  { id: "yatak", st: "ev", n: $t("shops.112"), d: $t("shops.105"), p: 300, en: 4, ic: () => icon("bed") },
+  { id: "koltuk", st: "ev", n: $t("shops.113"), d: $t("shops.114"), p: 500, mo: 1, ic: () => icon("sofa") },
+  {
+    id: "oyunkoltugu",
+    st: "ev",
+    n: $t("shops.115"),
+    d: $t("places.143"),
+    p: 350,
+    ic: () => icon("chair"),
+    fx: () => (S.moral += 5)
+  },
   {
     id: "robot",
     st: "ev",
-    n: "Robot süpürge",
-    d: "+3 Moral, ev hep temiz",
+    n: $t("shops.116"),
+    d: $t("shops.117"),
     p: 400,
     ic: () => icon("robot"),
     fx: () => (S.moral += 3)
   },
-  { id: "sinema", st: "ev", n: "Ev sineması", d: "+2 moral/hafta", p: 1500, mo: 2, ic: () => icon("cinema") },
-  { id: "fizyo", st: "ev", n: "Kişisel fizyoterapist", d: "Sakatlık riski belirgin azalır", p: 9000, ic: () => icon("whistle") },
-  { id: "kryo", st: "ev", n: "Buz banyosu küveti", d: "+5 enerji/hafta", p: 2500, en: 5, ic: () => icon("kryo") },
+  { id: "sinema", st: "ev", n: $t("shops.118"), d: $t("shops.119"), p: 1500, mo: 2, ic: () => icon("cinema") },
+  { id: "fizyo", st: "ev", n: $t("shops.120"), d: $t("shops.121"), p: 9000, ic: () => icon("whistle") },
+  { id: "kryo", st: "ev", n: $t("shops.122"), d: $t("shops.123"), p: 2500, en: 5, ic: () => icon("kryo") },
 
   {
     id: "kiradaire",
     st: "yatirim",
-    n: "Kiralık daire yatırımı",
-    d: "Her hafta kira geliri",
+    n: $t("shops.124"),
+    d: $t("shops.125"),
     p: 60000,
     inc: 75,
     ic: () => icon("house", "#90a4ae")
@@ -500,8 +533,8 @@ export const SHOP = [
   {
     id: "dukkan",
     st: "yatirim",
-    n: "Dükkân yatırımı",
-    d: "Her hafta kira geliri",
+    n: $t("shops.126"),
+    d: $t("shops.125"),
     p: 250000,
     inc: 325,
     ic: () => icon("house", "#c96f4a")
@@ -509,8 +542,8 @@ export const SHOP = [
   {
     id: "plaza",
     st: "yatirim",
-    n: "Plazada ofis katı",
-    d: "Her hafta kira geliri",
+    n: $t("shops.127"),
+    d: $t("shops.125"),
     p: 1200000,
     inc: 1600,
     ic: () => icon("house", "#3f5f8a")
@@ -518,22 +551,26 @@ export const SHOP = [
   {
     id: "salon",
     st: "yatirim",
-    n: "Memlekete spor salonu",
-    d: "İstanbul'daki mahallene bağış. +20 Aile, +15 Taraftar, efsane puanı",
+    n: $t("shops.128"),
+    d: $t("shops.129"),
     p: 900000,
     ic: () => icon("hoop"),
     fx: () => {
       S.rel.aile += 20;
       S.rel.taraf += 15;
       S.followers *= 1.1;
-      news(`${fullName()} memleketine spor salonu yaptırdı.`);
+      news(
+        $t("shops.185", {
+          v: fullName()
+        })
+      );
     }
   },
   {
     id: "yat",
     st: "yatirim",
-    n: "Yat",
-    d: "+3 moral/hafta, +15 Taraftar",
+    n: $t("shops.130"),
+    d: $t("shops.131"),
     p: 1500000,
     mo: 3,
     up: 1250,
@@ -543,21 +580,31 @@ export const SHOP = [
   {
     id: "akademi",
     st: "yatirim",
-    n: "Basketbol akademisi",
-    d: "Gençlere kendi akademin. Takipçi ve büyük efsane puanı",
+    n: $t("shops.132"),
+    d: $t("shops.133"),
     p: 4000000,
     ic: () => icon("trophyRoom"),
     fx: () => {
       S.followers *= 1.2;
-      S.career.trophies.push({ type: "award", label: `${seasonLabel()} · ${S.last} Basketbol Akademisi kurucusu` });
-      news(`${fullName()} kendi basketbol akademisini kurdu.`);
+      S.career.trophies.push({
+        type: "award",
+        label: $t("shops.134", {
+          v: seasonLabel(),
+          last: S.last
+        })
+      });
+      news(
+        $t("shops.186", {
+          v: fullName()
+        })
+      );
     }
   },
   {
     id: "jet",
     st: "yatirim",
-    n: "Özel jet",
-    d: "+8 enerji/hafta, +20 Taraftar",
+    n: $t("shops.135"),
+    d: $t("shops.136"),
     p: 7000000,
     en: 8,
     up: 4500,
@@ -569,7 +616,10 @@ export function locAvm(I, store = "sneaker") {
   const S0 = STORES.find(s => s.id === store);
   const b = sheet(
     I.n,
-    `${S0.n} · bakiye ${fmt(S.money)}`,
+    $t("shops.2", {
+      n: S0.n,
+      money: fmt(S.money)
+    }),
     `${tabsHTML(
       STORES.map(s => [s.id, s.n]),
       store,
@@ -582,7 +632,24 @@ export function locAvm(I, store = "sneaker") {
   const items = SHOP.filter(it => it.st === store);
   c.insertAdjacentHTML(
     "beforeend",
-    `<div class="pgrid">${items.map(it => prodHTML({ id: it.id, ic: it.ic(), t: it.n, d: it.d + (it.up ? ` · masraf ${fmt(it.up)}/hafta` : ""), price: it.p, own: !!S.items[it.id] })).join("")}</div><p class="small muted">Aldığın her eşya evindeki vitrinde sergilenir.</p>`
+    `<div class="pgrid">${items
+      .map(it =>
+        prodHTML({
+          id: it.id,
+          ic: it.ic(),
+          t: it.n,
+          d:
+            it.d +
+            (it.up
+              ? ` ${$t("shops.3", {
+                  up: fmt(it.up)
+                })}`
+              : ""),
+          price: it.p,
+          own: !!S.items[it.id]
+        })
+      )
+      .join("")}</div><p class="small muted">${$t("shops.4")}</p>`
   );
   const m = {};
   items.forEach(
@@ -594,7 +661,11 @@ export function locAvm(I, store = "sneaker") {
         it.fx && it.fx();
         norm();
         save();
-        toast(`${it.n} alındı. Vitrine eklendi.`);
+        toast(
+          $t("shops.5", {
+            n: it.n
+          })
+        );
         locAvm(I, store);
       })
   );
@@ -619,7 +690,7 @@ export function drawStoreScene(c, o) {
   c.fillStyle = s.acc;
   c.font = '800 18px "Barlow Condensed"';
   c.textAlign = "left";
-  c.fillText(s.n.toLocaleUpperCase("tr-TR"), 16, 26);
+  c.fillText(s.n.toLocaleUpperCase(LOCALE), 16, 26);
   c.restore();
   c.fillStyle = s.acc;
   c.fillRect(16, 32, 90, 3);
@@ -744,9 +815,9 @@ export function drawStoreScene(c, o) {
 export const MARKET = [
   {
     id: "enerji",
-    cat: "İçecekler",
-    n: "Enerji içeceği",
-    d: "+15 Enerji",
+    cat: $t("shops.137"),
+    n: $t("shops.138"),
+    d: $t("shops.139"),
     p: 3,
     ic: () => icon("can"),
     fx: () => {
@@ -755,9 +826,9 @@ export const MARKET = [
   },
   {
     id: "izotonik",
-    cat: "İçecekler",
-    n: "İzotonik içecek",
-    d: "+6 Enerji, +2 Moral",
+    cat: $t("shops.137"),
+    n: $t("shops.140"),
+    d: $t("shops.141"),
     p: 4,
     ic: () => icon("can", "#43a047"),
     fx: () => {
@@ -767,9 +838,9 @@ export const MARKET = [
   },
   {
     id: "su",
-    cat: "İçecekler",
-    n: "Maden suyu",
-    d: "+3 Enerji",
+    cat: $t("shops.137"),
+    n: $t("shops.142"),
+    d: $t("shops.143"),
     p: 1,
     ic: () => icon("water"),
     fx: () => {
@@ -778,9 +849,9 @@ export const MARKET = [
   },
   {
     id: "kahve",
-    cat: "İçecekler",
-    n: "Soğuk kahve",
-    d: "+7 Enerji",
+    cat: $t("shops.137"),
+    n: $t("shops.144"),
+    d: $t("shops.145"),
     p: 3,
     ic: () => icon("coffee"),
     fx: () => {
@@ -789,9 +860,9 @@ export const MARKET = [
   },
   {
     id: "muz",
-    cat: "Atıştırmalık",
-    n: "Muz",
-    d: "+4 Enerji",
+    cat: $t("shops.146"),
+    n: $t("shops.147"),
+    d: $t("shops.148"),
     p: 1,
     ic: () => icon("banana"),
     fx: () => {
@@ -800,9 +871,9 @@ export const MARKET = [
   },
   {
     id: "kuruyemis",
-    cat: "Atıştırmalık",
-    n: "Kuruyemiş",
-    d: "+4 Enerji, +1 Moral",
+    cat: $t("shops.146"),
+    n: $t("shops.149"),
+    d: $t("shops.150"),
     p: 3,
     ic: () => icon("nuts"),
     fx: () => {
@@ -812,9 +883,9 @@ export const MARKET = [
   },
   {
     id: "cikolata",
-    cat: "Atıştırmalık",
-    n: "Çikolata",
-    d: "+5 Moral, −1 Enerji",
+    cat: $t("shops.146"),
+    n: $t("shops.151"),
+    d: $t("shops.152"),
     p: 2,
     ic: () => icon("choco"),
     fx: () => {
@@ -824,9 +895,9 @@ export const MARKET = [
   },
   {
     id: "sandvic",
-    cat: "Atıştırmalık",
-    n: "Tavuklu sandviç",
-    d: "+6 Enerji",
+    cat: $t("shops.146"),
+    n: $t("shops.153"),
+    d: $t("shops.154"),
     p: 4,
     ic: () => icon("sandwich"),
     fx: () => {
@@ -835,9 +906,9 @@ export const MARKET = [
   },
   {
     id: "pizza",
-    cat: "Atıştırmalık",
-    n: "Aile boyu pizza",
-    d: "+8 Moral, −4 Enerji",
+    cat: $t("shops.146"),
+    n: $t("shops.155"),
+    d: $t("shops.156"),
     p: 9,
     ic: () => icon("pizza"),
     fx: () => {
@@ -847,9 +918,9 @@ export const MARKET = [
   },
   {
     id: "protein",
-    cat: "Sporcu gıdası",
-    n: "Protein tozu",
-    d: "Sonraki 3 antrenmanda +1",
+    cat: $t("shops.157"),
+    n: $t("shops.158"),
+    d: $t("shops.159"),
     p: 35,
     ic: () => icon("tub"),
     fx: () => {
@@ -858,9 +929,9 @@ export const MARKET = [
   },
   {
     id: "jel",
-    cat: "Sporcu gıdası",
-    n: "Enerji jeli",
-    d: "+12 Enerji",
+    cat: $t("shops.157"),
+    n: $t("shops.160"),
+    d: $t("shops.161"),
     p: 6,
     ic: () => icon("gel"),
     fx: () => {
@@ -869,9 +940,9 @@ export const MARKET = [
   },
   {
     id: "vitamin",
-    cat: "Sporcu gıdası",
-    n: "Vitamin ve elektrolit",
-    d: "+10 Enerji",
+    cat: $t("shops.157"),
+    n: $t("shops.162"),
+    d: $t("places.66"),
     p: 7,
     ic: () => icon("bottle"),
     fx: () => {
@@ -880,9 +951,9 @@ export const MARKET = [
   },
   {
     id: "yulaf",
-    cat: "Sporcu gıdası",
-    n: "Yulaf ve meyve kasesi",
-    d: "+6 Enerji, +2 Moral",
+    cat: $t("shops.157"),
+    n: $t("shops.163"),
+    d: $t("shops.141"),
     p: 5,
     ic: () => icon("oats"),
     fx: () => {
@@ -892,9 +963,9 @@ export const MARKET = [
   },
   {
     id: "saglik",
-    cat: "Haftalık",
-    n: "Sağlıklı market alışverişi",
-    d: "+8 Enerji, +4 Moral",
+    cat: $t("extras.4"),
+    n: $t("shops.164"),
+    d: $t("shops.165"),
     p: 12,
     ic: () => icon("bag"),
     fx: () => {
@@ -904,9 +975,9 @@ export const MARKET = [
   },
   {
     id: "meyve",
-    cat: "Haftalık",
-    n: "Meyve sepeti",
-    d: "+5 Enerji, +3 Moral",
+    cat: $t("extras.4"),
+    n: $t("shops.166"),
+    d: $t("shops.167"),
     p: 6,
     ic: () => icon("fruit"),
     fx: () => {
@@ -916,9 +987,9 @@ export const MARKET = [
   },
   {
     id: "buz",
-    cat: "Haftalık",
-    n: "Buz torbası",
-    d: "Kas ağrısına: +8 Enerji",
+    cat: $t("extras.4"),
+    n: $t("shops.168"),
+    d: $t("shops.169"),
     p: 5,
     ic: () => icon("ice"),
     fx: () => {
@@ -930,7 +1001,9 @@ export function locMarket(I) {
   const cats = [...new Set(MARKET.map(m => m.cat))];
   const b = sheet(
     I.n,
-    `Bakiye ${fmt(S.money)}`,
+    $t("shops.6", {
+      money: fmt(S.money)
+    }),
     cats
       .map(
         ct =>
@@ -938,13 +1011,14 @@ export function locMarket(I) {
             .map(it => prodHTML({ id: it.id, ic: it.ic(), t: it.n, d: it.d, price: it.p }))
             .join("")}</div>`
       )
-      .join("") + (S.buffs.train ? `<p class="small good">Protein etkisi: ${S.buffs.train} antrenman kaldı.</p>` : "")
+      .join("") +
+      (S.buffs.train
+        ? `<p class="small good">${$t("shops.7", {
+            train: S.buffs.train
+          })}</p>`
+        : "")
   );
-  addScene(
-    b,
-    "market",
-    pick(["Taze geldi hepsi, buyur!", "Sporcuya indirim var, kimseye söyleme.", "Muzlar bugün sabah geldi."])
-  );
+  addScene(b, "market", pick([$t("shops.187"), $t("shops.188"), $t("shops.189")]));
   const m = {};
   MARKET.forEach(
     it =>
@@ -954,8 +1028,16 @@ export function locMarket(I) {
         it.fx();
         norm();
         save();
-        toast(`${it.n} alındı · Enerji ${S.energy}, Moral ${S.moral}`);
-        $("#shsub").textContent = `Bakiye ${fmt(S.money)}`;
+        toast(
+          $t("shops.8", {
+            n: it.n,
+            energy: S.energy,
+            moral: S.moral
+          })
+        );
+        $("#shsub").textContent = $t("shops.6", {
+          money: fmt(S.money)
+        });
         $$("[data-act]").forEach(x => {
           const p = MARKET.find(q => q.id === x.dataset.act);
           if (p) x.disabled = S.money < p.p;
@@ -967,11 +1049,11 @@ export function locMarket(I) {
 
 /* ================= EĞLENCE MERKEZİ ================= */
 export const ARCADE = [
-  { id: "hoop", n: "Pota makinesi", d: "30 saniyede kaç basket? Geriye çek, bırak.", ic: "hoop", rec: "arcade" },
-  { id: "ref", n: "Refleks paneli", d: "20 saniye, yanan düğmeler.", ic: "joystick", rec: "reflex" },
-  { id: "hockey", n: "Hava hokeyi", d: "Bilgisayara karşı, 5 gole kadar.", ic: "puck", rec: "hockey" },
-  { id: "rhythm", n: "Dans ritmi", d: "Düşen notalara zamanında dokun.", ic: "note", rec: "rhythm" },
-  { id: "bowling", n: "Bowling", d: "3 atış, nişan al ve gücü ayarla.", ic: "bowling", rec: "bowling" }
+  { id: "hoop", n: $t("arcade.2"), d: $t("shops.170"), ic: "hoop", rec: "arcade" },
+  { id: "ref", n: $t("arcade.12"), d: $t("shops.171"), ic: "joystick", rec: "reflex" },
+  { id: "hockey", n: $t("arcade.16"), d: $t("shops.172"), ic: "puck", rec: "hockey" },
+  { id: "rhythm", n: $t("shops.39"), d: $t("shops.173"), ic: "note", rec: "rhythm" },
+  { id: "bowling", n: $t("arcade.26"), d: $t("shops.174"), ic: "bowling", rec: "bowling" }
 ];
 export function venueCard(id, title, sub, kind, on) {
   const w = document.createElement("button");
@@ -988,14 +1070,23 @@ export function locEglence(I, tab = "arcade") {
   S.rec = Object.assign({ arcade: 0, reflex: 0, hockey: 0, rhythm: 0, bowling: 0 }, S.rec);
   const b = sheet(
     I.n,
-    "Nereye gidiyorsun?",
+    $t("shops.9"),
     `<div class="venues" id="vn"></div><div id="egc" style="display:flex;flex-direction:column;gap:10px"></div>`
   );
   const vn = $("#vn");
-  vn.appendChild(venueCard("arcade", "Arcade salonu", `${ARCADE.length} oyun · jeton ${fmt(1)}`, "arcade", tab === "arcade"));
   vn.appendChild(
-    venueCard("kulup", "Gece kulübü", S.age < 18 ? "18 yaş ve üstü" : "Parti, karaoke, VIP", "club", tab === "kulup")
+    venueCard(
+      "arcade",
+      $t("shops.10"),
+      $t("shops.11", {
+        length: ARCADE.length,
+        v: fmt(1)
+      }),
+      "arcade",
+      tab === "arcade"
+    )
   );
+  vn.appendChild(venueCard("kulup", $t("shops.12"), S.age < 18 ? $t("shops.13") : $t("shops.14"), "club", tab === "kulup"));
   $$(".venue").forEach(x => (x.onclick = () => locEglence(I, x.dataset.v)));
   const c = $("#egc");
   if (tab === "arcade") {
@@ -1003,7 +1094,20 @@ export function locEglence(I, tab = "arcade") {
     $("#brd").onclick = () => late.boardSheet("arcade", "w");
     c.insertAdjacentHTML(
       "beforeend",
-      `<div class="eyebrow">Arcade oyunları</div><div class="pgrid">${ARCADE.map(g => prodHTML({ id: g.id, ic: icon(g.ic), t: g.n, d: `${g.d} Rekor: ${S.rec[g.rec]}`, price: 1, fx: [["+Moral", "p"]], btn: "Oyna · " + fmt(1) })).join("")}</div>`
+      `<div class="eyebrow">${$t("shops.17")}</div><div class="pgrid">${ARCADE.map(g =>
+        prodHTML({
+          id: g.id,
+          ic: icon(g.ic),
+          t: g.n,
+          d: $t("shops.175", {
+            d: g.d,
+            v: S.rec[g.rec]
+          }),
+          price: 1,
+          fx: [[$t("shops.15"), "p"]],
+          btn: $t("shops.16") + fmt(1)
+        })
+      ).join("")}</div>`
     );
     const m = {};
     ARCADE.forEach(g => (m[g.id] = () => arcadeRun(g.id)));
@@ -1012,7 +1116,9 @@ export function locEglence(I, tab = "arcade") {
     if (S.age < 18) {
       c.insertAdjacentHTML(
         "beforeend",
-        `<div class="say">Kapıdaki görevli kimliğine baktı: "18 yaş altı giremez." ${18 - S.age} yıl sonra gel.</div>`
+        `<div class="say">${$t("shops.18", {
+          v: 18 - S.age
+        })}</div>`
       );
       return;
     }
@@ -1022,44 +1128,44 @@ export function locEglence(I, tab = "arcade") {
       kp = Math.round(8 * (1 + ix));
     c.insertAdjacentHTML(
       "beforeend",
-      `<div class="eyebrow">Gece kulübü</div><div class="pgrid">${[
+      `<div class="eyebrow">${$t("shops.12")}</div><div class="pgrid">${[
         {
           id: "parti",
           ic: icon("disco"),
-          t: "Parti",
-          d: "Sabaha karşı eve dönüş.",
+          t: $t("shops.30"),
+          d: $t("shops.176"),
           slot: 1,
           price: pp,
           fx: [
-            ["+16 Moral", "p"],
-            ["−22 Enerji", "n"],
-            ["Skandal riski", "t"]
+            [$t("shops.19"), "p"],
+            [$t("shops.20"), "n"],
+            [$t("shops.21"), "t"]
           ],
           btn: fmt(pp)
         },
         {
           id: "karaoke",
           ic: icon("karaoke"),
-          t: "Karaoke",
-          d: "Sahneye çık, ritmi tuttur.",
+          t: $t("shops.38"),
+          d: $t("shops.177"),
           slot: 1,
           price: kp,
           fx: [
-            ["+Moral", "p"],
-            ["+Takipçi şansı", "p"]
+            [$t("shops.15"), "p"],
+            [$t("shops.22"), "p"]
           ],
           btn: fmt(kp)
         },
         {
           id: "vip",
           ic: icon("star"),
-          t: "VIP masa",
-          d: fame() < 30 ? "Şöhret 30 olunca açılır." : "Fotoğraflar kesin çıkar.",
+          t: $t("shops.178"),
+          d: fame() < 30 ? $t("shops.23") : $t("shops.24"),
           slot: 1,
           price: vp,
           fx: [
-            ["+%8 Takipçi", "p"],
-            ["−4 Koç", "n"]
+            [$t("shops.25"), "p"],
+            [$t("shops.26"), "n"]
           ],
           btn: fmt(vp),
           disabled: fame() < 30
@@ -1069,22 +1175,24 @@ export function locEglence(I, tab = "arcade") {
               {
                 id: "dans",
                 ic: icon("heart"),
-                t: "Dans pistinde tanış",
-                d: "Cesaretini topla.",
+                t: $t("shops.179"),
+                d: $t("shops.180"),
                 slot: 1,
-                fx: [["Partner şansı", "t"]],
-                btn: "Dene"
+                fx: [[$t("places.249"), "t"]],
+                btn: $t("shops.181")
               }
             ]
           : [
               {
                 id: "dans2",
                 ic: icon("heart"),
-                t: `${S.partner} ile dans`,
-                d: "Pistin ortasında.",
+                t: $t("shops.182", {
+                  partner: S.partner
+                }),
+                d: $t("shops.183"),
                 slot: 1,
-                fx: [["+10 Partner", "p"]],
-                btn: "Dans et"
+                fx: [[$t("shops.27"), "p"]],
+                btn: $t("shops.184")
               }
             ])
       ]
@@ -1095,41 +1203,47 @@ export function locEglence(I, tab = "arcade") {
       parti: () => {
         if (S.money < pp) return;
         useSlot();
-        tx("Gece kulübü", -pp);
+        tx($t("shops.12"), -pp);
         S.moral += 16;
         S.energy -= 22;
-        let t = "Harika bir geceydi. Sabah alarmı duymadın.";
+        let t = $t("shops.28");
         if (Math.random() < 0.2) {
           S.rel.koc -= 8;
           S.rel.taraf -= 4;
-          t += ` Ama biri video çekmiş. ${S.npc.coach} hiç memnun değil.`;
-          news(`${fullName()} gece kulübü görüntüleriyle gündemde.`);
+          t += ` ${$t("shops.29", {
+            coach: S.npc.coach
+          })}`;
+          news(
+            $t("shops.190", {
+              v: fullName()
+            })
+          );
         }
         norm();
         save();
-        resultView("Parti", t, [
-          ["+16 Moral", "p"],
-          ["−22 Enerji", "n"]
+        resultView($t("shops.30"), t, [
+          [$t("shops.19"), "p"],
+          [$t("shops.20"), "n"]
         ]);
       },
       karaoke: () => {
         if (S.money < kp) return;
         useSlot();
-        tx("Karaoke", -kp);
+        tx($t("shops.38"), -kp);
         arcadeRun("karaoke", true);
       },
       vip: () => {
         if (S.money < vp) return;
         useSlot();
-        tx("VIP masa", -vp);
+        tx($t("shops.178"), -vp);
         S.followers *= 1.08;
         S.moral += 12;
         S.rel.koc -= 4;
         norm();
         save();
-        resultView("VIP gece", "Ünlü bir şarkıcıyla fotoğrafın sabah magazin sitelerindeydi.", [
-          ["+%8 Takipçi", "p"],
-          ["−4 Koç", "n"]
+        resultView($t("shops.31"), $t("shops.32"), [
+          [$t("shops.25"), "p"],
+          [$t("shops.26"), "n"]
         ]);
       },
       dans: () => {
@@ -1139,15 +1253,24 @@ export function locEglence(I, tab = "arcade") {
           S.partner = pick(cOf(S.city).fem);
           S.rel.partner = 45;
           S.moral += 10;
-          news(`${fullName()} yeni bir ilişkiye başladı.`);
+          news(
+            $t("shops.191", {
+              v: fullName()
+            })
+          );
           norm();
           save();
-          resultView("Kıvılcım", `${S.partner} ile dans pistinde tanıştınız.`);
+          resultView(
+            $t("places.259"),
+            $t("shops.33", {
+              partner: S.partner
+            })
+          );
         } else {
           S.moral -= 3;
           norm();
           save();
-          resultView("Olmadı", "Ritim duygun pota başında kalmış.");
+          resultView($t("casino.43"), $t("shops.34"));
         }
       },
       dans2: () => {
@@ -1157,7 +1280,13 @@ export function locEglence(I, tab = "arcade") {
         S.energy -= 6;
         norm();
         save();
-        resultView("Dans", `${S.partner} ile pistin ortasında döndünüz. Herkes size bakıyordu.`, [["+10 Partner", "p"]]);
+        resultView(
+          $t("shops.35"),
+          $t("shops.36", {
+            partner: S.partner
+          }),
+          [[$t("shops.27"), "p"]]
+        );
       }
     });
   }
@@ -1165,20 +1294,20 @@ export function locEglence(I, tab = "arcade") {
 export async function arcadeRun(kind, paid) {
   if (!paid) {
     if (S.money < 1) return;
-    tx("Arcade jetonu", -1);
+    tx($t("shops.192"), -1);
   }
   closeSheet();
   arenaFor(null);
   Bus.emit("arcade:start", kind);
-  const meta = ARCADE.find(g => g.id === kind) || { n: "Karaoke", rec: "rhythm" };
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">Eğlence Merkezi</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
+  const meta = ARCADE.find(g => g.id === kind) || { n: $t("shops.38"), rec: "rhythm" };
+  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("shops.37")}</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el = $("#stg");
   let r;
   if (kind === "hoop") r = await late.mgArcade(el);
   else if (kind === "ref") r = await late.mgReflex(el);
   else if (kind === "hockey") r = await late.mgHockey(el);
   else if (kind === "bowling") r = await late.mgBowling(el);
-  else r = await late.mgRhythm(el, { title: kind === "karaoke" ? "Karaoke" : "Dans ritmi", karaoke: kind === "karaoke" });
+  else r = await late.mgRhythm(el, { title: kind === "karaoke" ? $t("shops.38") : $t("shops.39"), karaoke: kind === "karaoke" });
   const key = meta.rec,
     rec = r.score > (S.rec[key] || 0);
   if (kind !== "karaoke") late.arcSubmit(key, r.score);
@@ -1187,21 +1316,29 @@ export async function arcadeRun(kind, paid) {
   S.moral += Math.min(12, 3 + Math.floor(r.score / 4));
   if (kind === "hockey" && r.win) {
     S.moral += 4;
-    extra = "Bilgisayarı yendin!";
+    extra = $t("shops.40");
   }
   if (kind === "ref" && r.score >= 18 && Math.random() < 0.4) {
     S.st.hiz += 1;
-    extra = "Çeviklik +1.";
+    extra = $t("shops.41");
   }
   if (kind === "karaoke" && r.score >= 20) {
     S.followers *= 1.05;
-    extra = "Videon paylaşıldı: +%5 takipçi.";
+    extra = $t("shops.42");
   }
   norm();
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><div class="eyebrow">Skor</div><div class="big-num">${r.label || r.score}</div><p>${kind !== "karaoke" ? (rec ? "Yeni rekor!" : `Rekor: ${S.rec[key]}`) : ""} ${extra}</p><div class="grid2"><button class="btn ghost" id="bk">Haritaya dön</button>${kind === "karaoke" ? "" : `<button class="btn pri" id="again">Bir jeton daha</button>`}</div></div>`;
+    `<div class="card"><div class="eyebrow">${$t("extras.11")}</div><div class="big-num">${r.label || r.score}</div><p>${
+      kind !== "karaoke"
+        ? rec
+          ? $t("shops.43")
+          : $t("shops.44", {
+              v: S.rec[key]
+            })
+        : ""
+    } ${extra}</p><div class="grid2"><button class="btn ghost" id="bk">${$t("casino.13")}</button>${kind === "karaoke" ? "" : `<button class="btn pri" id="again">${$t("shops.45")}</button>`}</div></div>`;
   $("#bk").onclick = renderMain;
   const ag = $("#again");
   if (ag) ag.onclick = () => arcadeRun(kind);

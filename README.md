@@ -88,7 +88,12 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 - **Saf kurallar:** denge formülleri `src/logic/rules.js` içinde. Birim testleri (`tests/unit/`) ve `tsc` tip denetimi (JSDoc, sıkı mod) buradan geçer.
 - **Kayıt şeması:** `SAVE_V` ve `MIGRATIONS` (`src/save.js`). Yapı değişince sürüm artırılır, eski kayıtlar açılırken adımlar sırayla uygulanır.
 - **İçerik:** rastgele olaylar `src/content/events.tr.js` içinde veri olarak duruyor; yeni olay için kod gerekmez. Paket biçimi dosyanın başında anlatılıyor. Çeviriler aynı `id` ile `events.<dil>.js` dosyasına yazılır.
-- **Çok dil:** Ayarlar → Dil. İngilizce şimdilik kısmi: kayıt ekranı, ayarlar, ana ekran kartı, hızlı hafta ve rastgele olaylar çevrildi. Diğer ekranlardaki metinler henüz Türkçe ve `t()` altyapısına kademeli taşınacak.
+- **Çok dil:** Ayarlar → Dil (Türkçe / English). Tüm ekranlar çevrildi.
+  - `src/i18n/tr.js` / `en.js`: elle yazılan anahtarlar.
+  - `tr.auto.js` / `en.auto.js`: koddan otomatik çıkarılan yaklaşık 1650 metin.
+  - Kişi, şehir ve kulüp adları özel ad olarak çevrilmez.
+  - Dil değiştirilince oyun yeniden yüklenir ve aynı kariyer kaldığı yerden açılır.
+  - Yeni bir metin eklendiğinde `I18N_SEED=src/i18n/tr.auto.js node tools/extract-i18n.js` çalıştırılır. Var olan anahtarlar korunur, yalnızca yeni metinler yeni anahtar alır ve `en.auto.js`'e çevirisi eklenir.
 
 ## Dosyalar
 

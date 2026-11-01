@@ -1,3 +1,4 @@
+import { t as $t, LOCALE } from "./i18n/index.js";
 import { t } from "./i18n/index.js";
 import { late } from "./late.js";
 import {
@@ -68,7 +69,7 @@ export function norm() {
 }
 export function tx(d, a) {
   a = Math.round(a);
-  if (a > 0 && /prim|bonus|ödül|Sponsor|Reklam|kazanc/i.test(d)) late.sfx("coin");
+  if (a > 0 && /prim|bonus|ödül|Sponsor|Reklam|kazanc|prize|award|sponsor|\bad\b|earning/i.test(d)) late.sfx("coin");
   S.tx.unshift({ w: `S${S.season}·H${S.week}`, d, a });
   S.tx = S.tx.slice(0, 40);
   S.money += a;
@@ -146,7 +147,7 @@ export function makeTeam(kind, city, salt = 0) {
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^A-Za-zıİ]/g, "")
     .slice(0, 3)
-    .toLocaleUpperCase("tr-TR");
+    .toLocaleUpperCase(LOCALE);
   const col = COLORS[(h + salt * 3) % COLORS.length];
   const t = { key, name, short, city, cc, kind, c1: col[0], c2: col[1], str: +(0.88 + ((h * 13) % 25) / 100).toFixed(2) };
   S.teams[key] = t;
@@ -207,10 +208,18 @@ export function fixture() {
   return S.phase === "regular" ? S.sched[clamp(S.week, 1, S.sched.length) - 1] : { opp: S.playoffOpp, home: true };
 }
 export function phaseName() {
-  const tour = S.stage === "lise" ? "Turnuva" : S.stage === "euro" ? "Final Four" : "Playoff";
-  return S.phase === "regular" ? "Normal sezon" : S.phase === "semi" ? `${tour} · Yarı final` : `${tour} · Final`;
+  const tour = S.stage === "lise" ? $t("core.1") : S.stage === "euro" ? $t("core.2") : $t("core.3");
+  return S.phase === "regular"
+    ? $t("core.4")
+    : S.phase === "semi"
+      ? $t("core.5", {
+          tour: tour
+        })
+      : $t("core.6", {
+          tour: tour
+        });
 }
-export const ROLE_N = { star: "İlk 5", rot: "Rotasyon", bench: "Yedek" };
+export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core.79") };
 
 /* ================= PANEL SİSTEMİ ================= */
 export function sheet(title, sub, body, o = {}) {
@@ -238,19 +247,19 @@ export function fxHTML(list) {
 }
 export function actHTML(a) {
   const dis = (a.slot && S.slot <= 0) || (a.price && S.money < a.price) || a.disabled;
-  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div style="min-width:0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [["1 zaman dilimi", "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || "Yap"}</button></div>`;
+  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div style="min-width:0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [[$t("core.7"), "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || $t("core.8")}</button></div>`;
 }
 export function prodHTML(p) {
   const own = p.own,
     dis = own || (p.slot && S.slot <= 0) || (p.price && S.money < p.price) || p.disabled;
-  return `<div class="prod${own ? " own" : ""}"><div class="ic">${p.ic}</div><h3>${p.t}</h3><p>${p.d}</p>${p.fx ? fxHTML(p.fx) : ""}<button class="btn ${own ? "ghost" : p.cls || "team"} sm" data-act="${p.id}" ${dis ? "disabled" : ""}>${own ? "Sende" : p.btn || (p.price ? fmt(p.price) : "Seç")}</button></div>`;
+  return `<div class="prod${own ? " own" : ""}"><div class="ic">${p.ic}</div><h3>${p.t}</h3><p>${p.d}</p>${p.fx ? fxHTML(p.fx) : ""}<button class="btn ${own ? "ghost" : p.cls || "team"} sm" data-act="${p.id}" ${dis ? "disabled" : ""}>${own ? $t("core.9") : p.btn || (p.price ? fmt(p.price) : $t("core.10"))}</button></div>`;
 }
 export function bindActs(map) {
   $$("[data-act]").forEach(b => (b.onclick = () => map[b.dataset.act] && map[b.dataset.act]()));
 }
 export function resultView(title, text, fx) {
   $("#shb").innerHTML =
-    `<div class="say">${text}</div>${fx ? fxHTML(fx) : ""}<button class="btn pri" id="rb">Haritaya dön</button>`;
+    `<div class="say">${text}</div>${fx ? fxHTML(fx) : ""}<button class="btn pri" id="rb">${$t("casino.13")}</button>`;
   $("#rb").onclick = () => {
     closeSheet();
     renderMain();
@@ -278,35 +287,37 @@ export function renderCreate() {
   setTeamVars();
   closeSheet();
   app.innerHTML = `
-  <div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">Basketbol kariyer simülasyonu</div><h1>Pota<br>Kariyeri</h1></div><div class="tagx" style="text-align:right">İstanbul<small>Kariyerin burada başlıyor</small></div></div>
-  <div class="row between"><div class="eyebrow">Yuva ${F.slot} · yeni kariyer</div><button class="btn ghost sm" id="bkS">Yuvalara dön</button></div>
+  <div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${$t("core.18")}</div><h1>${$t("core.19")}<br>${$t("core.20")}</h1></div><div class="tagx" style="text-align:right">İstanbul<small>${$t("core.21")}</small></div></div>
+  <div class="row between"><div class="eyebrow">${$t("core.22", {
+    slot: F.slot
+  })}</div><button class="btn ghost sm" id="bkS">${$t("core.23")}</button></div>
   <div class="card">
-    <div class="grid2"><label class="small"><b>Ad</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}"></label><label class="small"><b>Soyad</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}"></label></div>
-    <div class="grid2"><button class="btn ghost sm" id="npick">Listeden seç</button><button class="btn ghost sm" id="nrnd">Rastgele isim</button></div>
+    <div class="grid2"><label class="small"><b>${$t("core.24")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}"></label><label class="small"><b>${$t("core.25")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}"></label></div>
+    <div class="grid2"><button class="btn ghost sm" id="npick">${$t("core.26")}</button><button class="btn ghost sm" id="nrnd">${$t("core.27")}</button></div>
     <div class="row nowrap" style="align-items:flex-start">
       <canvas id="pv" style="width:132px;height:160px;border-radius:12px;flex-shrink:0"></canvas>
       <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
-        <div><div class="eyebrow" style="margin-bottom:6px">Ten</div><div class="opts" id="skin">${SKINS.map(c => `<button class="sw ${F.look.skin === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Ten rengi"></button>`).join("")}</div></div>
-        <div><div class="eyebrow" style="margin-bottom:6px">Kafa</div><div class="opts" id="hs">${[
-          ["bere", "Bere"],
-          ["kep", "Kep"],
-          ["kulak", "Kulaklı"],
-          ["band", "Saç bandı"],
-          ["yok", "Saç"]
+        <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.28")}</div><div class="opts" id="skin">${SKINS.map(c => `<button class="sw ${F.look.skin === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Ten rengi"></button>`).join("")}</div></div>
+        <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.29")}</div><div class="opts" id="hs">${[
+          ["bere", $t("core.11")],
+          ["kep", $t("core.12")],
+          ["kulak", $t("core.13")],
+          ["band", $t("core.14")],
+          ["yok", $t("core.15")]
         ]
           .map(([v, t]) => `<button class="opt ${F.look.hatStyle === v ? "on" : ""}" data-v="${v}">${t}</button>`)
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${F.look.hatStyle === "yok" ? "Saç rengi" : "Aksesuar rengi"}</div><div class="opts" id="hc">${(F.look.hatStyle === "yok" ? HAIRC : HATC).map(c => `<button class="sw ${(F.look.hatStyle === "yok" ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
-    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow" style="margin-bottom:6px">Saç rengi</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
-    <div><div class="eyebrow" style="margin-bottom:6px">Pozisyon</div><div class="opts" id="pos">${Object.entries(POS)
+    <div><div class="eyebrow" style="margin-bottom:6px">${F.look.hatStyle === "yok" ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(F.look.hatStyle === "yok" ? HAIRC : HATC).map(c => `<button class="sw ${(F.look.hatStyle === "yok" ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
+    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow" style="margin-bottom:6px">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
+    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
       .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}"><span class="cc">${k}</span>${p.n}</button>`)
       .join("")}</div>
-      <p class="small muted" style="margin-top:6px">Pozisyon; maçta karşına çıkacak anları ve yapabileceğin antrenmanları belirler. ${{ PG: "Pick & roll, alley-oop pası, top çalma.", SG: "Catch & shoot, step-back, penetre.", SF: "Kanat şutu, hızlı hücum smaçı, post-up.", PF: "Pick & pop, post-up, ribaund.", C: "Kanca, alley-oop smaç, pota koruması, ribaund." }[F.pos]}</p></div>
-    <div><div class="eyebrow" style="margin-bottom:6px">Forma numarası</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
+      <p class="small muted" style="margin-top:6px">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
   </div>
-  <button class="btn pri big" id="go">Kariyere başla</button>`;
+  <button class="btn pri big" id="go">${$t("core.33")}</button>`;
   const keep = () => {
     F.first = $("#fn").value.trim();
     F.last = $("#ln").value.trim();
@@ -369,7 +380,7 @@ export function renderCreate() {
   $("#go").onclick = () => {
     keep();
     if (!F.first || !F.last) {
-      toast("Ad ve soyad gir.");
+      toast($t("core.34"));
       return;
     }
     startCareer();
@@ -441,11 +452,11 @@ export function namePicker() {
     `<div class="opts">${arr.map(n => `<button class="opt ${cur === n ? "on" : ""}" data-${k}="${esc(n)}">${esc(n)}</button>`).join("")}</div>`;
   const draw = () => {
     sheet(
-      "İsim seç",
-      "Klavye gerekmez",
-      `<div class="card" style="text-align:center"><div class="eyebrow">Seçilen</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
-    <div class="eyebrow">Ad</div>${chips(NAME_FIRST, F.first, "nf")}<div class="eyebrow">Soyad</div>${chips(NAME_LAST, F.last, "nl")}
-    <div class="grid2"><button class="btn ghost" id="nr2">Rastgele</button><button class="btn pri" id="nok2">Tamam</button></div>`,
+      $t("core.35"),
+      $t("core.36"),
+      `<div class="card" style="text-align:center"><div class="eyebrow">${$t("core.37")}</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
+    <div class="eyebrow">${$t("core.24")}</div>${chips(NAME_FIRST, F.first, "nf")}<div class="eyebrow">${$t("core.25")}</div>${chips(NAME_LAST, F.last, "nl")}
+    <div class="grid2"><button class="btn ghost" id="nr2">${$t("core.38")}</button><button class="btn pri" id="nok2">${$t("ads.47")}</button></div>`,
       { onClose: renderCreate }
     );
     $$("[data-nf]").forEach(
@@ -537,7 +548,12 @@ export function startCareer() {
   S.team = makeTeam("mylise", "İstanbul", 0);
   newSeasonLeague();
   late.migrateStory();
-  news(`${fullName()}, ${S.team.name} kadrosuna girdi.`);
+  news(
+    $t("core.85", {
+      v: fullName(),
+      name: S.team.name
+    })
+  );
   late.save();
   setTeamVars();
   chapter("lise1", () => {
@@ -563,42 +579,65 @@ export function chapter(id, after) {
   const ln = lgName();
   const T = {
     lise1: [
-      "Bölüm 1",
-      "Moda sahili",
-      `İstanbul, 16 yaşındasın. Her akşam Moda sahilindeki potada hava kararana kadar şut atıyorsun. Beden eğitimi öğretmenin ${S.npc.coach} seni izledi ve ${S.team.name} takımına aldı. Önünde İstanbul Liseler Ligi var. Burada yaptıkların, iki sezon sonra kariyerinin nereden başlayacağını belirleyecek.`
+      $t("core.39"),
+      $t("core.40"),
+      $t("core.41", {
+        coach: S.npc.coach,
+        name: S.team.name
+      })
     ],
-    lise2: [
-      "Bölüm 2",
-      "Şampiyona yılı",
-      "Lisede ikinci yılın. Rakipler artık ülkenin dört bir yanından. Sezon sonunda gözlemciler raporlarını yazacak ve Avrupa'nın farklı liglerinden teklifler gelebilecek."
-    ],
+    lise2: [$t("core.42"), $t("core.43"), $t("core.44")],
     uni: [
-      "Bölüm 3",
-      "Kampüs",
-      `${S.team.name} formasıyla bir yıl daha gelişim. Dersleri aksatma; ${ln} maçlarını kulüp gözlemcileri de izliyor.`
+      $t("core.45"),
+      $t("core.46"),
+      $t("core.47", {
+        name: S.team.name,
+        ln: ln
+      })
     ],
-    tryout: [
-      "Kulüp seçmeleri",
-      "Bir telefon",
-      `${S.tryout ? teamByKey(S.tryout.club).name : "Bir kulüp"} seçme yapıyor ve seni de çağırdı. Seçmelere stadyumdan katılabilirsin.`
-    ],
+    tryout: [$t("core.48"), $t("core.49"), `${S.tryout ? teamByKey(S.tryout.club).name : $t("core.50")} ${$t("core.51")}`],
     pro: [
-      "Bölüm 4",
-      "İlk profesyonel imza",
-      `${S.team.name} ile ilk profesyonel sözleşmeni imzaladın. ${S.city}, ${(LEAGUES[S.team.cc] || LEAGUES.TR).n}. Lig: ${ln}. Rolün: ${ROLE_N[S.role]}. Koçun ${S.npc.coach} seni her hafta değerlendirecek.`
+      $t("core.52"),
+      $t("core.53"),
+      $t("core.54", {
+        name: S.team.name,
+        city: S.city,
+        n: (LEAGUES[S.team.cc] || LEAGUES.TR).n,
+        ln: ln,
+        v: ROLE_N[S.role],
+        coach: S.npc.coach
+      })
     ],
     t2: [
-      "Bölüm 5",
-      "Bir basamak yukarı",
-      `${ln}. ${S.city}'de daha büyük salonlar, daha sert rakipler. Burada parlarsan 1. lig kapısı açılır.`
+      $t("core.55"),
+      $t("core.56"),
+      $t("core.86", {
+        ln: ln,
+        city: S.city
+      })
     ],
-    t1: ["Bölüm 6", "Birinci lig", `${ln}. Ülkenin en iyileriyle oynuyorsun. Avrupa kupaları ve EuroLeague artık hayal değil.`],
+    t1: [
+      $t("core.57"),
+      $t("core.58"),
+      $t("core.87", {
+        ln: ln
+      })
+    ],
     euro: [
-      "Bölüm 7",
-      "Avrupa sahnesi",
-      `EuroLeague. ${S.team.name} formasıyla Avrupa'nın devleriyle karşı karşıyasın. ${S.npc.mom} her maçı televizyondan izliyor.`
+      $t("core.59"),
+      $t("core.60"),
+      $t("core.61", {
+        name: S.team.name,
+        mom: S.npc.mom
+      })
     ],
-    nba: ["Bölüm 8", "NBA", `${S.team.name}. Moda sahilinden NBA parkesine. Şimdi bu ligde kalıcı olmak gerekiyor.`]
+    nba: [
+      $t("core.62"),
+      $t("core.63"),
+      $t("core.88", {
+        name: S.team.name
+      })
+    ]
   }[id];
   if (!T) {
     after && after();
@@ -607,7 +646,7 @@ export function chapter(id, after) {
   sheet(
     T[0],
     seasonLabel(),
-    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.75">${T[0]} · ${seasonLabel()}</div><h2 style="font-size:2rem">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">Başla</button></div></div>`,
+    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.75">${T[0]} · ${seasonLabel()}</div><h2 style="font-size:2rem">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
     { noClose: true }
   );
   $("#chok").onclick = () => {
@@ -623,13 +662,20 @@ export function hudHTML() {
   const rs = late.rated().slice(-3);
   const form = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(1) : "–";
   return `<header class="hud">
-   <div class="hud-id"><div class="avatar" id="hav"></div><div style="min-width:0"><div class="nm">${esc(fullName())}</div><div class="tm">${S.age} yaş · ${POS[S.pos].n} · ${esc(S.team.name)}</div></div>
-   <div class="hud-money"><span class="eyebrow">Bakiye</span><b>${fmt(S.money)}</b></div></div>
+   <div class="hud-id"><div class="avatar" id="hav"></div><div style="min-width:0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
+     "core.65",
+     {
+       age: S.age,
+       n: POS[S.pos].n,
+       name: esc(S.team.name)
+     }
+   )}</div></div>
+   <div class="hud-money"><span class="eyebrow">${$t("core.66")}</span><b>${fmt(S.money)}</b></div></div>
    <div class="hud-stats">
-    <div class="hs"><div class="k">Enerji</div><div class="v">${S.energy}</div><div class="mt"><i style="width:${S.energy}%;background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
-    <div class="hs"><div class="k">Moral</div><div class="v">${S.moral}</div><div class="mt"><i style="width:${S.moral}%;background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
-    <div class="hs"><div class="k">Genel · Form</div><div class="v">${ovr()} <span class="muted" style="font-size:.8rem">· ${form}</span></div></div>
-    <div class="hs"><div class="k">Sıra · Takipçi</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:.8rem">· ${kfmt(S.followers)}</span></div></div>
+    <div class="hs"><div class="k">${$t("core.67")}</div><div class="v">${S.energy}</div><div class="mt"><i style="width:${S.energy}%;background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("core.68")}</div><div class="v">${S.moral}</div><div class="mt"><i style="width:${S.moral}%;background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("core.69")}</div><div class="v">${ovr()} <span class="muted" style="font-size:.8rem">· ${form}</span></div></div>
+    <div class="hs"><div class="k">${$t("core.70")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:.8rem">· ${kfmt(S.followers)}</span></div></div>
    </div></header>`;
 }
 export function mapState() {
@@ -653,12 +699,16 @@ export function renderMain() {
   window.scrollTo(0, 0);
   const fx = fixture(),
     opp = teamByKey(fx.opp),
-    tods = ["Gece", "Akşam", "Öğleden sonra", "Sabah"];
+    tods = [$t("core.71"), $t("core.72"), $t("core.73"), $t("core.74")];
   app.innerHTML = `${hudHTML()}
-  <div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${seasonLabel()} · Hafta ${S.week} · ${tods[S.slot]}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
+  <div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t("core.75", {
+    v: seasonLabel(),
+    week: S.week,
+    v2: tods[S.slot]
+  })}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
   <div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
-   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">vs</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
+   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
    <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div></div>
   <div class="card"><div class="eyebrow">${t("main.news")}</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
@@ -683,6 +733,16 @@ export function renderMain() {
 
 /* ================= BAŞLAT ================= */
 export function start(data) {
+  // dil değişikliği sonrası yeniden yükleme: aynı kariyerle devam et
+  let resume = null;
+  try {
+    resume = sessionStorage.getItem("pota-resume");
+    sessionStorage.removeItem("pota-resume");
+  } catch (e) {
+    /* oturum deposu kapalı */
+  }
+  const r = resume ? late.loadSlot(+resume) : null;
+  if (r && r.S) data = { S: r.S };
   if (data && data.S) {
     S = data.S;
     migrate();

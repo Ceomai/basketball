@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, EU_CC, LEAGUES, ORDER, STATS, cOf, esc, fmt, hash, isPro, pick, rnd, statName, toast } from "./data.js";
 import { icon } from "./art.js";
@@ -41,11 +42,11 @@ export function trophyIcon(t) {
 /* ================= ARCADE SIRALAMALARI ================= */
 // Sunucu olmadığı için rakipler her hafta aynı tohumla üretilir; oyuncunun haftalık ve aylık en iyi skoru listeye yerleşir.
 export const ARC_GAMES = {
-  arcade: { n: "Pota makinesi", lo: 6, hi: 17 },
-  reflex: { n: "Refleks paneli", lo: 12, hi: 26 },
-  hockey: { n: "Hava hokeyi", lo: 2, hi: 5 },
-  rhythm: { n: "Dans ritmi", lo: 20, hi: 58 },
-  bowling: { n: "Bowling", lo: 9, hi: 27 }
+  arcade: { n: $t("arcade.2"), lo: 6, hi: 17 },
+  reflex: { n: $t("arcade.12"), lo: 12, hi: 26 },
+  hockey: { n: $t("arcade.16"), lo: 2, hi: 5 },
+  rhythm: { n: $t("shops.39"), lo: 20, hi: 58 },
+  bowling: { n: $t("arcade.26"), lo: 9, hi: 27 }
 };
 export function seeded(seed) {
   let s = seed >>> 0;
@@ -94,14 +95,27 @@ export function arcResolve(period) {
     const r = arcRank(g, period);
     if (r > 3) continue;
     const base = period === "w" ? [25, 15, 8][r - 1] : [120, 60, 30][r - 1];
-    tx(`${ARC_GAMES[g].n} ${period === "w" ? "haftalık" : "aylık"} ${r}.lik ödülü`, base * mult);
+    tx(
+      `${ARC_GAMES[g].n} ${period === "w" ? $t("extras.74") : $t("extras.75")} ${$t("extras.76", {
+        r: r
+      })}`,
+      base * mult
+    );
     S.moral += period === "w" ? 3 : 6;
     S.followers *= period === "w" ? 1.02 : 1.05;
     if (period === "m" && r === 1)
-      S.career.trophies.push({ type: "arcade", label: `${seasonLabel()} · ${ARC_GAMES[g].n} aylık şampiyonu · ${S.city}` });
+      S.career.trophies.push({
+        type: "arcade",
+        label: $t("extras.59", {
+          v: seasonLabel(),
+          n: ARC_GAMES[g].n,
+          city: S.city
+        })
+      });
     out.push(`${ARC_GAMES[g].n}: ${r}. (${fmt(base * mult)})`);
   }
-  if (out.length) news(`Arcade ${period === "w" ? "haftalık" : "aylık"} sıralama ödülü: ${out.join(", ")}.`);
+  if (out.length)
+    news(`${$t("extras.77")} ${period === "w" ? $t("extras.74") : $t("extras.75")} ${$t("extras.78")} ${out.join(", ")}.`);
   if (period === "w") {
     a.wb = {};
     a.w = weekId();
@@ -115,12 +129,12 @@ export function boardSheet(g = "arcade", period = "w") {
   const b = arcBoard(g, period),
     a = arcState();
   sheet(
-    "Arcade sıralaması",
-    `${S.city} · ${period === "w" ? "bu hafta" : "bu ay"}`,
+    $t("extras.1"),
+    `${S.city} · ${period === "w" ? $t("extras.2") : $t("extras.3")}`,
     `${tabsHTML(
       [
-        ["w", "Haftalık"],
-        ["m", "Aylık"]
+        ["w", $t("extras.4")],
+        ["m", $t("extras.5")]
       ],
       period,
       "p"
@@ -128,9 +142,9 @@ export function boardSheet(g = "arcade", period = "w") {
    <div class="opts" id="gsel">${Object.entries(ARC_GAMES)
      .map(([k, v]) => `<button class="opt ${k === g ? "on" : ""}" data-g="${k}">${v.n}</button>`)
      .join("")}</div>
-   <div class="card"><div class="tbl"><table><tr><th>#</th><th>Oyuncu</th><th style="text-align:right">Skor</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ' <span class="muted small">(henüz oynamadın)</span>' : ""}</td><td style="text-align:right">${r.s}</td></tr>`).join("")}</table></div></div>
-   <div class="card small"><div class="eyebrow">Ödüller</div><div>${period === "w" ? "Hafta sonunda ilk 3: para, moral ve takipçi." : "Ay sonunda ilk 3: büyük para ödülü. Birinciye vitrin için şampiyonluk kupası."}</div><div class="muted">Sıralama her ${period === "w" ? "hafta" : "4 haftada bir"} sıfırlanır. Ödüller maç sonrası hafta geçişinde verilir.</div></div>
-   <button class="btn pri" id="bkE">Eğlence merkezine dön</button>`
+   <div class="card"><div class="tbl"><table><tr><th>#</th><th>${$t("extras.10")}</th><th style="text-align:right">${$t("extras.11")}</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ` <span class="muted small">${$t("extras.6")}</span>` : ""}</td><td style="text-align:right">${r.s}</td></tr>`).join("")}</table></div></div>
+   <div class="card small"><div class="eyebrow">${$t("extras.12")}</div><div>${period === "w" ? $t("extras.7") : $t("extras.8")}</div><div class="muted">${$t("extras.13")} ${period === "w" ? "hafta" : $t("extras.9")} ${$t("extras.14")}</div></div>
+   <button class="btn pri" id="bkE">${$t("extras.15")}</button>`
   );
   $$("[data-p]").forEach(x => (x.onclick = () => boardSheet(g, x.dataset.p)));
   $$("#gsel [data-g]").forEach(x => (x.onclick = () => boardSheet(x.dataset.g, period)));
@@ -142,23 +156,31 @@ export function arcBoardCard() {
     .map(([k, v]) => {
       const r = arcRank(k, "w"),
         s = S.arc.wb[k] || 0;
-      return `<div class="row between small"><span>${v.n}</span><span>${s ? `<b>${r}.</b> sırada · ${s}` : '<span class="muted">oynanmadı</span>'}</span></div>`;
+      return `<div class="row between small"><span>${v.n}</span><span>${
+        s
+          ? `<b>${r}.</b> ${$t("extras.16", {
+              s: s
+            })}`
+          : `<span class="muted">${$t("extras.17")}</span>`
+      }</span></div>`;
     })
     .join("");
-  return `<div class="card"><div class="row between"><div><div class="eyebrow">Haftalık sıralama · ${esc(S.city)}</div><h3>Rekabet tablosu</h3></div><button class="btn gold sm" id="brd">Tabloyu aç</button></div>${rows}<div class="small muted">İlk 3'e girenler hafta sonunda para, moral ve takipçi kazanır. Aylık birinciye kupa.</div></div>`;
+  return `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("extras.18", {
+    city: esc(S.city)
+  })}</div><h3>${$t("extras.19")}</h3></div><button class="btn gold sm" id="brd">${$t("extras.20")}</button></div>${rows}<div class="small muted">${$t("extras.21")}</div></div>`;
 }
 
 /* ================= MİLLİ TAKIM ================= */
 export const NAT = {
-  TR: { c1: "#e30a17", c2: "#ffffff", str: 1.0, s: "TÜR" },
-  ES: { c1: "#c60b1e", c2: "#ffc400", str: 1.08, s: "İSP" },
-  IT: { c1: "#0064aa", c2: "#ffffff", str: 0.98, s: "İTA" },
-  FR: { c1: "#0055a4", c2: "#ffffff", str: 1.05, s: "FRA" },
-  DE: { c1: "#f4f4f4", c2: "#141414", str: 1.02, s: "ALM" },
-  GR: { c1: "#0d5eaf", c2: "#ffffff", str: 1.03, s: "YUN" },
-  RS: { c1: "#c6363c", c2: "#0c4076", str: 1.08, s: "SRB" },
-  LT: { c1: "#fdb913", c2: "#006a44", str: 1.0, s: "LİT" },
-  US: { c1: "#0a3161", c2: "#b31942", str: 1.22, s: "ABD" }
+  TR: { c1: "#e30a17", c2: "#ffffff", str: 1.0, s: $t("extras.60") },
+  ES: { c1: "#c60b1e", c2: "#ffc400", str: 1.08, s: $t("extras.61") },
+  IT: { c1: "#0064aa", c2: "#ffffff", str: 0.98, s: $t("extras.62") },
+  FR: { c1: "#0055a4", c2: "#ffffff", str: 1.05, s: $t("extras.63") },
+  DE: { c1: "#f4f4f4", c2: "#141414", str: 1.02, s: $t("extras.64") },
+  GR: { c1: "#0d5eaf", c2: "#ffffff", str: 1.03, s: $t("extras.65") },
+  RS: { c1: "#c6363c", c2: "#0c4076", str: 1.08, s: $t("extras.66") },
+  LT: { c1: "#fdb913", c2: "#006a44", str: 1.0, s: $t("extras.67") },
+  US: { c1: "#0a3161", c2: "#b31942", str: 1.22, s: $t("data.151") }
 };
 export const CAPITAL = {
   TR: "İstanbul",
@@ -180,7 +202,15 @@ export function natTeam(cc, cat) {
   const n = NAT[cc];
   const t = {
     key,
-    name: cat === "A" ? `${LEAGUES[cc].n} Milli Takımı` : `${LEAGUES[cc].n} ${cat} Milli Takımı`,
+    name:
+      cat === "A"
+        ? $t("extras.22", {
+            n: LEAGUES[cc].n
+          })
+        : $t("extras.23", {
+            n: LEAGUES[cc].n,
+            cat: cat
+          }),
     short: n.s,
     city: CAPITAL[cc],
     cc,
@@ -228,14 +258,24 @@ export function natMatch(cat, opp, label, after) {
       S.energy -= 15;
       norm();
       save();
-      news(`${us.name} ${line.us}-${line.them} ${opp.name}. ${fullName()}: ${line.pts} sayı, not ${r.toFixed(1)}.`);
+      news(
+        $t("extras.79", {
+          name: us.name,
+          us: line.us,
+          them: line.them,
+          name2: opp.name,
+          v: fullName(),
+          pts: line.pts,
+          v2: r.toFixed(1)
+        })
+      );
       sheet(
-        win ? "Milli galibiyet" : "Milli mağlubiyet",
+        win ? $t("extras.24") : $t("extras.25"),
         label,
-        `<div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div style="text-align:right"><div class="eyebrow">Not</div><div class="rating">${r.toFixed(1)}</div></div></div>
-      <div class="box"><div><b>${line.pts}</b><span class="eyebrow">Sayı</span></div><div><b>${line.ast}</b><span class="eyebrow">Asist</span></div><div><b>${line.reb}</b><span class="eyebrow">Ribaund</span></div><div><b>${S.career.natCaps}</b><span class="eyebrow">Milli maç</span></div></div>
-      <div class="say">${win ? pick(["Tribünde ay yıldızlı bayraklar dalgalanıyor. Marşı söyleyen binlerce kişi var.", "Soyunma odasında hep bir ağızdan marş söylendi."]) : pick(["Başımız dik. Bu formayı taşımak bile gurur.", 'Hoca toplantıda "Bir sonrakine bakacağız" dedi.'])}</div>
-      <button class="btn pri" id="nok">Devam</button>`,
+        `<div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div style="text-align:right"><div class="eyebrow">${$t("extras.30")}</div><div class="rating">${r.toFixed(1)}</div></div></div>
+      <div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${S.career.natCaps}</b><span class="eyebrow">${$t("extras.32")}</span></div></div>
+      <div class="say">${win ? pick([$t("extras.26"), $t("extras.27")]) : pick([$t("extras.28"), $t("extras.29")])}</div>
+      <button class="btn pri" id="nok">${$t("ads.25")}</button>`,
         { noClose: true }
       );
       $("#nok").onclick = () => after(win, r);
@@ -245,37 +285,42 @@ export function natMatch(cat, opp, label, after) {
 export function camp(cat, title, after) {
   S.npc.natCoach = S.npc.natCoach || `${pick(LEAGUES.TR.first)} ${pick(LEAGUES.TR.last)}`;
   sheet(
-    "Milli takım kampı",
+    $t("extras.33"),
     title,
-    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? "A Milli Takım" : cat + " Milli Takımı"}</div><h2 style="font-size:1.8rem">Davet geldi</h2></div><div class="bd">
-   <p>Federasyondan telefon: Milli Takım Başantrenörü ${esc(S.npc.natCoach)} seni ${cat === "A" ? "A Milli Takım" : cat + " Milli Takımı"} kadrosuna çağırdı. ${S.npc.mom} haberi duyunca bütün akrabaları tek tek aradı. ${S.npc.dad} formanı çerçeveletmek için şimdiden yer seçti.</p>
-   <div class="eyebrow">Kampta ne yapacaksın?</div><div class="pgrid">${[
+    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? $t("extras.34") : cat + $t("extras.35")}</div><h2 style="font-size:1.8rem">${$t("extras.40")}</h2></div><div class="bd">
+   <p>${$t("extras.41", {
+     natCoach: esc(S.npc.natCoach)
+   })} ${cat === "A" ? $t("extras.34") : cat + $t("extras.35")} ${$t("extras.42", {
+     mom: S.npc.mom,
+     dad: S.npc.dad
+   })}</p>
+   <div class="eyebrow">${$t("extras.43")}</div><div class="pgrid">${[
      {
        id: "c1",
        ic: icon("whistle"),
-       t: "Taktik çalışması",
-       d: "Hocanın sistemini öğren.",
-       fx: [["Rastgele nitelik +2", "p"]],
-       btn: "Seç"
+       t: $t("extras.68"),
+       d: $t("extras.69"),
+       fx: [[$t("extras.36"), "p"]],
+       btn: $t("core.10")
      },
      {
        id: "c2",
        ic: icon("chat"),
-       t: "Takım ruhu gecesi",
-       d: "Oda arkadaşınla sabaha kadar sohbet.",
-       fx: [["+10 Moral", "p"]],
-       btn: "Seç"
+       t: $t("extras.70"),
+       d: $t("extras.71"),
+       fx: [[$t("extras.37"), "p"]],
+       btn: $t("core.10")
      },
      {
        id: "c3",
        ic: icon("ball"),
-       t: "Ekstra şut seansı",
-       d: "Herkes yattıktan sonra salonda.",
+       t: $t("extras.72"),
+       d: $t("extras.73"),
        fx: [
-         ["Şut +2", "p"],
-         ["−8 Enerji", "n"]
+         [$t("extras.38"), "p"],
+         [$t("extras.39"), "n"]
        ],
-       btn: "Seç"
+       btn: $t("core.10")
      }
    ]
      .map(prodHTML)
@@ -315,8 +360,8 @@ export function fibaWindow(done) {
   }
   S.natWin = S.season;
   const opp = natTeam(pick(EU_CC.filter(c => c !== "TR")), "A");
-  camp(cat, "FIBA Dünya Kupası elemeleri · ara dönem", () =>
-    natMatch(cat, opp, "FIBA Dünya Kupası Elemeleri", () => {
+  camp(cat, $t("extras.44"), () =>
+    natMatch(cat, opp, $t("extras.45"), () => {
       renderMain();
       done();
     })
@@ -335,44 +380,61 @@ export function summerTournament(avg, done) {
   }
   const name =
     cat === "U18"
-      ? "U18 Avrupa Şampiyonası"
+      ? $t("extras.46")
       : cat === "U20"
-        ? "U20 Avrupa Şampiyonası"
+        ? $t("extras.47")
         : S.year % 4 === 3
-          ? "FIBA Dünya Kupası"
+          ? $t("extras.48")
           : S.year % 4 === 1
-            ? "EuroBasket"
-            : "Olimpiyat Elemeleri";
+            ? $t("extras.49")
+            : $t("extras.50");
   // son turlarda güçlü rakipler
-  const pool = [...EU_CC.filter(c => c !== "TR"), ...(cat === "A" && name === "FIBA Dünya Kupası" ? ["US"] : [])].sort(
+  const pool = [...EU_CC.filter(c => c !== "TR"), ...(cat === "A" && name === $t("extras.48") ? ["US"] : [])].sort(
     (a, b) => NAT[a].str - NAT[b].str + rnd(-0.04, 0.04)
   );
   pool.splice(0, pool.length - 4);
-  const stages = ["Grup maçı", "Yarı final", "Final"];
+  const stages = [$t("extras.51"), $t("extras.52"), $t("extras.53")];
   let i = 0;
   const medal = (type, lab) => {
     S.career.trophies.push({ type, label: `${S.year} ${name} · ${lab}` });
-    news(`${fullName()} ${name}'nda ${lab} madalyası kazandı!`);
+    news(
+      $t("extras.80", {
+        v: fullName(),
+        name: name,
+        lab: lab
+      })
+    );
     save();
   };
   const nextGame = () => {
     const opp = natTeam(pool[i], cat);
     natMatch(cat, opp, `${name} · ${stages[i]}`, win => {
       if (i === 0 && !win) {
-        news(`Türkiye ${name}'nda gruptan çıkamadı.`);
+        news(
+          $t("extras.81", {
+            name: name
+          })
+        );
         done();
         return;
       }
       if (i === 1 && !win) {
         const bo = natTeam(pool[3], cat);
-        natMatch(cat, bo, `${name} · Bronz madalya maçı`, w2 => {
-          if (w2) medal("nat_bronze", "bronz");
-          done();
-        });
+        natMatch(
+          cat,
+          bo,
+          $t("extras.54", {
+            name: name
+          }),
+          w2 => {
+            if (w2) medal("nat_bronze", "bronz");
+            done();
+          }
+        );
         return;
       }
       if (i === 2) {
-        medal(win ? "nat_gold" : "nat_silver", win ? "altın" : "gümüş");
+        medal(win ? "nat_gold" : "nat_silver", win ? $t("extras.55") : $t("extras.56"));
         done();
         return;
       }
@@ -390,7 +452,11 @@ export function weeklyHooks() {
   if ((S.week - 1) % 4 === 0) got.push(...arcResolve("m"));
   if (got.length) {
     save();
-    toast(`Arcade ödülü: ${got[0]}${got.length > 1 ? " ve fazlası" : ""}`);
+    toast(
+      `${$t("extras.58", {
+        v: got[0]
+      })}${got.length > 1 ? $t("extras.57") : ""}`
+    );
   }
   if (S.chips != null && S.chips < 500) S.chips = 500;
   Bus.emit("week:start");

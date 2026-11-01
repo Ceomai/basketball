@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, fmt, pick, toast } from "./data.js";
 import { S, closeSheet, norm, sheet, tx } from "./core.js";
@@ -74,9 +75,9 @@ export function adsConsent() {
   if (ADS.consent !== null || window.__SIM) return Promise.resolve();
   return new Promise(r => {
     sheet(
-      "Reklam tercihi",
-      "Bir kez sorulur",
-      `<p>Oyun ücretsiz; geliri, senin seçtiğin ödüllü reklamlardan geliyor. Reklamların ilgi alanına göre seçilmesine izin verir misin?</p><p class="small muted">İzin vermezsen yine reklam görürsün ama kişiselleştirilmez. Tercihini Ayarlar'dan değiştirebilirsin.</p><div class="grid2"><button class="btn ghost" id="ac-no">Kişiselleştirme yok</button><button class="btn pri" id="ac-yes">İzin ver</button></div>`,
+      $t("ads.1"),
+      $t("ads.2"),
+      `<p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div>`,
       { noClose: true }
     );
     $("#ac-no").onclick = () => {
@@ -124,11 +125,11 @@ export async function nativeAd(kind) {
 }
 // Web: tam ekran oyun içi tanıtım; ödüllü reklamda süre dolmadan kapatılırsa ödül verilmez
 export const AD_PROMOS = [
-  ["Kariyerini yedekle", "Ayarlar → Yedek al ile kariyerini dosya olarak sakla. Telefon değişse de kariyerin kaybolmaz."],
-  ["Kendi maçını oyna", "Hızlı oynatılan maçlarda not biraz düşük gelir. Önemli maçları kendin oyna."],
-  ["Rakibini takip et", "Ev → İstatistik sekmesinde rakibinin kariyerini görebilirsin."],
-  ["Basın toplantısı", "İddialı konuşursan bir sonraki maçta sözünü tutman gerekir."],
-  ["Ana ekrana ekle", "Oyunu ana ekrana eklersen internetsiz açılır ve kayıtların daha güvende olur."]
+  [$t("ads.7"), $t("ads.8")],
+  [$t("ads.9"), $t("ads.10")],
+  [$t("ads.11"), $t("ads.12")],
+  [$t("ads.13"), $t("ads.14")],
+  [$t("ads.15"), $t("ads.16")]
 ];
 export function webAd(kind) {
   return new Promise(res => {
@@ -136,7 +137,12 @@ export function webAd(kind) {
       [h, t] = pick(AD_PROMOS),
       el = document.createElement("div");
     el.id = "adov";
-    el.innerHTML = `<div class="adbox"><div class="row between"><span class="pill">Reklam</span><span class="small muted" id="adt">${secs} sn</span></div><div class="adbody"><div class="eyebrow">Pota Kariyeri ipucu</div><h2>${h}</h2><p>${t}</p><p class="small muted">Bu web sürümünde gerçek reklam yok. Mağaza sürümünde burada kısa bir video reklam oynar.</p></div><button class="btn ghost" id="adx">${kind === "rewarded" ? "Kapat (ödül yok)" : "Geç"}</button></div>`;
+    el.innerHTML = `<div class="adbox"><div class="row between"><span class="pill">${$t("ads.19")}</span><span class="small muted" id="adt">${$t(
+      "ads.20",
+      {
+        secs: secs
+      }
+    )}</span></div><div class="adbody"><div class="eyebrow">${$t("ads.21")}</div><h2>${h}</h2><p>${t}</p><p class="small muted">${$t("ads.22")}</p></div><button class="btn ghost" id="adx">${kind === "rewarded" ? $t("ads.17") : $t("ads.18")}</button></div>`;
     document.body.appendChild(el);
     let left = secs,
       done = false;
@@ -145,12 +151,17 @@ export function webAd(kind) {
     if (kind === "interstitial") btn.disabled = true;
     const iv = setInterval(() => {
       left--;
-      tl.textContent = left > 0 ? `${left} sn` : "Bitti";
+      tl.textContent =
+        left > 0
+          ? $t("ads.48", {
+              left: left
+            })
+          : $t("ads.23");
       if (left <= 0) {
         clearInterval(iv);
         done = true;
         btn.disabled = false;
-        btn.textContent = kind === "rewarded" ? "Ödülü al" : "Devam";
+        btn.textContent = kind === "rewarded" ? $t("ads.24") : $t("ads.25");
         btn.className = "btn pri";
       }
     }, 1000);
@@ -175,7 +186,7 @@ export async function showRewarded(place) {
     return true;
   }
   if (!rewardLeft()) {
-    toast("Bugünlük reklam ödülleri bitti. Yarın tekrar gel.");
+    toast($t("ads.26"));
     return false;
   }
   await adsConsent();
@@ -187,7 +198,7 @@ export async function showRewarded(place) {
     adStat(place, "done");
     adsSave();
     late.sfx("coin");
-  } else toast("Reklam tamamlanmadı, ödül verilmedi.");
+  } else toast($t("ads.27"));
   return ok;
 }
 // Maçlar arası geçiş reklamı (sıklık sınırlı); bittiğinde next() çağrılır
@@ -214,11 +225,19 @@ export async function adsBetween(next) {
   next();
 }
 export const adBtn = (id, label, sub) =>
-  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? "Paket" : "Reklam"}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
 export function adDoubleHTML(bonus) {
-  return bonus > 0 && !window.__SIM ? adBtn("ad-x2", `Primi ikiye katla · +${fmt(bonus)}`, "Kısa bir reklam izle") : "";
+  return bonus > 0 && !window.__SIM
+    ? adBtn(
+        "ad-x2",
+        $t("ads.49", {
+          bonus: fmt(bonus)
+        }),
+        $t("ads.50")
+      )
+    : "";
 }
 export function bindAdDouble(bonus) {
   const b = $("#ad-x2");
@@ -226,9 +245,11 @@ export function bindAdDouble(bonus) {
   b.onclick = async () => {
     b.disabled = true;
     if (await showRewarded("double_bonus")) {
-      tx("Maç primi · reklam bonusu", bonus);
+      tx($t("ads.51"), bonus);
       save();
-      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">Prim ikiye katlandı: +${fmt(bonus)}</div>`;
+      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.29", {
+        bonus: fmt(bonus)
+      })}</div>`;
     } else b.disabled = false;
   };
 }
@@ -239,7 +260,11 @@ export function adEnergyHTML() {
     S.adEnergyN = 0;
   }
   if (window.__SIM || S.energy >= 60 || S.adEnergyN >= ADS_CFG.energyPerWeek) return "";
-  return `<div class="card"><div class="row between nowrap"><div><div class="eyebrow">Enerjin düşük · ${S.energy}</div><p class="small muted" style="margin:2px 0 0">Bu hafta ${ADS_CFG.energyPerWeek - S.adEnergyN} kez kullanılabilir.</p></div></div>${adBtn("ad-en", "+30 enerji", "Kısa bir reklam izle")}</div>`;
+  return `<div class="card"><div class="row between nowrap"><div><div class="eyebrow">${$t("ads.30", {
+    energy: S.energy
+  })}</div><p class="small muted" style="margin:2px 0 0">${$t("ads.31", {
+    v: ADS_CFG.energyPerWeek - S.adEnergyN
+  })}</p></div></div>${adBtn("ad-en", $t("ads.32"), $t("ads.50"))}</div>`;
 }
 export function bindAdEnergy(after) {
   const b = $("#ad-en");
@@ -251,15 +276,13 @@ export function bindAdEnergy(after) {
       S.energy += 30;
       norm();
       save();
-      toast("+30 enerji");
+      toast($t("ads.32"));
       after && after();
     } else b.disabled = false;
   };
 }
 export function adHealHTML() {
-  return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed
-    ? adBtn("ad-heal", "İyileşmeyi 1 hafta kısalt", "Sakatlık başına bir kez · kısa bir reklam")
-    : "";
+  return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed ? adBtn("ad-heal", $t("ads.52"), $t("ads.53")) : "";
 }
 export function bindAdHeal(after) {
   const b = $("#ad-heal");
@@ -270,13 +293,13 @@ export function bindAdHeal(after) {
       S.injury.w--;
       S.injury.adHealed = true;
       save();
-      toast("Fizyoterapist ek seans ayarladı: bir hafta erken dönüyorsun.");
+      toast($t("ads.33"));
       after && after();
     } else b.disabled = false;
   };
 }
 export function adHalfHTML() {
-  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", "Soyunma odası konuşması", "+10 enerji · +4 moral · kısa bir reklam");
+  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.54"), $t("ads.55"));
 }
 export function bindAdHalf() {
   const b = $("#ad-half");
@@ -288,7 +311,7 @@ export function bindAdHalf() {
       S.energy += 10;
       S.moral += 4;
       norm();
-      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">Koçun konuşması takımı ateşledi: +10 enerji, +4 moral.</div>`;
+      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.34")}</div>`;
     } else b.disabled = false;
   };
 }
@@ -296,7 +319,13 @@ export function bindAdHalf() {
 /* ---- Ayarlar bölümü ---- */
 export function adsSettingsHTML() {
   const total = Object.values(ADS.stats).reduce((a, s) => a + s.done, 0);
-  return `<div class="act"><div><h3>Reklamlar</h3><p>${ADS.adFree ? "Reklamsız paket etkin: geçiş reklamı yok, ödüller reklamsız verilir." : `Bugün kalan ödüllü reklam: ${rewardLeft()}. Toplam izlenen: ${total}.`}</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">Kişiselleştirme: ${ADS.consent ? "Açık" : "Kapalı"}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">Reklamsız paket</button>`}</div></div>`;
+  return `<div class="act"><div><h3>${$t("ads.40")}</h3><p>${
+    ADS.adFree
+      ? $t("ads.35")
+      : `${$t("ads.36")} ${rewardLeft()}${$t("ads.56", {
+          total: total
+        })}`
+  }</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${$t("ads.39")}</button>`}</div></div>`;
 }
 export function bindAdsSettings(re) {
   const c = $("#ad-cons");
@@ -316,18 +345,18 @@ export async function buyAdFree(re) {
       if (await window.PotaStore.buy("adfree")) {
         ADS.adFree = true;
         adsSave();
-        toast("Teşekkürler! Reklamsız paket etkin.");
+        toast($t("ads.42"));
         re && re();
       }
     } catch (e) {
-      toast("Satın alma tamamlanamadı.");
+      toast($t("ads.43"));
     }
     return;
   }
   sheet(
-    "Reklamsız paket",
-    "Mağaza sürümünde",
-    `<p>Reklamsız paket tek seferlik bir satın alma: geçiş reklamları tamamen kapanır, ödüllü reklamların ödülleri reklam izlemeden verilir.</p><p class="small muted">Satın alma Google Play ve App Store sürümlerinde açılacak. Web sürümünde kullanılamıyor.</p><button class="btn pri" id="af-ok">Tamam</button>`
+    $t("ads.39"),
+    $t("ads.44"),
+    `<p>${$t("ads.45")}</p><p class="small muted">${$t("ads.46")}</p><button class="btn pri" id="af-ok">${$t("ads.47")}</button>`
   );
   $("#af-ok").onclick = () => {
     closeSheet();

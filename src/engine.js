@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, shuffle, statName, wait } from "./data.js";
 import { portrait } from "./art.js";
@@ -10,7 +11,7 @@ import { LK, M, PEN, addFeed, finishMatch, odds, resolvePlay, setM, updBug } fro
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
    Çeyrek aralarında duraklama, skor özeti ve koçla taktik konuşması var. */
 export const PACE = { 1: 420, 2: 200, 4: 90 };
-export const TR_CALLS = ["Salon ayakta!", "Ve basket!", "Tribünler coştu!", "Ne oyun ama!", "Pota delindi resmen!"];
+export const TR_CALLS = [$t("engine.1"), $t("engine.2"), $t("engine.3"), $t("engine.4"), $t("engine.5")];
 export function rosterNames(city, n) {
   const c = cOf(city),
     out = new Set();
@@ -50,10 +51,10 @@ export function modeChoice() {
   if (window.__SIM) return Promise.resolve("key");
   return new Promise(r => {
     const cur = S.matchMode || "full";
-    $("#mview").innerHTML = `<div class="card sit"><div class="eyebrow">Maç öncesi</div><h2>Nasıl oynamak istersin?</h2>
+    $("#mview").innerHTML = `<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
-      <button class="choice" data-m="full"><span class="ct">Tüm maçı oyna</span><span class="cd">Maçın akışını baştan sona izle. Kenardayken de skor ve olaylar akar, oyuna girince kritik anları sen oynarsın.</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? "Son seçim" : "İzle"}</span></button>
-      <button class="choice" data-m="key"><span class="ct">Sadece önemli anlar</span><span class="cd">Kenar dakikaları hızla geçer, yalnızca sahada olduğun dilimlere ışınlanırsın. Daha kısa sürer.</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? "Son seçim" : "Hızlı"}</span></button>
+      <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
+      <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
      </div></div>`;
     $$("[data-m]").forEach(
       b =>
@@ -107,13 +108,13 @@ export async function playMatch(ctx) {
     sur = S.last,
     PL = PLAYS[S.pos];
   app.innerHTML = `<div id="bug"></div><div id="mstat" class="card" style="padding:10px 12px;gap:6px"></div><div id="mview"></div>
-   <div class="card"><div class="row between"><div class="eyebrow">Maç akışı</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
+   <div class="card"><div class="row between"><div class="eyebrow">${$t("engine.15")}</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
   let mode = AUTO ? "key" : await modeChoice();
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px">Önemli anlar</button>`;
+      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px">${$t("engine.16")}</button>`;
     $$("#spd [data-s]").forEach(
       b =>
         (b.onclick = () => {
@@ -132,7 +133,17 @@ export async function playMatch(ctx) {
   let on = false;
   const statLine = () => {
     $("#mstat").innerHTML =
-      `<div class="row between nowrap"><span class="pill ${on ? "w" : ""}">${on ? "Sahadasın" : "Kenardasın"}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> · ${Math.floor(M.mins / 60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} rib. · artı/eksi ${M.plus >= 0 ? "+" : ""}${M.plus}</div>`;
+      `<div class="row between nowrap"><span class="pill ${on ? "w" : ""}">${on ? $t("engine.17") : $t("engine.18")}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> ${$t(
+        "engine.19",
+        {
+          v: Math.floor(M.mins / 60),
+          pts: M.pts,
+          ast: M.ast,
+          reb: M.reb,
+          v2: M.plus >= 0 ? "+" : "",
+          plus: M.plus
+        }
+      )}</div>`;
   };
   const banner = (t, good) => {
     late.sfx("whistle");
@@ -145,7 +156,12 @@ export async function playMatch(ctx) {
     setTimeout(() => d.remove(), 2600);
     buzz(good ? 20 : 10);
   };
-  addFeed(`${ctx.home ? S.city : opp.city} salonu dolu. ${ctx.label}. Hakem topu havaya attı.`);
+  addFeed(
+    $t("engine.20", {
+      v: ctx.home ? S.city : opp.city,
+      label: ctx.label
+    })
+  );
   late.crowd(true);
   late.sfx("whistle");
   statLine();
@@ -185,13 +201,41 @@ export async function playMatch(ctx) {
     if (want !== on) {
       on = want;
       if (on) {
-        banner(`Oyuna girdin · ${M.q}. çeyrek ${M.clock}`, true);
-        addFeed(`<b>Oyuncu değişikliği:</b> ${sur} oyuna girdi.`);
-        if (benchFrom && mode === "key") addFeed(`Kenardayken skor ${benchFrom[0]}-${benchFrom[1]} iken ${M.us}-${M.them} oldu.`);
+        banner(
+          $t("engine.21", {
+            q: M.q,
+            clock: M.clock
+          }),
+          true
+        );
+        addFeed(
+          `<b>${$t("engine.22")}</b> ${$t("engine.23", {
+            sur: sur
+          })}`
+        );
+        if (benchFrom && mode === "key")
+          addFeed(
+            $t("engine.24", {
+              v: benchFrom[0],
+              v2: benchFrom[1],
+              us: M.us,
+              them: M.them
+            })
+          );
         benchFrom = null;
       } else {
-        banner(`Oyundan alındın · ${M.q}. çeyrek ${M.clock}`, false);
-        addFeed(`<b>Oyuncu değişikliği:</b> ${sur} kenara geldi.`);
+        banner(
+          $t("engine.25", {
+            q: M.q,
+            clock: M.clock
+          }),
+          false
+        );
+        addFeed(
+          `<b>${$t("engine.22")}</b> ${$t("engine.26", {
+            sur: sur
+          })}`
+        );
         benchFrom = [M.us, M.them];
       }
       statLine();
@@ -210,7 +254,7 @@ export async function playMatch(ctx) {
     if (on) statLine();
     if (t >= end && end >= TOTAL && M.us === M.them) {
       end += 300;
-      addFeed("<b>Uzatma!</b> Beş dakika daha.");
+      addFeed(`<b>${$t("engine.27")}</b> ${$t("engine.28")}`);
       if (t === TOTAL) {
         M.qs.push([M.us, M.them]);
         await quarterBreak(4, on, true);
@@ -231,7 +275,7 @@ export async function playMatch(ctx) {
     1,
     10
   );
-  addFeed(`<b>Maç sona erdi.</b> ${M.us}-${M.them}.`);
+  addFeed(`<b>${$t("engine.29")}</b> ${M.us}-${M.them}.`);
   if (!AUTO) await wait(500);
   M.auto = !!ctx.auto;
   if (ctx.onEnd) ctx.onEnd(win);
@@ -256,7 +300,7 @@ export async function playMatch(ctx) {
           M.autoPts = (M.autoPts || 0) + pts;
           if (mode === "full")
             addFeed(
-              `${S.team.short} · <b>${sur}</b> ${three ? "üçlüğü soktu" : pick(["pota altından 2 sayı", "orta mesafeden 2 sayı", "turnikeyle 2 sayı"])}`
+              `${S.team.short} · <b>${sur}</b> ${three ? $t("engine.30") : pick([$t("engine.31"), $t("engine.32"), $t("engine.33")])}`
             );
           return;
         }
@@ -267,12 +311,12 @@ export async function playMatch(ctx) {
       }
       if (Math.random() < 0.55 || mode === "full")
         addFeed(
-          `${team} · ${who} ${three ? "üçlüğü soktu" : pick(["pota altından 2 sayı", "orta mesafeden 2 sayı", "turnikeyle 2 sayı", "hızlı hücumda smaç"])}${us && Math.random() < 0.12 ? " " + pick(TR_CALLS) : ""}`
+          `${team} · ${who} ${three ? $t("engine.30") : pick([$t("engine.31"), $t("engine.32"), $t("engine.33"), $t("engine.34")])}${us && Math.random() < 0.12 ? " " + pick(TR_CALLS) : ""}`
         );
     } else if (on && Math.random() < { C: 0.2, PF: 0.16, SF: 0.1, SG: 0.06, PG: 0.05 }[S.pos] * (0.6 + eff("guc") / 100)) {
       M.reb++;
     } else if (Math.random() < 0.35 && mode === "full")
-      addFeed(`${team} · ${who} ${pick(["şutu kaçırdı", "top kaybı yaptı", "faul yaptı", "turnikeyi kaçırdı"])}`);
+      addFeed(`${team} · ${who} ${pick([$t("engine.35"), $t("engine.36"), $t("engine.37"), $t("engine.38")])}`);
   }
   async function moment(us, clutch) {
     const diff = M.us - M.them,
@@ -284,12 +328,18 @@ export async function playMatch(ctx) {
     if (ty === "off") {
       head = clutch
         ? diff < 0
-          ? `${-diff} sayı gerideyiz, son hücum sende`
+          ? $t("engine.39", {
+              v: -diff
+            })
           : diff === 0
-            ? "Skor eşit, top sende"
-            : `${diff} sayı öndeyiz, işi bitir`
+            ? $t("engine.40")
+            : $t("engine.41", {
+                diff: diff
+              })
         : pick(PL.sit);
-      desc = `Üzerinde ${dn} var.`;
+      desc = $t("engine.42", {
+        dn: dn
+      });
       opts = PL.off.map(([k, tt, st, d]) => ({
         k,
         t: tt,
@@ -298,8 +348,10 @@ export async function playMatch(ctx) {
       }));
       if (!clutch && opts.length > 3) opts = shuffle(opts).slice(0, 3);
     } else if (ty === "def") {
-      head = pick(["Rakip hücumda, top tehlikeli bölgede", "Rakibin yıldızı topla geliyor", "Hızlı hücum yiyorsunuz"]);
-      desc = `${dn} topla geliyor.`;
+      head = pick([$t("engine.43"), $t("engine.44"), $t("engine.45")]);
+      desc = $t("engine.46", {
+        dn: dn
+      });
       opts = PL.def.map(([k, tt, st, d]) => ({
         k,
         t: tt,
@@ -307,15 +359,21 @@ export async function playMatch(ctx) {
         e: eff(st) + (k === "safe" ? 15 : 0)
       }));
     } else {
-      head = "Faul aldın";
-      desc = "Çizgiye gidiyorsun. İki serbest atış.";
-      opts = [{ k: "free", t: "Serbest atış", d: `2 atış · Şut ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }];
+      head = $t("engine.47");
+      desc = $t("engine.48");
+      opts = [{ k: "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }];
     }
     if (!AUTO)
       $("#mview").innerHTML =
-        `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>İpucu:</b> Kritik anlarda bir seçim yaparsın. Sağdaki etiket niteliklerine göre başarı şansını gösterir. Seçtikten sonra mini oyunu oynarsın; ekrandaki yönergeyi takip et.</div>`}<div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch ? " · son dakikalar" : ""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts
+        `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
+          "engine.53",
+          {
+            q: M.q,
+            clock: M.clock
+          }
+        )}${clutch ? $t("engine.51") : ""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts
           .map(o => {
-            const [c, l] = o.k === "safe" ? ["i", "Güvenli"] : odds(o.e);
+            const [c, l] = o.k === "safe" ? ["i", $t("engine.52")] : odds(o.e);
             return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`;
           })
           .join("")}</div></div>`;
@@ -356,7 +414,11 @@ export async function playMatch(ctx) {
         const s = plan.find(([a, b]) => t / 60 >= a && t / 60 < b);
         if (s && s[1] < 40) {
           s[1] = Math.min(40, s[1] + 2);
-          addFeed(`${S.npc.coach}: "Bırakın oynasın!" Süren uzatıldı.`);
+          addFeed(
+            $t("engine.54", {
+              coach: S.npc.coach
+            })
+          );
         }
       }
     } else {
@@ -369,7 +431,11 @@ export async function playMatch(ctx) {
           s[1] = Math.ceil(t / 60);
           const nx = plan.find(([a]) => a > t / 60);
           if (nx) nx[0] += 2;
-          addFeed(`${S.npc.coach} kenardan seslendi: "Otur biraz, kafanı topla."`);
+          addFeed(
+            $t("engine.55", {
+              coach: S.npc.coach
+            })
+          );
         }
       }
     }
@@ -396,28 +462,50 @@ export async function playMatch(ctx) {
           })
           .join("");
       const lines = {
-        win: ["Böyle devam. Savunmayı bırakmayın.", "Güzel gidiyoruz ama rehavete kapılmak yok."],
-        lose: ["Kendimize gelmemiz lazım. Ribaundlar bizim olacak!", "Bu skor bize yakışmıyor. Daha sert oynayın!"],
-        tie: ["Maç başa baş. Detaylar kazandıracak.", "Kim daha çok isterse o kazanır."]
+        win: [$t("engine.56"), $t("engine.57")],
+        lose: [$t("engine.58"), $t("engine.59")],
+        tie: [$t("engine.60"), $t("engine.61")]
       };
       const st = M.us > M.them ? "win" : M.us < M.them ? "lose" : "tie";
-      $("#mview").innerHTML =
-        `<div class="card"><div class="eyebrow">${ot ? "Uzatma öncesi" : half ? "Devre arası" : `${qn}. çeyrek sonu`}</div>
-       <div class="tbl"><table><tr><th>Takım</th>${M.qs.map((_, i) => `<th>${i + 1}Ç</th>`).join("")}<th>Top.</th></tr><tr class="me"><td>${esc(S.team.short)}</td>${rows}<td>${M.us}</td></tr><tr><td>${esc(M.opp.short)}</td>${rowsT}<td>${M.them}</td></tr></table></div>
-       <div class="small"><b>${esc(sur)}:</b> ${Math.floor(M.mins / 60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} ribaund · artı/eksi ${M.plus >= 0 ? "+" : ""}${M.plus}</div>
+      $("#mview").innerHTML = `<div class="card"><div class="eyebrow">${
+        ot
+          ? $t("engine.62")
+          : half
+            ? $t("engine.63")
+            : $t("engine.77", {
+                qn: qn
+              })
+      }</div>
+       <div class="tbl"><table><tr><th>${$t("data.36")}</th>${M.qs.map((_, i) => `<th>${$t("common.q", { n: i + 1 })}</th>`).join("")}<th>${$t("engine.71")}</th></tr><tr class="me"><td>${esc(S.team.short)}</td>${rows}<td>${M.us}</td></tr><tr><td>${esc(M.opp.short)}</td>${rowsT}<td>${M.them}</td></tr></table></div>
+       <div class="small"><b>${esc(sur)}:</b> ${$t("engine.72", {
+         v: Math.floor(M.mins / 60),
+         pts: M.pts,
+         ast: M.ast,
+         reb: M.reb,
+         v2: M.plus >= 0 ? "+" : "",
+         plus: M.plus
+       })}</div>
        <div class="who"><div id="qcp"></div><div class="say">"${pick(lines[st])}"</div></div>
        ${
          last
            ? ""
-           : `<div class="eyebrow">${half ? "Soyunma odası" : "Mola"} · taktik seç</div><div class="grid3">${[
-               ["tempo", "Tempoyu artır"],
-               ["def", "Savunmaya odaklan"],
-               ["ball", "Topu bana verin"]
+           : `<div class="eyebrow">${half ? $t("engine.64") : $t("engine.65")} ${$t("engine.69")}</div><div class="grid3">${[
+               ["tempo", $t("engine.66")],
+               ["def", $t("engine.67")],
+               ["ball", $t("engine.68")]
              ]
                .map(([k, n]) => `<button class="btn ${M.tac === k ? "team" : "ghost"} sm" data-tac="${k}">${n}</button>`)
                .join("")}</div>`
        }
-       ${half ? late.adHalfHTML() : ""}<button class="btn pri" id="qgo">${ot ? "Uzatmaya başla" : last ? "Devam" : `${qn + 1}. çeyreğe başla`}</button></div>`;
+       ${half ? late.adHalfHTML() : ""}<button class="btn pri" id="qgo">${
+         ot
+           ? $t("engine.70")
+           : last
+             ? $t("ads.25")
+             : $t("engine.78", {
+                 v: qn + 1
+               })
+       }</button></div>`;
       const cl = LK.coach();
       cl[1].mood = st === "lose" ? "kizgin" : "mutlu";
       $("#qcp").appendChild(portrait(cl[0], cl[1]));
@@ -440,8 +528,10 @@ export async function playMatch(ctx) {
         $("#mview").innerHTML = "";
         addFeed(
           ot
-            ? "Uzatma başladı."
-            : `${qn + 1}. çeyrek başladı.${M.tac ? ` Taktik: ${{ tempo: "tempo", def: "savunma", ball: "top " + sur + "'de" }[M.tac]}.` : ""}`
+            ? $t("engine.73")
+            : `${$t("engine.79", {
+                v: qn + 1
+              })}${M.tac ? ` ${$t("engine.75")} ${{ tempo: "tempo", def: "savunma", ball: "top " + sur + $t("engine.74") }[M.tac]}.` : ""}`
         );
         r();
       };

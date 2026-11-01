@@ -1,3 +1,4 @@
+import { t as $t, LOCALE } from "./i18n/index.js";
 import { STY, cityTheme, clamp, esc, luma, shade } from "./data.js";
 /* ================= ŞEHİR HARİTASI ================= */
 export const LOCS = [
@@ -13,29 +14,36 @@ export const LOCS = [
   { id: "sans", x: 320, y: 596 }
 ];
 export const HOUSE_NAMES = {
-  oda: "Ailenin evi · odan",
-  yurt: "Öğrenci yurdu",
-  daire: "Kiralık daire",
-  lux: "Rezidans",
-  villa: "Villa",
-  malikane: "Malikâne"
+  oda: $t("map.14"),
+  yurt: $t("map.15"),
+  daire: $t("map.16"),
+  lux: $t("map.17"),
+  villa: $t("map.18"),
+  malikane: $t("map.19")
 };
 export function locInfo(id, P) {
   const away = P.city !== P.home;
   return {
-    okul: { n: P.studying ? (P.stage === "lise" ? "Lise" : "Üniversite") : "Menajer Ofisi", slot: P.studying },
-    medya: { n: "Medya Merkezi", slot: true },
-    ev: { n: HOUSE_NAMES[P.housing] || "Evin", slot: false },
+    okul: { n: P.studying ? (P.stage === "lise" ? $t("map.1") : $t("map.2")) : $t("map.3"), slot: P.studying },
+    medya: { n: $t("places.184"), slot: true },
+    ev: { n: HOUSE_NAMES[P.housing] || $t("map.4"), slot: false },
     stad: {
-      n: P.team ? P.team.short + " " + (["lise", "uni"].includes(P.stage) ? "Spor Salonu" : "Arena") : "Stadyum",
+      n: P.team ? P.team.short + " " + (["lise", "uni"].includes(P.stage) ? $t("map.5") : $t("map.6")) : $t("map.7"),
       slot: false
     },
-    aile: { n: away ? `Aile · ${P.home}` : "Ailenin Evi", slot: true },
-    kafe: { n: "Kafe", slot: true },
-    eglence: { n: "Eğlence Merkezi", slot: false },
-    avm: { n: "AVM", slot: false },
-    market: { n: "Market", slot: false },
-    sans: { n: P.age < 18 ? "Oyun Kulübü · 18+" : "Oyun Kulübü", slot: false, locked: P.age < 18 }
+    aile: {
+      n: away
+        ? $t("map.8", {
+            home: P.home
+          })
+        : $t("map.9"),
+      slot: true
+    },
+    kafe: { n: $t("map.20"), slot: true },
+    eglence: { n: $t("shops.37"), slot: false },
+    avm: { n: $t("map.13"), slot: false },
+    market: { n: $t("map.21"), slot: false },
+    sans: { n: P.age < 18 ? $t("map.10") : $t("casino.6"), slot: false, locked: P.age < 18 }
   }[id];
 }
 export function box(x, y, w, h, d, f, s, t) {
@@ -327,7 +335,7 @@ export function mapSVG(P) {
     medya: (x, y) =>
       box(x - 38, y + 30, 62, 42, 12, "#3a4358", "#2a3142", "#56607a") +
       windows(x - 38, y + 30, 62, 36, 5, 2, lit, true) +
-      `<path d="M${x + 2} ${y - 12}L${x - 10} ${y + 4}M${x + 2} ${y - 12}L${x + 14} ${y + 4}M${x + 2} ${y - 12}V${y - 58}" stroke="#aab4c2" stroke-width="2.5"/><circle cx="${x + 2}" cy="${y - 60}" r="3" fill="#ff5468"/><ellipse cx="${x - 22}" cy="${y - 16}" rx="10" ry="6" fill="#dfe6ee" transform="rotate(-25 ${x - 22} ${y - 16})"/><rect x="${x - 30}" y="${y + 2}" width="40" height="8" fill="#06090f"/><text x="${x - 10}" y="${y + 9}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#ff5468">● CANLI</text>`,
+      `<path d="M${x + 2} ${y - 12}L${x - 10} ${y + 4}M${x + 2} ${y - 12}L${x + 14} ${y + 4}M${x + 2} ${y - 12}V${y - 58}" stroke="#aab4c2" stroke-width="2.5"/><circle cx="${x + 2}" cy="${y - 60}" r="3" fill="#ff5468"/><ellipse cx="${x - 22}" cy="${y - 16}" rx="10" ry="6" fill="#dfe6ee" transform="rotate(-25 ${x - 22} ${y - 16})"/><rect x="${x - 30}" y="${y + 2}" width="40" height="8" fill="#06090f"/><text x="${x - 10}" y="${y + 9}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#ff5468">${$t("map.11")}</text>`,
     ev: (x, y) =>
       homeSVG(x, y, P, lit, { wall: wallC }, roof) +
       (P.car ? `<g transform="translate(${x + 20},${y + 30}) scale(.45)">${P.car.replace(/<svg[^>]*>|<\/svg>/g, "")}</g>` : ""),
@@ -345,11 +353,11 @@ export function mapSVG(P) {
       windows(x - 38, y + 30, 64, 20, 3, 1, lit),
     eglence: (x, y) =>
       box(x - 38, y + 30, 64, 42, 12, "#241b3b", "#19132b", "#352a55") +
-      `<rect x="${x - 32}" y="${y - 6}" width="52" height="14" rx="4" fill="${lit ? "#ff3fa4" : "#6b2f5a"}"/><text x="${x - 6}" y="${y + 5}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="9" letter-spacing="1" fill="#fff">ARCADE · CLUB</text>` +
+      `<rect x="${x - 32}" y="${y - 6}" width="52" height="14" rx="4" fill="${lit ? "#ff3fa4" : "#6b2f5a"}"/><text x="${x - 6}" y="${y + 5}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="9" letter-spacing="1" fill="#fff">${$t("map.12")}</text>` +
       windows(x - 38, y + 30, 64, 14, 4, 1, lit),
     avm: (x, y) =>
       box(x - 52, y + 30, 92, 42, 14, "#cfd6de", "#aab3be", "#bcc5cf") +
-      `<rect x="${x - 44}" y="${y + 2}" width="76" height="22" fill="${lit ? "#ffe3a0" : "#7fa7c9"}" opacity=".9"/><rect x="${x - 24}" y="${y - 8}" width="36" height="10" rx="2" fill="#141414"/><text x="${x - 6}" y="${y}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="8" letter-spacing="1" fill="#d8b25a">AVM</text>`,
+      `<rect x="${x - 44}" y="${y + 2}" width="76" height="22" fill="${lit ? "#ffe3a0" : "#7fa7c9"}" opacity=".9"/><rect x="${x - 24}" y="${y - 8}" width="36" height="10" rx="2" fill="#141414"/><text x="${x - 6}" y="${y}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="8" letter-spacing="1" fill="#d8b25a">${$t("map.13")}</text>`,
     market: (x, y) =>
       box(x - 36, y + 30, 60, 32, 12, "#e9e6df", "#c9c5bc", roof) +
       `<path d="M${x - 38} ${y - 2}h64l-4 9h-56z" fill="#1f7a5c"/>` +
@@ -363,7 +371,7 @@ export function mapSVG(P) {
     const I = locInfo(Lc.id, P);
     const off = (I.slot && P.slot <= 0) || I.locked;
     const big = Lc.id === "stad";
-    const lab = I.n.toLocaleUpperCase("tr-TR"),
+    const lab = I.n.toLocaleUpperCase(LOCALE),
       lw = Math.max(56, lab.length * 6.1 + 24),
       ly = Lc.y + (big ? 78 : 46);
     g += `<g class="loc${off ? " off" : ""}" data-loc="${Lc.id}" tabindex="0" role="button" aria-label="${esc(I.n)}">

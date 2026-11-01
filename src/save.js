@@ -1,3 +1,4 @@
+import { t as $t, LOCALE } from "./i18n/index.js";
 import { t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, SIM, esc, toast } from "./data.js";
@@ -71,7 +72,7 @@ export function save() {
   if (!storageOK) {
     if (!storageWarned) {
       storageWarned = true;
-      toast("Tarayıcı kaydı kapalı. İlerlemeni korumak için Kayıtlar ekranından kayıt kodunu kopyala.");
+      toast($t("save.2"));
     }
     return;
   }
@@ -99,7 +100,7 @@ export function save() {
     } catch (e2) {
       if (!storageWarned) {
         storageWarned = true;
-        toast("Kayıt yapılamadı: tarayıcı depolaması dolu. Kayıtlar ekranından kayıt kodunu kopyala.");
+        toast($t("save.3"));
       }
     }
   }
@@ -229,7 +230,16 @@ export async function storageRestore() {
       } catch (e) {}
     } else if (cur && (cur.ts || 0) > (db.ts || 0)) idbPut(k, localStorage.getItem(k));
   }
-  if (n) setTimeout(() => toast(`${n} kariyer yedek kopyadan geri yüklendi.`), 600);
+  if (n)
+    setTimeout(
+      () =>
+        toast(
+          $t("save.4", {
+            n: n
+          })
+        ),
+      600
+    );
   return n;
 }
 // Tarayıcıdan "kalıcı depolama" izni iste: verilirse site verisi yer darlığında silinmez
@@ -256,7 +266,7 @@ export const isInstalled = () => {
 /* ---- Yedek dosyası ---- */
 export const saveFileName = s =>
   `pota-kariyeri-${(s.first + "-" + s.last)
-    .toLocaleLowerCase("tr-TR")
+    .toLocaleLowerCase(LOCALE)
     .replace(/ı/g, "i")
     .replace(/ğ/g, "g")
     .replace(/ü/g, "u")
@@ -275,9 +285,9 @@ export async function downloadSave() {
   try {
     const file = new File([blob], name, { type: "text/plain" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "Pota Kariyeri yedeği" });
+      await navigator.share({ files: [file], title: $t("save.36") });
       markBackup();
-      toast("Yedek paylaşıldı.");
+      toast($t("save.5"));
       return;
     }
   } catch (e) {
@@ -293,7 +303,7 @@ export async function downloadSave() {
     a.remove();
   }, 1500);
   markBackup();
-  toast("Yedek dosyası indirildi.");
+  toast($t("save.6"));
 }
 export function readFileText(input) {
   return new Promise(res => {
@@ -308,7 +318,7 @@ export function readFileText(input) {
 export function importCode(code) {
   const s = decodeSave(code || "");
   if (!s) {
-    toast("Kayıt okunamadı. Dosyanın ya da kodun tamamı olduğundan emin ol.");
+    toast($t("save.7"));
     return false;
   }
   let free = 0;
@@ -318,14 +328,18 @@ export function importCode(code) {
       break;
     }
   if (!free) {
-    toast("Boş yuva yok. Önce bir yuvayı sil.");
+    toast($t("save.8"));
     return false;
   }
   setS(s);
   S.saveSlot = free;
   migrate();
   save();
-  toast(`Kayıt Yuva ${free}'e yüklendi.`);
+  toast(
+    $t("save.9", {
+      free: free
+    })
+  );
   renderMain();
   return true;
 }
@@ -335,10 +349,10 @@ export function backupNudge() {
   const gap = S.season - ((S.bk && S.bk.season) || 0);
   if (gap < (isInstalled() ? 4 : 2)) return false;
   sheet(
-    "Kariyerini yedekle",
-    "Bir dakika sürer",
-    `<div class="card"><div class="eyebrow">Neden?</div><p>Kariyerin bu cihazın tarayıcı hafızasında duruyor. Telefon tarayıcıları uzun süre açılmayan sitelerin verisini silebiliyor, cihaz da kaybolabilir. Bir yedek dosyası alırsan kariyerini her zaman geri yükleyebilirsin.</p>${isInstalled() ? "" : `<p class="small muted">En güvenli yol: oyunu ana ekrana ekle. Ayarlar'da nasıl yapılacağı yazıyor.</p>`}</div>
-   <button class="btn pri" id="bn-dl">Yedek dosyası al</button><div class="grid2"><button class="btn ghost" id="bn-later">Sonra hatırlat</button><button class="btn ghost" id="bn-off">Bir daha sorma</button></div>`
+    $t("ads.7"),
+    $t("save.10"),
+    `<div class="card"><div class="eyebrow">${$t("save.12")}</div><p>${$t("save.13")}</p>${isInstalled() ? "" : `<p class="small muted">${$t("save.11")}</p>`}</div>
+   <button class="btn pri" id="bn-dl">${$t("save.14")}</button><div class="grid2"><button class="btn ghost" id="bn-later">${$t("save.15")}</button><button class="btn ghost" id="bn-off">${$t("save.16")}</button></div>`
   );
   $("#bn-dl").onclick = async () => {
     await downloadSave();
@@ -353,7 +367,7 @@ export function backupNudge() {
     late.SETTINGS.backupNag = false;
     late.saveSettings();
     closeSheet();
-    toast("Hatırlatma kapatıldı. Yedeği Ayarlar'dan alabilirsin.");
+    toast($t("save.17"));
   };
   return true;
 }
@@ -361,7 +375,10 @@ Bus.offer("week:sheet", backupNudge, 90);
 
 /* ================= KAYIT EKRANI ================= */
 export function slotSummary(s) {
-  return `${s.age} yaş · ${esc(s.team.name)} · ${s.retired ? "Emekli" : `${s.year}–${String(s.year + 1).slice(2)} sezonu`}`;
+  return `${$t("save.19", {
+    age: s.age,
+    name: esc(s.team.name)
+  })} ${s.retired ? $t("save.18") : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}`}`;
 }
 export function renderSlots() {
   if (S) save();
@@ -413,7 +430,7 @@ export function renderSlots() {
         migrate();
         if (r.from === "backup") {
           save();
-          toast("Ana kayıt bozuktu, son yedekten açıldı.");
+          toast($t("save.20"));
         }
         S.retired ? late.retireScreen() : renderMain();
       })
@@ -423,9 +440,11 @@ export function renderSlots() {
       (b.onclick = () => {
         const i = +b.dataset.del;
         sheet(
-          "Yuvayı sil",
-          `Yuva ${i}`,
-          `<p>Bu kariyer ve yedeği kalıcı olarak silinecek.</p><div class="grid2"><button class="btn ghost" id="n1">Vazgeç</button><button class="btn bad" id="y1">Sil</button></div>`,
+          $t("save.21"),
+          $t("save.22", {
+            i: i
+          }),
+          `<p>${$t("save.23")}</p><div class="grid2"><button class="btn ghost" id="n1">${$t("save.24")}</button><button class="btn bad" id="y1">${$t("save.25")}</button></div>`,
           { onClose: renderSlots }
         );
         $("#n1").onclick = renderSlots;
@@ -446,10 +465,10 @@ export function renderSlots() {
       const t = await navigator.clipboard.readText();
       if (!t) throw 0;
       $("#imp").value = t.trim();
-      toast("Kod yapıştırıldı. Şimdi Kodu yükle'ye bas.");
+      toast($t("save.26"));
     } catch (e) {
       $("#imp").focus();
-      toast("Pano okunamadı. Kutuya basılı tutup Yapıştır'ı seç.");
+      toast($t("save.27"));
     }
   };
   $("#help0").onclick = () => late.guideSheet();
@@ -458,21 +477,21 @@ export function renderSlots() {
 export function exportSheet() {
   const code = encodeSave(S);
   sheet(
-    "Kayıt kodu",
-    "Yedek ve cihaz taşıma",
-    `<p class="small muted">Bu kod kariyerinin tamamını içerir. Bir yere kaydet ya da diğer cihazda Kayıtlar ekranına yapıştır.</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:.7rem;-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">Kodu kopyala</button><button class="btn pri" id="dlf">Dosya olarak kaydet</button></div>${S.bk && S.bk.ts ? `<p class="small muted">Son yedek: ${new Date(S.bk.ts).toLocaleDateString("tr-TR")}</p>` : ""}`
+    $t("save.28"),
+    $t("save.29"),
+    `<p class="small muted">${$t("save.31")}</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:.7rem;-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">${$t("save.32")}</button><button class="btn pri" id="dlf">${$t("save.33")}</button></div>${S.bk && S.bk.ts ? `<p class="small muted">${$t("save.30")} ${new Date(S.bk.ts).toLocaleDateString(LOCALE)}</p>` : ""}`
   );
   $("#dlf").onclick = () => downloadSave();
   $("#cpy").onclick = async () => {
     try {
       await navigator.clipboard.writeText(code);
       markBackup();
-      toast("Kayıt kodu kopyalandı.");
+      toast($t("save.34"));
     } catch (e) {
       const t = $("#exp");
       t.focus();
       t.select();
-      toast("Kod seçildi, kopyalamak için basılı tut.");
+      toast($t("save.35"));
     }
   };
 }

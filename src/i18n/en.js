@@ -1,5 +1,6 @@
 // English UI texts (beta). Missing keys fall back to Turkish.
 export default {
+  "common.q": "Q{n}",
   "app.tagline": "Basketball career simulator",
   "app.name": "Hoop<br>Career",
   "btn.guide": "Guide",

@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { t } from "./i18n/index.js";
 import { autoSuccess, rivalGrowthRange } from "./logic/rules.js";
 import { late } from "./late.js";
@@ -78,23 +79,49 @@ export function autoResolve(k, sur) {
       good: ok,
       w: th ? 1.3 : 1,
       st: "sut",
-      txt: ok ? `${sur} ${th ? "üçlüğü soktu." : "orta mesafeden attı."}` : `${sur} şutu kaçırdı.`
+      txt: ok
+        ? `${sur} ${th ? $t("story.1") : $t("story.2")}`
+        : $t("match.8", {
+            sur: sur
+          })
     };
   }
   if (k === "drive" || k === "break") {
-    if (!coin(autoP(eff("hiz")))) return { good: false, w: 1, st: "hiz", txt: `${sur} top kaybı yaptı.` };
+    if (!coin(autoP(eff("hiz"))))
+      return {
+        good: false,
+        w: 1,
+        st: "hiz",
+        txt: $t("match.96", {
+          sur: sur
+        })
+      };
     M.pts += 2;
     if (k === "drive" && coin(0.18) && coin(autoP(eff("sut") + 10))) M.pts++;
-    return { good: true, w: k === "break" ? 1.2 : 1, st: "hiz", txt: `${sur} potaya girip bitirdi.` };
+    return {
+      good: true,
+      w: k === "break" ? 1.2 : 1,
+      st: "hiz",
+      txt: $t("story.122", {
+        sur: sur
+      })
+    };
   }
   if (["pnr", "kick", "lob"].includes(k)) {
-    if (!coin(autoP(eff("pas") - (PEN[k] || 0)))) return { good: false, w: 1, st: "pas", txt: "Pas araya girdi." };
+    if (!coin(autoP(eff("pas") - (PEN[k] || 0)))) return { good: false, w: 1, st: "pas", txt: $t("story.123") };
     const conv = (k === "lob" ? 0.75 : 0.58) + S.rel.takim * 0.003 + (chemAvg() - 40) * 0.002;
     if (coin(conv)) {
       M.ast++;
-      return { good: true, w: k === "lob" ? 1.3 : 1, st: "pas", txt: `${sur} asisti yaptı.` };
+      return {
+        good: true,
+        w: k === "lob" ? 1.3 : 1,
+        st: "pas",
+        txt: $t("story.124", {
+          sur: sur
+        })
+      };
     }
-    return { good: true, w: 0.6, st: "pas", txt: "Pas iyiydi, şut girmedi." };
+    return { good: true, w: 0.6, st: "pas", txt: $t("story.125") };
   }
   if (k === "post" || k === "dunk") {
     const ok = coin(autoP(eff("guc") + (k === "dunk" ? 5 : 0)));
@@ -103,21 +130,48 @@ export function autoResolve(k, sur) {
       good: ok,
       w: k === "dunk" ? 1.3 : 1.2,
       st: "guc",
-      txt: ok ? `${sur} pota altında bitirdi.` : `${sur} pota altında bloklandı.`
+      txt: ok
+        ? $t("story.3", {
+            sur: sur
+          })
+        : $t("story.4", {
+            sur: sur
+          })
     };
   }
   if (k === "putback" || k === "reb") {
-    if (!coin(autoP(eff("guc")))) return { good: false, w: 1, st: "guc", txt: "Ribaund rakipte." };
+    if (!coin(autoP(eff("guc")))) return { good: false, w: 1, st: "guc", txt: $t("story.126") };
     M.reb++;
     if (k === "reb") {
       M.stops++;
-      return { good: true, w: 1, st: "guc", txt: `${sur} ribaundu aldı.` };
+      return {
+        good: true,
+        w: 1,
+        st: "guc",
+        txt: $t("story.127", {
+          sur: sur
+        })
+      };
     }
     if (coin(0.8)) {
       M.pts += 2;
-      return { good: true, w: 1.2, st: "guc", txt: `${sur} ribaunddan bastı.` };
+      return {
+        good: true,
+        w: 1.2,
+        st: "guc",
+        txt: $t("story.128", {
+          sur: sur
+        })
+      };
     }
-    return { good: true, w: 0.6, st: "guc", txt: `${sur} ribaundu aldı.` };
+    return {
+      good: true,
+      w: 0.6,
+      st: "guc",
+      txt: $t("story.127", {
+        sur: sur
+      })
+    };
   }
   if (k === "block") {
     const ok = coin(autoP((eff("sav") + eff("guc")) / 2));
@@ -125,27 +179,62 @@ export function autoResolve(k, sur) {
       M.blk++;
       M.stops++;
     }
-    return { good: ok, w: 1.2, st: "sav", txt: ok ? `${sur} blokladı.` : "Rakip bitirdi." };
+    return {
+      good: ok,
+      w: 1.2,
+      st: "sav",
+      txt: ok
+        ? $t("story.5", {
+            sur: sur
+          })
+        : $t("story.6")
+    };
   }
   if (k === "steal") {
     const ok = coin(autoP(eff("hiz") - 6));
     if (ok) M.stl++;
-    return { good: ok, w: 1.2, st: "hiz", txt: ok ? `${sur} topu çaldı.` : "Top çalma denemesi boşa gitti." };
+    return {
+      good: ok,
+      w: 1.2,
+      st: "hiz",
+      txt: ok
+        ? $t("story.7", {
+            sur: sur
+          })
+        : $t("story.8")
+    };
   }
   if (k === "charge") {
     const ok = coin(clamp((eff("sav") / 100) * 0.6 + 0.15, 0.1, 0.75));
     if (ok) M.stops++;
-    return { good: ok, w: 1.1, st: "sav", txt: ok ? `${sur} hücum faulü aldı.` : "Faul sana çalındı." };
+    return {
+      good: ok,
+      w: 1.1,
+      st: "sav",
+      txt: ok
+        ? $t("story.9", {
+            sur: sur
+          })
+        : $t("story.10")
+    };
   }
   if (k === "safe") {
     const ok = coin(clamp((eff(S.pos === "PF" ? "guc" : "sav") / 100) * 0.7 + 0.25, 0.2, 0.9));
     if (ok) M.stops++;
-    return { good: ok, w: 0.5, st: "sav", txt: ok ? "Savunma yerini korudu." : "Rakip boşluğu buldu." };
+    return { good: ok, w: 0.5, st: "sav", txt: ok ? $t("story.11") : $t("story.12") };
   }
   let m = 0;
   for (let i = 0; i < 2; i++) if (coin(autoP(eff("sut") + 12))) m++;
   M.pts += m;
-  return { good: m > 0, w: 0.6, st: "sut", txt: `${sur} serbest atışlardan ${m}/2.` };
+  return {
+    good: m > 0,
+    w: 0.6,
+    st: "sut",
+    txt: $t("story.129", {
+      sur: sur,
+      m: m
+    })
+  };
 }
 
 /* ---- Haftayı hızlı geç ----
@@ -159,13 +248,13 @@ export function autoWeekPlan() {
     if (S.injury) {
       if (S.injury.w > 1 && coin(0.5)) S.injury.w--;
       S.energy += 10;
-      out.push(["Fizyoterapi", "+10 enerji"]);
+      out.push([$t("story.13"), $t("story.14")]);
       continue;
     }
     if (S.energy < 42) {
       S.energy += 35;
       S.moral += 2;
-      out.push(["Dinlendin", "+35 enerji"]);
+      out.push([$t("places.52"), $t("story.15")]);
       continue;
     }
     if (S.studying && S.aka < 55 && (S.stage === "lise" || S.stage === "uni") && !S.studied) {
@@ -174,20 +263,25 @@ export function autoWeekPlan() {
       S.aka += c * 3;
       S.energy -= 6;
       S.studied = true;
-      out.push(["Ders çalıştın", `+${c * 3} akademik`]);
+      out.push([
+        $t("story.16"),
+        $t("story.17", {
+          v: c * 3
+        })
+      ]);
       continue;
     }
     if (S.moral < 45) {
-      if (S.money >= 3) tx("Arkadaşlarla kafe", -3);
+      if (S.money >= 3) tx($t("story.159"), -3);
       S.moral += 8;
       S.rel.ark += 8;
-      out.push(["Arkadaşlarla buluştun", "+8 moral"]);
+      out.push([$t("story.18"), $t("story.19")]);
       continue;
     }
     if (S.rel.aile < 40) {
       S.rel.aile += 12;
       S.moral += 5;
-      out.push(["Aileni ziyaret ettin", "+12 aile"]);
+      out.push([$t("story.20"), $t("story.21")]);
       continue;
     }
     // pozisyona göre en çok işe yarayacak antrenman
@@ -213,7 +307,16 @@ export function autoWeekPlan() {
       g = drillGain(k, ratio);
     S.st[k] += g;
     S.energy -= 18;
-    out.push([`Antrenman · ${best[0]}`, g ? `+${g} ${statName(k)}` : `${statName(k)} gelişiyor`]);
+    out.push([
+      $t("story.22", {
+        v: best[0]
+      }),
+      g
+        ? `+${g} ${statName(k)}`
+        : $t("story.23", {
+            k: statName(k)
+          })
+    ]);
   }
   norm();
   save();
@@ -226,7 +329,10 @@ export function quickWeek() {
     opp = teamByKey(fx.opp);
   sheet(
     t("quick.title"),
-    `${seasonLabel()} · Hafta ${S.week}`,
+    $t("places.72", {
+      v: seasonLabel(),
+      week: S.week
+    }),
     `<div class="card"><div class="eyebrow">${t("quick.did")}</div>${plan.length ? `<div class="kv">${plan.map(([a, b]) => `<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>` : `<p class="small muted">${t("quick.full")}</p>`}</div>
    <div class="card"><div class="eyebrow">${t("quick.next")}</div><div class="row nowrap" style="gap:10px">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? t("main.home") : t("main.away")} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">${t("quick.injured")}</p>` : `<p class="small muted">${t("quick.autoNote")}</p>`}</div>
    ${S.injury ? `<button class="btn pri" id="qw-sim">${t("quick.watch")}</button>` : `<div class="grid2"><button class="btn" id="qw-self">${t("quick.self")}</button><button class="btn pri" id="qw-sim">${t("quick.sim")}</button></div>`}`,
@@ -321,25 +427,43 @@ export function rivalCard(avg) {
   if (his > my && !R.ahead) {
     R.ahead = true;
     S.buffs.train = (S.buffs.train || 0) + 4;
-    line = `${R.first} senden bir basamak önde. Bu seni hırslandırdı: sonraki 4 antrenmanın daha verimli.`;
+    line = $t("story.24", {
+      first: R.first
+    });
   } else if (my > his && R.ahead) {
     R.ahead = false;
     S.rel.taraf += 5;
-    line = `Artık ${R.first}'nin önündesin. Mahallede herkes bunu konuşuyor.`;
+    line = $t("story.25", {
+      first: R.first
+    });
   } else
     line =
       his > my
-        ? `${R.first} hâlâ bir basamak önde.`
+        ? $t("story.26", {
+            first: R.first
+          })
         : my > his
-          ? `${R.first}'yi geride bıraktın.`
-          : "Aynı seviyedesiniz. Rekabet sürüyor.";
-  return `<div class="card"><div class="eyebrow">Rakibin · ${esc(rivalName())}</div><div class="tbl"><table><tr><th></th><th>Sen</th><th>${esc(R.first)}</th></tr><tr><td>Seviye</td><td>${levelName(S.stage)}</td><td>${levelName(R.stage)}</td></tr><tr><td>Takım</td><td>${esc(S.team.short || S.team.name)}</td><td>${esc(R.team.name)}</td></tr><tr><td>Sayı ort.</td><td>${myP}</td><td>${R.ppg}</td></tr><tr><td>Not ort.</td><td>${avg.toFixed(2)}</td><td>${R.avg}</td></tr><tr><td>Genel</td><td>${ovr()}</td><td>${R.ovr}</td></tr></table></div><p class="small">${line}</p></div>`;
+          ? $t("story.27", {
+              first: R.first
+            })
+          : $t("story.28");
+  return `<div class="card"><div class="eyebrow">${$t("story.29", {
+    v: esc(rivalName())
+  })}</div><div class="tbl"><table><tr><th></th><th>${$t("story.30")}</th><th>${esc(R.first)}</th></tr><tr><td>${$t("story.31")}</td><td>${levelName(S.stage)}</td><td>${levelName(R.stage)}</td></tr><tr><td>${$t("data.36")}</td><td>${esc(S.team.short || S.team.name)}</td><td>${esc(R.team.name)}</td></tr><tr><td>${$t("story.32")}</td><td>${myP}</td><td>${R.ppg}</td></tr><tr><td>${$t("story.33")}</td><td>${avg.toFixed(2)}</td><td>${R.avg}</td></tr><tr><td>${$t("match.58")}</td><td>${ovr()}</td><td>${R.ovr}</td></tr></table></div><p class="small">${line}</p></div>`;
 }
 export function rivalInfo() {
   const R = S.rival;
-  return `<div class="card"><div class="eyebrow">Rakibin · ${esc(rivalName())}</div><div class="kv"><span>Takım</span><b>${esc(R.team.name)}</b><span>Seviye</span><b>${levelName(R.stage)}</b><span>Genel</span><b>${R.ovr}</b><span>Geçen sezon</span><b>${R.ppg} sayı · not ${R.avg}</b></div>${
+  return `<div class="card"><div class="eyebrow">${$t("story.29", {
+    v: esc(rivalName())
+  })}</div><div class="kv"><span>${$t("data.36")}</span><b>${esc(R.team.name)}</b><span>${$t("story.31")}</span><b>${levelName(R.stage)}</b><span>${$t("match.58")}</span><b>${R.ovr}</b><span>${$t("story.35")}</span><b>${$t(
+    "story.36",
+    {
+      ppg: R.ppg,
+      avg: R.avg
+    }
+  )}</b></div>${
     R.hist.length
-      ? `<div class="tbl"><table><tr><th>Yaş</th><th>Takım</th><th>Sayı</th><th>Not</th></tr>${R.hist
+      ? `<div class="tbl"><table><tr><th>${$t("story.34")}</th><th>${$t("data.36")}</th><th>${$t("arcade.6")}</th><th>${$t("extras.30")}</th></tr>${R.hist
           .slice(-6)
           .reverse()
           .map(h => `<tr><td>${h.age}</td><td>${esc(h.team)}</td><td>${h.ppg}</td><td>${h.avg}</td></tr>`)
@@ -352,19 +476,46 @@ export function derbyResult(win) {
   const R = S.rival,
     rp = Math.max(0, Math.round(R.ppg * rnd(0.55, 1.45)));
   const beat = M.pts > rp,
-    txt = `${R.first} ${rp} sayıda kaldı, sen ${M.pts} attın.`;
+    txt = $t("story.37", {
+      first: R.first,
+      rp: rp,
+      pts: M.pts
+    });
   if (win && beat) {
     S.rel.taraf += 6;
     S.followers = Math.round(S.followers * 1.04);
     S.moral += 6;
-    news(`Derbide gecenin adamı ${fullName()}: ${M.pts} sayı. ${rivalName()} ${rp} sayıda kaldı.`);
+    news(
+      $t("story.160", {
+        v: fullName(),
+        pts: M.pts,
+        v2: rivalName(),
+        rp: rp
+      })
+    );
   } else if (!win && !beat) {
     S.moral -= 4;
-    news(`${rivalName()} derbide ${rp} sayıyla öne çıktı.`);
+    news(
+      $t("story.161", {
+        v: rivalName(),
+        rp: rp
+      })
+    );
   }
   return {
     rp,
-    txt: win && beat ? `${txt} Derbi senin.` : !win && !beat ? `${R.first} ${rp} sayı attı, sen ${M.pts}. Bu derbi onun.` : txt
+    txt:
+      win && beat
+        ? $t("story.38", {
+            txt: txt
+          })
+        : !win && !beat
+          ? $t("story.39", {
+              first: R.first,
+              rp: rp,
+              pts: M.pts
+            })
+          : txt
   };
 }
 
@@ -381,28 +532,24 @@ export function roleReview() {
     why = "";
   if (i < 2 && trust >= (i === 0 ? 58 : 70) && rec >= (i === 0 ? 6.7 : 7.2) && dominance() >= (i === 0 ? -8 : 0)) {
     to = order[i + 1];
-    why =
-      i === 0
-        ? `"Son maçlarda bana başka seçenek bırakmadın. Rotasyondasın."`
-        : `"Bu takımın ilk beşinde olmayı hak ediyorsun. Yarından itibaren başlıyorsun."`;
+    why = i === 0 ? $t("story.40") : $t("story.41");
   } else if (i > 0 && (trust < (i === 2 ? 34 : 24) || rec < (i === 2 ? 5.8 : 5.4))) {
     to = order[i - 1];
-    why =
-      i === 2
-        ? `"Son maçlar iyi değil. Bir süre kenardan başlayacaksın, kendini topla."`
-        : `"Süre kazanmak istiyorsan antrenmanda göster. Şimdilik yedeksin."`;
+    why = i === 2 ? $t("story.42") : $t("story.43");
   }
   if (!to) return false;
   const up = order.indexOf(to) > i;
   S.role = to;
   S.moral += up ? 8 : -8;
-  news(`${S.team.short}: ${fullName()} ${up ? "terfi etti" : "rol kaybetti"} (${ROLE_N[to]}).`);
+  news(`${S.team.short}: ${fullName()} ${up ? $t("story.162") : $t("story.163")} (${ROLE_N[to]}).`);
   save();
   late.sfx(up ? "levelup" : "lose");
   sheet(
-    up ? "Rolün büyüdü" : "Rolün küçüldü",
-    `${S.npc.coach} · Koç`,
-    `<div class="who"><div id="rcp"></div><div class="say">${why}</div></div><div class="kv"><span>Yeni rolün</span><b class="${up ? "good" : "bad"}">${ROLE_N[to]}</b><span>Son 4 maç not ortalaman</span><b>${rec.toFixed(2)}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b></div><p class="small muted">Rol, maçta sahada kalacağın süreyi ve kritik an sayısını belirler. Koç her 4 haftada bir değerlendirir.</p><button class="btn pri" id="rok">Devam</button>`,
+    up ? $t("story.44") : $t("story.45"),
+    $t("match.38", {
+      coach: S.npc.coach
+    }),
+    `<div class="who"><div id="rcp"></div><div class="say">${why}</div></div><div class="kv"><span>${$t("story.46")}</span><b class="${up ? "good" : "bad"}">${ROLE_N[to]}</b><span>${$t("story.47")}</span><b>${rec.toFixed(2)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b></div><p class="small muted">${$t("story.48")}</p><button class="btn pri" id="rok">${$t("ads.25")}</button>`,
     { noClose: true }
   );
   const cl = LK.coach();
@@ -427,11 +574,15 @@ export function pressFollowUp(win) {
     if (win) {
       S.rel.taraf += 4;
       S.followers = Math.round(S.followers * 1.02);
-      return `Geçen hafta "${p.quote}" demiştin. Sözünün arkasında durdun.`;
+      return $t("story.49", {
+        quote: p.quote
+      });
     }
     S.moral -= 6;
     S.rel.taraf -= 4;
-    return `Geçen haftaki "${p.quote}" sözlerin bu mağlubiyetten sonra sosyal medyada sana hatırlatıldı.`;
+    return $t("story.50", {
+      quote: p.quote
+    });
   }
   if (p.tone === "humble" && win) {
     S.rel.takim += 2;
@@ -445,39 +596,58 @@ export function pressConference(win, after) {
     j = S.npc.journalist,
     dr = derby ? derbyResult(win) : null;
   const q = derby
-    ? `Derbide ${dr.txt} ${R.first} hakkında ne söylersin?`
+    ? $t("story.51", {
+        txt: dr.txt,
+        first: R.first
+      })
     : S.phase !== "regular"
       ? win
-        ? "Seriyi öne geçirdiniz. Bir sonraki maç için mesajın?"
-        : "Kritik bir maçı kaybettiniz. Taraftara ne söylersin?"
+        ? $t("story.52")
+        : $t("story.53")
       : M.rating >= 8.3
-        ? `${M.pts} sayıyla gecenin adamıydın. Bu performansın sırrı ne?`
+        ? $t("story.54", {
+            pts: M.pts
+          })
         : M.rating <= 4.5
-          ? "Bu akşam işler yolunda gitmedi. Sence ne oldu?"
+          ? $t("story.55")
           : win
-            ? "İyi bir galibiyet. Takımın gidişatını nasıl görüyorsun?"
-            : "Zor bir mağlubiyet. Kafanda neler var?";
+            ? $t("story.56")
+            : $t("story.57");
   const A = derby
     ? [
-        ["humble", `"${R.first} iyi oyuncu, ona saygım var. Bugün takım kazandı."`],
-        ["confident", '"Sahada konuştuk, gerisine gerek yok."'],
-        ["bold", `"Bu şehirde tek bir ${S.pos} var, o da benim."`]
+        [
+          "humble",
+          $t("story.58", {
+            first: R.first
+          })
+        ],
+        ["confident", $t("story.59")],
+        [
+          "bold",
+          $t("story.60", {
+            pos: S.pos
+          })
+        ]
       ]
     : win
       ? [
-          ["humble", '"Takım arkadaşlarım olmasa bunların hiçbiri olmazdı."'],
-          ["confident", '"Daha yeni başlıyoruz. Bu seviyede oynamaya devam edeceğim."'],
-          ["bold", '"Bizi kimse durduramaz. Sıradaki rakip de hazırlansın."']
+          ["humble", $t("story.61")],
+          ["confident", $t("story.62")],
+          ["bold", $t("story.63")]
         ]
       : [
-          ["humble", '"Sorumluluk bende. Antrenmanda telafi edeceğim."'],
-          ["confident", '"Kötü bir gece. Bir sonraki maçta herkes farkı görecek."'],
-          ["bold", '"Hakem kararları maçı belirledi, bunu herkes gördü."']
+          ["humble", $t("story.64")],
+          ["confident", $t("story.65")],
+          ["bold", $t("story.66")]
         ];
   sheet(
-    "Basın toplantısı",
-    `${M.opp.name} maçı sonrası`,
-    `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${esc(j)} · Spor muhabiri</div><div class="say">"${q}"</div></div></div><div class="choices" id="pch">${A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:1rem;text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: "Mütevazı · koç ve takım sever", confident: "Özgüvenli · dengeli", bold: "İddialı · taraftar coşar, koç hoşlanmaz, sözünü tutman gerekir" }[k]}</span></button>`).join("")}</div>`,
+    $t("ads.13"),
+    $t("story.67", {
+      name: M.opp.name
+    }),
+    `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("story.68", {
+      j: esc(j)
+    })}</div><div class="say">"${q}"</div></div></div><div class="choices" id="pch">${A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:1rem;text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`,
     { noClose: true }
   );
   const pl = LK.press();
@@ -492,29 +662,26 @@ export function pressConference(win, after) {
           S.rel.koc += 3;
           S.rel.takim += 4;
           S.rel.taraf += 1;
-          out = "Soyunma odasında sözlerin takdirle karşılandı.";
+          out = $t("story.69");
         } else if (k === "confident") {
           S.rel.taraf += 4;
           S.followers = Math.round(S.followers * 1.02);
           S.moral += 2;
-          out = "Net ve kendinden emin bir duruş. Takipçilerin arttı.";
+          out = $t("story.70");
         } else {
           S.rel.taraf += 8;
           S.followers = Math.round(S.followers * 1.05);
           S.rel.koc -= 4;
           S.rel.takim -= 2;
           if (!win && !derby) S.money -= Math.round((S.wage || 10) * 0.5);
-          out =
-            !win && !derby
-              ? "Federasyon hakem eleştirisi için para cezası kesti. Taraftar arkanda ama koç memnun değil."
-              : "Manşetlerdesin. Koç sözlerinden hoşlanmadı; bir sonraki maçta herkes seni izleyecek.";
+          out = !win && !derby ? $t("story.71") : $t("story.72");
           S.press = { tone: "bold", quote: quote.length > 60 ? quote.slice(0, 57) + "…" : quote };
         }
         if (k === "humble") S.press = { tone: "humble", quote };
         norm();
         save();
         $("#pch").innerHTML =
-          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="pok">Devam</button>`;
+          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="pok">${$t("ads.25")}</button>`;
         $("#pok").onclick = () => {
           closeSheet();
           after();
@@ -539,7 +706,7 @@ export function arcSheet(title, who, look, text, choices, after) {
         norm();
         save();
         $("#ach").innerHTML =
-          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="aok">Devam</button>`;
+          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="aok">${$t("ads.25")}</button>`;
         $("#aok").onclick = () => {
           closeSheet();
           after && after();
@@ -547,8 +714,7 @@ export function arcSheet(title, who, look, text, choices, after) {
       })
   );
 }
-export const msg = (title, who, look, text) =>
-  arcSheet(title, who, look, text, [{ t: "Devam", do: () => "Hikâye devam ediyor." }]);
+export const msg = (title, who, look, text) => arcSheet(title, who, look, text, [{ t: $t("ads.25"), do: () => $t("story.73") }]);
 export function migrateStory() {
   S.arcs = S.arcs || {};
   S.arcQ = S.arcQ || [];
@@ -608,39 +774,46 @@ export const ARCS = {
         a.stage = nx;
         a.cc = t.cc;
         arcSheet(
-          "Transfer söylentisi",
-          `${S.npc.agent} · Menajer`,
+          $t("story.74"),
+          $t("story.75", {
+            agent: S.npc.agent
+          }),
           LK.agent(),
-          `"Kimseye söyleme ama ${esc(t.name)} seni izliyor. ${levelName(nx)}. Gazeteciler kokusunu aldı bile. Nasıl oynayalım?"`,
+          $t("story.76", {
+            name: esc(t.name),
+            nx: levelName(nx)
+          }),
           [
             {
-              t: "Söylentileri kapat, sezona odaklan",
-              d: "Koç ve takım memnun olur. İyi oynarsan teklif yine gelir.",
+              t: $t("story.133"),
+              d: $t("story.134"),
               do: () => {
                 a.choice = "focus";
                 S.rel.koc += 6;
                 S.rel.takim += 3;
-                return "Açıklaman net oldu: aklın sadece bu sezonda. Koç antrenmanda sana göz kırptı.";
+                return $t("story.77");
               }
             },
             {
-              t: "Kapıyı aralık bırak",
-              d: "Teklif garantilenir, ama koç ve taraftar soğur.",
+              t: $t("story.135"),
+              d: $t("story.136"),
               do: () => {
                 a.choice = "open";
                 S.rel.koc -= 6;
                 S.rel.taraf -= 4;
-                return `"${esc(t.name)} büyük kulüp, saygı duyarım" dedin. Manşetler hazır, tribün biraz bozuldu.`;
+                return $t("story.78", {
+                  name: esc(t.name)
+                });
               }
             },
             {
-              t: '"Kulübümde mutluyum" de',
-              d: "Taraftar sever, sezon sonu kulübün daha iyi bir yenileme teklif eder.",
+              t: $t("story.137"),
+              d: $t("story.138"),
               do: () => {
                 a.choice = "loyal";
                 S.rel.taraf += 8;
                 S.rel.koc += 4;
-                return "Formanın armasını öptün. Taraftar adını tezahürat yaptı.";
+                return $t("story.79");
               }
             }
           ],
@@ -654,28 +827,20 @@ export const ARCS = {
           S.moral -= 6;
           S.rel.taraf -= 5;
           msg(
-            "Tribünden ıslık",
-            "Gazete manşeti",
+            $t("story.80"),
+            $t("story.81"),
             LK.press(),
-            `Takım ${rank}. sırada ve tribün, "${t ? esc(t.name) : "o kulüp"}" sözlerini unutmadı. Isınmada ıslıklandın.`
+            `${$t("story.83", {
+              rank: rank
+            })}${t ? esc(t.name) : $t("story.82")}${$t("story.84")}`
           );
         } else if (a.choice === "focus") {
           S.moral += 4;
-          msg(
-            "Odak işe yaradı",
-            "Gazete manşeti",
-            LK.press(),
-            `Gazeteler artık söylentiyi değil performansını yazıyor. ${t ? esc(t.name) + " gözlemcisi tribündeydi." : ""}`
-          );
+          msg($t("story.85"), $t("story.81"), LK.press(), `${$t("story.87")} ${t ? esc(t.name) + $t("story.86") : ""}`);
         } else if (a.choice === "loyal") {
           S.moral += 3;
-          msg(
-            "Taraftarın sevgilisi",
-            "Gazete manşeti",
-            LK.press(),
-            'Kulüp başkanı, "Bu çocuk bizim değerimiz" dedi. Sezon sonu masada daha iyi bir yenileme olacak.'
-          );
-        } else msg("Söylenti sürüyor", "Gazete manşeti", LK.press(), "Spor programları her akşam transferini konuşuyor.");
+          msg($t("story.88"), $t("story.81"), LK.press(), $t("story.89"));
+        } else msg($t("story.90"), $t("story.81"), LK.press(), $t("story.91"));
       }
     ]
   },
@@ -689,40 +854,44 @@ export const ARCS = {
         const cost = Math.max(60, Math.round((S.wage || 40) * 3));
         a.cost = cost;
         arcSheet(
-          "Evden telefon",
-          `${S.npc.mom} · Annen`,
+          $t("story.92"),
+          $t("story.93", {
+            mom: S.npc.mom
+          }),
           LK.mom(),
-          `"Oğlum, babana söyleme ben aradım. Dükkân üç aydır kirayı ödeyemiyor. ${S.npc.dad} gururundan sana bir şey demez ama çok üzgün."`,
+          $t("story.94", {
+            dad: S.npc.dad
+          }),
           [
             {
               t: `Parayı gönder (₺${fmt(cost)})`,
-              d: "Aile ilişkin güçlenir.",
+              d: $t("story.139"),
               do: () => {
                 a.choice = "pay";
-                tx("Aileye destek", -cost);
+                tx($t("places.347"), -cost);
                 S.rel.aile += 15;
                 S.moral += 4;
-                return 'Havaleyi yaptın. Annen telefonda ağladı, baban "gerek yoktu" diye mesaj attı. Sonra bir kalp ekledi.';
+                return $t("story.95");
               }
             },
             {
-              t: "Babanı ara, birlikte çözüm bul",
-              d: "Para gitmez ama çözüm de garanti değil.",
+              t: $t("story.140"),
+              d: $t("story.141"),
               do: () => {
                 a.choice = "advice";
                 S.rel.aile -= 4;
-                return 'Baban seni dinledi, "kendim hallederim" dedi. Sesi biraz kırgındı.';
+                return $t("story.96");
               }
             },
             {
-              t: "Hafta sonu eve git",
-              d: "Aile çok sevinir ama bir antrenmanı kaçırırsın.",
+              t: $t("story.142"),
+              d: $t("story.143"),
               do: () => {
                 a.choice = "visit";
                 S.energy -= 20;
                 S.rel.aile += 20;
                 S.rel.koc -= 4;
-                return "Sabah ilk uçakla eve gittin. Dükkânda bütün gün birlikte oturdunuz. Koç antrenmana gelmediğin için not aldı.";
+                return $t("story.97");
               }
             }
           ],
@@ -734,27 +903,33 @@ export const ARCS = {
           S.rel.taraf += 3;
           S.moral += 4;
           msg(
-            "Dükkân kurtuldu",
-            `${S.npc.dad} · Baban`,
+            $t("story.98"),
+            $t("story.99", {
+              dad: S.npc.dad
+            }),
             LK.dad(),
-            '"Dükkânın camına formanı astım. Müşteriler artık ekmek almaya değil, seni konuşmaya geliyor."'
+            $t("story.100")
           );
         } else if (a.choice === "advice") {
           S.rel.aile += 4;
           msg(
-            "Yeni bir başlangıç",
-            `${S.npc.dad} · Baban`,
+            $t("story.101"),
+            $t("story.99", {
+              dad: S.npc.dad
+            }),
             LK.dad(),
-            '"Dükkânı devrettim, taksiye başladım. Valla daha keyifli, bütün İstanbul\'a senin maçlarını anlatıyorum."'
+            $t("story.102")
           );
         } else {
           S.rel.aile += 6;
           S.moral += 3;
           msg(
-            "Birlikte plan yaptınız",
-            `${S.npc.mom} · Annen`,
+            $t("story.103"),
+            $t("story.93", {
+              mom: S.npc.mom
+            }),
             LK.mom(),
-            '"Baban dükkâna internet satışı ekledi. Ürünlerin yanına senin imzalı fotoğrafını koymuş, satışlar arttı!"'
+            $t("story.104")
           );
         }
       }
@@ -767,29 +942,31 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          "Kaptanlık teklifi",
-          `${S.npc.coach} · Koç`,
+          $t("story.105"),
+          $t("match.38", {
+            coach: S.npc.coach
+          }),
           LK.coach(),
-          `"Bu sene takımın kaptanı olmanı istiyorum. Pazubendi takarsan sorumluluk da senin. Ne dersin?"`,
+          $t("story.106"),
           [
             {
-              t: "Kaptanlığı kabul et",
-              d: "Takım sana bağlanır; kötü serilerde baskı da sende olur.",
+              t: $t("story.144"),
+              d: $t("story.145"),
               do: () => {
                 a.choice = "yes";
                 S.rel.takim += 8;
                 S.rel.koc += 4;
                 S.captain = true;
-                return "Pazubendini taktın. Antrenman sonrası ilk konuşmanı yaptın; sesin biraz titredi ama herkes alkışladı.";
+                return $t("story.107");
               }
             },
             {
-              t: "Henüz hazır değilim",
-              d: "Koç biraz bozulur ama baskı yok.",
+              t: $t("story.146"),
+              d: $t("story.147"),
               do: () => {
                 a.choice = "no";
                 S.rel.koc -= 3;
-                return 'Koç "Peki, ama gözüm üzerinde" dedi. Kaptanlık kıdemli oyuncuya gitti.';
+                return $t("story.108");
               }
             }
           ],
@@ -810,36 +987,38 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          "Final haftası",
-          "Çınaraltı kampüsü",
+          $t("story.109"),
+          $t("story.110"),
           LK.friend(),
-          `Finaller bu hafta. Aynı hafta da kritik bir deplasman maçı var. Akademik puanın: ${S.aka}.`,
+          $t("story.111", {
+            aka: S.aka
+          }),
           [
             {
-              t: "Kütüphaneye kapan",
-              d: "+15 akademik, -15 enerji",
+              t: $t("story.148"),
+              d: $t("story.149"),
               do: () => {
                 S.aka += 15;
                 S.energy -= 15;
-                return "Üç gece kütüphanede sabahladın. Hocalardan biri kapıda imza istedi.";
+                return $t("story.112");
               }
             },
             {
-              t: "Basketbola odaklan",
-              d: "-10 akademik, sonraki 2 antrenman daha verimli",
+              t: $t("story.150"),
+              d: $t("story.151"),
               do: () => {
                 S.aka -= 10;
                 S.buffs.train = (S.buffs.train || 0) + 2;
-                return "Ders notlarını arkadaşından aldın. Salonda ışıkları sen kapattın.";
+                return $t("story.113");
               }
             },
             {
-              t: "İkisini dengele",
-              d: "+6 akademik, -6 enerji",
+              t: $t("story.152"),
+              d: $t("story.153"),
               do: () => {
                 S.aka += 6;
                 S.energy -= 6;
-                return "Gündüz ders, akşam antrenman. Yorucu ama idare ettin.";
+                return $t("story.114");
               }
             }
           ],
@@ -852,31 +1031,33 @@ export const ARCS = {
 export const ARC_ONCE = {
   comeback: () =>
     arcSheet(
-      "Sahalara dönüş",
-      `${S.npc.coach} · Koç`,
+      $t("story.115"),
+      $t("match.38", {
+        coach: S.npc.coach
+      }),
       LK.coach(),
-      "Doktor sahalara dönebileceğini söyledi. Koç ve fizyoterapist dönüş planını konuşmak istiyor.",
+      $t("story.116"),
       [
         {
-          t: "Yavaş dön, doktoru dinle",
-          d: "6 hafta boyunca sakatlık riskin yarıya iner.",
+          t: $t("story.154"),
+          d: $t("story.155"),
           do: () => {
             S.buffs.injWk = 6;
             S.buffs.injMul = 0.5;
             S.energy += 10;
             S.rel.koc += 2;
-            return 'Planlı bir dönüş. Fizyoterapist gülümseyerek "akıllı oyuncu" dedi.';
+            return $t("story.117");
           }
         },
         {
-          t: "Hemen tam yükle sahaya",
-          d: "+6 moral, ama 5 hafta boyunca sakatlık riskin artar.",
+          t: $t("story.156"),
+          d: $t("story.157"),
           do: () => {
             S.buffs.injWk = 5;
             S.buffs.injMul = 1.8;
             S.moral += 6;
             S.rel.taraf += 3;
-            return "Isınmaya koşarak çıktın. Tribün adını bağırdı. Doktor kenarda başını salladı.";
+            return $t("story.118");
           }
         }
       ],
@@ -921,7 +1102,7 @@ export function storyOffers(offers) {
     const s = offers.find(o => o.stay);
     if (s) {
       s.wage = Math.round(s.wage * 1.15);
-      s.note = "Sadakat yenilemesi · +%15";
+      s.note = $t("story.119");
     }
     return offers;
   }
@@ -940,7 +1121,9 @@ export function storyOffers(offers) {
         role: role === "bench" ? "bench" : "rot",
         wage: Math.round(WAGE[a.stage] * ((LEAGUES[t.cc] || LEAGUES.TR).pr || 1) * (a.choice === "open" ? 1.2 : 1.1)),
         years: 2,
-        note: `${levelName(a.stage)} · söylenti gerçek oldu`
+        note: $t("story.158", {
+          stage: levelName(a.stage)
+        })
       });
   }
   return offers;
@@ -948,6 +1131,8 @@ export function storyOffers(offers) {
 // Maç sekmesine derbi uyarısı
 export function derbyNote(opp) {
   return isDerby(opp)
-    ? `<div class="say" style="border-left-color:var(--bad)"><b>Derbi:</b> Rakibin ${esc(rivalName())} karşı takımda. Bu maçın sonu basın toplantısıyla bitecek.</div>`
+    ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("story.120")}</b> ${$t("story.121", {
+        v: esc(rivalName())
+      })}</div>`
     : "";
 }

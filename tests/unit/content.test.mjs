@@ -5,6 +5,9 @@ import TR from "../../src/content/events.tr.js";
 import EN from "../../src/content/events.en.js";
 import tr from "../../src/i18n/tr.js";
 import en from "../../src/i18n/en.js";
+import trAuto from "../../src/i18n/tr.auto.js";
+import enAuto from "../../src/i18n/en.auto.js";
+import fs from "node:fs";
 
 const PORTRAITS = ["friend", "coach", "rival", "mom", "dad", "agent", "press", "partner", "mate", "neighbor", "odd"];
 const WHEN = [undefined, "home", "abroad", "coast", "lise", "studying", "single", "pro"];
@@ -77,4 +80,16 @@ test("arayüz sözlükleri: İngilizce anahtarların hepsi Türkçede var", () =
         .join(),
       `${k}: yer tutucular aynı`
     );
+});
+
+test("otomatik sözlük: koddaki her $t anahtarı var, İngilizce eksiksiz ve yer tutucular aynı", () => {
+  const dir = new URL("../../src/", import.meta.url);
+  const used = new Set();
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".js")))
+    for (const m of fs.readFileSync(new URL(f, dir), "utf8").matchAll(/\$t\("([\w.]+)"/g)) used.add(m[1]);
+  for (const k of used) assert.ok(k in trAuto || k in tr, `sözlükte eksik: ${k}`);
+  for (const k of Object.keys(trAuto)) {
+    assert.ok(k in enAuto, `en.auto.js eksik: ${k}`);
+    assert.equal(placeholders(enAuto[k]).sort().join(), placeholders(trAuto[k]).sort().join(), `${k}: yer tutucular`);
+  }
 });

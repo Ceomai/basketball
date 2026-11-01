@@ -1,7 +1,7 @@
+import { t as $t } from "./i18n/index.js";
 import { BAL, TDB, WAGE, roleFor, stageLevel } from "./logic/rules.js";
 export { BAL, TDB, WAGE };
 import { late } from "./late.js";
-document.documentElement.lang = "tr";
 /* ================= YARDIMCILAR ================= */
 export const $ = s => document.querySelector(s);
 export const $$ = s => [...document.querySelectorAll(s)];
@@ -74,7 +74,10 @@ export const Bus = {
 // Otomatik test modu (denge simülasyonu): kayıt, ses, bildirim ve olay panelleri kapatılır
 export const SIM = () => !!window.__SIM;
 export const esc = s =>
-  String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  String(s).replace(
+    /[&<>"']/g,
+    c => ({ "&": $t("data.139"), "<": $t("data.140"), ">": $t("data.141"), '"': $t("data.142"), "'": "&#39;" })[c]
+  );
 export const hash = s => {
   let h = 2166136261;
   for (const ch of String(s)) {
@@ -126,7 +129,7 @@ export const luma = hex => {
 // t: [1. lig, 2. lig, 3. lig], pr: lig gücü çarpanı
 export const LEAGUES = {
   TR: {
-    n: "Türkiye",
+    n: $t("data.143"),
     t: ["Basketbol Süper Ligi", "TBL", "TB2L"],
     pr: 0.97,
     cities: [
@@ -163,7 +166,7 @@ export const LEAGUES = {
     fem: ["Elif", "Zeynep", "Defne", "Ece", "Selin", "Ada", "Melis"]
   },
   ES: {
-    n: "İspanya",
+    n: $t("data.144"),
     t: ["Liga ACB", "Primera FEB", "Segunda FEB"],
     pr: 1,
     cities: [
@@ -185,7 +188,7 @@ export const LEAGUES = {
     fem: ["Lucía", "Carmen", "Paula", "Marta"]
   },
   IT: {
-    n: "İtalya",
+    n: $t("data.145"),
     t: ["Serie A", "Serie A2", "Serie B"],
     pr: 0.93,
     cities: [
@@ -207,7 +210,7 @@ export const LEAGUES = {
     fem: ["Giulia", "Sofia", "Chiara", "Martina"]
   },
   FR: {
-    n: "Fransa",
+    n: $t("data.146"),
     t: ["LNB Élite", "Pro B", "Nationale 1"],
     pr: 0.92,
     cities: [
@@ -229,7 +232,7 @@ export const LEAGUES = {
     fem: ["Léa", "Chloé", "Manon", "Camille"]
   },
   DE: {
-    n: "Almanya",
+    n: $t("data.147"),
     t: ["BBL", "ProA", "ProB"],
     pr: 0.91,
     cities: [
@@ -251,7 +254,7 @@ export const LEAGUES = {
     fem: ["Lena", "Anna", "Mia", "Lea"]
   },
   GR: {
-    n: "Yunanistan",
+    n: $t("data.148"),
     t: ["GBL", "Elite League", "National League 1"],
     pr: 0.94,
     cities: [
@@ -273,7 +276,7 @@ export const LEAGUES = {
     fem: ["Eleni", "Maria", "Katerina", "Sofia"]
   },
   RS: {
-    n: "Sırbistan",
+    n: $t("data.149"),
     t: ["KLS", "Prva Liga", "Druga Liga"],
     pr: 0.9,
     cities: [
@@ -295,7 +298,7 @@ export const LEAGUES = {
     fem: ["Jelena", "Milica", "Ana", "Teodora"]
   },
   LT: {
-    n: "Litvanya",
+    n: $t("data.150"),
     t: ["LKL", "NKL", "RKL"],
     pr: 0.89,
     cities: [
@@ -317,7 +320,7 @@ export const LEAGUES = {
     fem: ["Austėja", "Gabija", "Ieva", "Emilija"]
   },
   US: {
-    n: "ABD",
+    n: $t("data.151"),
     t: ["NBA"],
     pr: 1.2,
     cities: [
@@ -396,14 +399,22 @@ export function roleAt(o, stage, cc) {
   return roleFor(o, tdOf(stage, cc));
 }
 export function leagueName(stage, cc, ss) {
-  if (stage === "lise") return ss === 1 ? "İstanbul Liseler Ligi" : "Türkiye Liseler Şampiyonası";
-  if (stage === "uni") return "Üniversiteler Ligi";
-  if (stage === "euro") return "EuroLeague";
-  if (stage === "nba") return "NBA";
+  if (stage === "lise") return ss === 1 ? $t("data.1") : $t("data.2");
+  if (stage === "uni") return $t("data.3");
+  if (stage === "euro") return $t("data.4");
+  if (stage === "nba") return $t("core.63");
   return (LEAGUES[cc] || LEAGUES.TR).t[{ t1: 0, t2: 1, t3: 2 }[stage]];
 }
 export const levelName = st =>
-  ({ lise: "Lise", uni: "Üniversite", t3: "3. seviye", t2: "2. seviye", t1: "1. seviye", euro: "EuroLeague", nba: "NBA" })[st];
+  ({
+    lise: $t("map.1"),
+    uni: $t("map.2"),
+    t3: $t("data.152"),
+    t2: $t("data.153"),
+    t1: $t("data.154"),
+    euro: $t("data.4"),
+    nba: $t("core.63")
+  })[st];
 export const COLORS = [
   ["#c8102e", "#ffffff"],
   ["#0b3d91", "#ffd200"],
@@ -453,14 +464,123 @@ export const MASC_US = [
   "Mariners"
 ];
 export const PAT = {
-  TR: [c => `${c} ${MASC_TR[hash(c) % 12]}`, c => `${c} Belediyespor`, c => `${c} Gençlikspor`, c => `${c} Basketbol`],
-  ES: [c => `CB ${c}`, c => `${c} Basket`, c => `Club Baloncesto ${c}`, c => `${c} Atlético`],
-  IT: [c => `Pallacanestro ${c}`, c => `${c} Basket`, c => `Polisportiva ${c}`, c => `${c} Aquile`],
-  FR: [c => `${c} Basket`, c => `Étoile de ${c}`, c => `Union ${c}`, c => `${c} Métropole`],
-  DE: [c => `BC ${c}`, c => `${c} Dragons`, c => `SV ${c}`, c => `${c} Falken`],
-  GR: [c => `${c} BC`, c => `AS ${c}`, c => `Asteras ${c}`, c => `Ermis ${c}`],
-  RS: [c => `KK ${c}`, c => `OKK ${c}`, c => `${c} Basket`, c => `KK Mladost ${c}`],
-  LT: [c => `BC ${c}`, c => `${c} Krepšinis`, c => `${c} Vilkai`, c => `KK ${c}`],
+  TR: [
+    c => `${c} ${MASC_TR[hash(c) % 12]}`,
+    c =>
+      $t("data.5", {
+        c: c
+      }),
+    c =>
+      $t("data.6", {
+        c: c
+      }),
+    c =>
+      $t("data.7", {
+        c: c
+      })
+  ],
+  ES: [
+    c => `CB ${c}`,
+    c =>
+      $t("data.8", {
+        c: c
+      }),
+    c =>
+      $t("data.9", {
+        c: c
+      }),
+    c =>
+      $t("data.10", {
+        c: c
+      })
+  ],
+  IT: [
+    c =>
+      $t("data.11", {
+        c: c
+      }),
+    c =>
+      $t("data.8", {
+        c: c
+      }),
+    c =>
+      $t("data.12", {
+        c: c
+      }),
+    c =>
+      $t("data.13", {
+        c: c
+      })
+  ],
+  FR: [
+    c =>
+      $t("data.8", {
+        c: c
+      }),
+    c =>
+      $t("data.14", {
+        c: c
+      }),
+    c =>
+      $t("data.15", {
+        c: c
+      }),
+    c =>
+      $t("data.16", {
+        c: c
+      })
+  ],
+  DE: [
+    c => `BC ${c}`,
+    c =>
+      $t("data.17", {
+        c: c
+      }),
+    c => `SV ${c}`,
+    c =>
+      $t("data.18", {
+        c: c
+      })
+  ],
+  GR: [
+    c => `${c} BC`,
+    c => `AS ${c}`,
+    c =>
+      $t("data.19", {
+        c: c
+      }),
+    c =>
+      $t("data.20", {
+        c: c
+      })
+  ],
+  RS: [
+    c => `KK ${c}`,
+    c =>
+      $t("data.21", {
+        c: c
+      }),
+    c =>
+      $t("data.8", {
+        c: c
+      }),
+    c =>
+      $t("data.22", {
+        c: c
+      })
+  ],
+  LT: [
+    c => `BC ${c}`,
+    c =>
+      $t("data.23", {
+        c: c
+      }),
+    c =>
+      $t("data.24", {
+        c: c
+      }),
+    c => `KK ${c}`
+  ],
   US: [c => `${c} ${MASC_US[hash(c) % MASC_US.length]}`]
 };
 export const IST_DIST = [
@@ -477,140 +597,132 @@ export const IST_DIST = [
   "Beyoğlu",
   "Bahçelievler"
 ];
-export const IST_TYPE = ["Spor Lisesi", "Anadolu Lisesi", "Fen Lisesi", "Koleji", "Cumhuriyet Lisesi"];
+export const IST_TYPE = [$t("data.25"), $t("data.26"), $t("data.27"), $t("data.28"), $t("data.29")];
 
 /* ================= POZİSYONLAR ================= */
 export const POS = {
-  PG: { n: "Oyun Kurucu", b: { pas: 10, hiz: 8 } },
-  SG: { n: "Şutör Guard", b: { sut: 12, hiz: 4 } },
-  SF: { n: "Kanat Oyuncusu", b: { sut: 6, sav: 6, hiz: 4 } },
-  PF: { n: "Uzun Forvet", b: { guc: 8, sav: 6, sut: 2 } },
-  C: { n: "Pivot", b: { guc: 10, sav: 8 } }
+  PG: { n: $t("data.155"), b: { pas: 10, hiz: 8 } },
+  SG: { n: $t("data.156"), b: { sut: 12, hiz: 4 } },
+  SF: { n: $t("data.157"), b: { sut: 6, sav: 6, hiz: 4 } },
+  PF: { n: $t("data.158"), b: { guc: 8, sav: 6, sut: 2 } },
+  C: { n: $t("data.159"), b: { guc: 10, sav: 8 } }
 };
 export const STATS = [
-  ["sut", "Şut"],
-  ["pas", "Pas"],
-  ["hiz", "Çeviklik"],
-  ["guc", "Güç"],
-  ["sav", "Savunma"]
+  ["sut", $t("data.30")],
+  ["pas", $t("data.31")],
+  ["hiz", $t("data.32")],
+  ["guc", $t("data.33")],
+  ["sav", $t("data.34")]
 ];
 export const statName = k => STATS.find(s => s[0] === k)[1];
 export const RELS = [
-  ["koc", "Koç"],
-  ["takim", "Takım"],
-  ["taraf", "Taraftar"],
-  ["aile", "Aile"],
-  ["ark", "Arkadaşlar"],
-  ["partner", "Partner"]
+  ["koc", $t("data.35")],
+  ["takim", $t("data.36")],
+  ["taraf", $t("data.37")],
+  ["aile", $t("data.38")],
+  ["ark", $t("data.39")],
+  ["partner", $t("data.40")]
 ];
 // pozisyona özel antrenmanlar: [id, ad, nitelik, mini oyun, açıklama]
 export const DRILLS = {
   PG: [
-    ["pnr", "Pick & roll okuma", "pas", "pass", "Perdeden sonra boş adamı bul."],
-    ["handle", "Top sürme", "hiz", "dribble", "Kaydırarak çalım kombinasyonları."],
-    ["pull", "Pull-up şut", "sut", "shoot", "Top sürüşten üçlük."]
+    ["pnr", $t("data.41"), "pas", "pass", $t("data.42")],
+    ["handle", $t("data.43"), "hiz", "dribble", $t("data.44")],
+    ["pull", $t("data.45"), "sut", "shoot", $t("data.46")]
   ],
   SG: [
-    ["cs", "Catch & shoot", "sut", "shoot", "Pası al, hemen bırak."],
-    ["step", "Step-back", "sut", "shootmid", "Adım geri, orta mesafe."],
-    ["handle", "Çalım", "hiz", "dribble", "Savunmacıyı geç."]
+    ["cs", $t("data.47"), "sut", "shoot", $t("data.48")],
+    ["step", $t("data.49"), "sut", "shootmid", $t("data.50")],
+    ["handle", $t("data.51"), "hiz", "dribble", $t("data.52")]
   ],
   SF: [
-    ["wing", "Kanat şutu", "sut", "shoot", "Köşe ve kanattan üçlük."],
-    ["break", "Hızlı hücum bitiriş", "hiz", "dribble", "Koşu ve bitiriş."],
-    ["perim", "Çevre savunması", "sav", "steal", "Pas arası zamanlaması."]
+    ["wing", $t("data.53"), "sut", "shoot", $t("data.54")],
+    ["break", $t("data.55"), "hiz", "dribble", $t("data.56")],
+    ["perim", $t("data.57"), "sav", "steal", $t("data.58")]
   ],
   PF: [
-    ["pop", "Pick & pop", "sut", "shootmid", "Perde sonrası açıl, şut at."],
-    ["post", "Post hareketleri", "guc", "post", "Sırtın potaya, it ve kanca at."],
-    ["reb", "Ribaund", "guc", "rebound", "Zıpla, topu en yüksekte al."]
+    ["pop", $t("data.59"), "sut", "shootmid", $t("data.60")],
+    ["post", $t("data.61"), "guc", "post", $t("data.62")],
+    ["reb", $t("data.63"), "guc", "rebound", $t("data.64")]
   ],
   C: [
-    ["hook", "Kanca şutu", "guc", "post", "Pota altında güç ve dokunuş."],
-    ["reb", "Ribaund", "guc", "rebound", "Boyalı alanın sahibi ol."],
-    ["rim", "Pota koruması", "sav", "block", "Blok zamanlaması."],
-    ["ft", "Serbest atış", "sut", "free", "Uzunların zayıf noktası."]
+    ["hook", $t("data.65"), "guc", "post", $t("data.66")],
+    ["reb", $t("data.63"), "guc", "rebound", $t("data.67")],
+    ["rim", $t("data.68"), "sav", "block", $t("data.69")],
+    ["ft", $t("data.70"), "sut", "free", $t("data.71")]
   ]
 };
-export const COMMON_DRILLS = [["gym", "Ağırlık salonu", "guc", "gym", "5 saniye boyunca hızlı dokun."]];
+export const COMMON_DRILLS = [["gym", $t("data.72"), "guc", "gym", $t("data.73")]];
 // pozisyona özel maç seçenekleri: [anahtar, ad, nitelik, açıklama]
 export const PLAYS = {
   PG: {
     off: [
-      ["pnr", "Pick & roll oku", "pas", "Perdeyi kullan, uzun adamı bul"],
-      ["pull", "Pull-up üçlük", "sut", "Top sürüşten 3 sayı"],
-      ["drive", "Potaya penetre", "hiz", "Çalım ve turnike"],
-      ["lob", "Alley-oop pası", "pas", "Uzuna havadan pas"]
+      ["pnr", $t("data.74"), "pas", $t("data.75")],
+      ["pull", $t("data.76"), "sut", $t("data.77")],
+      ["drive", $t("data.78"), "hiz", $t("data.79")],
+      ["lob", $t("data.80"), "pas", $t("data.81")]
     ],
     def: [
-      ["steal", "Top çal", "hiz", "Rakip oyun kurucunun topuna uzan"],
-      ["safe", "Önünde kal", "sav", "Güvenli savunma"],
-      ["charge", "Hücum faulü al", "sav", "Yerinde dur, çarpışmayı bekle"]
+      ["steal", $t("data.82"), "hiz", $t("data.83")],
+      ["safe", $t("data.84"), "sav", $t("data.85")],
+      ["charge", $t("data.86"), "sav", $t("data.87")]
     ],
-    sit: [
-      "Topu yarı sahaya getirdin, uzun oyuncu perdeye geliyor",
-      "Hücum süresinde 10 saniye var, top sende",
-      "Hızlı hücum, önünde iki savunmacı var"
-    ]
+    sit: [$t("data.88"), $t("data.89"), $t("data.90")]
   },
   SG: {
     off: [
-      ["catch", "Catch & shoot üçlük", "sut", "Pası al, hemen bırak"],
-      ["step", "Step-back", "sut", "Adım geri, 2 sayı"],
-      ["drive", "Penetre", "hiz", "Çalım ve turnike"],
-      ["kick", "Pas ver", "pas", "Çift savunma gelince dışarı aç"]
+      ["catch", $t("data.91"), "sut", $t("data.92")],
+      ["step", $t("data.49"), "sut", $t("data.93")],
+      ["drive", $t("data.94"), "hiz", $t("data.79")],
+      ["kick", $t("data.95"), "pas", $t("data.96")]
     ],
     def: [
-      ["steal", "Top çal", "hiz", "Pas arası dene"],
-      ["safe", "Önünde kal", "sav", "Güvenli savunma"],
-      ["block", "Arkadan blok", "sav", "Hızlı hücumda kovala"]
+      ["steal", $t("data.82"), "hiz", $t("data.97")],
+      ["safe", $t("data.84"), "sav", $t("data.85")],
+      ["block", $t("data.98"), "sav", $t("data.99")]
     ],
-    sit: ["Köşede bekliyorsun, top sana geliyor", "Perdeden çıktın, top elinde", "Savunmacın çok yakın oynuyor"]
+    sit: [$t("data.100"), $t("data.101"), $t("data.102")]
   },
   SF: {
     off: [
-      ["wing", "Kanattan üçlük", "sut", "Kanatta boş kaldın"],
-      ["break", "Hızlı hücum smaçı", "hiz", "Koşu ve bitiriş"],
-      ["post", "Post-up", "guc", "Kısa adama sırtını dön"],
-      ["kick", "Dışarı pas", "pas", "Boştaki şutöre aç"]
+      ["wing", $t("data.103"), "sut", $t("data.104")],
+      ["break", $t("data.105"), "hiz", $t("data.106")],
+      ["post", $t("data.107"), "guc", $t("data.108")],
+      ["kick", $t("data.109"), "pas", $t("data.110")]
     ],
     def: [
-      ["block", "Blok", "sav", "Potaya gelene yüksel"],
-      ["steal", "Pas arası", "hiz", "Pas yoluna gir"],
-      ["safe", "Önünde kal", "sav", "Güvenli savunma"]
+      ["block", $t("data.111"), "sav", $t("data.112")],
+      ["steal", $t("data.113"), "hiz", $t("data.114")],
+      ["safe", $t("data.84"), "sav", $t("data.85")]
     ],
-    sit: ["Kanatta topu aldın, savunmacı geç kapatıyor", "Top çalındı, hızlı hücumdasın", "Eşleşmen senden kısa"]
+    sit: [$t("data.115"), $t("data.116"), $t("data.117")]
   },
   PF: {
     off: [
-      ["pop", "Pick & pop", "sut", "Perde sonrası açıl, orta mesafe"],
-      ["post", "Post-up", "guc", "Sırtın potaya, it ve kanca"],
-      ["putback", "Hücum ribaundu", "guc", "Kaçan şutu tamamla"],
-      ["kick", "Dışarı pas", "pas", "Çift savunmayı cezalandır"]
+      ["pop", $t("data.59"), "sut", $t("data.118")],
+      ["post", $t("data.107"), "guc", $t("data.119")],
+      ["putback", $t("data.120"), "guc", $t("data.121")],
+      ["kick", $t("data.109"), "pas", $t("data.122")]
     ],
     def: [
-      ["block", "Blok", "sav", "Yardım savunmasından blok"],
-      ["reb", "Savunma ribaundu", "guc", "Topu al, hücumu bitir"],
-      ["safe", "Box-out", "guc", "Rakibi dışarıda tut"]
+      ["block", $t("data.111"), "sav", $t("data.123")],
+      ["reb", $t("data.124"), "guc", $t("data.125")],
+      ["safe", $t("data.126"), "guc", $t("data.127")]
     ],
-    sit: ["Perde attın, savunma sana kapatmadı", "Boyalı alanda pozisyon aldın", "Arkadaşın şut attı, ribaund mücadelesi"]
+    sit: [$t("data.128"), $t("data.129"), $t("data.130")]
   },
   C: {
     off: [
-      ["post", "Post-up kanca", "guc", "Sırtın potaya, it ve kanca"],
-      ["dunk", "Alley-oop smaç", "guc", "Havadan gelen pası bitir"],
-      ["putback", "Hücum ribaundu", "guc", "Kaçan şutu tamamla"],
-      ["kick", "Dışarı pas", "pas", "Çift savunmayı cezalandır"]
+      ["post", $t("data.131"), "guc", $t("data.119")],
+      ["dunk", $t("data.132"), "guc", $t("data.133")],
+      ["putback", $t("data.120"), "guc", $t("data.121")],
+      ["kick", $t("data.109"), "pas", $t("data.122")]
     ],
     def: [
-      ["block", "Pota koruması", "sav", "Potaya gelene blok"],
-      ["reb", "Savunma ribaundu", "guc", "Topu al, hücumu bitir"],
-      ["safe", "Pozisyon al", "sav", "Güvenli savunma"]
+      ["block", $t("data.68"), "sav", $t("data.134")],
+      ["reb", $t("data.124"), "guc", $t("data.125")],
+      ["safe", $t("data.135"), "sav", $t("data.85")]
     ],
-    sit: [
-      "Pota altında pozisyon aldın, top sana geliyor",
-      "Oyun kurucu perde istiyor, potaya dönüyorsun",
-      "Şut kaçtı, top çemberde"
-    ]
+    sit: [$t("data.136"), $t("data.137"), $t("data.138")]
   }
 };

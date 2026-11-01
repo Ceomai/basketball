@@ -1,3 +1,4 @@
+import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, INK, clamp, ri, shade } from "./data.js";
 import { drawBall, drawKid, ell, rr } from "./art.js";
@@ -60,7 +61,7 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
   c.textAlign = "center";
   c.textBaseline = "alphabetic";
   c.fillText(`%${Math.round(p * 100)}`, gx + 6, gy + gh + 16);
-  c.fillText("GÜÇ", gx + 6, gy - 6);
+  c.fillText($t("arcade.1"), gx + 6, gy - 6);
   c.restore();
   return col;
 }
@@ -80,7 +81,7 @@ export function slingBand(c, bx, by, px, py) {
 
 /* ---- Pota makinesi: geriye çek, bırak ---- */
 export function mgArcade(el) {
-  mkStage(el, "Pota makinesi");
+  mkStage(el, $t("arcade.2"));
   return new Promise(res => {
     const DUR = 30,
       HY = 112,
@@ -92,6 +93,7 @@ export function mgArcade(el) {
       phase = 0,
       flash = 0,
       msg = "",
+      msgGood = false,
       mt = 0,
       drag = null,
       ball = null,
@@ -183,13 +185,13 @@ export function mgArcade(el) {
         if (p >= 1) {
           const close = Math.abs(ball.tx - hx) < 25;
           let made = false;
-          if (r < 0.86) msg = "Kısa kaldı";
+          if (r < 0.86) ((msg = $t("arcade.3")), (msgGood = false));
           else if (r > 1.16) {
             made = close && Math.random() < 0.3;
-            msg = made ? "Panyadan sayı" : "Uzun gitti";
+            ((msg = made ? $t("arcade.4") : $t("arcade.5")), (msgGood = !!made));
           } else {
             made = close;
-            msg = made ? "Sayı" : "Iska";
+            ((msg = made ? $t("arcade.6") : $t("arcade.7")), (msgGood = !!made));
           }
           if (made) {
             score++;
@@ -221,26 +223,37 @@ export function mgArcade(el) {
       c.fillText(String(Math.max(0, Math.ceil(DUR - t))).padStart(2, "0"), W / 2 + 36, H - 38);
       c.font = "600 9px Manrope";
       c.fillStyle = "#8c99ae";
-      c.fillText("SAYI", W / 2 - 34, H - 28);
-      c.fillText("SÜRE", W / 2 + 36, H - 28);
+      c.fillText($t("arcade.8"), W / 2 - 34, H - 28);
+      c.fillText($t("arcade.9"), W / 2 + 36, H - 28);
       if (flash > 0) {
         c.fillStyle = `rgba(255,63,164,${flash * 0.18})`;
         c.fillRect(0, 0, W, H);
         flash -= dt * 2;
       }
       if (mt > 0) {
-        bigText(c, msg, 232, msg.includes("ayı") ? "#ffc54d" : "#ffffff");
+        bigText(c, msg, 232, msgGood ? "#ffc54d" : "#ffffff");
         mt -= dt;
       }
-      if (t < 4 && !drag) hint(c, "Ekrana bas, geriye çek, ok yeşilken bırak", 190);
-      if (t >= DUR && !ball) finish(stop, res, { score, label: `${score} sayı · ${shots} atış` });
-      info(`Rekor ${S.rec.arcade}`);
+      if (t < 4 && !drag) hint(c, $t("arcade.10"), 190);
+      if (t >= DUR && !ball)
+        finish(stop, res, {
+          score,
+          label: $t("arcade.32", {
+            score: score,
+            shots: shots
+          })
+        });
+      info(
+        $t("arcade.11", {
+          arcade: S.rec.arcade
+        })
+      );
     });
   });
 }
 /* ---- Refleks paneli ---- */
 export function mgReflex(el) {
-  mkStage(el, "Refleks paneli");
+  mkStage(el, $t("arcade.12"));
   return new Promise(res => {
     const DUR = 20;
     let score = 0,
@@ -289,7 +302,14 @@ export function mgReflex(el) {
       c.font = '800 22px "Barlow Condensed"';
       c.textAlign = "center";
       c.textBaseline = "alphabetic";
-      c.fillText(`SKOR ${score}  ·  ${Math.max(0, DUR - t).toFixed(1)} SN`, W / 2, 60);
+      c.fillText(
+        $t("arcade.13", {
+          score: score,
+          v: Math.max(0, DUR - t).toFixed(1)
+        }),
+        W / 2,
+        60
+      );
       pos.forEach((q, i) => {
         const on = lit.some(l => l.k === i);
         if (on) halo(c, q.x, q.y, 54, "#29b6f6", 0.22);
@@ -306,15 +326,19 @@ export function mgReflex(el) {
         c.fillRect(0, 0, W, H);
         miss -= dt;
       }
-      if (t < 2.5) hint(c, "Yanan düğmelere dokun", H - 30);
+      if (t < 2.5) hint(c, $t("arcade.14"), H - 30);
       if (t >= DUR) finish(stop, res, { score });
-      info(`Rekor ${S.rec.reflex}`);
+      info(
+        $t("arcade.15", {
+          reflex: S.rec.reflex
+        })
+      );
     });
   });
 }
 /* ---- Hava hokeyi ---- */
 export function mgHockey(el) {
-  mkStage(el, "Hava hokeyi");
+  mkStage(el, $t("arcade.16"));
   return new Promise(res => {
     const R = 26,
       PR = 12,
@@ -440,7 +464,7 @@ export function mgHockey(el) {
           if (pk.y < TOP + PR) {
             if (Math.abs(pk.x - 180) < GW) {
               me++;
-              msg = "Gol";
+              msg = $t("arcade.17");
               mt = 1;
               buzz(30);
               late.sfx("cheer");
@@ -453,7 +477,7 @@ export function mgHockey(el) {
           if (pk.y > BOT - PR) {
             if (Math.abs(pk.x - 180) < GW) {
               ai++;
-              msg = "Rakip golü";
+              msg = $t("arcade.18");
               mt = 1;
               late.sfx("buzzer");
               reset(1);
@@ -523,12 +547,16 @@ export function mgHockey(el) {
       c.fillText(ai, W - 26, 226);
       c.fillText(me, W - 26, 284);
       if (mt > 0) {
-        bigText(c, msg, 256, msg === "Gol" ? "#ffc54d" : "#ffffff");
+        bigText(c, msg, 256, msg === $t("arcade.17") ? "#ffc54d" : "#ffffff");
         mt -= dt;
       }
-      if (t < 3) hint(c, "Raketi parmağınla sürükle, pakı rakip kaleye vur", H - 44);
+      if (t < 3) hint(c, $t("arcade.19"), H - 44);
       if (me >= 5 || ai >= 5 || t >= 75) finish(stop, res, { score: me, win: me > ai, label: `${me}–${ai}` });
-      info(`${Math.max(0, 75 - t).toFixed(0)} sn`);
+      info(
+        $t("arcade.34", {
+          v: Math.max(0, 75 - t).toFixed(0)
+        })
+      );
     });
   });
 }
@@ -574,13 +602,13 @@ export function mgRhythm(el, { title, karaoke }) {
         score += pf ? 2 : 1;
         combo++;
         best = Math.max(best, combo);
-        fb = pf ? "Tam zamanında" : "İyi";
+        fb = pf ? $t("arcade.20") : $t("arcade.21");
         ft = 0.35;
         buzz(5);
         late.sfx("note", l);
       } else {
         combo = 0;
-        fb = "Erken";
+        fb = $t("arcade.22");
         ft = 0.25;
       }
     };
@@ -651,22 +679,46 @@ export function mgRhythm(el, { title, karaoke }) {
       c.font = '800 22px "Barlow Condensed"';
       c.textBaseline = "alphabetic";
       c.textAlign = "left";
-      c.fillText(`SKOR ${score}`, 16, 36);
+      c.fillText(
+        $t("arcade.23", {
+          score: score
+        }),
+        16,
+        36
+      );
       c.textAlign = "right";
-      c.fillText(`KOMBO ${combo}`, W - 16, 36);
+      c.fillText(
+        $t("arcade.24", {
+          combo: combo
+        }),
+        W - 16,
+        36
+      );
       if (ft > 0) {
-        bigText(c, fb, 330, fb === "Erken" ? "#ff5468" : "#ffc54d", 28);
+        bigText(c, fb, 330, fb === $t("arcade.22") ? "#ff5468" : "#ffc54d", 28);
         ft -= dt;
       }
-      if (t < 2.2) hint(c, "Nota halkaya gelince o şeride dokun", H - 14);
-      if (t >= DUR) finish(stop, res, { score, label: `${hits}/${total} nota · kombo ${best}` });
-      info(`${Math.max(0, DUR - t).toFixed(0)} sn`);
+      if (t < 2.2) hint(c, $t("arcade.25"), H - 14);
+      if (t >= DUR)
+        finish(stop, res, {
+          score,
+          label: $t("arcade.33", {
+            hits: hits,
+            total: total,
+            best: best
+          })
+        });
+      info(
+        $t("arcade.34", {
+          v: Math.max(0, DUR - t).toFixed(0)
+        })
+      );
     });
   });
 }
 /* ---- Bowling: geriye çek, nişan al, bırak ---- */
 export function mgBowling(el) {
-  mkStage(el, "Bowling");
+  mkStage(el, $t("arcade.26"));
   return new Promise(res => {
     const ROLLS = 3,
       BX = 180,
@@ -741,7 +793,14 @@ export function mgBowling(el) {
             }
           });
           total += knocked;
-          msg = knocked === 10 ? "Strike · 10 lobut" : knocked ? `${knocked} lobut` : "Oluk";
+          msg =
+            knocked === 10
+              ? $t("arcade.27")
+              : knocked
+                ? $t("arcade.35", {
+                    knocked: knocked
+                  })
+                : $t("arcade.28");
           mt = 1.3;
           ph = "show";
           t = 0;
@@ -755,7 +814,12 @@ export function mgBowling(el) {
       if (ph === "show" && t > 1.5) {
         roll++;
         if (roll >= ROLLS) {
-          finish(stop, res, { score: total, label: `${total} lobut` });
+          finish(stop, res, {
+            score: total,
+            label: $t("arcade.36", {
+              total: total
+            })
+          });
           return;
         }
         setPins();
@@ -835,7 +899,7 @@ export function mgBowling(el) {
         c.lineWidth = 2;
         c.strokeStyle = INK;
         ell(c, bx, by, 16, 16, "#3949ab");
-        if (!drag) hint(c, "Topu geriye çek, yönü ve gücü ayarla, bırak", 40);
+        if (!drag) hint(c, $t("arcade.29"), 40);
       }
       if (ball) {
         c.lineWidth = 2;
@@ -850,8 +914,20 @@ export function mgBowling(el) {
       c.font = '800 20px "Barlow Condensed"';
       c.textAlign = "left";
       c.textBaseline = "alphabetic";
-      c.fillText(`ATIŞ ${Math.min(roll + 1, ROLLS)}/${ROLLS} · ${total} LOBUT`, 16, H - 16);
-      info(`Rekor ${S.rec.bowling || 0}`);
+      c.fillText(
+        $t("arcade.30", {
+          v: Math.min(roll + 1, ROLLS),
+          ROLLS: ROLLS,
+          total: total
+        }),
+        16,
+        H - 16
+      );
+      info(
+        $t("arcade.31", {
+          v: S.rec.bowling || 0
+        })
+      );
     });
   });
 }

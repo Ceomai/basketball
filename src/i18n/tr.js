@@ -1,5 +1,6 @@
 // Türkçe arayüz metinleri (ana dil). Anahtarlar ekran.öğe biçimindedir.
 export default {
+  "common.q": "{n}Ç",
   "app.tagline": "Basketbol kariyer simülasyonu",
   "app.name": "Pota<br>Kariyeri",
   "btn.guide": "Kılavuz",
