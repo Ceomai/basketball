@@ -9,17 +9,20 @@ export default defineConfig({
     modulePreload: false,
     rollupOptions: { output: { format: "iife", inlineDynamicImports: true } }
   },
-  plugins: [{
-    name: "tek-dosya",
-    enforce: "post",
-    generateBundle(_, bundle) {
-      const html = Object.values(bundle).find(a => a.fileName.endsWith(".html"));
-      for (const [name, chunk] of Object.entries(bundle)) {
-        if (chunk.type !== "chunk" || !name.endsWith(".js")) continue;
-        html.source = html.source.replace(new RegExp(`<script[^>]*src="[^"]*${name.replace(/[.]/g, "\\.")}"[^>]*></script>\\s*`), "")
-          .replace("</body>", () => `<script>\n${chunk.code.replace(/<\/script/gi, "<\\/script")}</script>\n</body>`);
-        delete bundle[name];
+  plugins: [
+    {
+      name: "tek-dosya",
+      enforce: "post",
+      generateBundle(_, bundle) {
+        const html = Object.values(bundle).find(a => a.fileName.endsWith(".html"));
+        for (const [name, chunk] of Object.entries(bundle)) {
+          if (chunk.type !== "chunk" || !name.endsWith(".js")) continue;
+          html.source = html.source
+            .replace(new RegExp(`<script[^>]*src="[^"]*${name.replace(/[.]/g, "\\.")}"[^>]*></script>\\s*`), "")
+            .replace("</body>", () => `<script>\n${chunk.code.replace(/<\/script/gi, "<\\/script")}</script>\n</body>`);
+          delete bundle[name];
+        }
       }
     }
-  }]
+  ]
 });

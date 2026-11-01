@@ -21,7 +21,27 @@ import * as ads from "./ads.js";
 import * as audio from "./audio.js";
 import * as music from "./music.js";
 
-const MODULES = [data, clubs, art, map, games, core, save, places, casino, shops, arcade, match, engine, extras, systems, story, ads, audio, music];
+const MODULES = [
+  data,
+  clubs,
+  art,
+  map,
+  games,
+  core,
+  save,
+  places,
+  casino,
+  shops,
+  arcade,
+  match,
+  engine,
+  extras,
+  systems,
+  story,
+  ads,
+  audio,
+  music
+];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
     if (!Object.prototype.hasOwnProperty.call(late, k)) Object.defineProperty(late, k, { get: () => ns[k], enumerable: true });
