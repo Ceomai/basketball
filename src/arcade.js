@@ -2,7 +2,7 @@ import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, INK, clamp, ri, shade } from "./data.js";
 import { drawBall, drawKid, ell, rr } from "./art.js";
-import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos } from "./games.js";
+import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos, setMgKind } from "./games.js";
 import { S, jersey } from "./core.js";
 /* ================= ARCADE OYUNLARI =================
    Her karede gölge/ışıma (shadowBlur) yok: mobilde takılmanın ana sebebiydi.
@@ -81,6 +81,7 @@ export function slingBand(c, bx, by, px, py) {
 
 /* ---- Pota makinesi: geriye çek, bırak ---- */
 export function mgArcade(el) {
+  setMgKind("arcade");
   mkStage(el, $t("arcade.2"));
   return new Promise(res => {
     const DUR = 30,
@@ -253,6 +254,7 @@ export function mgArcade(el) {
 }
 /* ---- Refleks paneli ---- */
 export function mgReflex(el) {
+  setMgKind("reflex");
   mkStage(el, $t("arcade.12"));
   return new Promise(res => {
     const DUR = 20;
@@ -338,6 +340,7 @@ export function mgReflex(el) {
 }
 /* ---- Hava hokeyi ---- */
 export function mgHockey(el) {
+  setMgKind("hockey");
   mkStage(el, $t("arcade.16"));
   return new Promise(res => {
     const R = 26,
@@ -562,6 +565,7 @@ export function mgHockey(el) {
 }
 /* ---- Dans ritmi / karaoke ---- */
 export function mgRhythm(el, { title, karaoke }) {
+  setMgKind("rhythm");
   mkStage(el, title);
   return new Promise(res => {
     const lanes = [54, 138, 222, 306],
@@ -718,6 +722,7 @@ export function mgRhythm(el, { title, karaoke }) {
 }
 /* ---- Bowling: geriye çek, nişan al, bırak ---- */
 export function mgBowling(el) {
+  setMgKind("bowling");
   mkStage(el, $t("arcade.26"));
   return new Promise(res => {
     const ROLLS = 3,

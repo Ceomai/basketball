@@ -208,6 +208,47 @@ const check = (ok, msg) => {
   check(games >= 12, `mini oyunlar açıldı (${games})`);
   await p.evaluate(() => Game.renderSlots());
 
+  // 7b) oyun testi kaydı: onaysız kayıt yok, onayla ekran/maç/mini oyun olayları ve geri bildirim
+  const tel = await p.evaluate(async () => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    Game.TEL.events = [];
+    Game.log("x");
+    out.noConsent = Game.TEL.events.length === 0;
+    Game.setConsent(true);
+    Game.renderMain();
+    Game.closeSheet();
+    Game.openLoc("stad", "mac");
+    Game.setM({
+      opp: Game.teamByKey(Game.S.sched[0].opp),
+      rating: 7,
+      pts: 10,
+      ast: 1,
+      reb: 2,
+      blk: 0,
+      stl: 0,
+      us: 70,
+      them: 60,
+      mins: 1200,
+      plus: 4
+    });
+    Game.Bus.emit("match:end", { win: true, rating: 7 });
+    Game.Bus.emit("minigame:end", { kind: "shoot", made: 2, shots: 3 });
+    Game.feedbackSheet("test");
+    document.querySelector('#fb-st [data-s="4"]').click();
+    document.querySelector("#fb-tx").value = "güzel";
+    document.querySelector("#fb-go").click();
+    const r = Game.reportData();
+    const kinds = new Set(r.events.map(e => e.e));
+    out.events = ["consent", "screen", "match", "minigame", "feedback"].every(k => kinds.has(k));
+    out.fb = r.feedback.length === 1 && r.feedback[0].stars === 4;
+    out.mg = r.events.find(e => e.e === "minigame").r === 0.67;
+    Game.setConsent(false);
+    return out;
+  });
+  check(tel.noConsent, "oyun testi kapalıyken hiçbir şey kaydedilmiyor");
+  check(tel.events && tel.fb && tel.mg, "oyun testi açıkken ekran, maç, mini oyun ve geri bildirim kaydediliyor");
+
   // 8) veri tabanlı olaylar ve dil seçimi
   const ev = await p.evaluate(() => {
     const out = {};

@@ -486,6 +486,7 @@ export function namePicker() {
   draw();
 }
 export function startCareer() {
+  Bus.emit("career:start", { pos: F.pos });
   const co = LEAGUES.TR;
   const st = { sut: 20, pas: 20, hiz: 20, guc: 20, sav: 20 };
   for (const [k, v] of Object.entries(POS[F.pos].b)) st[k] += v;
@@ -712,7 +713,7 @@ export function renderMain() {
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
    <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div></div>
   <div class="card"><div class="eyebrow">${t("main.news")}</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
-  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px"><button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
+  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   $$(".loc").forEach(g => {
     const go = () => late.openLoc(g.dataset.loc);
@@ -726,6 +727,8 @@ export function renderMain() {
   });
   $("#gostad").onclick = () => late.openLoc("stad", "mac");
   $("#quickw").onclick = late.quickWeek;
+  const fbk = $("#fbk");
+  if (fbk) fbk.onclick = () => late.feedbackSheet("main");
   Bus.emit("screen:main");
   $("#rst").onclick = late.renderSlots;
   $("#opt").onclick = late.settingsSheet;
@@ -753,6 +756,7 @@ window.addEventListener("load", async () => {
   window.claude?.hot?.snapshot?.(() => ({ S }));
   await late.storageRestore().catch(() => 0);
   window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+  late.maybeAskConsent();
   late.registerPWA();
 });
 

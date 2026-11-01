@@ -11,15 +11,30 @@
     "test:unit": "node --test \"tests/unit/*.test.mjs\"",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.{js,mjs}\" \"tools/**/*.js\"",
     "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build && node tests/smoke.js && node tests/balance.js 3",
-    "test:balance": "npm run build && node tests/balance.js 10"
+    "test:balance": "npm run build && node tests/balance.js 10",
+    "android": "npm run build && npx cap sync android",
+    "android:open": "npx cap open android",
+    "playtest:report": "node tools/playtest-report.js"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",
+    "@capacitor/cli": "^7.6.10",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "prettier": "^3.9.10",
     "recast": "^0.23.21",
     "typescript": "^5.9.3",
     "vite": "^6.4.5"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^7.2.0",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/app": "^7.1.2",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/filesystem": "^7.1.9",
+    "@capacitor/preferences": "^7.0.4",
+    "@capacitor/share": "^7.0.4",
+    "@capacitor/status-bar": "^7.0.6",
+    "cordova-plugin-purchase": "^13.20.0"
   }
 }

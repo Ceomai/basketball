@@ -49,6 +49,41 @@ Geliştirirken canlı yenilenen sunucu için `npm run dev` kullanılır.
 - **Kayıt:** 5 kayıt yuvası. Her kayıt hem tarayıcı hafızasına hem IndexedDB'ye yazılır; biri silinir ya da bozulursa diğerinden geri gelir. Yedek dosyası (`.pota`) indirilebilir, paylaşılabilir ve geri yüklenebilir. Oyun birkaç sezonda bir yedek almayı hatırlatır.
 - **Denge:** ilerleme, teklif eşikleri ve ödüller otomatik oynayan bir simülasyonla ayarlandı. Zayıf bir oyuncu genelde 1. lig veya EuroLeague'de kalır, ortalama bir oyuncunun NBA şansı yaklaşık dörtte birdir, yetenekli bir oyuncu 25-26 yaşlarında NBA'e ulaşır.
 
+## Android uygulaması
+
+- **Paketleme:** oyun Capacitor ile Android uygulamasına paketlenir (`android/`).
+- **Test APK'sı:** her push'ta GitHub Actions → **Android** iş akışı test APK'sı üretir; anahtar deposu tanımlıysa Google Play için imzalı AAB de üretir.
+- **Uygulamaya özel özellikler (`src/native.js`):**
+  - AdMob reklamları ve Google rıza formu
+  - Reklamsız paket satın alma
+  - Kayıtların yerel depoya yansıtılması ve Android otomatik yedeği
+  - Geri tuşu desteği
+  - Yedek dosyasını paylaşma
+- **Yerelde derleme:** Android Studio gerekir.
+
+```bash
+npm run android
+```
+
+```bash
+npm run android:open
+```
+
+Mağazaya çıkış adımları (AdMob kimlikleri, Play Console, imzalama, veri güvenliği formu): `docs/STORE.md`. Gizlilik politikası: `public/privacy.html`.
+
+## Oyun testi
+
+- **Açma:** Ayarlar → **Oyun testi**. Test bağlantısı için adrese `?test=1` eklenir.
+- **Kayıt:** onaylandığında oyun deneyimi anonim olarak cihazda kaydedilir. Kaydedilenler: ekranlar, maçlar, mini oyun başarısı, bırakma noktası, reklamlar, hatalar ve geri bildirim.
+- **Gönderim:** oyuncu raporu kendisi gönderir.
+- **Analiz:** raporlar bir klasörde toplanır ve şu komutla özetlenir:
+
+```bash
+node tools/playtest-report.js <klasör>
+```
+
+Testin nasıl yürütüleceği ve bulgulara göre hangi denge ayarının değişeceği: `docs/PLAYTEST.md`.
+
 ## Gelir modeli: reklamlar
 
 Reklam oyuncunun tercihidir; geçiş reklamları seyrek ve sınırlıdır. Ayrıntılar `src/ads.js` başında.
@@ -105,6 +140,10 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 | `src/content/` | Veri olarak rastgele olaylar ve olay motoru |
 | `src/i18n/` | Çok dil altyapısı |
 | `src/ads.js` | Reklam gelir modeli |
+| `src/telemetry.js` | Oyun testi kaydı ve geri bildirim |
+| `src/native.js` | Android/iOS uygulama katmanı (Capacitor) |
+| `android/` | Android projesi |
+| `docs/` | Oyun testi ve mağaza rehberleri |
 | `src/data.js` | Ligler, şehirler, pozisyonlar, yardımcılar |
 | `src/art.js` | Karakter çizimi, ikonlar, mekan sahneleri, vitrin |
 | `src/map.js` | Şehir haritası |

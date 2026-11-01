@@ -370,6 +370,7 @@ export async function resolvePlay(k, el, sur, dn) {
   };
 }
 export function finishMatch(win) {
+  Bus.emit("match:end", { win, rating: M.rating, pts: M.pts, auto: !!M.auto, stage: S.stage, us: M.us, them: M.them });
   late.recordGame();
   late.sfx(win ? "win" : "lose");
   const r = M.rating,
