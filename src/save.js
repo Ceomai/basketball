@@ -394,7 +394,7 @@ export function slotSummary(s) {
   })} ${
     s.retired
       ? `${$t("save.18")}${s.epilogue && late.EPILOGUES ? ` · ${esc((late.EPILOGUES.find(e => e.id === s.epilogue) || {}).n || "")}` : ""}`
-      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}${s.heir ? ` · ${$t("scn.son", { v: esc(s.heir.parent) })}` : ""}`
+      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}${s.heir ? ` · ${$t("slots.father", { v: esc(s.heir.parent) })}` : ""}`
   }`;
 }
 export function renderSlots() {
@@ -419,7 +419,6 @@ export function renderSlots() {
      )
      .join("")}</div>
    <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn team sm" style="text-align:center">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
-   ${scenarioMode() ? `<div class="card" style="border-color:var(--gold)"><div class="eyebrow">${t("scn.title")}</div><p class="small">${t("scn.desc")}</p><button class="btn team" id="scn">${t("scn.load")}</button></div>` : ""}
    ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${t("slots.tip")}</div><p class="small">${t("slots.tipInstall")}</p></div>`}`;
   rows.forEach(([i, r]) => {
     if (r && r.S) {
@@ -490,49 +489,7 @@ export function renderSlots() {
     }
   };
   $("#help0").onclick = () => late.guideSheet();
-  const scn = $("#scn");
-  if (scn) scn.onclick = loadScenarios;
   Bus.emit("screen:slots");
-}
-/* ---- Test senaryoları ----
-   Adres ?senaryo içeriyorsa kayıt ekranında görünür. public/scenarios.json (tools/make-scenarios.js ile
-   simülasyondan üretilir) beş yuvaya hazır kariyer yazar: emeklilik sonrası seçenekleri ve oğul kariyeri. */
-export const scenarioMode = () => {
-  try {
-    return new URLSearchParams(location.search).has("senaryo");
-  } catch (e) {
-    return false;
-  }
-};
-export async function loadScenarios() {
-  let data;
-  try {
-    data = await (await fetch("scenarios.json", { cache: "no-store" })).json();
-  } catch (e) {
-    toast(t("scn.fail"));
-    return;
-  }
-  sheet(
-    t("scn.title"),
-    t("scn.created", { d: data.created }),
-    `<p>${t("scn.confirm")}</p><div class="grid2"><button class="btn ghost" id="scn-no">${$t("save.24")}</button><button class="btn bad" id="scn-yes">${t("scn.load")}</button></div>`,
-    { onClose: renderSlots }
-  );
-  $("#scn-no").onclick = renderSlots;
-  $("#scn-yes").onclick = () => {
-    for (let i = 1; i <= SLOT_N; i++) {
-      const raw = data.slots[i];
-      if (!raw) continue;
-      const k = slotKey(i);
-      try {
-        localStorage.setItem(k, raw);
-        localStorage.removeItem(k + "-bak");
-      } catch (e) {}
-      idbPut(k, raw);
-    }
-    toast(t("scn.done"));
-    renderSlots();
-  };
 }
 export function exportSheet() {
   const code = encodeSave(S);

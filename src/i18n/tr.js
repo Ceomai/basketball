@@ -105,13 +105,5 @@ export default {
   "quick.watch": "Maçı izle",
   "quick.self": "Maçı kendim oynayayım",
   "quick.sim": "Maçı hızlı oynat",
-  "scn.title": "Test senaryoları",
-  "scn.desc":
-    "Oynamadan denemek için hazır kariyerler: 1) emekli, kulübün %60'ı elinde, son bölümü sen seç 2) kulüp başkanı 3) antrenör 4) televizyon yorumcusu 5) başkan babanın oğluyla yeni kariyer.",
-  "scn.load": "Senaryoları yükle",
-  "scn.created": "Simülasyonla üretildi: {d}",
-  "scn.confirm": "Beş kayıt yuvasının hepsinin üzerine yazılır. Mevcut kariyerlerin silinir.",
-  "scn.done": "Senaryolar yüklendi.",
-  "scn.fail": "Senaryo dosyası açılamadı (internet gerekli).",
-  "scn.son": "babası {v}"
+  "slots.father": "babası {v}"
 };
