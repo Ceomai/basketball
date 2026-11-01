@@ -1,13 +1,13 @@
-"use strict";
+import { STY, cityTheme, clamp, esc, luma, shade } from "./data.js";
 /* ================= ŞEHİR HARİTASI ================= */
-const LOCS=[
+export const LOCS=[
  {id:"okul",x:92,y:200},{id:"medya",x:304,y:196},
  {id:"ev",x:86,y:334},{id:"stad",x:282,y:326},
  {id:"aile",x:80,y:466},{id:"kafe",x:200,y:470},{id:"eglence",x:322,y:466},
  {id:"avm",x:84,y:596},{id:"market",x:200,y:600},{id:"sans",x:320,y:596},
 ];
-const HOUSE_NAMES={oda:"Ailenin evi · odan",yurt:"Öğrenci yurdu",daire:"Kiralık daire",lux:"Rezidans",villa:"Villa",malikane:"Malikâne"};
-function locInfo(id,P){
+export const HOUSE_NAMES={oda:"Ailenin evi · odan",yurt:"Öğrenci yurdu",daire:"Kiralık daire",lux:"Rezidans",villa:"Villa",malikane:"Malikâne"};
+export function locInfo(id,P){
   const away=P.city!==P.home;
   return{
    okul:{n:P.studying?(P.stage==="lise"?"Lise":"Üniversite"):"Menajer Ofisi",slot:P.studying},
@@ -20,10 +20,10 @@ function locInfo(id,P){
    avm:{n:"AVM",slot:false},market:{n:"Market",slot:false},sans:{n:P.age<18?"Oyun Kulübü · 18+":"Oyun Kulübü",slot:false,locked:P.age<18}
   }[id];
 }
-function box(x,y,w,h,d,f,s,t){const k=d*.6;return`<path d="M${x+w} ${y} L${x+w+d} ${y-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${s}"/><path d="M${x} ${y-h} L${x+d} ${y-h-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${t}"/><rect x="${x}" y="${y-h}" width="${w}" height="${h}" fill="${f}"/>`}
-function windows(x,y,w,h,cols,rows,lit,glass){let s="";const cw=w/cols,rh=h/rows;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const on=lit&&((i*7+j*3)%5!==0);s+=`<rect x="${(x+i*cw+cw*.22).toFixed(1)}" y="${(y-h+j*rh+rh*.22).toFixed(1)}" width="${(cw*.56).toFixed(1)}" height="${(rh*.5).toFixed(1)}" fill="${on?"#ffd27a":glass?"#7fa7c9":lit?"#18233a":"#9fbcd6"}"/>`}return s}
+export function box(x,y,w,h,d,f,s,t){const k=d*.6;return`<path d="M${x+w} ${y} L${x+w+d} ${y-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${s}"/><path d="M${x} ${y-h} L${x+d} ${y-h-k} L${x+w+d} ${y-h-k} L${x+w} ${y-h} Z" fill="${t}"/><rect x="${x}" y="${y-h}" width="${w}" height="${h}" fill="${f}"/>`}
+export function windows(x,y,w,h,cols,rows,lit,glass){let s="";const cw=w/cols,rh=h/rows;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const on=lit&&((i*7+j*3)%5!==0);s+=`<rect x="${(x+i*cw+cw*.22).toFixed(1)}" y="${(y-h+j*rh+rh*.22).toFixed(1)}" width="${(cw*.56).toFixed(1)}" height="${(rh*.5).toFixed(1)}" fill="${on?"#ffd27a":glass?"#7fa7c9":lit?"#18233a":"#9fbcd6"}"/>`}return s}
 // simge yapılar
-function landmarkSVG(type,x,base,col,lit,sc,seed){
+export function landmarkSVG(type,x,base,col,lit,sc,seed){
   const glow=lit?"#ffd27a":"#d7e2ec",s=sc;
   const T={
    mosque:()=>`<path d="M${x-34*s} ${base}V${base-26*s}H${x+34*s}V${base}Z" fill="${col}"/><path d="M${x-26*s} ${base-26*s}A26 22 0 0 1 ${x+26*s} ${base-26*s}Z" fill="${col}"/><path d="M${x-40*s} ${base-14*s}A10 9 0 0 1 ${x-22*s} ${base-14*s}Z M${x+22*s} ${base-14*s}A10 9 0 0 1 ${x+40*s} ${base-14*s}Z" fill="${col}"/>${[-48,48].map(o=>`<rect x="${x+o*s-2.5*s}" y="${base-82*s}" width="${5*s}" height="${82*s}" fill="${col}"/><path d="M${x+o*s-3*s} ${base-82*s}L${x+o*s} ${base-96*s}L${x+o*s+3*s} ${base-82*s}Z" fill="${col}"/><rect x="${x+o*s-4*s}" y="${base-62*s}" width="${8*s}" height="${3*s}" fill="${col}"/>`).join("")}<rect x="${x-1}" y="${base-56*s}" width="2" height="${8*s}" fill="${col}"/>`,
@@ -54,7 +54,7 @@ function landmarkSVG(type,x,base,col,lit,sc,seed){
   return(T[type]||T.skyline)();
 }
 // kariyer seviyesine göre büyüyen arena
-function stadiumSVG(x,y,P,lit){
+export function stadiumSVG(x,y,P,lit){
   const tc=P.team||{c1:"#c8102e",c2:"#ffffff",short:"???"};const st=P.stage;const ink=luma(tc.c1)<60?tc.c2:tc.c1;
   const sign=(t,w=96,dy=44)=>`<rect x="${x-w/2}" y="${y+dy}" width="${w}" height="16" rx="3" fill="#06090f" stroke="${ink}" stroke-opacity=".5"/><text x="${x}" y="${y+dy+12}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="11" letter-spacing="1.2" fill="${ink}">${esc(t)}</text>`;
   if(st==="lise"||st==="uni"||st==="t3"){
@@ -70,7 +70,7 @@ function stadiumSVG(x,y,P,lit){
   if(st==="nba"&&lit)s+=`<path d="M${x-60} ${y-ry}L${x-110} ${y-ry-120}L${x-80} ${y-ry-120}Z M${x+60} ${y-ry}L${x+110} ${y-ry-120}L${x+80} ${y-ry-120}Z" fill="#9fe7ff" opacity=".08"/>`;
   return s;
 }
-function homeSVG(x,y,P,lit,sty,roof){
+export function homeSVG(x,y,P,lit,sty,roof){
   const h=P.housing;
   if(h==="oda")return box(x-36,y+30,62,70,14,sty.wall,shade(sty.wall,-35),roof)+windows(x-36,y+30,62,62,4,4,lit)+`<rect x="${x-36}" y="${y-8}" width="62" height="3" fill="${shade(sty.wall,-50)}"/><rect x="${x-36}" y="${y+8}" width="62" height="3" fill="${shade(sty.wall,-50)}"/>`;
   if(h==="yurt")return box(x-44,y+30,78,52,14,"#8f86b5","#6d6594","#a69ec8")+windows(x-44,y+30,78,46,6,3,lit);
@@ -79,7 +79,7 @@ function homeSVG(x,y,P,lit,sty,roof){
   if(h==="villa")return`<rect x="${x-56}" y="${y+28}" width="44" height="14" rx="5" fill="#4fc3f7" stroke="#e8eef4"/>`+box(x-50,y+30,92,36,16,"#f2efe8","#d6d1c6","#e9e4da")+windows(x-50,y+30,92,30,6,1,lit,true)+`<rect x="${x-50}" y="${y-8}" width="92" height="4" fill="#d8b25a"/>`;
   return`<rect x="${x-62}" y="${y+30}" width="40" height="12" rx="5" fill="#4fc3f7" stroke="#e8eef4"/>`+box(x-52,y+30,100,46,16,"#efe6d2","#cfc3a8","#e2d6bc")+[0,1,2,3,4].map(i=>`<rect x="${x-46+i*20}" y="${y-16}" width="5" height="46" fill="#fffaf0"/>`).join("")+`<path d="M${x-56} ${y-16}L${x-2} ${y-40}L${x+52} ${y-16}Z" fill="#d8b25a"/>`+windows(x-52,y+30,100,30,6,1,lit,true);
 }
-function mapSVG(P){
+export function mapSVG(P){
   const th=cityTheme(P.city),sty=STY[th.cc]||STY.TR,seed=th.seed;
   const tod=["night","evening","afternoon","morning"][clamp(P.slot,0,3)];
   const lit=tod==="evening"||tod==="night";

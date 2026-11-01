@@ -1,20 +1,26 @@
-"use strict";
+import { late } from "./late.js";
+import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, shuffle, statName, wait } from "./data.js";
+import { portrait } from "./art.js";
+import { buzz } from "./games.js";
+import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey } from "./core.js";
+import { arenaFor } from "./places.js";
+import { LK, M, PEN, addFeed, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
 /* ================= MAÇ MOTORU (NSS tarzı akış) =================
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
    Çeyrek aralarında duraklama, skor özeti ve koçla taktik konuşması var. */
-const PACE={1:420,2:200,4:90};
-const TR_CALLS=["Salon ayakta!","Ve basket!","Tribünler coştu!","Ne oyun ama!","Pota delindi resmen!"];
-function rosterNames(city,n){const c=cOf(city),out=new Set();while(out.size<n)out.add(`${pick(c.first)[0]}. ${pick(c.last)}`);return[...out]}
-function schoolRole(){return roleAt(ovr(),S.stage,"TR")}
-function stintPlan(role){
+export const PACE={1:420,2:200,4:90};
+export const TR_CALLS=["Salon ayakta!","Ve basket!","Tribünler coştu!","Ne oyun ama!","Pota delindi resmen!"];
+export function rosterNames(city,n){const c=cOf(city),out=new Set();while(out.size<n)out.add(`${pick(c.first)[0]}. ${pick(c.last)}`);return[...out]}
+export function schoolRole(){return roleAt(ovr(),S.stage,"TR")}
+export function stintPlan(role){
   const P={star:[[0,7],[10,18],[20,27],[30,40]],rot:[[3,9],[12,19],[23,30],[33,40]],bench:[[6,10],[16,20],[27,31],[36,40]]}[role].map(s=>s.slice());
   if(S.energy<35)P.forEach(s=>s[1]=Math.max(s[0]+2,s[1]-1));
   if(S.rel.koc<25&&role!=="star")P.pop();
   return P;
 }
-const inStint=(plan,m)=>plan.some(([a,b])=>m>=a&&m<b);
-function modeChoice(){
+export const inStint=(plan,m)=>plan.some(([a,b])=>m>=a&&m<b);
+export function modeChoice(){
   if(window.__SIM)return Promise.resolve("key");
   return new Promise(r=>{
     const cur=S.matchMode||"full";
@@ -26,15 +32,15 @@ function modeChoice(){
     $$("[data-m]").forEach(b=>b.onclick=()=>{S.matchMode=b.dataset.m;r(b.dataset.m)});
   });
 }
-async function playMatch(ctx){
+export async function playMatch(ctx){
   closeSheet();window.scrollTo(0,0);Bus.emit("match:start",ctx);
   if(!ctx){const fx=fixture();ctx={opp:teamByKey(fx.opp),home:fx.home,comp:"lig",label:`${lgName()} · ${phaseName()}`}}
   const opp=ctx.opp,AUTO=!!ctx.auto||!!window.__SIM;arenaFor(opp);
   const role=isPro(S.stage)||ctx.comp==="nat"?(ctx.role||S.role):schoolRole();
   let plan=stintPlan(role);
   const ourStr=S.team.str+(ovr()-TD()-45)/220,ppp=SC[S.stage]/70/2.25;
-  M={opp,home:ctx.home,us:0,them:0,q:1,clock:"10:00",rating:6.0,pts:0,ast:0,reb:0,blk:0,stl:0,stops:0,feed:[],mins:0,plus:0,fails:0,goods:0,tac:null,qs:[],speed:S.matchSpeed||1};
-  const mates=ctx.comp==="nat"?rosterNames(S.team.city,4):mateNames(4),foes=rosterNames(opp.city,5),sur=S.last,PL=PLAYS[S.pos];
+  setM({opp,home:ctx.home,us:0,them:0,q:1,clock:"10:00",rating:6.0,pts:0,ast:0,reb:0,blk:0,stl:0,stops:0,feed:[],mins:0,plus:0,fails:0,goods:0,tac:null,qs:[],speed:S.matchSpeed||1});
+  const mates=ctx.comp==="nat"?rosterNames(S.team.city,4):late.mateNames(4),foes=rosterNames(opp.city,5),sur=S.last,PL=PLAYS[S.pos];
   app.innerHTML=`<div id="bug"></div><div id="mstat" class="card" style="padding:10px 12px;gap:6px"></div><div id="mview"></div>
    <div class="card"><div class="row between"><div class="eyebrow">Maç akışı</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
@@ -43,8 +49,8 @@ async function playMatch(ctx){
     $$("#spd [data-s]").forEach(b=>b.onclick=()=>{M.speed=+b.dataset.s;S.matchSpeed=M.speed;renderSpd()});$("#spd [data-k]").onclick=()=>{mode=mode==="key"?"full":"key";S.matchMode=mode;renderSpd()}};
   renderSpd();
   let on=false;const statLine=()=>{$("#mstat").innerHTML=`<div class="row between nowrap"><span class="pill ${on?"w":""}">${on?"Sahadasın":"Kenardasın"}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> · ${Math.floor(M.mins/60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} rib. · artı/eksi ${M.plus>=0?"+":""}${M.plus}</div>`};
-  const banner=(t,good)=>{sfx("whistle");const d=document.createElement("div");d.className="say";d.style.borderLeftColor=good?"var(--good)":"var(--warn)";d.innerHTML=`<b>${t}</b>`;const mv=$("#mview");mv.prepend(d);setTimeout(()=>d.remove(),2600);buzz(good?20:10)};
-  addFeed(`${ctx.home?S.city:opp.city} salonu dolu. ${ctx.label}. Hakem topu havaya attı.`);crowd(true);sfx("whistle");
+  const banner=(t,good)=>{late.sfx("whistle");const d=document.createElement("div");d.className="say";d.style.borderLeftColor=good?"var(--good)":"var(--warn)";d.innerHTML=`<b>${t}</b>`;const mv=$("#mview");mv.prepend(d);setTimeout(()=>d.remove(),2600);buzz(good?20:10)};
+  addFeed(`${ctx.home?S.city:opp.city} salonu dolu. ${ctx.label}. Hakem topu havaya attı.`);late.crowd(true);late.sfx("whistle");
   statLine();
   const TOTAL=2400;let t=0,ourBall=Math.random()<.5,lastQ=1,benchFrom=null;
   const setClock=()=>{const q=Math.min(5,Math.floor(t/600)+1),inQ=t>=2400?(t-2400):t%600,len=t>=2400?300:600;M.q=q>4?4:q;const left=Math.max(0,len-inQ);M.clock=`${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`};
@@ -71,7 +77,7 @@ async function playMatch(ctx){
     if(t>=end&&end>=TOTAL&&M.us===M.them){end+=300;addFeed("<b>Uzatma!</b> Beş dakika daha.");if(t===TOTAL){M.qs.push([M.us,M.them]);await quarterBreak(4,on,true)}}
     await pace();
   }
-  M.qs.push([M.us,M.them]);M.q=4;M.clock="00:00";updBug();sfx("buzzer");crowd(false);
+  M.qs.push([M.us,M.them]);M.q=4;M.clock="00:00";updBug();late.sfx("buzzer");late.crowd(false);
   const win=M.us>M.them,sr=M.wsum?(M.wgood||0)/M.wsum:.5;M.rating=clamp(3.5+5.0*sr+(win?.2:-.15)+clamp(M.plus/35,-.35,.35)+clamp((M.autoPts||0)/50,0,.2),1,10);
   addFeed(`<b>Maç sona erdi.</b> ${M.us}-${M.them}.`);
   if(!AUTO)await wait(500);M.auto=!!ctx.auto;
@@ -97,12 +103,12 @@ async function playMatch(ctx){
     else{head="Faul aldın";desc="Çizgiye gidiyorsun. İki serbest atış.";opts=[{k:"free",t:"Serbest atış",d:`2 atış · Şut ${Math.round(eff("sut"))}`,e:eff("sut")+15}]}
     if(!AUTO)$("#mview").innerHTML=`<div class="card sit">${S.tipMoment?"":`<div class="say" style="border-left-color:var(--gold)"><b>İpucu:</b> Kritik anlarda bir seçim yaparsın. Sağdaki etiket niteliklerine göre başarı şansını gösterir. Seçtikten sonra mini oyunu oynarsın; ekrandaki yönergeyi takip et.</div>`}<div class="eyebrow">${M.q}. çeyrek ${M.clock}${clutch?" · son dakikalar":""}</div><h2>${head}</h2><p class="muted">${desc}</p><div class="choices">${opts.map(o=>{const[c,l]=o.k==="safe"?["i","Güvenli"]:odds(o.e);return`<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`}).join("")}</div></div>`;
     if(!AUTO)try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
-    const k=AUTO?autoChoose(opts):await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));if(!AUTO)S.tipMoment=1;
+    const k=AUTO?late.autoChoose(opts):await new Promise(r=>$$(".choice").forEach(b=>b.onclick=()=>r(b.dataset.k)));if(!AUTO)S.tipMoment=1;
     const b0={pts:M.pts,ast:M.ast,stl:M.stl,stops:M.stops};
-    const res=AUTO?autoResolve(k,sur):await resolvePlay(k,$("#mview"),sur,dn);
+    const res=AUTO?late.autoResolve(k,sur):await resolvePlay(k,$("#mview"),sur,dn);
     M.us+=(M.pts-b0.pts)+(M.ast-b0.ast)*2+(M.stl-b0.stl)*2;
     if(ty==="def"&&M.stops===b0.stops&&M.stl===b0.stl)M.them+=Math.random()<.3?3:2;
-    M.wsum=(M.wsum||0)+res.w;if(res.good)M.wgood=(M.wgood||0)+res.w;sfx(res.good?"cheer":"ooh");crowdSwell(res.good?1.4:.6);
+    M.wsum=(M.wsum||0)+res.w;if(res.good)M.wgood=(M.wgood||0)+res.w;late.sfx(res.good?"cheer":"ooh");late.crowdSwell(res.good?1.4:.6);
     let txt=res.txt;if(res.good){S.stf=S.stf||{};S.stf[res.st]=(S.stf[res.st]||0)+BAL.play*(AUTO?.5:1);if(S.stf[res.st]>=1){S.stf[res.st]-=1;S.st[res.st]+=1;txt+=` <span class="good">+1 ${statName(res.st)}</span>`}}
     addFeed(txt);$("#mview").innerHTML="";
     // koç tepkisi: üst üste kötü anlar kenar, iyi seri daha çok süre getirir
@@ -111,7 +117,7 @@ async function playMatch(ctx){
   }
   function quarterBreak(qn,onCourt,ot){
     if(AUTO){M.tac=null;return Promise.resolve()}
-    return new Promise(r=>{sfx("buzzer");
+    return new Promise(r=>{late.sfx("buzzer");
       const half=qn===2,last=qn===4&&!ot;
       const rows=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[0]-p[0]}</td>`}).join(""),rowsT=M.qs.map((s,i)=>{const p=i?M.qs[i-1]:[0,0];return`<td>${s[1]-p[1]}</td>`}).join("");
       const lines={win:["Böyle devam. Savunmayı bırakmayın.","Güzel gidiyoruz ama rehavete kapılmak yok."],lose:["Kendimize gelmemiz lazım. Ribaundlar bizim olacak!","Bu skor bize yakışmıyor. Daha sert oynayın!"],tie:["Maç başa baş. Detaylar kazandıracak.","Kim daha çok isterse o kazanır."]};
@@ -121,10 +127,10 @@ async function playMatch(ctx){
        <div class="small"><b>${esc(sur)}:</b> ${Math.floor(M.mins/60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} ribaund · artı/eksi ${M.plus>=0?"+":""}${M.plus}</div>
        <div class="who"><div id="qcp"></div><div class="say">"${pick(lines[st])}"</div></div>
        ${last?"":`<div class="eyebrow">${half?"Soyunma odası":"Mola"} · taktik seç</div><div class="grid3">${[["tempo","Tempoyu artır"],["def","Savunmaya odaklan"],["ball","Topu bana verin"]].map(([k,n])=>`<button class="btn ${M.tac===k?"team":"ghost"} sm" data-tac="${k}">${n}</button>`).join("")}</div>`}
-       ${half?adHalfHTML():""}<button class="btn pri" id="qgo">${ot?"Uzatmaya başla":last?"Devam":`${qn+1}. çeyreğe başla`}</button></div>`;
+       ${half?late.adHalfHTML():""}<button class="btn pri" id="qgo">${ot?"Uzatmaya başla":last?"Devam":`${qn+1}. çeyreğe başla`}</button></div>`;
       const cl=LK.coach();cl[1].mood=st==="lose"?"kizgin":"mutlu";$("#qcp").appendChild(portrait(cl[0],cl[1]));
       $$("[data-tac]").forEach(b=>b.onclick=()=>{M.tac=b.dataset.tac;if(M.tac==="ball")S.rel.koc-=1;$$("[data-tac]").forEach(x=>x.className=`btn ${M.tac===x.dataset.tac?"team":"ghost"} sm`)});
-      if(half){S.energy=Math.min(100,S.energy+4);bindAdHalf()}
+      if(half){S.energy=Math.min(100,S.energy+4);late.bindAdHalf()}
       try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
       $("#qgo").onclick=()=>{$("#mview").innerHTML="";addFeed(ot?"Uzatma başladı.":`${qn+1}. çeyrek başladı.${M.tac?` Taktik: ${({tempo:"tempo",def:"savunma",ball:"top "+sur+"'de"})[M.tac]}.`:""}`);r()};
     });

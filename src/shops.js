@@ -1,4 +1,9 @@
-"use strict";
+import { late } from "./late.js";
+import { $, $$, Bus, INK, ORDER, cOf, fmt, pick, shade, toast } from "./data.js";
+import { ICON, SKINS, ST, drawBall, drawKid, drawScene, ell, hiCanvas, icon, rr, sceneEl, sv } from "./art.js";
+import { S, app, bindActs, closeSheet, fame, fullName, news, norm, prodHTML, renderMain, resultView, seasonLabel, sheet, tabsHTML, tx, useSlot } from "./core.js";
+import { save } from "./save.js";
+import { addScene, arenaFor } from "./places.js";
 /* ================= YENİ İKONLAR ================= */
 Object.assign(ICON,{
  banana:()=>sv(`<path d="M12 18 C14 40 30 54 52 50 C56 49 56 45 52 45 C36 46 24 36 20 18Z" fill="#ffd54f" ${ST}/><path d="M12 18 L10 12 L16 14Z" fill="#6d4c41" ${ST}/><path d="M22 26 C26 38 34 44 46 46" stroke="#f9a825" stroke-width="2" fill="none"/>`),
@@ -38,11 +43,11 @@ Object.assign(ICON,{
 
 /* ================= EŞYA ETKİLERİ ================= */
 // en: haftalık enerji, mo: haftalık moral, up: haftalık masraf
-const itemWeekly=k=>SHOP.reduce((a,it)=>a+(S.items[it.id]&&it[k]?it[k]:0),0);
-const carUpkeep=()=>itemWeekly("up");
+export const itemWeekly=k=>SHOP.reduce((a,it)=>a+(S.items[it.id]&&it[k]?it[k]:0),0);
+export const carUpkeep=()=>itemWeekly("up");
 
 /* ================= AVM: MAĞAZALAR ================= */
-const STORES=[
+export const STORES=[
  {id:"sneaker",n:"Sneaker Lab",wall:"#20242c",acc:"#ff6a2b",disp:"shoes",say:"Yeni sezon modelleri geldi. Numaran kaç?",seller:{skin:SKINS[3],hatStyle:"kep",hat:"#ff6a2b"},kit:{jersey:"#141414",sleeves:true,mood:"mutlu"}},
  {id:"spor",n:"Pro Spor",wall:"#123a2a",acc:"#36d38e",disp:"sport",say:"Profesyoneller buradan alışveriş yapar.",seller:{skin:SKINS[1],hatStyle:"band",hat:"#36d38e",hair:"#111"},kit:{jersey:"#1b5e20",sleeves:true,mood:"mutlu",whistle:true}},
  {id:"tekno",n:"Tekno Merkez",wall:"#141b2e",acc:"#58a6ff",disp:"tech",say:"Hepsinin garantisi iki yıl. Kutusunu atma.",seller:{skin:SKINS[0],hatStyle:"yok",hair:"#e2c15a"},kit:{jersey:"#1e3a8a",sleeves:true,glasses:true,mood:"mutlu"}},
@@ -51,7 +56,7 @@ const STORES=[
  {id:"yatirim",n:"Yatırım & Miras",wall:"#1b2330",acc:"#d8b25a",disp:"invest",say:"Paranı çalıştır. Basketbol bir gün biter, mülk kalır.",seller:{skin:SKINS[1],hatStyle:"yok",hair:"#9e9e9e"},kit:{adult:true,jersey:"#22304a",sleeves:true,tie:"#d8b25a",glasses:true,mood:"mutlu"}},
  {id:"ev",n:"Ev & Yaşam",wall:"#2b2620",acc:"#ffc54d",disp:"home",say:"İyi uyuyan iyi oynar. Bilimsel gerçek.",seller:{skin:SKINS[4],hatStyle:"bere",hat:"#ffc54d",pom:"#fff"},kit:{jersey:"#6d4c41",sleeves:true,apron:"#ffc54d",mood:"mutlu"}},
 ];
-const SHOP=[
+export const SHOP=[
  {id:"ayak1",st:"sneaker",n:"Antrenman ayakkabısı",d:"+2 Çeviklik",p:60,ic:()=>icon("sneaker","#cfd8dc","#1e88e5"),fx:()=>S.st.hiz+=2},
  {id:"ayak2",st:"sneaker",n:"İmza serisi ayakkabı",d:"+3 Çeviklik, +1 Şut",p:260,ic:()=>icon("sneaker",S.team.c1,"#141414"),fx:()=>{S.st.hiz+=3;S.st.sut+=1}},
  {id:"ayak3",st:"sneaker",n:"Retro koleksiyon",d:"+1 Çeviklik, +6 Taraftar",p:900,ic:()=>icon("sneaker","#fafafa","#c8102e"),fx:()=>{S.st.hiz+=1;S.rel.taraf+=6}},
@@ -95,7 +100,7 @@ const SHOP=[
  {id:"akademi",st:"yatirim",n:"Basketbol akademisi",d:"Gençlere kendi akademin. Takipçi ve büyük efsane puanı",p:4000000,ic:()=>icon("trophyRoom"),fx:()=>{S.followers*=1.2;S.career.trophies.push({type:"award",label:`${seasonLabel()} · ${S.last} Basketbol Akademisi kurucusu`});news(`${fullName()} kendi basketbol akademisini kurdu.`)}},
  {id:"jet",st:"yatirim",n:"Özel jet",d:"+8 enerji/hafta, +20 Taraftar",p:7000000,en:8,up:4500,ic:()=>icon("car","#ffffff","super"),fx:()=>S.rel.taraf+=20},
 ];
-function locAvm(I,store="sneaker"){
+export function locAvm(I,store="sneaker"){
   const S0=STORES.find(s=>s.id===store);
   const b=sheet(I.n,`${S0.n} · bakiye ${fmt(S.money)}`,`${tabsHTML(STORES.map(s=>[s.id,s.n]),store,"s")}<div id="avc" style="display:flex;flex-direction:column;gap:10px"></div>`);
   $$(".tabs button").forEach(x=>x.onclick=()=>locAvm(I,x.dataset.s));
@@ -104,7 +109,7 @@ function locAvm(I,store="sneaker"){
   c.insertAdjacentHTML("beforeend",`<div class="pgrid">${items.map(it=>prodHTML({id:it.id,ic:it.ic(),t:it.n,d:it.d+(it.up?` · masraf ${fmt(it.up)}/hafta`:""),price:it.p,own:!!S.items[it.id]})).join("")}</div><p class="small muted">Aldığın her eşya evindeki vitrinde sergilenir.</p>`);
   const m={};items.forEach(it=>m[it.id]=()=>{if(S.money<it.p||S.items[it.id])return;tx(it.n,-it.p);S.items[it.id]=1;it.fx&&it.fx();norm();save();toast(`${it.n} alındı. Vitrine eklendi.`);locAvm(I,store)});bindActs(m);
 }
-function drawStoreScene(c,o){
+export function drawStoreScene(c,o){
   const s=o.store,W=360;c.lineJoin="round";c.strokeStyle=INK;c.lineWidth=2;
   let g=c.createLinearGradient(0,0,0,150);g.addColorStop(0,shade(s.wall,20));g.addColorStop(1,s.wall);c.fillStyle=g;c.fillRect(0,0,W,150);
   c.fillStyle=shade(s.wall,-15);c.fillRect(0,150,W,40);c.fillStyle="rgba(255,255,255,.05)";for(let x=0;x<W;x+=40)c.fillRect(x,150,20,40);
@@ -123,7 +128,7 @@ function drawStoreScene(c,o){
 };
 
 /* ================= MARKET ================= */
-const MARKET=[
+export const MARKET=[
  {id:"enerji",cat:"İçecekler",n:"Enerji içeceği",d:"+15 Enerji",p:3,ic:()=>icon("can"),fx:()=>{S.energy+=15}},
  {id:"izotonik",cat:"İçecekler",n:"İzotonik içecek",d:"+6 Enerji, +2 Moral",p:4,ic:()=>icon("can","#43a047"),fx:()=>{S.energy+=6;S.moral+=2}},
  {id:"su",cat:"İçecekler",n:"Maden suyu",d:"+3 Enerji",p:1,ic:()=>icon("water"),fx:()=>{S.energy+=3}},
@@ -141,7 +146,7 @@ const MARKET=[
  {id:"meyve",cat:"Haftalık",n:"Meyve sepeti",d:"+5 Enerji, +3 Moral",p:6,ic:()=>icon("fruit"),fx:()=>{S.energy+=5;S.moral+=3}},
  {id:"buz",cat:"Haftalık",n:"Buz torbası",d:"Kas ağrısına: +8 Enerji",p:5,ic:()=>icon("ice"),fx:()=>{S.energy+=8}},
 ];
-function locMarket(I){
+export function locMarket(I){
   const cats=[...new Set(MARKET.map(m=>m.cat))];
   const b=sheet(I.n,`Bakiye ${fmt(S.money)}`,cats.map(ct=>`<div class="eyebrow" style="margin-top:4px">${ct}</div><div class="pgrid">${MARKET.filter(m=>m.cat===ct).map(it=>prodHTML({id:it.id,ic:it.ic(),t:it.n,d:it.d,price:it.p})).join("")}</div>`).join("")+(S.buffs.train?`<p class="small good">Protein etkisi: ${S.buffs.train} antrenman kaldı.</p>`:""));
   addScene(b,"market",pick(["Taze geldi hepsi, buyur!","Sporcuya indirim var, kimseye söyleme.","Muzlar bugün sabah geldi."]));
@@ -149,15 +154,15 @@ function locMarket(I){
 }
 
 /* ================= EĞLENCE MERKEZİ ================= */
-const ARCADE=[
+export const ARCADE=[
  {id:"hoop",n:"Pota makinesi",d:"30 saniyede kaç basket? Geriye çek, bırak.",ic:"hoop",rec:"arcade"},
  {id:"ref",n:"Refleks paneli",d:"20 saniye, yanan düğmeler.",ic:"joystick",rec:"reflex"},
  {id:"hockey",n:"Hava hokeyi",d:"Bilgisayara karşı, 5 gole kadar.",ic:"puck",rec:"hockey"},
  {id:"rhythm",n:"Dans ritmi",d:"Düşen notalara zamanında dokun.",ic:"note",rec:"rhythm"},
  {id:"bowling",n:"Bowling",d:"3 atış, nişan al ve gücü ayarla.",ic:"bowling",rec:"bowling"},
 ];
-function venueCard(id,title,sub,kind,on){const w=document.createElement("button");w.className="venue"+(on?" on":"");w.dataset.v=id;const[cv,c]=hiCanvas(360,190);drawScene(c,kind,{});w.appendChild(cv);w.insertAdjacentHTML("beforeend",`<span class="vlab"><b>${title}</b><small>${sub}</small></span>`);return w}
-function locEglence(I,tab="arcade"){
+export function venueCard(id,title,sub,kind,on){const w=document.createElement("button");w.className="venue"+(on?" on":"");w.dataset.v=id;const[cv,c]=hiCanvas(360,190);drawScene(c,kind,{});w.appendChild(cv);w.insertAdjacentHTML("beforeend",`<span class="vlab"><b>${title}</b><small>${sub}</small></span>`);return w}
+export function locEglence(I,tab="arcade"){
   Bus.emit("place:open","eglence");
   S.rec=Object.assign({arcade:0,reflex:0,hockey:0,rhythm:0,bowling:0},S.rec);
   const b=sheet(I.n,"Nereye gidiyorsun?",`<div class="venues" id="vn"></div><div id="egc" style="display:flex;flex-direction:column;gap:10px"></div>`);
@@ -165,7 +170,7 @@ function locEglence(I,tab="arcade"){
   $$(".venue").forEach(x=>x.onclick=()=>locEglence(I,x.dataset.v));
   const c=$("#egc");
   if(tab==="arcade"){
-    c.insertAdjacentHTML("beforeend",arcBoardCard());$("#brd").onclick=()=>boardSheet("arcade","w");
+    c.insertAdjacentHTML("beforeend",late.arcBoardCard());$("#brd").onclick=()=>late.boardSheet("arcade","w");
     c.insertAdjacentHTML("beforeend",`<div class="eyebrow">Arcade oyunları</div><div class="pgrid">${ARCADE.map(g=>prodHTML({id:g.id,ic:icon(g.ic),t:g.n,d:`${g.d} Rekor: ${S.rec[g.rec]}`,price:1,fx:[["+Moral","p"]],btn:"Oyna · "+fmt(1)})).join("")}</div>`);
     const m={};ARCADE.forEach(g=>m[g.id]=()=>arcadeRun(g.id));bindActs(m);
   }else{
@@ -183,13 +188,13 @@ function locEglence(I,tab="arcade"){
       dans2:()=>{useSlot();S.rel.partner+=10;S.moral+=6;S.energy-=6;norm();save();resultView("Dans",`${S.partner} ile pistin ortasında döndünüz. Herkes size bakıyordu.`,[["+10 Partner","p"]])}});
   }
 }
-async function arcadeRun(kind,paid){
+export async function arcadeRun(kind,paid){
   if(!paid){if(S.money<1)return;tx("Arcade jetonu",-1)}closeSheet();arenaFor(null);Bus.emit("arcade:start",kind);
   const meta=ARCADE.find(g=>g.id===kind)||{n:"Karaoke",rec:"rhythm"};
   app.innerHTML=`<div style="padding-top:12px"><div class="eyebrow">Eğlence Merkezi</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el=$("#stg");let r;
-  if(kind==="hoop")r=await mgArcade(el);else if(kind==="ref")r=await mgReflex(el);else if(kind==="hockey")r=await mgHockey(el);else if(kind==="bowling")r=await mgBowling(el);else r=await mgRhythm(el,{title:kind==="karaoke"?"Karaoke":"Dans ritmi",karaoke:kind==="karaoke"});
-  const key=meta.rec,rec=r.score>(S.rec[key]||0);if(kind!=="karaoke")arcSubmit(key,r.score);if(rec&&kind!=="karaoke")S.rec[key]=r.score;
+  if(kind==="hoop")r=await late.mgArcade(el);else if(kind==="ref")r=await late.mgReflex(el);else if(kind==="hockey")r=await late.mgHockey(el);else if(kind==="bowling")r=await late.mgBowling(el);else r=await late.mgRhythm(el,{title:kind==="karaoke"?"Karaoke":"Dans ritmi",karaoke:kind==="karaoke"});
+  const key=meta.rec,rec=r.score>(S.rec[key]||0);if(kind!=="karaoke")late.arcSubmit(key,r.score);if(rec&&kind!=="karaoke")S.rec[key]=r.score;
   let extra="";S.moral+=Math.min(12,3+Math.floor(r.score/4));
   if(kind==="hockey"&&r.win){S.moral+=4;extra="Bilgisayarı yendin!"}
   if(kind==="ref"&&r.score>=18&&Math.random()<.4){S.st.hiz+=1;extra="Çeviklik +1."}

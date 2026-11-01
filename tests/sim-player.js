@@ -1,6 +1,7 @@
 // Oyunun gerçek kodu üzerinde koşan otomatik oyuncu (sayfaya enjekte edilir).
 // Profil: weak/avg/strong. Kritik anlar oyunun kendi autoResolve'u ile, oyuncunun beceri seviyesine göre çözülür.
-(()=>{
+// Oyunun dışa aktarımları window.Game üzerinden okunur; "with" ile kod eski global adlarla yazılmış gibi kalır.
+(()=>{with(window.Game){
 const P={weak:.37,avg:.5,strong:.62};
 let BASE=.5,REC=null,done=null,stuckT=0,lastSig="",GEN=0;
 const pS=e=>clamp(BASE+(e-40)*.0075,.08,.92);
@@ -74,4 +75,4 @@ window.__runCareer=(profile,pos)=>new Promise(res=>{
   F.first="Sim";F.last="Oyuncu";F.pos=pos;F.slot=1;startCareer();S.tut=1;closeSheet();renderMain();
   const g=++GEN;setTimeout(()=>pump(g),0);
 });
-})();
+}})();

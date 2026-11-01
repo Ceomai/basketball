@@ -5,7 +5,7 @@ const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
 const N = +process.argv[2] || 6, OUT = process.argv[3], PAGES = 4;
 const INJ = fs.readFileSync(path.join(__dirname, "sim-player.js"), "utf8");
-const URL = "file://" + path.resolve(__dirname, "..", "index.html");
+const URL = "file://" + path.resolve(__dirname, "..", "dist", "index.html"); // npm run build çıktısı
 const POS = ["PG", "SG", "SF", "PF", "C"], ORDER = ["lise", "uni", "t3", "t2", "t1", "euro", "nba"];
 const jobs = []; for (const pr of ["weak", "avg", "strong"]) for (let i = 0; i < N; i++) jobs.push({ pr, pos: POS[i % 5] });
 const med = a => { a = a.filter(x => x != null).sort((x, y) => x - y); return a.length ? a[Math.floor(a.length / 2)] : null; };

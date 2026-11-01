@@ -1,8 +1,9 @@
-"use strict";
+import { late } from "./late.js";
+import { CITY_C, CITY_THEME, LEAGUES } from "./data.js";
 /* ================= GERÇEK KULÜPLER =================
    Biçim: "Kulüp|Şehir|renk1|renk2". Listeler güçlüden zayıfa sıralı; sıra takım gücünü belirler.
    3. ligler gerçek kadrolarla değil, şehir adından üretilen kulüplerle kalır. */
-const CLUB_RAW={
+export const CLUB_RAW={
  TR:{t1:`Fenerbahçe|İstanbul|#1b2c5a|#ffd200;Anadolu Efes|İstanbul|#0a3a7d|#ffffff;Galatasaray|İstanbul|#a90432|#fdb912;Beşiktaş|İstanbul|#141414|#ffffff;Türk Telekom|Ankara|#0f2e6b|#00a3e0;Bahçeşehir Koleji|İstanbul|#e30613|#ffffff;Karşıyaka|İzmir|#00843d|#e30613;Tofaş|Bursa|#0055a5|#ffffff;Manisa Basket|Manisa|#d5121d|#141414;Aliağa Petkimspor|İzmir|#003f87|#f7a400;Merkezefendi|Denizli|#1d5aa8|#ffffff;Büyükçekmece|İstanbul|#004b8d|#ffcc00;Bursaspor|Bursa|#00754a|#ffffff;Darüşşafaka|İstanbul|#003b7a|#ffd200;Trabzonspor|Trabzon|#7a1f3d|#3d9ad1;Mersin MSK|Mersin|#00529b|#ffffff`,
      t2:`Esenler Erokspor|İstanbul|#00205b|#ffcc00;Konyaspor|Konya|#00843d|#ffffff;Samsunspor|Samsun|#d71920|#ffffff;Eskişehir Basket|Eskişehir|#d0002a|#141414;Gaziantep Basketbol|Gaziantep|#d1121a|#141414;Ormanspor|Ankara|#007a3d|#ffffff;Göztepe|İzmir|#fdd900|#c8102e;Kocaeli Kağıtspor|Kocaeli|#003a70|#00a651;Bandırma Bordo|Bandırma|#7b1a2c|#ffffff;İstanbulspor|İstanbul|#ffdd00|#141414;Fethiye Belediyespor|Fethiye|#0072bc|#ffffff;Antalya Büyükşehir|Antalya|#e2001a|#ffffff`},
  ES:{t1:`Real Madrid|Madrid|#f4f4f4|#00529f;Barça|Barcelona|#a50044|#004d98;Valencia Basket|Valencia|#f26522|#141414;Unicaja|Málaga|#00843d|#7a2481;Baskonia|Vitoria|#a6192e|#002b5c;La Laguna Tenerife|Tenerife|#ffd100|#1d1d1b;Joventut Badalona|Badalona|#00843d|#141414;Gran Canaria|Gran Canaria|#ffd400|#0057a8;UCAM Murcia|Murcia|#c8102e|#141414;Bàsquet Manresa|Manresa|#e30613|#141414;Casademont Zaragoza|Zaragoza|#e30613|#ffffff;Bilbao Basket|Bilbao|#d40f14|#141414;Río Breogán|Lugo|#7ec8e3|#ffffff;Bàsquet Girona|Girona|#e30613|#ffffff;Covirán Granada|Granada|#c8102e|#ffffff;MoraBanc Andorra|Andorra|#00468b|#ffd100`,
@@ -18,16 +19,16 @@ const CLUB_RAW={
  RS:{t1:`Crvena Zvezda|Belgrad|#e30613|#ffffff;Partizan|Belgrad|#141414|#ffffff;Mega Basket|Belgrad|#f58220|#141414;FMP|Belgrad|#e30613|#141414;Borac Čačak|Čačak|#e30613|#ffffff;Spartak Subotica|Subotica|#00205b|#ffffff;Vojvodina|Novi Sad|#e30613|#ffffff;Dynamic|Belgrad|#004b93|#ffffff;Zlatibor|Čajetina|#00843d|#ffffff;Sloga Kraljevo|Kraljevo|#00205b|#ffffff;Radnički Kragujevac|Kragujevac|#e30613|#00205b;Tamiš|Pančevo|#00205b|#ffd100`,t2:""},
  LT:{t1:`Žalgiris|Kaunas|#00843d|#ffffff;Rytas|Vilnius|#004b93|#ffd100;Lietkabelis|Panevėžys|#e30613|#141414;Neptūnas|Klaipėda|#00205b|#ffffff;Šiauliai|Šiauliai|#e30613|#ffffff;Jonava|Jonava|#00843d|#ffd100;Juventus Utena|Utena|#141414|#e30613;Wolves Vilnius|Vilnius|#141414|#ffffff;Nevėžis|Kėdainiai|#004b93|#ffffff;Gargždai|Gargždai|#ffd100|#004b93;Pieno žvaigždės|Pasvalys|#004b93|#ffffff;Dzūkija Alytus|Alytus|#00843d|#ffffff`,t2:""},
 };
-const EURO_RAW=`Real Madrid|Madrid;Barça|Barcelona;Olympiacos|Pire;Panathinaikos|Atina;Fenerbahçe|İstanbul;Anadolu Efes|İstanbul;AS Monaco|Monako;Žalgiris|Kaunas;Partizan|Belgrad;Crvena Zvezda|Belgrad;Baskonia|Vitoria;Olimpia Milano|Milano;Virtus Bologna|Bologna;Bayern München|Münih;ALBA Berlin|Berlin;LDLC ASVEL|Lyon;Paris Basketball|Paris;Valencia Basket|Valencia`;
-const NBA_RAW=`Boston Celtics|Boston|#007a33|#ffffff;Oklahoma City Thunder|Oklahoma City|#007ac1|#ef3b24;Denver Nuggets|Denver|#0e2240|#fec524;Cleveland Cavaliers|Cleveland|#860038|#fdbb30;New York Knicks|New York|#006bb6|#f58426;Milwaukee Bucks|Milwaukee|#00471b|#eee1c6;Minnesota Timberwolves|Minneapolis|#0c2340|#78be20;Los Angeles Lakers|Los Angeles|#552583|#fdb927;Golden State Warriors|San Francisco|#1d428a|#ffc72c;Dallas Mavericks|Dallas|#00538c|#b8c4ca;Phoenix Suns|Phoenix|#1d1160|#e56020;Philadelphia 76ers|Philadelphia|#006bb6|#ed174c;Miami Heat|Miami|#98002e|#f9a01b;Houston Rockets|Houston|#ce1141|#ffffff;Memphis Grizzlies|Memphis|#5d76a9|#12173f;Indiana Pacers|Indianapolis|#002d62|#fdbb30;Sacramento Kings|Sacramento|#5a2d81|#ffffff;LA Clippers|Los Angeles|#c8102e|#1d428a;Orlando Magic|Orlando|#0077c0|#c4ced4;New Orleans Pelicans|New Orleans|#0c2340|#c8102e;Atlanta Hawks|Atlanta|#e03a3e|#ffffff;Chicago Bulls|Chicago|#ce1141|#141414;Toronto Raptors|Toronto|#ce1141|#141414;San Antonio Spurs|San Antonio|#c4ced4|#141414;Brooklyn Nets|New York|#141414|#ffffff;Utah Jazz|Salt Lake City|#002b5c|#f9a01b;Portland Trail Blazers|Portland|#e03a3e|#141414;Charlotte Hornets|Charlotte|#1d1160|#00788c;Detroit Pistons|Detroit|#c8102e|#1d42ba;Washington Wizards|Washington|#002b5c|#e31837`;
-const parseClubs=(raw,cc)=>raw?raw.split(";").map((e,i,a)=>{const[n,city,c1,c2]=e.split("|");return{n,city,cc,c1,c2,str:+(1.16-i/(a.length-1||1)*.3).toFixed(3)}}):[];
-const CLUBS={};for(const[cc,v]of Object.entries(CLUB_RAW))CLUBS[cc]={t1:parseClubs(v.t1,cc),t2:parseClubs(v.t2,cc)};
-const NBA_CLUBS=parseClubs(NBA_RAW,"US");
-const allClubs=()=>[...Object.values(CLUBS).flatMap(v=>[...v.t1,...v.t2]),...NBA_CLUBS];
-const EURO_CLUBS=EURO_RAW.split(";").map((e,i,a)=>{const[n]=e.split("|");const c=allClubs().find(x=>x.n===n);return{...c,str:+(1.16-i/(a.length-1)*.22).toFixed(3)}});
+export const EURO_RAW=`Real Madrid|Madrid;Barça|Barcelona;Olympiacos|Pire;Panathinaikos|Atina;Fenerbahçe|İstanbul;Anadolu Efes|İstanbul;AS Monaco|Monako;Žalgiris|Kaunas;Partizan|Belgrad;Crvena Zvezda|Belgrad;Baskonia|Vitoria;Olimpia Milano|Milano;Virtus Bologna|Bologna;Bayern München|Münih;ALBA Berlin|Berlin;LDLC ASVEL|Lyon;Paris Basketball|Paris;Valencia Basket|Valencia`;
+export const NBA_RAW=`Boston Celtics|Boston|#007a33|#ffffff;Oklahoma City Thunder|Oklahoma City|#007ac1|#ef3b24;Denver Nuggets|Denver|#0e2240|#fec524;Cleveland Cavaliers|Cleveland|#860038|#fdbb30;New York Knicks|New York|#006bb6|#f58426;Milwaukee Bucks|Milwaukee|#00471b|#eee1c6;Minnesota Timberwolves|Minneapolis|#0c2340|#78be20;Los Angeles Lakers|Los Angeles|#552583|#fdb927;Golden State Warriors|San Francisco|#1d428a|#ffc72c;Dallas Mavericks|Dallas|#00538c|#b8c4ca;Phoenix Suns|Phoenix|#1d1160|#e56020;Philadelphia 76ers|Philadelphia|#006bb6|#ed174c;Miami Heat|Miami|#98002e|#f9a01b;Houston Rockets|Houston|#ce1141|#ffffff;Memphis Grizzlies|Memphis|#5d76a9|#12173f;Indiana Pacers|Indianapolis|#002d62|#fdbb30;Sacramento Kings|Sacramento|#5a2d81|#ffffff;LA Clippers|Los Angeles|#c8102e|#1d428a;Orlando Magic|Orlando|#0077c0|#c4ced4;New Orleans Pelicans|New Orleans|#0c2340|#c8102e;Atlanta Hawks|Atlanta|#e03a3e|#ffffff;Chicago Bulls|Chicago|#ce1141|#141414;Toronto Raptors|Toronto|#ce1141|#141414;San Antonio Spurs|San Antonio|#c4ced4|#141414;Brooklyn Nets|New York|#141414|#ffffff;Utah Jazz|Salt Lake City|#002b5c|#f9a01b;Portland Trail Blazers|Portland|#e03a3e|#141414;Charlotte Hornets|Charlotte|#1d1160|#00788c;Detroit Pistons|Detroit|#c8102e|#1d42ba;Washington Wizards|Washington|#002b5c|#e31837`;
+export const parseClubs=(raw,cc)=>raw?raw.split(";").map((e,i,a)=>{const[n,city,c1,c2]=e.split("|");return{n,city,cc,c1,c2,str:+(1.16-i/(a.length-1||1)*.3).toFixed(3)}}):[];
+export const CLUBS={};for(const[cc,v]of Object.entries(CLUB_RAW))CLUBS[cc]={t1:parseClubs(v.t1,cc),t2:parseClubs(v.t2,cc)};
+export const NBA_CLUBS=parseClubs(NBA_RAW,"US");
+export const allClubs=()=>[...Object.values(CLUBS).flatMap(v=>[...v.t1,...v.t2]),...NBA_CLUBS];
+export const EURO_CLUBS=EURO_RAW.split(";").map((e,i,a)=>{const[n]=e.split("|");const c=allClubs().find(x=>x.n===n);return{...c,str:+(1.16-i/(a.length-1)*.22).toFixed(3)}});
 
 /* ---- Yeni şehirler: ülke, simge yapılar ve su ---- */
-const NEW_CITIES=`TR:Manisa:mosque,hills|-;TR:Denizli:hills,clock|-;TR:Kocaeli:bridge,skyline|s;TR:Bandırma:lighthouse,mosque|s;TR:Fethiye:palms,hills|s;
+export const NEW_CITIES=`TR:Manisa:mosque,hills|-;TR:Denizli:hills,clock|-;TR:Kocaeli:bridge,skyline|s;TR:Bandırma:lighthouse,mosque|s;TR:Fethiye:palms,hills|s;
 ES:Badalona:spires,palms|s;ES:Manresa:spires,mountain|r;ES:Lugo:fortress,spires|r;ES:Girona:spires,bridge|r;ES:Andorra:mountain,spires|r;ES:Fuenlabrada:skyline,arch|-;ES:Santiago:spires,hills|-;ES:Palencia:spires,bridge|r;ES:Valladolid:dome,spires|r;ES:Oviedo:spires,mountain|-;ES:Alicante:fortress,palms|s;ES:Cáceres:fortress,spires|-;ES:Burgos:spires,arch|r;ES:San Sebastián:hills,palms|s;ES:Huesca:spires,mountain|-;ES:Melilla:fortress,lighthouse|s;
 IT:Tortona:tower,hills|-;IT:Trieste:castle,lighthouse|s;IT:Reggio Emilia:dome,tower|-;IT:Trapani:lighthouse,fortress|s;IT:Scafati:mountain,palms|r;IT:Cremona:tower,dome|r;IT:Pistoia:tower,hills|-;IT:Cantù:spires,hills|l;IT:Udine:castle,clock|-;IT:Verona:arena,bridge|r;IT:Forlì:tower,dome|-;IT:Rimini:arch,palms|s;IT:Cividale:bridge,spires|r;IT:Brindisi:lighthouse,palms|s;IT:Cento:fortress,tower|-;
 FR:Bourg-en-Bresse:spires,hills|-;FR:Nanterre:skyline,arch|r;FR:Cholet:spires,bridge|r;FR:Gravelines:lighthouse,fortress|s;FR:Chalon:bridge,spires|r;FR:Le Portel:lighthouse,hills|s;FR:Saint-Quentin:spires,dome|r;FR:Boulogne:skyline,bridge|r;FR:Orléans:spires,bridge|r;FR:Roanne:bridge,hills|r;FR:Pau:castle,mountain|r;FR:Blois:castle,bridge|r;FR:Rouen:spires,clock|r;FR:Antibes:fortress,palms|s;FR:Fos:lighthouse,skyline|s;FR:Évreux:spires,timber|-;FR:Vichy:dome,bridge|r;FR:Boulazac:hills,castle|r;
@@ -41,17 +42,17 @@ CITY_C["Andorra"]="ES";
 NBA_CLUBS.forEach(c=>{if(!LEAGUES.US.cities.includes(c.city))LEAGUES.US.cities.push(c.city);CITY_C[c.city]="US"});
 
 /* ---- Kulüp nesnesi: oyunun takım biçimine çevir ---- */
-function clubTeam(c){
-  S.teams=S.teams||{};const key=`club|${c.n}`;if(S.teams[key])return S.teams[key];
+export function clubTeam(c){
+  late.S.teams=late.S.teams||{};const key=`club|${c.n}`;if(late.S.teams[key])return late.S.teams[key];
   const short=c.n.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-zıİ ]/g,"").split(" ").filter(w=>w.length>1&&!/^(AS|BC|CB|KK|SL|JL|SIG|LDLC|MHP)$/i.test(w))[0]||c.n;
   const t={key,name:c.n,short:short.slice(0,3).toLocaleUpperCase("tr-TR"),city:c.city,cc:c.cc,kind:"club",c1:c.c1||"#c8102e",c2:c.c2||"#ffffff",str:c.str,real:true};
-  S.teams[key]=t;return t;
+  late.S.teams[key]=t;return t;
 }
 // lig listesi: gerçek kulüp varsa onu, yoksa (3. lig, eksik 2. lig) üretilmiş kulübü kullan
-function leaguePool(stage,cc){
+export function leaguePool(stage,cc){
   if(stage==="nba")return NBA_CLUBS.map(clubTeam);
   if(stage==="euro")return EURO_CLUBS.map(clubTeam);
   const list=CLUBS[cc]&&CLUBS[cc][stage];
   if(list&&list.length>=8)return list.map(clubTeam);
-  return LEAGUES[cc].cities.map(city=>makeTeam("pro",city,saltOf(stage)));
+  return LEAGUES[cc].cities.map(city=>late.makeTeam("pro",city,late.saltOf(stage)));
 }

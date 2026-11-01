@@ -4,12 +4,15 @@
   "private": true,
   "description": "İstanbul'dan NBA'e basketbol kariyer simülasyonu",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "lint": "eslint .",
-    "test": "npm run lint && node tests/smoke.js && node tests/balance.js 3",
-    "test:balance": "node tests/balance.js 10"
+    "test": "npm run lint && npm run build && node tests/smoke.js && node tests/balance.js 3",
+    "test:balance": "npm run build && node tests/balance.js 10"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
-    "globals": "^15.0.0"
+    "globals": "^15.0.0",
+    "vite": "^6.4.5"
   }
 }

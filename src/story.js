@@ -1,4 +1,13 @@
-"use strict";
+import { late } from "./late.js";
+import { $, $$, BAL, Bus, COMMON_DRILLS, DRILLS, EU_CC, LEAGUES, ORDER, WAGE, clamp, esc, fmt, isPro, levelName, pick, ri, rnd, roleAt, statName, tdOf, toast } from "./data.js";
+import { leaguePool } from "./clubs.js";
+import { portrait } from "./art.js";
+import { ROLE_N, S, closeSheet, crestSVG, eff, fixture, fullName, lgName, makeTeam, news, norm, ovr, phaseName, seasonLabel, sheet, standings, teamByKey, tx } from "./core.js";
+import { save } from "./save.js";
+import { drillGain } from "./places.js";
+import { LK, M, PEN, potential } from "./match.js";
+import { playMatch } from "./engine.js";
+import { chemAvg, dominance, rated, seasonAvg, seasonAvgOf, simWithoutMe } from "./systems.js";
 /* ================= HİKÂYE VE KARİYER DÖNGÜSÜ =================
    - Otomatik maç ve "Haftayı hızlı geç"
    - Kalıcı rakip oyuncu ve derbiler
@@ -9,10 +18,10 @@
 
 /* ---- Otomatik çözüm: mini oyun oynanmadan niteliklere göre sonuç ----
    Ortalama bir oyuncudan biraz düşük isabet verir; maçı kendin oynamak daha iyi not getirir. */
-const autoP=e=>clamp(((window.__SIM&&window.__SIM.base)||.46)+(e-40)*.0075,.08,.92);
-const coin=p=>Math.random()<p;
-function autoChoose(opts){return opts.map(o=>({k:o.k,v:(o.k==="safe"?o.e-10:o.e)+rnd(0,10)})).sort((a,b)=>b.v-a.v)[0].k}
-function autoResolve(k,sur){
+export const autoP=e=>clamp(((window.__SIM&&window.__SIM.base)||.46)+(e-40)*.0075,.08,.92);
+export const coin=p=>Math.random()<p;
+export function autoChoose(opts){return opts.map(o=>({k:o.k,v:(o.k==="safe"?o.e-10:o.e)+rnd(0,10)})).sort((a,b)=>b.v-a.v)[0].k}
+export function autoResolve(k,sur){
   const P3=["pull","catch","wing"],P2=["step","pop","mid"];
   if(P3.includes(k)||P2.includes(k)){const th=P3.includes(k),ok=coin(autoP(eff("sut")-(PEN[k]||0)-(th?6:0))*(th?.85:1));if(ok)M.pts+=th?3:2;return{good:ok,w:th?1.3:1,st:"sut",txt:ok?`${sur} ${th?"üçlüğü soktu.":"orta mesafeden attı."}`:`${sur} şutu kaçırdı.`}}
   if(k==="drive"||k==="break"){if(!coin(autoP(eff("hiz"))))return{good:false,w:1,st:"hiz",txt:`${sur} top kaybı yaptı.`};M.pts+=2;if(k==="drive"&&coin(.18)&&coin(autoP(eff("sut")+10)))M.pts++;return{good:true,w:k==="break"?1.2:1,st:"hiz",txt:`${sur} potaya girip bitirdi.`}}
@@ -30,7 +39,7 @@ function autoResolve(k,sur){
    Kalan zaman dilimlerini mantıklı bir planla doldurur (dinlen, çalış, antrenman, sosyal),
    sonra maçı otomatik oynatır ya da istersen maça kendin çıkarsın. Antrenman mini oyunsuz yapıldığı
    için kazancı biraz düşüktür. */
-function autoWeekPlan(){
+export function autoWeekPlan(){
   const out=[];
   while(S.slot>0){
     S.slot--;
@@ -47,7 +56,7 @@ function autoWeekPlan(){
   }
   norm();save();return out;
 }
-function quickWeek(){
+export function quickWeek(){
   closeSheet();const plan=autoWeekPlan();
   const fx=fixture(),opp=teamByKey(fx.opp);
   sheet("Hafta özeti",`${seasonLabel()} · Hafta ${S.week}`,`<div class="card"><div class="eyebrow">Bu hafta yaptıkların</div>${plan.length?`<div class="kv">${plan.map(([a,b])=>`<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>`:`<p class="small muted">Bu haftanın zaman dilimleri zaten dolmuştu.</p>`}</div>
@@ -59,18 +68,18 @@ function quickWeek(){
 
 /* ================= RAKİP OYUNCU ================= */
 // Aynı yaşta, aynı şehirden, kariyeri seninle paralel ilerleyen bir rakip.
-function makeRival(){
+export function makeRival(){
   const c=LEAGUES.TR,opp=S.league.map(r=>r.key).filter(k=>k!==S.team.key),tk=pick(opp)||S.team.key,t=teamByKey(tk);
   const name=S.npc&&S.npc.rival?S.npc.rival.split(" "):[pick(c.first),pick(c.last)];
   return{first:name[0],last:name[1]||pick(c.last),pos:coin(.6)?S.pos:pick(["PG","SG","SF","PF","C"].filter(p=>p!==S.pos)),ovr:ovr()+ri(-1,3),talent:rnd(.95,1.2),stage:"lise",team:{key:tk,name:t.name,city:t.city,cc:"TR",c1:t.c1,c2:t.c2},ppg:0,avg:6.4,hist:[],ahead:false};
 }
-const rivalName=()=>S.rival?`${S.rival.first} ${S.rival.last}`:S.npc.rival;
-function rivalStageFor(o,age){
+export const rivalName=()=>S.rival?`${S.rival.first} ${S.rival.last}`:S.npc.rival;
+export function rivalStageFor(o,age){
   if(age<18)return"lise";
   const fits=["t3","t2","t1","euro","nba"].filter(st=>o>=tdOf(st,"TR")+45-2&&(st!=="nba"||age<=29));
   if(!fits.length)return age<=21?"uni":"t3";return fits[fits.length-1];
 }
-function rivalSeason(){
+export function rivalSeason(){
   const R=S.rival;if(!R)return null;const age=S.age;// seasonEnd yaşı artırdıktan sonra çağrılır
   const g=age<=19?ri(5,8):age<=22?ri(3,6):age<=26?ri(1,4):age<=29?ri(0,2):age<=31?ri(-1,1):-ri(1,3);
   R.ovr=clamp(Math.round(R.ovr+g*R.talent),25,95);
@@ -86,7 +95,7 @@ function rivalSeason(){
   return moved;
 }
 // Sezon sonu kıyas kartı; rakip seni geçtiyse ya da sen onu geçtiysen hikâye anı
-function rivalCard(avg){
+export function rivalCard(avg){
   const R=S.rival;if(!R)return"";const my=ORDER.indexOf(S.stage),his=ORDER.indexOf(R.stage);
   const ss=S.hist.length?S.hist[S.hist.length-1]:null,myP=ss&&ss.g?(ss.pts/ss.g).toFixed(1):"0.0";
   let line;if(his>my&&!R.ahead){R.ahead=true;S.buffs.train=(S.buffs.train||0)+4;line=`${R.first} senden bir basamak önde. Bu seni hırslandırdı: sonraki 4 antrenmanın daha verimli.`}
@@ -94,9 +103,9 @@ function rivalCard(avg){
   else line=his>my?`${R.first} hâlâ bir basamak önde.`:my>his?`${R.first}'yi geride bıraktın.`:"Aynı seviyedesiniz. Rekabet sürüyor.";
   return`<div class="card"><div class="eyebrow">Rakibin · ${esc(rivalName())}</div><div class="tbl"><table><tr><th></th><th>Sen</th><th>${esc(R.first)}</th></tr><tr><td>Seviye</td><td>${levelName(S.stage)}</td><td>${levelName(R.stage)}</td></tr><tr><td>Takım</td><td>${esc(S.team.short||S.team.name)}</td><td>${esc(R.team.name)}</td></tr><tr><td>Sayı ort.</td><td>${myP}</td><td>${R.ppg}</td></tr><tr><td>Not ort.</td><td>${avg.toFixed(2)}</td><td>${R.avg}</td></tr><tr><td>Genel</td><td>${ovr()}</td><td>${R.ovr}</td></tr></table></div><p class="small">${line}</p></div>`;
 }
-function rivalInfo(){const R=S.rival;return`<div class="card"><div class="eyebrow">Rakibin · ${esc(rivalName())}</div><div class="kv"><span>Takım</span><b>${esc(R.team.name)}</b><span>Seviye</span><b>${levelName(R.stage)}</b><span>Genel</span><b>${R.ovr}</b><span>Geçen sezon</span><b>${R.ppg} sayı · not ${R.avg}</b></div>${R.hist.length?`<div class="tbl"><table><tr><th>Yaş</th><th>Takım</th><th>Sayı</th><th>Not</th></tr>${R.hist.slice(-6).reverse().map(h=>`<tr><td>${h.age}</td><td>${esc(h.team)}</td><td>${h.ppg}</td><td>${h.avg}</td></tr>`).join("")}</table></div>`:""}</div>`}
-const isDerby=opp=>!!(S.rival&&opp&&S.rival.team&&opp.key===S.rival.team.key);
-function derbyResult(win){
+export function rivalInfo(){const R=S.rival;return`<div class="card"><div class="eyebrow">Rakibin · ${esc(rivalName())}</div><div class="kv"><span>Takım</span><b>${esc(R.team.name)}</b><span>Seviye</span><b>${levelName(R.stage)}</b><span>Genel</span><b>${R.ovr}</b><span>Geçen sezon</span><b>${R.ppg} sayı · not ${R.avg}</b></div>${R.hist.length?`<div class="tbl"><table><tr><th>Yaş</th><th>Takım</th><th>Sayı</th><th>Not</th></tr>${R.hist.slice(-6).reverse().map(h=>`<tr><td>${h.age}</td><td>${esc(h.team)}</td><td>${h.ppg}</td><td>${h.avg}</td></tr>`).join("")}</table></div>`:""}</div>`}
+export const isDerby=opp=>!!(S.rival&&opp&&S.rival.team&&opp.key===S.rival.team.key);
+export function derbyResult(win){
   const R=S.rival,rp=Math.max(0,Math.round(R.ppg*rnd(.55,1.45)));
   const beat=M.pts>rp,txt=`${R.first} ${rp} sayıda kaldı, sen ${M.pts} attın.`;
   if(win&&beat){S.rel.taraf+=6;S.followers=Math.round(S.followers*1.04);S.moral+=6;news(`Derbide gecenin adamı ${fullName()}: ${M.pts} sayı. ${rivalName()} ${rp} sayıda kaldı.`)}
@@ -105,7 +114,7 @@ function derbyResult(win){
 }
 
 /* ================= KOÇUN GÜVENİ: SEZON İÇİ ROL ================= */
-function roleReview(){
+export function roleReview(){
   if(!isPro(S.stage)||S.phase!=="regular"||![5,9,13].includes(S.week))return false;
   const last=rated().slice(-4);if(last.length<3)return false;
   const rec=last.reduce((a,r)=>a+r.rating,0)/last.length,trust=S.rel.koc+(rec-6.5)*14+dominance()*1.2;
@@ -113,26 +122,26 @@ function roleReview(){
   if(i<2&&trust>=(i===0?58:70)&&rec>=(i===0?6.7:7.2)&&dominance()>=(i===0?-8:0)){to=order[i+1];why=i===0?`"Son maçlarda bana başka seçenek bırakmadın. Rotasyondasın."`:`"Bu takımın ilk beşinde olmayı hak ediyorsun. Yarından itibaren başlıyorsun."`}
   else if(i>0&&(trust<(i===2?34:24)||rec<(i===2?5.8:5.4))){to=order[i-1];why=i===2?`"Son maçlar iyi değil. Bir süre kenardan başlayacaksın, kendini topla."`:`"Süre kazanmak istiyorsan antrenmanda göster. Şimdilik yedeksin."`}
   if(!to)return false;
-  const up=order.indexOf(to)>i;S.role=to;S.moral+=up?8:-8;news(`${S.team.short}: ${fullName()} ${up?"terfi etti":"rol kaybetti"} (${ROLE_N[to]}).`);save();sfx(up?"levelup":"lose");
+  const up=order.indexOf(to)>i;S.role=to;S.moral+=up?8:-8;news(`${S.team.short}: ${fullName()} ${up?"terfi etti":"rol kaybetti"} (${ROLE_N[to]}).`);save();late.sfx(up?"levelup":"lose");
   sheet(up?"Rolün büyüdü":"Rolün küçüldü",`${S.npc.coach} · Koç`,`<div class="who"><div id="rcp"></div><div class="say">${why}</div></div><div class="kv"><span>Yeni rolün</span><b class="${up?"good":"bad"}">${ROLE_N[to]}</b><span>Son 4 maç not ortalaman</span><b>${rec.toFixed(2)}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b></div><p class="small muted">Rol, maçta sahada kalacağın süreyi ve kritik an sayısını belirler. Koç her 4 haftada bir değerlendirir.</p><button class="btn pri" id="rok">Devam</button>`,{noClose:true});
   const cl=LK.coach();cl[1].mood=up?"mutlu":"kizgin";$("#rcp").appendChild(portrait(cl[0],cl[1]));$("#rok").onclick=()=>closeSheet();
   return true;
 }
 
 /* ================= BASIN TOPLANTISI ================= */
-function pressDue(win){
+export function pressDue(win){
   if(M.rating==null||M.auto&&!isDerby(M.opp))return false;
   if(isDerby(M.opp)||S.phase!=="regular")return true;
   if(M.rating>=8.3||M.rating<=4.5)return S.stage!=="lise"||coin(.5);
   return isPro(S.stage)&&coin(.18);
 }
-function pressFollowUp(win){
+export function pressFollowUp(win){
   const p=S.press;if(!p||M.rating==null)return"";S.press=null;
   if(p.tone==="bold"){if(win){S.rel.taraf+=4;S.followers=Math.round(S.followers*1.02);return`Geçen hafta "${p.quote}" demiştin. Sözünün arkasında durdun.`}S.moral-=6;S.rel.taraf-=4;return`Geçen haftaki "${p.quote}" sözlerin bu mağlubiyetten sonra sosyal medyada sana hatırlatıldı.`}
   if(p.tone==="humble"&&win){S.rel.takim+=2;return""}
   return"";
 }
-function pressConference(win,after){
+export function pressConference(win,after){
   const derby=isDerby(M.opp),R=S.rival,j=S.npc.journalist,dr=derby?derbyResult(win):null;
   const q=derby?`Derbide ${dr.txt} ${R.first} hakkında ne söylersin?`:S.phase!=="regular"?(win?"Seriyi öne geçirdiniz. Bir sonraki maç için mesajın?":"Kritik bir maçı kaybettiniz. Taraftara ne söylersin?"):M.rating>=8.3?`${M.pts} sayıyla gecenin adamıydın. Bu performansın sırrı ne?`:M.rating<=4.5?"Bu akşam işler yolunda gitmedi. Sence ne oldu?":win?"İyi bir galibiyet. Takımın gidişatını nasıl görüyorsun?":"Zor bir mağlubiyet. Kafanda neler var?";
   const A=derby?[["humble",`"${R.first} iyi oyuncu, ona saygım var. Bugün takım kazandı."`],["confident","\"Sahada konuştuk, gerisine gerek yok.\""],["bold",`"Bu şehirde tek bir ${S.pos} var, o da benim."`]]
@@ -149,14 +158,14 @@ function pressConference(win,after){
 }
 
 /* ================= HİKÂYE ZİNCİRLERİ ================= */
-function arcSheet(title,who,look,text,choices,after){
+export function arcSheet(title,who,look,text,choices,after){
   sheet(title,who,`<div class="who"><div id="ap"></div><div class="say">${text}</div></div><div class="choices" id="ach">${choices.map((c,i)=>`<button class="choice" data-arc="${i}"><span class="ct" style="font-size:1.02rem">${c.t}</span>${c.d?`<span class="cd">${c.d}</span>`:""}</button>`).join("")}</div>`,{noClose:true});
   $("#ap").appendChild(portrait(look[0],look[1]));
   $$("[data-arc]").forEach(b=>b.onclick=()=>{const out=choices[+b.dataset.arc].do();norm();save();$("#ach").innerHTML=`<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="aok">Devam</button>`;$("#aok").onclick=()=>{closeSheet();after&&after()}});
 }
-const msg=(title,who,look,text)=>arcSheet(title,who,look,text,[{t:"Devam",do:()=>"Hikâye devam ediyor."}]);
-function migrateStory(){S.arcs=S.arcs||{};S.arcQ=S.arcQ||[];if(!S.rival&&S.league&&S.team){S.rival=makeRival();S.npc.rival=rivalName()}}
-function storyTick(){
+export const msg=(title,who,look,text)=>arcSheet(title,who,look,text,[{t:"Devam",do:()=>"Hikâye devam ediyor."}]);
+export function migrateStory(){S.arcs=S.arcs||{};S.arcQ=S.arcQ||[];if(!S.rival&&S.league&&S.team){S.rival=makeRival();S.npc.rival=rivalName()}}
+export function storyTick(){
   const A=S.arcs;
   // kuyruktaki tek seferlik anlar
   if(S.arcQ.length){const id=S.arcQ.shift();if(ARC_ONCE[id]){ARC_ONCE[id]();return true}}
@@ -165,7 +174,7 @@ function storyTick(){
     if((!st||(a.repeat&&st.season!==S.season))&&a.when()&&coin(a.p)){A[id]={season:S.season,step:1,next:a.gaps?S.week+a.gaps[1]:0,choice:null};a.steps[0](A[id]);return true}}
   return false;
 }
-const ARCS={
+export const ARCS={
   // Transfer söylentisi: menajer, üst seviyeden bir kulübün seni izlediğini söyler
   rumor:{repeat:true,p:.5,gaps:[0,4],when:()=>isPro(S.stage)&&S.stage!=="nba"&&S.week===6&&S.phase==="regular"&&rated().length>=4&&seasonAvg()>=7&&!(S.arcs.rumor&&S.arcs.rumor.season>=S.season-1),
     steps:[a=>{const nx=ORDER[ORDER.indexOf(S.stage)+1],cc=nx==="nba"?"US":coin(.4)?"TR":pick(EU_CC),t=pick(leaguePool(nx,cc));a.club=t.key;a.stage=nx;a.cc=t.cc;
@@ -201,7 +210,7 @@ const ARCS={
       {t:"İkisini dengele",d:"+6 akademik, -6 enerji",do:()=>{S.aka+=6;S.energy-=6;return"Gündüz ders, akşam antrenman. Yorucu ama idare ettin."}}],()=>{})]}
 };
 // Tek seferlik kuyruk anları
-const ARC_ONCE={
+export const ARC_ONCE={
   comeback:()=>arcSheet("Sahalara dönüş",`${S.npc.coach} · Koç`,LK.coach(),"Doktor sahalara dönebileceğini söyledi. Koç ve fizyoterapist dönüş planını konuşmak istiyor.",[
     {t:"Yavaş dön, doktoru dinle",d:"6 hafta boyunca sakatlık riskin yarıya iner.",do:()=>{S.buffs.injWk=6;S.buffs.injMul=.5;S.energy+=10;S.rel.koc+=2;return"Planlı bir dönüş. Fizyoterapist gülümseyerek \"akıllı oyuncu\" dedi."}},
     {t:"Hemen tam yükle sahaya",d:"+6 moral, ama 5 hafta boyunca sakatlık riskin artar.",do:()=>{S.buffs.injWk=5;S.buffs.injMul=1.8;S.moral+=6;S.rel.taraf+=3;return"Isınmaya koşarak çıktın. Tribün adını bağırdı. Doktor kenarda başını salladı."}}],()=>{})
@@ -221,7 +230,7 @@ Bus.use("match:after",(ctx,next)=>{
   next();
 });
 // Sezon sonu teklifleri: transfer söylentisinin sonucu
-function storyOffers(offers){
+export function storyOffers(offers){
   const a=S.arcs&&S.arcs.rumor;if(!a||a.season!==S.season-1||a.done)return offers;a.done=true;
   const t=teamByKey(a.club);if(!t)return offers;const avg=seasonAvgOf();
   if(a.choice==="loyal"){const s=offers.find(o=>o.stay);if(s){s.wage=Math.round(s.wage*1.15);s.note="Sadakat yenilemesi · +%15"}return offers}
@@ -231,4 +240,4 @@ function storyOffers(offers){
   return offers;
 }
 // Maç sekmesine derbi uyarısı
-function derbyNote(opp){return isDerby(opp)?`<div class="say" style="border-left-color:var(--bad)"><b>Derbi:</b> Rakibin ${esc(rivalName())} karşı takımda. Bu maçın sonu basın toplantısıyla bitecek.</div>`:""}
+export function derbyNote(opp){return isDerby(opp)?`<div class="say" style="border-left-color:var(--bad)"><b>Derbi:</b> Rakibin ${esc(rivalName())} karşı takımda. Bu maçın sonu basın toplantısıyla bitecek.</div>`:""}

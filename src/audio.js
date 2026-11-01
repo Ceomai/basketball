@@ -1,21 +1,22 @@
-"use strict";
+import { SIM, rnd } from "./data.js";
+import { SETTINGS } from "./systems.js";
 /* ================= SES =================
    Tüm sesler Web Audio ile anında sentezlenir; dosya yüklenmez.
    Tarayıcılar sesi ancak ilk dokunuştan sonra açtığı için bağlam ilk etkileşimde başlatılır. */
-let AC=null,MASTER=null,NOISE=null,CROWD_SND=null;const lastPlay={};
-function audioInit(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.connect(AC.destination);
+export let AC=null,MASTER=null,NOISE=null,CROWD_SND=null;export const lastPlay={};
+export function audioInit(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.connect(AC.destination);
   const len=AC.sampleRate*2;NOISE=AC.createBuffer(1,len,AC.sampleRate);const d=NOISE.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1}catch(e){AC=null}}
 ["pointerdown","keydown"].forEach(ev=>window.addEventListener(ev,()=>{audioInit();if(AC&&AC.state==="suspended")AC.resume()},{passive:true}));
 // arayüz tıklamaları
 document.addEventListener("click",e=>{if(e.target.closest(".btn,.choice,.opt,.tabs button,.venue,.qbtn,.loc"))sfx("click")},true);
-function tone(f,dur,{type="sine",vol=.3,attack=.005,slide=0,delay=0,filter=0}={}){
+export function tone(f,dur,{type="sine",vol=.3,attack=.005,slide=0,delay=0,filter=0}={}){
   const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
   let node=o;if(filter){const fl=AC.createBiquadFilter();fl.type="lowpass";fl.frequency.value=filter;o.connect(fl);node=fl}node.connect(g);g.connect(MASTER);o.start(t);o.stop(t+dur+.05)}
-function noise(dur,{vol=.3,type="bandpass",freq=2000,q=1,attack=.005,delay=0,sweep=0}={}){
+export function noise(dur,{vol=.3,type="bandpass",freq=2000,q=1,attack=.005,delay=0,sweep=0}={}){
   const t=AC.currentTime+delay,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NOISE;f.type=type;f.frequency.setValueAtTime(freq,t);if(sweep)f.frequency.exponentialRampToValueAtTime(Math.max(60,freq+sweep),t+dur);f.Q.value=q;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(MASTER);s.start(t,Math.random());s.stop(t+dur+.05)}
-const SFX={
+export const SFX={
   click:()=>tone(1400,.04,{type:"square",vol:.05,filter:3000}),
   notify:()=>{tone(880,.12,{vol:.12});tone(1320,.18,{vol:.1,delay:.08})},
   coin:()=>{tone(988,.08,{type:"square",vol:.08,filter:4000});tone(1319,.22,{type:"square",vol:.08,filter:4000,delay:.07})},
@@ -53,15 +54,15 @@ const SFX={
   clack:()=>{tone(600,.08,{type:"triangle",vol:.15});noise(.05,{freq:2500,vol:.12})},
   coinIn:()=>{tone(1800,.05,{type:"square",vol:.05,filter:5000});tone(2400,.12,{type:"square",vol:.05,filter:5000,delay:.05})},
 };
-function sfx(name,arg){
+export function sfx(name,arg){
   if(SIM()||!SETTINGS.sound||!AC||AC.state!=="running")return;const now=performance.now();if(lastPlay[name]&&now-lastPlay[name]<60)return;lastPlay[name]=now;
   MASTER.gain.value=SETTINGS.vol;try{SFX[name]&&SFX[name](arg)}catch(e){}
 }
 // maç boyunca tribün uğultusu; skor anlarında kabarır
-function crowd(on){
+export function crowd(on){
   if(!AC||SIM())return;
   if(!on||!SETTINGS.sound||!SETTINGS.crowd){if(CROWD_SND){try{CROWD_SND.g.gain.setTargetAtTime(0,AC.currentTime,.3);const c=CROWD_SND;setTimeout(()=>{try{c.s.stop()}catch(e){}},900)}catch(e){}CROWD_SND=null}return}
   if(CROWD_SND)return;const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NOISE;s.loop=true;f.type="bandpass";f.frequency.value=700;f.Q.value=.5;g.gain.value=0;
   s.connect(f);f.connect(g);g.connect(MASTER);s.start();g.gain.setTargetAtTime(.05,AC.currentTime,.8);CROWD_SND={s,g,f};
 }
-function crowdSwell(amount=1){if(!CROWD_SND||!AC)return;const t=AC.currentTime;CROWD_SND.g.gain.cancelScheduledValues(t);CROWD_SND.g.gain.setTargetAtTime(.05+.07*amount,t,.08);CROWD_SND.g.gain.setTargetAtTime(.05,t+.6,.6)}
+export function crowdSwell(amount=1){if(!CROWD_SND||!AC)return;const t=AC.currentTime;CROWD_SND.g.gain.cancelScheduledValues(t);CROWD_SND.g.gain.setTargetAtTime(.05+.07*amount,t,.08);CROWD_SND.g.gain.setTargetAtTime(.05,t+.6,.6)}

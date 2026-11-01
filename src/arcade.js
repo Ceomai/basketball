@@ -1,12 +1,16 @@
-"use strict";
+import { late } from "./late.js";
+import { $, $$, INK, clamp, ri, shade } from "./data.js";
+import { drawBall, drawKid, ell, rr } from "./art.js";
+import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos } from "./games.js";
+import { S, jersey } from "./core.js";
 /* ================= ARCADE OYUNLARI =================
    Her karede gölge/ışıma (shadowBlur) yok: mobilde takılmanın ana sebebiydi.
    Parlama efekti yarı saydam halkalarla veriliyor. */
-const halo=(c,x,y,r,col,a=.25)=>{c.globalAlpha=a;ell(c,x,y,r,r,col,0,false);c.globalAlpha=1};
+export const halo=(c,x,y,r,col,a=.25)=>{c.globalAlpha=a;ell(c,x,y,r,r,col,0,false);c.globalAlpha=1};
 
 /* ---- Güç oku: geriye çekerken yön ve gücü gösterir ---- */
 // p: 0..1 güç, ideal: [alt, üst] yeşil bölge
-function powerArrow(c,x,y,dx,dy,p,ideal=[.55,.8]){
+export function powerArrow(c,x,y,dx,dy,p,ideal=[.55,.8]){
   const m=Math.hypot(dx,dy)||1,ux=dx/m,uy=dy/m,len=34+p*110;
   const col=p>=ideal[0]&&p<=ideal[1]?"#36d38e":p<ideal[0]?(p<ideal[0]*.6?"#ff5468":"#ffc54d"):"#ff5468";
   const ex=x+ux*len,ey=y+uy*len;
@@ -20,10 +24,10 @@ function powerArrow(c,x,y,dx,dy,p,ideal=[.55,.8]){
   c.fillStyle="#eef2f8";c.font='700 11px Manrope';c.textAlign="center";c.textBaseline="alphabetic";c.fillText(`%${Math.round(p*100)}`,gx+6,gy+gh+16);c.fillText("GÜÇ",gx+6,gy-6);
   c.restore();return col;
 }
-function slingBand(c,bx,by,px,py){c.save();c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=2;c.setLineDash([4,5]);c.beginPath();c.moveTo(bx-10,by);c.lineTo(px,py);c.lineTo(bx+10,by);c.stroke();c.setLineDash([]);c.restore()}
+export function slingBand(c,bx,by,px,py){c.save();c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=2;c.setLineDash([4,5]);c.beginPath();c.moveTo(bx-10,by);c.lineTo(px,py);c.lineTo(bx+10,by);c.stroke();c.setLineDash([]);c.restore()}
 
 /* ---- Pota makinesi: geriye çek, bırak ---- */
-function mgArcade(el){
+export function mgArcade(el){
   mkStage(el,"Pota makinesi");
   return new Promise(res=>{
     const DUR=30,HY=112,BY=345,IDEAL=[.55,.8];let score=0,shots=0,t=0,phase=0,flash=0,msg="",mt=0,drag=null,ball=null,cool=0;
@@ -32,7 +36,7 @@ function mgArcade(el){
     CV.onpointermove=e=>{if(!drag)return;const q=ppos(e);drag.x=q.x;drag.y=q.y};
     CV.onpointerup=CV.onpointercancel=()=>{if(!drag)return;const{dx,dy,p}=pull();drag=null;if(p<.12||dy>=-8)return;
       const k=(BY-HY)/(-dy),tx=clamp(180+dx*k,24,336),reach=p/((IDEAL[0]+IDEAL[1])/2);
-      ball={tx,reach,t:0,dur:.5};shots++;buzz(8);sfx("throw")};
+      ball={tx,reach,t:0,dur:.5};shots++;buzz(8);late.sfx("throw")};
     const stop=loop((dt,T)=>{const c=CX;t+=dt;cool-=dt;
       phase+=dt*(.9+Math.min(score,20)*.05);const hx=180+Math.sin(phase)*95;
       const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#1a0f33");g.addColorStop(1,"#0a0616");c.fillStyle=g;c.fillRect(0,0,W,H);
@@ -46,7 +50,7 @@ function mgArcade(el){
         drawBall(c,x,y,16*s,T*6);
         if(p>=1){const close=Math.abs(ball.tx-hx)<25;let made=false;
           if(r<.86)msg="Kısa kaldı";else if(r>1.16){made=close&&Math.random()<.3;msg=made?"Panyadan sayı":"Uzun gitti"}else{made=close;msg=made?"Sayı":"Iska"}
-          if(made){score++;flash=.6;buzz(15);sfx("swish")}else sfx(r>1.16?"board":"rim");mt=.7;ball=null;cool=.15}}
+          if(made){score++;flash=.6;buzz(15);late.sfx("swish")}else late.sfx(r>1.16?"board":"rim");mt=.7;ball=null;cool=.15}}
       else{
         if(drag){const{dx,dy,p}=pull();const bx=180+clamp(drag.x-drag.x0,-40,40)*.4,by=BY+clamp(drag.y-drag.y0,0,60)*.4;slingBand(c,180,BY,bx,by);drawBall(c,bx,by,16,0);if(dy<-8)powerArrow(c,180,BY-20,dx,dy,p,IDEAL)}
         else drawBall(c,180,BY,16,0)}
@@ -61,12 +65,12 @@ function mgArcade(el){
   });
 }
 /* ---- Refleks paneli ---- */
-function mgReflex(el){
+export function mgReflex(el){
   mkStage(el,"Refleks paneli");
   return new Promise(res=>{
     const DUR=20;let score=0,t=0,lit=[],miss=0,pulse={};const pos=Array.from({length:9},(_,i)=>({x:70+(i%3)*110,y:150+Math.floor(i/3)*110}));
     const add=()=>{let k;do k=ri(0,8);while(lit.some(l=>l.k===k));lit.push({k,life:Math.max(.55,1.1-t*.025)})};add();
-    CV.onpointerdown=e=>{const p=ppos(e);const k=pos.findIndex(q=>Math.hypot(q.x-p.x,q.y-p.y)<48);if(k<0)return;const i=lit.findIndex(l=>l.k===k);pulse[k]=.25;if(i>=0){lit.splice(i,1);score++;buzz(6);sfx("blip");if(!lit.length)add()}else{score=Math.max(0,score-1);miss=.25;sfx("error")}};
+    CV.onpointerdown=e=>{const p=ppos(e);const k=pos.findIndex(q=>Math.hypot(q.x-p.x,q.y-p.y)<48);if(k<0)return;const i=lit.findIndex(l=>l.k===k);pulse[k]=.25;if(i>=0){lit.splice(i,1);score++;buzz(6);late.sfx("blip");if(!lit.length)add()}else{score=Math.max(0,score-1);miss=.25;late.sfx("error")}};
     const stop=loop((dt,T)=>{const c=CX;t+=dt;
       lit.forEach(l=>l.life-=dt);if(lit.some(l=>l.life<=0)){lit=lit.filter(l=>l.life>0);if(!lit.length)add()}
       if(t>8&&lit.length<2&&Math.random()<dt*.8)add();
@@ -81,7 +85,7 @@ function mgReflex(el){
   });
 }
 /* ---- Hava hokeyi ---- */
-function mgHockey(el){
+export function mgHockey(el){
   mkStage(el,"Hava hokeyi");
   return new Promise(res=>{
     const R=26,PR=12,GW=64,MAXV=720,TOP=12,BOT=H-12,L=12,RT=W-12;
@@ -93,7 +97,7 @@ function mgHockey(el){
     const collide=m=>{const dx=pk.x-m.x,dy=pk.y-m.y,d=Math.hypot(dx,dy),min=R+PR;if(d<min&&d>0){const nx=dx/d,ny=dy/d;pk.x=m.x+nx*min;pk.y=m.y+ny*min;
       const rvx=pk.vx-m.vx,rvy=pk.vy-m.vy,vn=rvx*nx+rvy*ny;if(vn<0){pk.vx-=1.9*vn*nx;pk.vy-=1.9*vn*ny}pk.vx+=nx*70;pk.vy+=ny*70;
       // pak duvarla raket arasında sıkıştıysa raketi geri it
-      sfx("puck");if(pk.x<=L+PR+.5||pk.x>=RT-PR-.5||pk.y<=TOP+PR+.5||pk.y>=BOT-PR-.5){m.x-=nx*6;m.y-=ny*6}buzz(5)}};
+      late.sfx("puck");if(pk.x<=L+PR+.5||pk.x>=RT-PR-.5||pk.y<=TOP+PR+.5||pk.y>=BOT-PR-.5){m.x-=nx*6;m.y-=ny*6}buzz(5)}};
     const stop=loop((dt,T)=>{const c=CX;t+=dt;
       const nx=P.x+(P.tx-P.x)*Math.min(1,dt*22),ny=P.y+(P.ty-P.y)*Math.min(1,dt*22);P.vx=(nx-P.x)/dt;P.vy=(ny-P.y)/dt;P.x=nx;P.y=ny;
       // yapay zekâ: pakın arkasına geçip oyuncunun kalesine doğru vurur
@@ -106,8 +110,8 @@ function mgHockey(el){
       if(pause>0)pause-=dt;else{
         const steps=4;for(let s=0;s<steps;s++){const h=dt/steps;pk.x+=pk.vx*h;pk.y+=pk.vy*h;
           if(pk.x<L+PR){pk.x=L+PR;pk.vx=Math.abs(pk.vx)*.9}if(pk.x>RT-PR){pk.x=RT-PR;pk.vx=-Math.abs(pk.vx)*.9}
-          if(pk.y<TOP+PR){if(Math.abs(pk.x-180)<GW){me++;msg="Gol";mt=1;buzz(30);sfx("cheer");reset(-1);break}pk.y=TOP+PR;pk.vy=Math.abs(pk.vy)*.9}
-          if(pk.y>BOT-PR){if(Math.abs(pk.x-180)<GW){ai++;msg="Rakip golü";mt=1;sfx("buzzer");reset(1);break}pk.y=BOT-PR;pk.vy=-Math.abs(pk.vy)*.9}
+          if(pk.y<TOP+PR){if(Math.abs(pk.x-180)<GW){me++;msg="Gol";mt=1;buzz(30);late.sfx("cheer");reset(-1);break}pk.y=TOP+PR;pk.vy=Math.abs(pk.vy)*.9}
+          if(pk.y>BOT-PR){if(Math.abs(pk.x-180)<GW){ai++;msg="Rakip golü";mt=1;late.sfx("buzzer");reset(1);break}pk.y=BOT-PR;pk.vy=-Math.abs(pk.vy)*.9}
           collide(P);collide(A)}
         pk.vx*=1-dt*.3;pk.vy*=1-dt*.3;const m=Math.hypot(pk.vx,pk.vy);if(m>MAXV){pk.vx*=MAXV/m;pk.vy*=MAXV/m}
         // köşede ya da duvar dibinde duran pak: merkeze doğru it
@@ -129,7 +133,7 @@ function mgHockey(el){
   });
 }
 /* ---- Dans ritmi / karaoke ---- */
-function mgRhythm(el,{title,karaoke}){
+export function mgRhythm(el,{title,karaoke}){
   mkStage(el,title);
   return new Promise(res=>{
     const lanes=[54,138,222,306],cols=["#ff3fa4","#29b6f6","#ffd54f","#66bb6a"],HY=400,DUR=24,SPEED=250;
@@ -138,7 +142,7 @@ function mgRhythm(el,{title,karaoke}){
     const beat=.5;for(let k=2;k<DUR/beat-3;k++){if(k%8===7)continue;const l=(k*3+Math.floor(k/4))%4;notes.push({l,at:k*beat});if(k>16&&k%4===0)notes.push({l:(l+2)%4,at:k*beat});total++}
     total=notes.length;
     const press=l=>{flashL[l]=.15;const yOf=n=>HY-(n.at-t)*SPEED;const cand=notes.filter(n=>n.l===l&&!n.hit&&!n.miss).sort((a,b)=>Math.abs(yOf(a)-HY)-Math.abs(yOf(b)-HY))[0];
-      if(cand&&Math.abs(yOf(cand)-HY)<46){cand.hit=true;hits++;const pf=Math.abs(yOf(cand)-HY)<20;score+=pf?2:1;combo++;best=Math.max(best,combo);fb=pf?"Tam zamanında":"İyi";ft=.35;buzz(5);sfx("note",l)}else{combo=0;fb="Erken";ft=.25}};
+      if(cand&&Math.abs(yOf(cand)-HY)<46){cand.hit=true;hits++;const pf=Math.abs(yOf(cand)-HY)<20;score+=pf?2:1;combo++;best=Math.max(best,combo);fb=pf?"Tam zamanında":"İyi";ft=.35;buzz(5);late.sfx("note",l)}else{combo=0;fb="Erken";ft=.25}};
     $("#mgC").innerHTML=lanes.map((_,i)=>`<button class="btn" data-l="${i}" style="background:${cols[i]};border-color:${cols[i]};color:#141414" aria-label="Şerit ${i+1}">●</button>`).join("");
     $$("#mgC [data-l]").forEach(b=>b.onpointerdown=e=>{e.preventDefault();press(+b.dataset.l)});
     CV.onpointerdown=e=>{const p=ppos(e);press(clamp(Math.floor(p.x/90),0,3))};
@@ -158,7 +162,7 @@ function mgRhythm(el,{title,karaoke}){
   });
 }
 /* ---- Bowling: geriye çek, nişan al, bırak ---- */
-function mgBowling(el){
+export function mgBowling(el){
   mkStage(el,"Bowling");
   return new Promise(res=>{
     const ROLLS=3,BX=180,BY=430,IDEAL=[.6,.85];let roll=0,total=0,ph="aim",t=0,drag=null,ball=null,pins=[],msg="",mt=0;
@@ -167,12 +171,12 @@ function mgBowling(el){
     CV.onpointerdown=e=>{if(ph!=="aim")return;const q=ppos(e);drag={x0:q.x,y0:q.y,x:q.x,y:q.y};try{CV.setPointerCapture(e.pointerId)}catch(_){}};
     CV.onpointermove=e=>{if(!drag)return;const q=ppos(e);drag.x=q.x;drag.y=q.y};
     CV.onpointerup=CV.onpointercancel=()=>{if(!drag)return;const{dx,dy,p}=pull();drag=null;if(p<.12||dy>=-8)return;
-      const aimX=clamp(BX+dx*((BY-140)/(-dy))*.35,130,230);ball={x:BX,y:BY,s:1,sx:BX,aimX,pow:p};ph="roll";buzz(8);sfx("roll")};
+      const aimX=clamp(BX+dx*((BY-140)/(-dy))*.35,130,230);ball={x:BX,y:BY,s:1,sx:BX,aimX,pow:p};ph="roll";buzz(8);late.sfx("roll")};
     const stop=loop((dt,T)=>{const c=CX;t+=dt;
       if(ph==="roll"){const sp=300+ball.pow*460;ball.y-=sp*dt;const prog=clamp((BY-ball.y)/(BY-140),0,1);ball.x=ball.sx+(ball.aimX-ball.sx)*prog;ball.s=clamp(.45+(ball.y-80)/350*.55,.45,1);
         if(ball.y<140){let knocked=0;const pw=ball.pow,over=pw>IDEAL[1]?(pw-IDEAL[1])*1.5:0,under=pw<IDEAL[0]?(IDEAL[0]-pw)*1.6:0;
           pins.forEach(p=>{const d=Math.abs(p.x-ball.x);const ch=clamp((1-d/(58+pw*36))*(1-under-over*.5)+(1-Math.abs(ball.x-180)/90)*.2,0,1);if(Math.random()<ch){p.up=false;knocked++}});
-          total+=knocked;msg=knocked===10?"Strike · 10 lobut":knocked?`${knocked} lobut`:"Oluk";mt=1.3;ph="show";t=0;buzz(knocked>5?25:8);sfx(knocked===10?"strike":knocked?"pin":"error")}}
+          total+=knocked;msg=knocked===10?"Strike · 10 lobut":knocked?`${knocked} lobut`:"Oluk";mt=1.3;ph="show";t=0;buzz(knocked>5?25:8);late.sfx(knocked===10?"strike":knocked?"pin":"error")}}
       pins.forEach(p=>{if(!p.up&&p.fall<1)p.fall=Math.min(1,p.fall+dt*4)});
       if(ph==="show"&&t>1.5){roll++;if(roll>=ROLLS){finish(stop,res,{score:total,label:`${total} lobut`});return}setPins();ball=null;ph="aim";t=0}
       c.fillStyle="#140d08";c.fillRect(0,0,W,H);
