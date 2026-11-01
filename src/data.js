@@ -73,6 +73,16 @@ export const Bus = {
 };
 // Otomatik test modu (denge simülasyonu): kayıt, ses, bildirim ve olay panelleri kapatılır
 export const SIM = () => !!window.__SIM;
+// Başarı/hata renkleri CSS değişkeninden okunur: renk körlüğü modunda (Ayarlar) mavi/turuncu olur, tuvaller de uyar
+const cssVar = (k, d) => {
+  try {
+    return getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+  } catch (e) {
+    return d;
+  }
+};
+export const GOOD = () => cssVar("--good", "#36d38e");
+export const BAD = () => cssVar("--bad", "#ff5468");
 export const esc = s =>
   String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 export const hash = s => {

@@ -32,6 +32,7 @@ import * as notify from "./notify.js";
 import * as errors from "./errors.js";
 import * as state from "./state.js";
 import * as cloud from "./cloud.js";
+import * as card from "./card.js";
 
 const MODULES = [
   data,
@@ -64,7 +65,8 @@ const MODULES = [
   notify,
   errors,
   state,
-  cloud
+  cloud,
+  card
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

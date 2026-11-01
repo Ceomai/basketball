@@ -378,6 +378,12 @@ export function finishMatch(win) {
   S.buffs.motive = 0;
   const bonus = matchBonus({ stage: S.stage, wage: S.wage, rating: r, win });
   if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("match.132"), Math.round(S.wage * 0.15));
+  // önemli maçı kendin oynadıysan: taraftar ve takipçi (kazanınca daha çok)
+  if (M.big && !M.auto) {
+    S.rel.taraf += win ? 4 : 2;
+    S.followers = Math.round(S.followers * (win ? 1.05 : 1.02));
+    news($t("big.news", { v: fullName(), label: M.big.label }));
+  }
   tx(
     $t("match.116", {
       short: opp.short
@@ -1043,7 +1049,7 @@ export function retireScreen() {
              last: esc(S.last)
            })
    }</p>
-   <button class="btn pri big" id="nw">${$t("match.92")}</button></div>
+   <div class="grid2"><button class="btn pri big" id="nw">${$t("match.92")}</button>${late.cardButtonHTML()}</div></div>
   ${late.hofCard()}
   ${late.afterCareerHTML()}
   <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
@@ -1054,6 +1060,7 @@ export function retireScreen() {
   }
   $("#nw").onclick = renderSlots;
   late.bindAfterCareer(retireScreen);
+  late.bindCardButton(retireScreen);
 }
 
 // Diğer modüllerin bu değişkenleri değiştirebilmesi için ayarlayıcılar

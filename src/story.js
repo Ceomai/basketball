@@ -309,7 +309,7 @@ export function autoWeekPlan() {
     S.energy -= 18;
     out.push([
       $t("story.22", {
-        v: best[0]
+        v: best[1]
       }),
       g
         ? `+${g} ${statName(k)}`
@@ -325,6 +325,7 @@ export function autoWeekPlan() {
 export function quickWeek() {
   closeSheet();
   const plan = autoWeekPlan();
+  const big = bigMatch();
   const fx = fixture(),
     opp = teamByKey(fx.opp);
   sheet(
@@ -335,7 +336,8 @@ export function quickWeek() {
     }),
     `<div class="card"><div class="eyebrow">${t("quick.did")}</div>${plan.length ? `<div class="kv">${plan.map(([a, b]) => `<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>` : `<p class="small muted">${t("quick.full")}</p>`}</div>
    <div class="card"><div class="eyebrow">${t("quick.next")}</div><div class="row nowrap" style="gap:10px">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? t("main.home") : t("main.away")} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">${t("quick.injured")}</p>` : `<p class="small muted">${t("quick.autoNote")}</p>`}</div>
-   ${S.injury ? `<button class="btn pri" id="qw-sim">${t("quick.watch")}</button>` : `<div class="grid2"><button class="btn" id="qw-self">${t("quick.self")}</button><button class="btn pri" id="qw-sim">${t("quick.sim")}</button></div>`}`,
+   ${big ? `<div class="say" style="border-left-color:var(--gold)"><b>${esc(big.label)}</b> ${t("big.invite")}</div>` : ""}
+   ${S.injury ? `<button class="btn pri" id="qw-sim">${t("quick.watch")}</button>` : `<div class="grid2"><button class="btn ${big ? "pri" : ""}" id="qw-self">${t("quick.self")}</button><button class="btn ${big ? "ghost" : "pri"}" id="qw-sim">${t("quick.sim")}</button></div>`}`,
     { noClose: true }
   );
   $("#qw-sim").onclick = () => {
@@ -470,6 +472,22 @@ export function rivalInfo() {
           .join("")}</table></div>`
       : ""
   }</div>`;
+}
+/** Önemli maç: final, yarı final, rakip oyuncuyla derbi, ligin ilk ikisinin zirve maçı. Hızlı haftada "kendin oyna"
+    öne çıkarılır; elle oynayana taraftar ve takipçi bonusu verilir (finishMatch). */
+export function bigMatch() {
+  if (!S || S.injury || !S.league || !S.teams) return null;
+  if (S.phase === "final") return { kind: "final", label: $t("big.final") };
+  if (S.phase === "semi") return { kind: "semi", label: $t("big.semi") };
+  const fx = fixture(),
+    opp = fx && teamByKey(fx.opp);
+  if (!opp) return null;
+  if (isDerby(opp)) return { kind: "derby", label: $t("big.derby", { v: rivalName() }) };
+  const top = standings()
+    .slice(0, 2)
+    .map(r => r.key);
+  if (S.week >= 4 && top.includes(S.team.key) && top.includes(opp.key)) return { kind: "top", label: $t("big.top") };
+  return null;
 }
 export const isDerby = opp => !!(S.rival && opp && S.rival.team && opp.key === S.rival.team.key);
 export function derbyResult(win) {

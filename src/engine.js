@@ -81,7 +81,9 @@ export async function playMatch(ctx) {
   const fit = ctx.comp === "nat" ? 0 : late.systemFit(),
     ourStr = S.team.str + (ovr() - TD() - 45) / 220 + fit * 0.002,
     ppp = SC[S.stage] / 70 / 2.25;
+  const big = ctx.comp === "nat" || ctx.onEnd ? null : late.bigMatch();
   setM({
+    big,
     opp,
     home: ctx.home,
     us: 0,
