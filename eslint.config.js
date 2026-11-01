@@ -13,7 +13,7 @@ const rules = {
   "no-unused-vars": "off"
 };
 module.exports = [
-  { ignores: ["node_modules/**", "dist/**", "android/**", "ios/**"] },
+  { ignores: ["node_modules/**", "dist/**", "dist-single/**", "android/**", "ios/**"] },
   {
     files: ["src/**/*.js"],
     languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { ...globals.browser } },

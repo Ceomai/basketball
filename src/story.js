@@ -295,7 +295,7 @@ export function autoWeekPlan() {
     let best = drills[0],
       bv = -1;
     for (const d of drills) {
-      const v = W[d[2]] * (100 - S.st[d[2]]);
+      const v = W[d[2]] * (100 - S.st[d[2]]) * (late.program() === d[2] ? 2.5 : 1);
       if (v > bv) {
         bv = v;
         best = d;
@@ -304,6 +304,7 @@ export function autoWeekPlan() {
     const k = best[2],
       ratio = clamp(autoP(eff(k) + 10) * 0.9, 0, 1),
       g = drillGain(k, ratio);
+    Bus.emit("train:done", { k, ratio, auto: true });
     S.st[k] += g;
     S.energy -= 18;
     out.push([
@@ -524,7 +525,7 @@ export function roleReview() {
   const last = rated().slice(-4);
   if (last.length < 3) return false;
   const rec = last.reduce((a, r) => a + r.rating, 0) / last.length,
-    trust = S.rel.koc + (rec - 6.5) * 14 + dominance() * 1.2;
+    trust = S.rel.koc + (rec - 6.5) * 14 + dominance() * 1.2 + late.systemFit() * 1.5;
   const order = ["bench", "rot", "star"],
     i = order.indexOf(S.role);
   let to = null,

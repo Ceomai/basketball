@@ -57,7 +57,17 @@ import { M, afterMatch, potential, setM } from "./match.js";
 export const SETTINGS = (() => {
   try {
     return Object.assign(
-      { sound: true, vol: 0.7, haptic: true, crowd: true, backupNag: true, music: true, lowfx: false },
+      {
+        sound: true,
+        vol: 0.7,
+        haptic: true,
+        crowd: true,
+        backupNag: true,
+        music: true,
+        lowfx: false,
+        notify: true,
+        errorReports: true
+      },
       JSON.parse(localStorage.getItem("pota-settings") || "{}")
     );
   } catch (e) {
@@ -76,7 +86,7 @@ export function settingsSheet() {
     t("settings.title"),
     t("settings.sub"),
     `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts" style="grid-column:1/-1">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
-   ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
+   ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag", "notify", "errorReports"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
    ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
    <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
      [0.35, t("settings.volLow")],
@@ -86,6 +96,7 @@ export function settingsSheet() {
      .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}">${n}</button>`)
      .join("")}</div></div>
    ${late.adsSettingsHTML()}
+   ${late.cloudSettingsHTML()}
    ${late.testSettingsHTML()}
    <div class="grid2"><button class="btn" id="st-exp">${t("settings.backup")}</button><button class="btn" id="st-help">${t("btn.guide")}</button></div>
    <button class="btn ghost" id="st-tour">${t("settings.tour")}</button>`
@@ -130,6 +141,7 @@ export function settingsSheet() {
   );
   late.bindAdsSettings(settingsSheet);
   late.bindTestSettings(settingsSheet);
+  late.bindCloudSettings(settingsSheet);
   $("#st-exp").onclick = exportSheet;
   const ib = $("#st-inst");
   if (ib) ib.onclick = installSheet;
@@ -530,6 +542,7 @@ export function rosterTab(c) {
   const r = roster(),
     best = r.reduce((a, b) => (b.chem > a.chem ? b : a));
   c.innerHTML =
+    late.systemHTML() +
     `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("systems.50", {
       name: esc(S.team.name)
     })}</div><h3>${$t("systems.51")} ${Math.round(chemAvg())}/100</h3></div><span class="pill ${chemAvg() >= 60 ? "w" : ""}">${chemAvg() >= 60 ? $t("systems.48") : $t("systems.49")}</span></div><p class="small muted">${$t("systems.52")} <b>${esc(best.n)}</b>.</p>
@@ -608,27 +621,31 @@ export function negotiateOffer(o, done) {
     asks = 0,
     offer = { ...o };
   const view = msg => {
+    const cl = (offer.clauses = offer.clauses || {});
     sheet(
       $t("systems.64"),
       offer.team.name,
       `<div class="row nowrap">${crestSVG(offer.team, 48)}<div><div class="eyebrow">${esc(leagueName(offer.stage, offer.team.cc))}</div><h3>${esc(offer.team.name)}</h3><div class="small muted">${$t(
-        "systems.68",
-        {
-          city: esc(offer.team.city),
-          agent: esc(S.npc.agent)
-        }
-      )}</div></div></div>
+  "systems.68",
+  {
+    city: esc(offer.team.city),
+    agent: esc(S.npc.agent)
+  }
+)}</div></div></div>
       <div class="card"><div class="kv"><span>${$t("places.155")}</span><b class="gold">${fmt(offer.wage)}</b><span>${$t("match.39")}</span><b>${$t(
-        "systems.69",
-        {
-          years: offer.years
-        }
-      )}</b><span>${$t("places.21")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("systems.70")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("systems.71")}</span><b>${interest > 0.75 ? $t("systems.65") : interest > 0.55 ? $t("systems.66") : interest > 0.4 ? $t("match.2") : $t("systems.67")}</b></div></div>
+  "systems.69",
+  {
+    years: offer.years
+  }
+)}</b><span>${$t("places.21")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("systems.70")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("systems.71")}</span><b>${interest > 0.75 ? $t("systems.65") : interest > 0.55 ? $t("systems.66") : interest > 0.4 ? $t("match.2") : $t("systems.67")}</b></div></div>
       ${msg ? `<div class="say">${msg}</div>` : ""}
       <div class="eyebrow">${$t("systems.72", {
-        v: 3 - asks
-      })}</div>
+  v: 3 - asks
+})}</div>
       <div class="grid2"><button class="btn ghost sm" data-ask="wage" ${asks >= 3 ? "disabled" : ""}>${$t("systems.73")}</button><button class="btn ghost sm" data-ask="years" ${asks >= 3 || offer.years >= 4 ? "disabled" : ""}>${$t("systems.74")}</button><button class="btn ghost sm" data-ask="role" ${asks >= 3 || offer.role === "star" ? "disabled" : ""}>${$t("systems.75")}</button><button class="btn ghost sm" data-ask="bonus" ${asks >= 3 || offer.bonus ? "disabled" : ""}>${$t("systems.70")}</button></div>
+      <div class="eyebrow">${$t("systems.146")}</div>
+      <div class="grid3"><button class="btn ghost sm" data-ask="release" ${asks >= 3 || cl.release ? "disabled" : ""}>${$t("systems.147")}</button>${offer.stage !== "nba" ? `<button class="btn ghost sm" data-ask="nbaout" ${asks >= 3 || cl.nbaout ? "disabled" : ""}>${$t("systems.138")}</button>` : ""}<button class="btn ghost sm" data-ask="perf" ${asks >= 3 || cl.perf ? "disabled" : ""}>${$t("systems.148")}</button></div>
+      <p class="small muted">${$t("systems.149")}${Object.keys(cl).length ? ` <b>${$t("systems.145")} ${[cl.release && $t("systems.143"), cl.nbaout && $t("systems.138"), cl.perf && $t("systems.144")].filter(Boolean).join(", ")}</b>` : ""}</p>
       <div class="grid2"><button class="btn ghost" id="ng-back">${$t("systems.76")}</button><button class="btn good" id="ng-ok">${$t("systems.77")}</button></div>`,
       { noClose: true }
     );
@@ -637,7 +654,7 @@ export function negotiateOffer(o, done) {
         (b.onclick = () => {
           asks++;
           const k = b.dataset.ask,
-            ok = Math.random() < interest - (k === "role" ? 0.2 : 0) - asks * 0.06;
+            ok = Math.random() < interest - (k === "role" ? 0.2 : k === "release" || k === "nbaout" ? 0.1 : 0) - asks * 0.06;
           if (!ok) {
             interest -= 0.12;
             if (interest < 0.25) {
@@ -661,6 +678,7 @@ export function negotiateOffer(o, done) {
           if (k === "years") offer.years++;
           if (k === "role") offer.role = offer.role === "bench" ? "rot" : "star";
           if (k === "bonus") offer.bonus = Math.round(offer.wage * rnd(2, 4));
+          if (k === "release" || k === "nbaout" || k === "perf") offer.clauses = { ...(offer.clauses || {}), [k]: true };
           interest -= 0.05;
           view($t("systems.81"));
         })

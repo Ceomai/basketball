@@ -34,7 +34,7 @@ const EXCL_VARS = new Set([
 ]);
 const EXCL_FUNCS = new Set(["makeTeam", "parseClubs", "rosterNames", "mateNames", "saltOf", "cOf", "cityTheme", "makeRival"]);
 const EXCL_PROPS = new Set(["cities", "first", "last", "fem"]); // LEAGUES içindeki adlar (lig adları "t" dizisi ayrıca)
-const EXCL_WORDS = new Set(["Space", "Enter", "LRUD", "AbortError", "MMS", "Escape"]);
+const EXCL_WORDS = new Set(["Space", "Enter", "LRUD", "AbortError", "MMS", "Escape", "POST", "PATCH", "Bearer", "REQUIRED", "Error", "pota-kariyeri@1.0.0"]);
 const EXCL_CALLS = new Set([
   "$",
   "$$",

@@ -10,12 +10,13 @@
     "typecheck": "tsc -p tsconfig.json",
     "test:unit": "node --test \"tests/unit/*.test.mjs\"",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.{js,mjs}\" \"tools/**/*.js\"",
-    "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build && node tests/smoke.js && node tests/balance.js 3",
-    "test:balance": "npm run build && node tests/balance.js 10",
+    "test": "npm run lint && npm run typecheck && npm run test:unit && npm run build:single && node tests/smoke.js && node tests/balance.js 3",
+    "test:balance": "npm run build:single && node tests/balance.js 10",
     "android": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "playtest:report": "node tools/playtest-report.js",
-    "test:economy": "npm run build && node tests/economy.js 6 economy.json"
+    "test:economy": "npm run build:single && node tests/economy.js 6 economy.json",
+    "build:single": "vite build --mode single"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",
@@ -33,6 +34,7 @@
     "@capacitor/app": "^7.1.2",
     "@capacitor/core": "^7.6.10",
     "@capacitor/filesystem": "^7.1.9",
+    "@capacitor/local-notifications": "^7.0.7",
     "@capacitor/preferences": "^7.0.4",
     "@capacitor/share": "^7.0.4",
     "@capacitor/status-bar": "^7.0.6",

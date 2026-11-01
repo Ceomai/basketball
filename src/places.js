@@ -424,6 +424,7 @@ export function locStad(I, tab = "mac") {
   if (tab === "idman") {
     const list = [...DRILLS[S.pos], ...COMMON_DRILLS];
     c.innerHTML =
+      late.programHTML() +
       `<div class="eyebrow">${$t("places.80", {
         n: POS[S.pos].n
       })}</div>` +
@@ -512,6 +513,7 @@ export function locStad(I, tab = "mac") {
       locStad(I, "idman");
     };
     bindActs(m);
+    late.bindProgram(() => locStad(I, "idman"));
   }
   if (tab === "tablo") {
     c.innerHTML = `<div class="card"><div class="eyebrow">${esc(lgName())} · ${seasonLabel()}</div><div class="tbl"><table><tr><th>#</th><th>${$t("data.36")}</th><th>G</th><th>M</th><th>${$t("places.89")}</th></tr>${standings()
@@ -578,7 +580,8 @@ export function runGame(kind, el, e, reps, title) {
 // antrenman kazancı: başarı oranı, mevcut nitelik ve bonuslar; denge simülasyonu da aynı fonksiyonu kullanır
 export function drillGain(k, ratio) {
   S.stf = S.stf || {};
-  const f = trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 });
+  const f =
+    trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) * late.programMul(k);
   if (S.buffs.train > 0) S.buffs.train--;
   S.stf[k] = (S.stf[k] || 0) + f;
   const g = Math.floor(S.stf[k]);
@@ -596,6 +599,7 @@ export async function runDrill([id, name, k, kind]) {
   })}</div><h2>${name}</h2></div></div><div id="stg"></div><div id="res"></div>`;
   const ratio = await runGame(kind, $("#stg"), clamp(eff(k) + 10, 5, 100), 3, name);
   const gain = drillGain(k, ratio);
+  Bus.emit("train:done", { k, ratio });
   S.st[k] += gain;
   if (ratio > 0.6) S.rel.koc += 2;
   norm();
@@ -1335,92 +1339,95 @@ export function locAile(I) {
       S.energy -= 8;
     }
   };
-  bindActs({
-    yemek: () => {
-      if (S.money < travel) return;
-      useSlot();
-      pay();
-      S.rel.aile += 12;
-      S.moral += 5;
-      norm();
-      save();
-      resultView(
-        $t("places.230"),
-        $t("places.231", {
-          mom: S.npc.mom,
-          dad: S.npc.dad
-        }),
-        [[$t("places.224"), "p"]]
-      );
+  bindActs(
+    {
+      yemek: () => {
+        if (S.money < travel) return;
+        useSlot();
+        pay();
+        S.rel.aile += 12;
+        S.moral += 5;
+        norm();
+        save();
+        resultView(
+          $t("places.230"),
+          $t("places.231", {
+            mom: S.npc.mom,
+            dad: S.npc.dad
+          }),
+          [[$t("places.224"), "p"]]
+        );
+      },
+      baba: async () => {
+        if (S.money < travel) return;
+        useSlot();
+        pay();
+        closeSheet();
+        arenaFor(null);
+        app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("places.232", {
+          home: esc(S.home)
+        })}</div><h2>${$t("places.233", {
+          dad: esc(S.npc.dad)
+        })}</h2></div><div id="stg"></div><div id="res"></div>`;
+        const r = await mgShoot($("#stg"), {
+          eff: clamp(eff("sut") + 25, 5, 100),
+          shots: 3,
+          title: $t("places.315"),
+          def: false
+        });
+        const win = r.made >= 2;
+        S.rel.aile += 6;
+        const k = pick(STATS)[0];
+        S.st[k] += 1;
+        norm();
+        save();
+        $("#stg").innerHTML = "";
+        $("#res").innerHTML = `<div class="card"><h2>${win ? $t("places.234") : $t("places.235")}</h2><p>${
+          win
+            ? $t("places.236", {
+                dad: S.npc.dad
+              })
+            : $t("places.237", {
+                dad: S.npc.dad
+              })
+        } ${$t("places.238", {
+          k: statName(k)
+        })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+        $("#bk").onclick = renderMain;
+      },
+      para: () => {
+        if (S.money < gift) return;
+        tx($t("places.347"), -gift);
+        S.rel.aile += 15;
+        S.moral += 4;
+        norm();
+        save();
+        resultView(
+          $t("places.239"),
+          $t("places.240", {
+            mom: S.npc.mom,
+            dad: S.npc.dad
+          }),
+          [[$t("places.227"), "p"]]
+        );
+      },
+      tel: () => {
+        S.buffs.called = S.week;
+        S.rel.aile += 4;
+        norm();
+        save();
+        resultView(
+          $t("places.241"),
+          $t("places.242", {
+            mom: S.npc.mom,
+            dad: S.npc.dad
+          }),
+          [[$t("places.229"), "p"]]
+        );
+      }
     },
-    baba: async () => {
-      if (S.money < travel) return;
-      useSlot();
-      pay();
-      closeSheet();
-      arenaFor(null);
-      app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("places.232", {
-        home: esc(S.home)
-      })}</div><h2>${$t("places.233", {
-        dad: esc(S.npc.dad)
-      })}</h2></div><div id="stg"></div><div id="res"></div>`;
-      const r = await mgShoot($("#stg"), {
-        eff: clamp(eff("sut") + 25, 5, 100),
-        shots: 3,
-        title: $t("places.315"),
-        def: false
-      });
-      const win = r.made >= 2;
-      S.rel.aile += 6;
-      const k = pick(STATS)[0];
-      S.st[k] += 1;
-      norm();
-      save();
-      $("#stg").innerHTML = "";
-      $("#res").innerHTML = `<div class="card"><h2>${win ? $t("places.234") : $t("places.235")}</h2><p>${
-        win
-          ? $t("places.236", {
-              dad: S.npc.dad
-            })
-          : $t("places.237", {
-              dad: S.npc.dad
-            })
-      } ${$t("places.238", {
-        k: statName(k)
-      })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
-      $("#bk").onclick = renderMain;
-    },
-    para: () => {
-      if (S.money < gift) return;
-      tx($t("places.347"), -gift);
-      S.rel.aile += 15;
-      S.moral += 4;
-      norm();
-      save();
-      resultView(
-        $t("places.239"),
-        $t("places.240", {
-          mom: S.npc.mom,
-          dad: S.npc.dad
-        }),
-        [[$t("places.227"), "p"]]
-      );
-    },
-    tel: () => {
-      S.buffs.called = S.week;
-      S.rel.aile += 4;
-      norm();
-      save();
-      resultView(
-        $t("places.241"),
-        $t("places.242", {
-          mom: S.npc.mom,
-          dad: S.npc.dad
-        }),
-        [[$t("places.229"), "p"]]
-      );
-    }
-  });
+    "social:done"
+  );
 }
 
 /* --- Kafe --- */
@@ -1507,106 +1514,109 @@ export function locKafe(I) {
       o: { jersey: "#e2741f", sleeves: true, gloves: "#2d8a3e", mood: "mutlu" }
     }
   });
-  bindActs({
-    sohbet: () => {
-      if (S.money < 3) return;
-      useSlot();
-      tx($t("map.20"), -3);
-      S.moral += 8;
-      S.rel.ark += 8;
-      norm();
-      save();
-      resultView(
-        $t("places.250"),
-        pick([
-          $t("places.251", {
-            f: f
-          }),
-          $t("places.252", {
-            f: f
-          }),
-          $t("places.253", {
-            f: f
-          })
-        ]),
-        [[$t("places.244"), "p"]]
-      );
-    },
-    izle: () => {
-      if (S.money < 5) return;
-      useSlot();
-      tx($t("map.20"), -5);
-      S.moral += 5;
-      let t = $t("places.254");
-      if (Math.random() < 0.5) {
-        S.st.pas += 1;
-        t += $t("places.255");
-      }
-      norm();
-      save();
-      resultView($t("places.256"), t, [[$t("places.143"), "p"]]);
-    },
-    oyun: () => {
-      useSlot();
-      S.moral += 12;
-      S.energy -= 8;
-      S.rel.ark += 5;
-      norm();
-      save();
-      resultView(
-        $t("places.257"),
-        $t("places.258", {
-          f: f
-        }),
-        [
-          [$t("places.247"), "p"],
-          [$t("extras.39"), "n"]
-        ]
-      );
-    },
-    flort: () => {
-      useSlot();
-      if (Math.random() < 0.3 + fame() / 250 + S.moral / 400) {
-        S.partner = pick(cOf(S.city).fem);
-        S.rel.partner = 50;
-        S.moral += 10;
-        news(
-          $t("places.349", {
-            v: fullName(),
-            partner: S.partner
-          })
-        );
+  bindActs(
+    {
+      sohbet: () => {
+        if (S.money < 3) return;
+        useSlot();
+        tx($t("map.20"), -3);
+        S.moral += 8;
+        S.rel.ark += 8;
         norm();
         save();
         resultView(
-          $t("places.259"),
-          $t("places.260", {
-            partner: S.partner
-          }),
-          [[$t("extras.37"), "p"]]
+          $t("places.250"),
+          pick([
+            $t("places.251", {
+              f: f
+            }),
+            $t("places.252", {
+              f: f
+            }),
+            $t("places.253", {
+              f: f
+            })
+          ]),
+          [[$t("places.244"), "p"]]
         );
-      } else {
-        S.moral -= 4;
+      },
+      izle: () => {
+        if (S.money < 5) return;
+        useSlot();
+        tx($t("map.20"), -5);
+        S.moral += 5;
+        let t = $t("places.254");
+        if (Math.random() < 0.5) {
+          S.st.pas += 1;
+          t += $t("places.255");
+        }
         norm();
         save();
-        resultView($t("casino.43"), $t("places.261"), [[$t("places.262"), "n"]]);
+        resultView($t("places.256"), t, [[$t("places.143"), "p"]]);
+      },
+      oyun: () => {
+        useSlot();
+        S.moral += 12;
+        S.energy -= 8;
+        S.rel.ark += 5;
+        norm();
+        save();
+        resultView(
+          $t("places.257"),
+          $t("places.258", {
+            f: f
+          }),
+          [
+            [$t("places.247"), "p"],
+            [$t("extras.39"), "n"]
+          ]
+        );
+      },
+      flort: () => {
+        useSlot();
+        if (Math.random() < 0.3 + fame() / 250 + S.moral / 400) {
+          S.partner = pick(cOf(S.city).fem);
+          S.rel.partner = 50;
+          S.moral += 10;
+          news(
+            $t("places.349", {
+              v: fullName(),
+              partner: S.partner
+            })
+          );
+          norm();
+          save();
+          resultView(
+            $t("places.259"),
+            $t("places.260", {
+              partner: S.partner
+            }),
+            [[$t("extras.37"), "p"]]
+          );
+        } else {
+          S.moral -= 4;
+          norm();
+          save();
+          resultView($t("casino.43"), $t("places.261"), [[$t("places.262"), "n"]]);
+        }
+      },
+      randevu: () => {
+        if (S.money < dp) return;
+        useSlot();
+        tx($t("places.263"), -dp);
+        S.rel.partner += 12;
+        S.moral += 6;
+        norm();
+        save();
+        resultView(
+          $t("places.263"),
+          $t("places.264", {
+            partner: S.partner
+          }),
+          [[$t("places.248"), "p"]]
+        );
       }
     },
-    randevu: () => {
-      if (S.money < dp) return;
-      useSlot();
-      tx($t("places.263"), -dp);
-      S.rel.partner += 12;
-      S.moral += 6;
-      norm();
-      save();
-      resultView(
-        $t("places.263"),
-        $t("places.264", {
-          partner: S.partner
-        }),
-        [[$t("places.248"), "p"]]
-      );
-    }
-  });
+    "social:done"
+  );
 }

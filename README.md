@@ -44,7 +44,14 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 - **Miras:** Ev → Miras sekmesinde miras puanı, oyuncunun vakfı (5 bağış programı) ve memleket kulübü Mavi Martı Spor Kulübü'ne ortaklık yer alır. %51 payla kulüp başkanı olunur. Emeklilikte miras puanına göre Şöhretler Müzesi değerlendirmesi yapılır (ilk oylamada, Şöhretler Müzesi, kulüp efsanesi).
 - **Kariyer yolu:** İstanbul'da lise, ardından gözlemci raporu, sonra 8 ülkenin (TR, ES, IT, FR, DE, GR, RS, LT) 3., 2. ve 1. ligleri, EuroLeague ve NBA. Her teklifte rol, maaş ve sözleşme süresi var.
 - **Şehir haritası:** oynadığın takımın şehrine göre değişiyor. Her şehrin kendi simge yapıları ve silueti var. Stadyum ve ev görselleri kariyer ilerledikçe büyüyor.
-- **Maç anları:** pozisyona özel kritik anlar oynanıyor. Çek-bırak şut, kaydırarak çalım, pas, blok, post-up, ribaund ve alley-oop var.
+- **Maç anları:** pozisyona özel kritik anlar oynanıyor. Çek-bırak şut, kaydırarak çalım, pas, blok, post-up, ribaund ve alley-oop var. Ayrıca özel anlar: son saniye hücumu (eşit ya da 3 sayıya kadar geride), 2'ye 1 hızlı hücum, perde savunması ve rakibin sataşması.
+- **Sezon antrenman programı:** Stadyum → Antrenman sekmesinden bir odak seçilir (şut, pas, çeviklik, güç, savunma ya da toparlanma). Odak nitelik %30 hızlı, diğerleri %10 yavaş gelişir; hızlı hafta da programa göre çalışır.
+- **Koçun sistemi:** her takımın bir oyun sistemi var (tempo, savunma, üçlük, pota altı, top paylaşımı). Niteliklerinin sisteme uyumu koçun güvenini, süreni ve maç notunu etkiler; teklif kartlarında uyum görünür.
+- **Sözleşme maddeleri:** pazarlıkta serbest kalma (üst ligden teklif gelince bedelsiz ayrılma), NBA çıkışı ve performans primi (7,5+ notlu maçta haftalık ücretin %15'i) istenebilir. Sözleşme sürerken başka kulübe gitmek fesih bedeli ister.
+- **Günlük ve haftalık görevler:** gerçek takvime göre her gün 3, her hafta 3 görev. Oyunu oynayarak ilerler (maç, antrenman, mini oyun, basın, satın alma); ödül para, enerji ya da fiş.
+- **Emeklilik sonrası:** antrenörlük, televizyon yorumculuğu ya da kulüp başkanlığı ile son bölüm (miras puanı kazandırır). İstersen oğlunla aynı soyadı ve formayla yeni bir kariyere başlarsın; Şöhretler Müzesi kademene göre nitelik bonusu alır.
+- **Bildirimler (uygulamada):** uygulama kapanınca tek bir yerel bildirim planlanır (enerji doldu, görevler yenilendi ya da "kariyerin seni bekliyor"). Ayarlar'dan kapatılabilir.
+- **Bulut kayıt (hazır, kapalı):** Google ile giriş ve Firebase üzerinden kayıt yedekleme. Yapılandırılınca açılır (docs/STORE.md).
 - **Mekanlar:**
   - Okul: sınıfta soru-cevap.
   - Medya merkezi: fotoğraf çekimi ve röportaj.
@@ -122,7 +129,9 @@ Reklam oyuncunun tercihidir; geçiş reklamları seyrek ve sınırlıdır. Ayrı
 
 ```
 index.html          stiller ve sayfa iskeleti
-src/main.js         giriş: modülleri sırayla yükler, "late" kaydını doldurur
+src/main.js         giriş: dil paketini yükler, ardından src/game.js'i
+src/game.js         modülleri sırayla yükler, "late" kaydını doldurur
+src/state.js        oyun durumunun tek tanımı ve createState (tsc ile denetlenir)
 src/logic/rules.js  saf oyun kuralları (denge, ekonomi, teklifler, ödüller, sakatlık); DOM ve global durum yok
 src/content/        veri olarak yazılmış olaylar (events.tr.js, events.en.js) ve motoru (events.js)
 src/i18n/           çok dil altyapısı: t("anahtar"), tr.js, en.js
@@ -137,6 +146,7 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
   - `on`/`emit`: bildirim (ör. "sakatlık bitti").
   - `use`/`run`: akışı durdurup sürdürebilen ara katman (ör. maç sonu basın toplantısı).
   - `offer`/`first`: haftada tek panel için sıralı sağlayıcılar.
+- **İki derleme:** `npm run build` → `dist/` (GitHub Pages ve Android; kod parçalı, İngilizce paket yalnızca İngilizce seçilince indirilir). `npm run build:single` → `dist-single/index.html` (tek dosya, çift tıklayınca açılır; testler bunu kullanır).
 - **Saf kurallar:** denge formülleri `src/logic/rules.js` içinde. Birim testleri (`tests/unit/`) ve `tsc` tip denetimi (JSDoc, sıkı mod) buradan geçer.
 - **Kayıt şeması:** `SAVE_V` ve `MIGRATIONS` (`src/save.js`). Yapı değişince sürüm artırılır, eski kayıtlar açılırken adımlar sırayla uygulanır.
 - **İçerik:** rastgele olaylar `src/content/events.tr.js` içinde veri olarak duruyor; yeni olay için kod gerekmez. Paket biçimi dosyanın başında anlatılıyor. Çeviriler aynı `id` ile `events.<dil>.js` dosyasına yazılır.
@@ -152,7 +162,15 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 | Dosya | İçerik |
 |---|---|
 | `index.html` | Stiller ve sayfa iskeleti |
-| `src/main.js`, `src/late.js` | Giriş noktası ve geç bağlama kaydı |
+| `src/main.js`, `src/game.js`, `src/late.js` | Giriş noktası, modül yükleyici ve geç bağlama kaydı |
+| `src/state.js` | Oyun durumunun tanımı |
+| `src/moments.js` | Özel maç anları |
+| `src/coach.js` | Antrenman programı ve koç sistemi |
+| `src/missions.js` | Günlük ve haftalık görevler |
+| `src/legacy.js` | Miras, Şöhretler Müzesi, emeklilik sonrası, oğulla devam |
+| `src/notify.js` | Yerel bildirimler |
+| `src/errors.js` | Hata kaydı ve Sentry'ye gönderim |
+| `src/cloud.js`, `src/logic/sync.js` | Bulut kayıt ve eşitleme kararı |
 | `src/logic/rules.js` | Saf oyun kuralları |
 | `src/content/` | Veri olarak rastgele olaylar ve olay motoru |
 | `src/i18n/` | Çok dil altyapısı |
@@ -192,9 +210,9 @@ npm test
 
 `npm test` sırasıyla şunları çalıştırır:
 - `eslint`: tanımsız değişken ve import hataları.
-- `tsc`: `src/logic` tip denetimi.
+- `tsc`: `src/logic` ve `src/state.js` tip denetimi.
 - Birim testleri: kurallar ve içerik paketleri.
-- Derleme.
+- Tek dosya derlemesi (`dist-single/`).
 - `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
 - `tests/balance.js`: kısa denge koşusu.
 

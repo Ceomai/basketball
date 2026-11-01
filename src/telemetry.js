@@ -1,4 +1,4 @@
-import { t as $t, LANG, t } from "./i18n/index.js";
+import { LANG, t } from "./i18n/index.js";
 /* ================= OYUN TESTİ KAYDI (telemetri) =================
    Amaç: gerçek oyuncuların oyunu nerede bıraktığını, hangi mini oyunda zorlandığını, maçları kendisi mi
    oynadığını ölçmek ve dengeyi bu veriyle ayarlamak.
@@ -130,7 +130,8 @@ export function reportData() {
     lang: LANG,
     ua: navigator.userAgent.slice(0, 120),
     events: TEL.events,
-    feedback: TEL.fb
+    feedback: TEL.fb,
+    errors: late.errorLog ? late.errorLog() : []
   };
 }
 export async function sendReport() {

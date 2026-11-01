@@ -4,15 +4,13 @@
    Yeni olay eklemek için kod değil, yalnızca içerik paketi düzenlenir. */
 import { ORDER, STATS, cOf, cityTheme, fmt, isPro, pick, statName, WAGE } from "../data.js";
 import { S, fame, tx } from "../core.js";
-import { LANG } from "../i18n/index.js";
+import { LANG, PACKS } from "../i18n/index.js";
 import { late } from "../late.js";
 import TR_BASE from "./events.tr.js";
 import TR_MORE from "./events.more.tr.js";
-import EN_BASE from "./events.en.js";
-import EN_MORE from "./events.more.en.js";
 
 const TR = [...TR_BASE, ...TR_MORE];
-const PACKS = { en: [...EN_BASE, ...EN_MORE] };
+// çeviri paketleri dil yüklenince i18n/index.js → PACKS.events içine gelir
 const CONDITIONS = {
   home: () => S.city === S.home,
   abroad: () => S.city !== S.home,
@@ -50,7 +48,7 @@ export const CONDITION_NAMES = Object.keys(CONDITIONS);
 // çeviri paketini Türkçe olayın üzerine yalnızca metin alanlarıyla bindirir
 function localize(ev) {
   if (LANG === "tr") return ev;
-  const tr = (PACKS[LANG] || []).find(x => x.id === ev.id);
+  const tr = PACKS.events.find(x => x.id === ev.id);
   if (!tr) return null;
   return {
     ...ev,

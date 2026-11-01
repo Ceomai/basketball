@@ -253,8 +253,15 @@ export function prodHTML(p) {
     dis = own || (p.slot && S.slot <= 0) || (p.price && S.money < p.price) || p.disabled;
   return `<div class="prod${own ? " own" : ""}"><div class="ic">${p.ic}</div><h3>${p.t}</h3><p>${p.d}</p>${p.fx ? fxHTML(p.fx) : ""}<button class="btn ${own ? "ghost" : p.cls || "team"} sm" data-act="${p.id}" ${dis ? "disabled" : ""}>${own ? $t("core.9") : p.btn || (p.price ? fmt(p.price) : $t("core.10"))}</button></div>`;
 }
-export function bindActs(map) {
-  $$("[data-act]").forEach(b => (b.onclick = () => map[b.dataset.act] && map[b.dataset.act]()));
+export function bindActs(map, tag) {
+  $$("[data-act]").forEach(
+    b =>
+      (b.onclick = () => {
+        if (!map[b.dataset.act]) return;
+        map[b.dataset.act]();
+        if (tag) Bus.emit(tag, { act: b.dataset.act });
+      })
+  );
 }
 export function resultView(title, text, fx) {
   $("#shb").innerHTML =
@@ -487,46 +494,9 @@ export function namePicker() {
 export function startCareer() {
   Bus.emit("career:start", { pos: F.pos });
   const co = LEAGUES.TR;
-  const st = { sut: 20, pas: 20, hiz: 20, guc: 20, sav: 20 };
-  for (const [k, v] of Object.entries(POS[F.pos].b)) st[k] += v;
-  S = {
-    first: F.first,
-    last: F.last,
-    home: "İstanbul",
-    city: "İstanbul",
-    pos: F.pos,
-    num: F.num,
-    look: { ...F.look },
-    age: 16,
-    year: 2026,
-    season: 1,
-    week: 1,
-    slot: 3,
-    stage: "lise",
-    stageSeason: 1,
-    studying: true,
-    uniYear: 0,
-    graduated: false,
-    uni: null,
-    role: "rot",
-    contract: 0,
-    st,
-    aka: 55,
-    energy: 85,
-    moral: 65,
-    money: 30,
-    followers: 140,
-    rel: { koc: 45, takim: 45, taraf: 20, aile: 70, ark: 60, partner: 0 },
-    partner: null,
-    housing: "oda",
-    items: {},
-    buffs: { train: 0, motive: 0, offer: 0 },
-    tx: [],
-    wage: WAGE.lise,
-    career: { games: 0, pts: 0, ast: 0, reb: 0, blk: 0, wins: 0, trophies: [], mvps: 0, earned: 0 },
-    hist: [],
-    news: [],
-    rec: { arcade: 0, reflex: 0 },
+  // durumun tek tanımı: src/state.js → createState
+  S = late.createState(F, {
+    posBonus: POS[F.pos].b,
     npc: {
       mom: pick(["Ayşe", "Fatma", "Hülya", "Sevgi"]),
       dad: pick(["Mehmet", "Ahmet", "Mustafa", "Hasan"]),
@@ -535,19 +505,18 @@ export function startCareer() {
       agent: pick(co.first) + " " + pick(co.last),
       journalist: pick(co.fem) + " " + pick(co.last),
       coach: pick(co.first) + " " + pick(co.last)
-    },
-    chapters: {},
-    teams: {},
-    studied: false,
-    tryout: null,
-    clubDeal: null
-  };
+    }
+  });
   S.saveSlot = F.slot || 1;
   S.wk14 = 1;
   S.schema = late.SAVE_V;
   S.team = makeTeam("mylise", "İstanbul", 0);
   newSeasonLeague();
   late.migrateStory();
+  if (F.heir) {
+    late.applyHeir(F.heir); // efsanenin oğlu: nitelik bonusu, miras, baba adı
+    F.heir = null;
+  }
   news(
     $t("core.85", {
       v: fullName(),
@@ -710,7 +679,7 @@ export function renderMain() {
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
-   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div></div>
+   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.missionsButtonHTML()}</div>
   <div class="card"><div class="eyebrow">${t("main.news")}</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
   <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
@@ -726,6 +695,7 @@ export function renderMain() {
   });
   $("#gostad").onclick = () => late.openLoc("stad", "mac");
   $("#quickw").onclick = late.quickWeek;
+  $("#msb").onclick = () => late.missionsSheet();
   const fbk = $("#fbk");
   if (fbk) fbk.onclick = () => late.feedbackSheet("main");
   Bus.emit("screen:main");
@@ -751,13 +721,16 @@ export function start(data) {
     renderMain();
   } else late.renderSlots();
 }
-window.addEventListener("load", async () => {
+// Oyun modülleri dil yüklendikten sonra yüklenir; sayfa "load" olayı çoktan olmuş olabilir
+async function boot() {
   window.claude?.hot?.snapshot?.(() => ({ S }));
   await late.storageRestore().catch(() => 0);
   window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
   late.maybeAskConsent();
   late.registerPWA();
-});
+}
+if (document.readyState === "complete") setTimeout(boot, 0);
+else window.addEventListener("load", boot);
 
 // Diğer modüllerin bu değişkenleri değiştirebilmesi için ayarlayıcılar
 export function setS(v) {

@@ -66,7 +66,8 @@ export function legacyBreakdown() {
     [$t("legacy.25"), S.coachCourse ? 30 : 0],
     [$t("legacy.26"), (S.items.akademi ? 150 : 0) + (S.items.salon ? 80 : 0)],
     [$t("legacy.27"), FOUNDATION.filter(f => lg.found[f.id]).reduce((a, f) => a + f.pts, 0)],
-    [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)]
+    [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
+    [$t("legacy.52"), S.epiloguePts || 0]
   ];
   return { parts, total: parts.reduce((a, p) => a + p[1], 0) };
 }
@@ -202,4 +203,109 @@ export function autoLegacy() {
   const lg = L();
   for (const f of FOUNDATION) if (!lg.found[f.id] && S.money >= f.p * 1.5) donate(f);
   if (lg.club < 100 && S.money >= CLUB.cost(lg.club / CLUB.step) * 1.5) buyShare();
+}
+
+/* ================= KARİYER SONRASI =================
+   - Kariyer sonrası bölüm (bir kez seçilir): antrenörlük, televizyon yorumculuğu ya da (çoğunluk payı varsa) kulüp başkanlığı
+   - Oğlunla yeni kariyer: aynı soyadı ve görünüş, mirasın küçük bir kısmı, Şöhretler Müzesi kademesine göre nitelik bonusu */
+export const EPILOGUES = [
+  {
+    id: "koc",
+    n: $t("legacy.53"),
+    pts: 50,
+    need: () => true,
+    text: s =>
+      $t("legacy.54", {
+        s: s
+      })
+  },
+  {
+    id: "tv",
+    n: $t("legacy.55"),
+    pts: 30,
+    need: () => true,
+    text: s => $t("legacy.56", {
+      s: s
+    })
+  },
+  {
+    id: "baskan",
+    n: $t("legacy.57"),
+    pts: 80,
+    need: () => (S.legacy && S.legacy.club) >= CLUB.majority,
+    text: s => $t("legacy.58", {
+      s: s,
+      name: CLUB.name
+    })
+  }
+];
+export function afterCareerHTML() {
+  const ep = S.epilogue && EPILOGUES.find(e => e.id === S.epilogue);
+  return `<div class="card"><div class="eyebrow">${$t("legacy.52")}</div>${ep
+  ? `<h3>${esc(ep.n)}</h3><p>${esc(ep.text(fullName()))}</p>`
+  : `<p class="small">${$t("legacy.60")}</p><div class="choices">${EPILOGUES.filter(
+      e => e.need()
+    )
+      .map(
+        e =>
+          `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.59", {
+  pts: e.pts
+})}</span></button>`
+      )
+      .join("")}</div>`}</div>
+  <div class="card"><div class="eyebrow">${$t("legacy.61")}</div><p class="small">${$t("legacy.62")}</p><button class="btn team" id="heir">${$t("legacy.63")}</button></div>`;
+}
+export function bindAfterCareer(re) {
+  $$("[data-ep]").forEach(
+    b =>
+      (b.onclick = () => {
+        const ep = EPILOGUES.find(e => e.id === b.dataset.ep);
+        S.epilogue = ep.id;
+        S.epiloguePts = ep.pts;
+        Bus.emit("legacy", { kind: "epilogue", id: ep.id });
+        save();
+        re();
+      })
+  );
+  const h = $("#heir");
+  if (h) h.onclick = startHeir;
+}
+export function heirBonus(score) {
+  const i = HOF.findIndex(x => score >= x[0]);
+  return [4, 3, 2, 1][i < 0 ? 3 : i];
+}
+function startHeir() {
+  const score = legacyScore(),
+    slot = (() => {
+      for (let i = 1; i <= 5; i++) if (i !== S.saveSlot && !late.loadSlot(i)) return i;
+      return S.saveSlot; // boş yuva yoksa emekli kariyerin yuvası kullanılır
+    })();
+  const F = late.F;
+  F.first = late.pick(late.NAME_FIRST.filter(n => n !== S.first));
+  F.last = S.last;
+  F.pos = late.pick(["PG", "SG", "SF", "PF", "C"]);
+  F.look = { ...S.look };
+  F.num = S.num;
+  F.slot = slot;
+  F.heir = {
+    parent: fullName(),
+    parentFirst: S.first,
+    bonus: heirBonus(score),
+    money: Math.min(4000, Math.round(S.money * 0.05)),
+    tier: hofTier(score)[1]
+  };
+  late.save();
+  late.renderCreate();
+}
+/** startCareer içinden: varis bonusları */
+export function applyHeir(h) {
+  for (const k in S.st) S.st[k] += h.bonus;
+  S.money += h.money;
+  S.npc.dad = h.parentFirst;
+  S.heir = h;
+  news($t("legacy.64", {
+    v: fullName(),
+    parent: h.parent,
+    name: S.team.name
+  }));
 }

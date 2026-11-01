@@ -3,7 +3,7 @@
 const { chromium } = require("playwright");
 const path = require("path");
 // Derlenmiş tek dosyalık oyun (npm run build). Oyunun dışa aktarımlarına sayfada window.Game üzerinden erişilir.
-const URL = "file://" + path.resolve(__dirname, "..", "dist", "index.html");
+const URL = "file://" + path.resolve(__dirname, "..", "dist-single", "index.html");
 const fails = [];
 const check = (ok, msg) => {
   if (!ok) fails.push(msg);
@@ -283,14 +283,82 @@ const check = (ok, msg) => {
   check(lg.tab && lg.legacy && lg.hof, "miras sekmesi, vakıf, kulüp payı ve Şöhretler Müzesi çalışıyor");
   check(lg.bloomer, "geç açılan çiçek zinciri sezon sonu teklifi üretiyor");
 
+  // 7d) görevler, antrenman programı, koç sistemi, sözleşme maddeleri, özel anlar, emeklilik sonrası, teknik
+  const nx = await p.evaluate(() => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const S = Game.S;
+    // görevler: maç sonu olayıyla ilerler, ödül alınır
+    S.missions = null;
+    const M = Game.missions();
+    M.daily = [{ id: "win", p: 0, done: false, claimed: false }, ...M.daily.slice(1)];
+    Game.Bus.emit("match:end", { win: true, auto: true, rating: 6, pts: 4 });
+    out.mDone = M.daily[0].done;
+    Game.closeSheet();
+    Game.missionsSheet();
+    const before = S.money;
+    document.querySelector('[data-ms="d:win"]').click();
+    out.mClaim = M.daily[0].claimed && S.money > before;
+    Game.closeSheet();
+    // antrenman programı
+    S.program = "sut";
+    out.prog = Game.programMul("sut") > 1 && Game.programMul("pas") < 1;
+    S.program = "denge";
+    // koç sistemi uyumu
+    const f = Game.systemFit();
+    out.fit = f >= -8 && f <= 8 && /\w/.test(Game.systemHTML());
+    // sözleşme: fesih bedeli ve serbest kalma maddesi
+    S.stage = "t2";
+    S.contract = 2;
+    S.wage = 100;
+    S.clauses = {};
+    const up = { team: S.team, stage: "t1", wage: 150 };
+    out.fee = Game.buyoutFor(up) === 800;
+    S.clauses = { release: true };
+    out.release = Game.buyoutFor(up) === 0 && Game.buyoutFor({ ...up, stage: "t3" }) === 800;
+    S.clauses = { nbaout: true };
+    out.nbaout = Game.buyoutFor({ ...up, stage: "nba" }) === 0;
+    // özel maç anları: seçenekleri ve çözümü olan biçim
+    let sp = null;
+    for (let i = 0; i < 400 && !(sp && sp.opts); i++) sp = Game.pickSpecial(true, false, 0, "Rakip");
+    out.special = !!(sp && sp.opts && sp.opts.length >= 2 && typeof sp.resolve === "function");
+    const last = Game.pickSpecial(true, true, -2, "Rakip");
+    out.lastShot = !!(last && last.keys && last.keys.length);
+    // emeklilik sonrası: son bölüm seçimi ve oğulla devam
+    S.epilogue = null;
+    const html = Game.afterCareerHTML();
+    out.epi = /data-ep="koc"/.test(html) && /id="heir"/.test(html);
+    out.heir = Game.heirBonus(99999) === 4 && Game.heirBonus(0) === 1;
+    // teknik: bildirim seçimi, Sentry adresi, durum modülü, bulut eşitleme kararı
+    const n1 = Game.nextNotification({ energy: 20 }),
+      n2 = Game.nextNotification({ energy: 90, openMissions: 2 });
+    out.notify = !!n1 && n2.at.getHours() === 19;
+    out.sentry =
+      Game.envelopeURL("https://abc@o1.ingest.sentry.io/123") ===
+        "https://o1.ingest.sentry.io/api/123/envelope/?sentry_key=abc&sentry_version=7" &&
+      JSON.parse(Game.sentryEnvelope({ m: "x", stack: ["a"] }).split("\n")[2]).exception.values[0].value === "x";
+    out.state =
+      Game.createState({ first: "A", last: "B", pos: "PG", num: 7, look: {} }, { posBonus: { pas: 5 }, npc: {} }).st.pas === 25;
+    out.sync = Game.syncDecision({ ts: 5000 }, null) === "upload" && Game.syncDecision(null, { ts: 1 }) === "download";
+    out.cloudOff = !Game.cloudReady() && /Bulut/.test(Game.cloudSettingsHTML());
+    return out;
+  });
+  check(nx.mDone && nx.mClaim, "günlük görev maçla ilerliyor ve ödülü alınıyor");
+  check(nx.prog && nx.fit, "antrenman programı ve koç sistemi uyumu çalışıyor");
+  check(nx.fee && nx.release && nx.nbaout, "sözleşme fesih bedeli ve maddeleri doğru");
+  check(nx.special && nx.lastShot, "özel maç anları üretiliyor");
+  check(nx.epi && nx.heir, "emeklilik sonrası seçenekler ve oğulla devam var");
+  check(nx.notify && nx.sentry && nx.state && nx.sync && nx.cloudOff, "bildirim, hata raporu, durum ve bulut mantığı doğru");
+
   // 8) veri tabanlı olaylar ve dil seçimi
-  const ev = await p.evaluate(() => {
+  const ev = await p.evaluate(async () => {
     const out = {};
     Game.setS(Game.loadSlot(1).S);
     const pool = Game.eventPool();
     out.pool = pool.length;
     out.ran = pool.every(e => typeof e.choices[0].do() === "string" && !/\{\w+\}/.test(e.text));
     Game.setLang("en");
+    await Game.loadLang();
     out.en = Game.eventPool().length > 0 && Game.eventPool().every(e => !/[ğışçöü]/i.test(e.title));
     Game.renderSlots();
     out.ui = document.querySelector("#app").textContent.includes("Career slots");
