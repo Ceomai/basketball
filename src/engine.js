@@ -349,6 +349,7 @@ export async function playMatch(ctx) {
       opts,
       ty = us ? (Math.random() < 0.13 ? "foul" : "off") : "def";
     // özel anlar (src/moments.js): 2'ye 1, perde savunması, sataşma, son hücum
+    M.clutchNow = !!clutch;
     const sp = late.pickSpecial(us, clutch, diff, dn);
     if (sp && sp.opts) {
       ty = sp.ty === "def" ? "def" : "sp";
@@ -382,6 +383,9 @@ export async function playMatch(ctx) {
         desc = sp.desc;
         const f = opts.filter(o => sp.keys.includes(o.k));
         if (f.length >= 2) opts = f;
+        // Clutch özelliği: son hücumda "Topu bana verin"
+        const co = late.clutchOption();
+        if (co) opts = [co, ...opts];
       }
     } else if (ty === "def") {
       head = pick([$t("engine.43"), $t("engine.44"), $t("engine.45")]);
@@ -399,7 +403,8 @@ export async function playMatch(ctx) {
       desc = $t("engine.48");
       opts = [{ k: "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }];
     }
-    // maç koşulları (savunma tipi, yorgunluk) seçeneklerin başarı değerine eklenir
+    // imza hareket (maçta bir kez) ve maç koşulları + özellikler seçeneklerin başarı değerine eklenir
+    if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
     opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));
     if (!AUTO)
       $("#mview").innerHTML =
@@ -425,8 +430,9 @@ export async function playMatch(ctx) {
     if (!AUTO) S.tipMoment = 1;
     const b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
     M.mmod = late.momentMod(k);
+    const pk = sp && sp.resolve ? k : late.playKey(k);
     const res =
-      sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(k, sur) : await resolvePlay(k, $("#mview"), sur, dn);
+      sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(pk, sur) : await resolvePlay(pk, $("#mview"), sur, dn);
     M.mmod = 0;
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
@@ -435,10 +441,10 @@ export async function playMatch(ctx) {
     if (res.good) M.wgood = (M.wgood || 0) + res.w;
     late.sfx(res.good ? "cheer" : "ooh");
     late.crowdSwell(res.good ? 1.4 : 0.6);
-    let txt = res.txt;
+    let txt = res.txt + late.afterSignature(k, res.good);
     if (res.good) {
       S.stf = S.stf || {};
-      S.stf[res.st] = (S.stf[res.st] || 0) + BAL.play * (AUTO ? 0.5 : 1);
+      S.stf[res.st] = (S.stf[res.st] || 0) + BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul();
       if (S.stf[res.st] >= 1) {
         S.stf[res.st] -= 1;
         S.st[res.st] += 1;

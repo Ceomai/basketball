@@ -446,6 +446,50 @@ const check = (ok, msg) => {
     out.card = Game.charactersHTML().length > 100;
     return out;
   });
+  // 7h) oyun kimliği, imza hareket, albüm, ikilemler, kariyer modları
+  const g5 = await p.evaluate(() => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const S = Game.S;
+    Game.closeSheet();
+    S.traits = {};
+    S.trk = { clutch: 0, out: 139, pass: 0, def: 0 };
+    Game.Bus.emit("match:moment", { id: "off", k: "catch", good: true, clutch: false });
+    Game.setM({ dz: null, stint: 0, mmod: 0 });
+    out.trait = !!S.traits.sutor && Game.traitMod("catch") >= 4 && Game.traitsHTML().length > 20;
+    S.sig = "stepback";
+    const o = Game.addSignature([], "off");
+    out.sig =
+      o.length === 1 &&
+      o[0].k === "sig" &&
+      Game.playKey("sig") === "pull" &&
+      Game.M.sigUsed &&
+      Game.addSignature([], "off").length === 0;
+    S.album = [];
+    Game.addMoment("test", "champ", "Deneme anı");
+    Game.albumSheet();
+    out.album = S.album.length === 1 && /Deneme anı/.test(document.querySelector("#ovl").innerText);
+    Game.closeSheet();
+    S.injury = null;
+    S.painDebt = 5;
+    Game.applyPainDebt();
+    out.pain = S.injury && S.injury.w === 5;
+    S.injury = null;
+    S.mode = "hizli";
+    Game.newSeasonLeague();
+    out.quick = S.sched.length === S.league.length - 1 && Game.modeTrainMul() > 1;
+    S.mode = "efsane";
+    out.legend = Game.legacyBreakdown().parts.length > 10 && Game.modePotential() < 0;
+    S.mode = "normal";
+    Game.newSeasonLeague();
+    out.normal = S.sched.length === (S.league.length - 1) * 2;
+    Game.renderCreate();
+    out.picker = !!document.querySelector("#mode [data-v=efsane]");
+    return out;
+  });
+  check(g5.trait && g5.sig, "oyun kimliği özellikleri ve imza hareket (maçta bir kez)");
+  check(g5.album && g5.pain, "kariyer albümü ve bedeli olan kararlar");
+  check(g5.quick && g5.legend && g5.normal && g5.picker, "kariyer modları: hızlı (7 maç), efsane, normal");
   check(g4.cond, "maç koşulları: alan/adam adama savunma ve yorgunluk seçenekleri değiştiriyor");
   check(g4.goals && g4.goalsEval, "sezon hedefleri veriliyor ve sezon sonunda değerlendiriliyor");
   check(g4.locked && g4.open, "kademeli açılış: ilk sezon sade, özellikler sırayla açılıyor");

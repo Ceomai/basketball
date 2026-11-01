@@ -51,7 +51,7 @@ if (A) {
   log("### İlerleme ve reklam");
   const rows = [];
   for (const pr of ["weak", "avg", "strong"])
-    for (const ad of ["yok", "gunluk", "tam", "hizli", "elle"]) {
+    for (const ad of ["yok", "gunluk", "tam", "hizli", "elle", "normal", "efsane"]) {
       const g = A.filter(c => c.profile === pr && c.ad === ad);
       if (!g.length) continue;
       const fast = g.map(c => minutes(c, "hizli")),

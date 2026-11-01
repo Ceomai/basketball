@@ -493,6 +493,7 @@
         stuckT = 0;
         F.first = window.__SIM.first || "Sim";
         F.last = window.__SIM.last || "Oyuncu";
+        F.mode = window.__SIM.mode || "normal";
         F.pos = pos;
         F.slot = 1;
         startCareer();

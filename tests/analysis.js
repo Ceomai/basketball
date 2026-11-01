@@ -27,6 +27,11 @@ else if (GROUP === "gercekci")
   for (const pr of ["weak", "avg", "strong"])
     for (const [ad, apw] of Object.entries(REAL))
       for (let i = 0; i < N; i++) jobs.push({ pr, ad, cfg: { adsPerWeek: apw, after: true }, pos: POS[i % 5] });
+else if (GROUP === "mod")
+  // kariyer modları: normal / hızlı / efsane (gerçekçi elle oyuncu reklam kullanımı)
+  for (const pr of ["weak", "avg", "strong"])
+    for (const md of (process.env.MODES || "normal,hizli,efsane").split(","))
+      for (let i = 0; i < N; i++) jobs.push({ pr, ad: md, cfg: { adsPerWeek: 0.5, mode: md }, pos: POS[i % 5] });
 else if (GROUP === "rastgele")
   // sağlamlık: rastgele teklif, program, madde ve emeklilik; her profil, her pozisyon, emeklilik sonrası ve oğul
   for (const pr of ["weak", "avg", "strong"])
@@ -73,6 +78,7 @@ if (process.env.LIMIT) jobs.splice(+process.env.LIMIT);
             program: "denge",
             clauses: false,
             random: false,
+            mode: "normal",
             heir: false,
             after: false,
             ...cfg

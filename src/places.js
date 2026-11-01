@@ -206,7 +206,11 @@ export function locEv(I, tab = "vitrin") {
          .join("") || `<tr><td colspan="3" class="muted">${$t("places.37")}</td></tr>`
      }</table></div></div>`;
   }
-  if (tab === "kariyer") late.statsTab(c);
+  if (tab === "kariyer") {
+    late.statsTab(c);
+    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>`);
+    late.bindAlbumButton(() => locEv(I, "kariyer"));
+  }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
   if (tab === "ev") {
     const can = S.stage !== "lise";
@@ -583,7 +587,8 @@ export function drillGain(k, ratio) {
   const f =
     trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) *
     late.programMul(k) *
-    late.charTrainMul();
+    late.charTrainMul() *
+    late.modeTrainMul();
   if (S.buffs.train > 0) S.buffs.train--;
   S.stf[k] = (S.stf[k] || 0) + f;
   const g = Math.floor(S.stf[k]);

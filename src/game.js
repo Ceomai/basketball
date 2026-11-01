@@ -37,6 +37,10 @@ import * as league from "./league.js";
 import * as goals from "./goals.js";
 import * as unlock from "./unlock.js";
 import * as chars from "./chars.js";
+import * as traits from "./traits.js";
+import * as album from "./album.js";
+import * as dilemmas from "./dilemmas.js";
+import * as modes from "./modes.js";
 
 const MODULES = [
   data,
@@ -74,7 +78,11 @@ const MODULES = [
   league,
   goals,
   unlock,
-  chars
+  chars,
+  traits,
+  album,
+  dilemmas,
+  modes
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

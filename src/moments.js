@@ -40,7 +40,7 @@ export function momentMod(k) {
   const f = fatigue();
   if (ATH.includes(k)) m -= Math.round(f * 14);
   else if (OUT.includes(k)) m -= Math.round(f * 6);
-  return m;
+  return m + late.traitMod(k);
 }
 /** Karar anı başlığındaki bilgi rozetleri */
 export function conditionsHTML(us) {
