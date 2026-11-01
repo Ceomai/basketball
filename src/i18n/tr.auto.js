@@ -715,7 +715,7 @@ export default {
   "legacy.50": "Emekliliğinin ertesi günü {name}'nün başkanlık koltuğuna oturdun.",
   "legacy.51": "Toplam miras puanı",
   "legacy.52": "Kariyer sonrası",
-  "legacy.53": "Antrenör ol",
+  "legacy.53": "Antrenör",
   "legacy.54":
     "{s} önce Mavi Martı Spor Lisesi'nde yardımcı antrenör oldu. Beş yıl sonra ilk profesyonel takımını çalıştırıyordu.",
   "legacy.55": "Televizyon yorumcusu",

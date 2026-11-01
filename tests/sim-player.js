@@ -476,8 +476,8 @@
         adCredit = 0;
         done = res;
         stuckT = 0;
-        F.first = "Sim";
-        F.last = "Oyuncu";
+        F.first = window.__SIM.first || "Sim";
+        F.last = window.__SIM.last || "Oyuncu";
         F.pos = pos;
         F.slot = 1;
         startCareer();
