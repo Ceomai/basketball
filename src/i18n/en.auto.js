@@ -1851,7 +1851,7 @@ export default {
   "coach.23": "In this system {best} matters most. Fit affects the coach's trust, your minutes and your match rating.",
   "coach.24": "· fit",
   "legacy.52": "After the career",
-  "legacy.53": "Become a coach",
+  "legacy.53": "Coach",
   "legacy.54":
     "{s} first became an assistant coach at Mavi Martı Sports High School. Five years later they were coaching their first professional team.",
   "legacy.55": "TV pundit",

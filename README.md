@@ -95,6 +95,22 @@ npm run android:open
 
 Mağazaya çıkış adımları (AdMob kimlikleri, Play Console, imzalama, veri güvenliği formu): `docs/STORE.md`. Gizlilik politikası: `public/privacy.html`.
 
+## Test senaryoları
+
+Kariyer sonu özelliklerini oynamadan denemek için: **https://ceomai.github.io/basketball/?senaryo**
+
+Kayıt ekranında "Test senaryoları" kartı çıkar (adreste `?senaryo` yoksa görünmez). Beş yuvaya simülasyonla oynatılmış hazır kariyer yazar:
+
+| Yuva | Durum |
+|---|---|
+| 1 | Emekli, kulübün %60'ı elinde: son bölümü (antrenör, yorumcu, başkan) kendin seçersin |
+| 2 | Emekli, kulüp başkanı |
+| 3 | Emekli, antrenör |
+| 4 | Emekli, televizyon yorumcusu |
+| 5 | Başkan babanın oğluyla yeni kariyer (ilk hafta) |
+
+Mevcut yuvaların üzerine yazar. Senaryolar gerçek oyun koduyla üretilir: `npm run build:single && node tools/make-scenarios.js` (çıktı `public/scenarios.json`).
+
 ## Oyun testi
 
 - **Açma:** Ayarlar → **Oyun testi**. Test bağlantısı için adrese `?test=1` eklenir.
