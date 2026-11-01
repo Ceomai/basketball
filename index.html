@@ -269,15 +269,17 @@ textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-w
   .hs{padding:4px 6px}
   .hs .k{font-size:.58rem;letter-spacing:.5px}
   .hs .v{font-size:.95rem}
-  .mapwrap{display:flex;justify-content:center;background:#121a28}
-  .mapin{width:auto;max-width:100%}
-  /* harita oranı 400x670: yükseklik ekrana göre sınırlanır, genişlik orana göre hesaplanır */
-  .mapwrap svg{--mh:max(300px,calc(100dvh - 345px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:min(var(--mh),calc((100vw - 34px)*1.675));width:auto;aspect-ratio:400/670;max-width:100%}
+  /* harita alanı genişlikte tam doldurur (yanlarda boşluk yok). Yükseklik: maç kartı ekranda kalacak kadar; ekran
+     yetmezse yalnızca üstteki gökyüzü/silüet kırpılır (en fazla %12, mekanlar ve etiketleri hep görünür), daha kısa ekranda sayfa kayar */
+  .mapin{width:100%}
+  .mapwrap svg{--nat:calc((100vw - 48px) * 1.675);width:100%;height:clamp(calc(var(--nat) * .88),calc(100dvh - 320px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),var(--nat))}
   .maphead{left:6px;right:6px;top:6px;gap:5px}
   .maphead .tagx{font-size:.8rem;padding:4px 7px;max-width:50%}
   .maphead .tagx small{font-size:.62rem}
-  .weekcard{padding:10px 12px;gap:8px}
-  .weekcard .next{padding:6px 0}
+  /* maç kartı %10 küçük ve dikeyde sıkı: haritanın uzayan alanına yer açar */
+  .weekcard{zoom:.9;padding:8px 11px;gap:6px}
+  .weekcard .next{padding:2px 0;gap:10px}
+  .weekcard .btn{padding:9px 12px}
 }
 </style>
 </head>

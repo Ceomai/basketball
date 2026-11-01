@@ -74,8 +74,14 @@ export function adStat(place, k) {
 }
 
 /* ---- Rıza (KVKK/GDPR): ilk reklamdan önce bir kez sorulur ---- */
+let consentAsk = null; // aynı anda birden çok çağrıda tek pencere (üst üste yığılmasın)
 export function adsConsent() {
   if (ADS.consent !== null || window.__SIM) return Promise.resolve();
+  if (consentAsk) return consentAsk;
+  consentAsk = askConsent().finally(() => (consentAsk = null));
+  return consentAsk;
+}
+function askConsent() {
   // Ayrı katmanda sorulur: sheet() kullanılsaydı o an açık olan paneli (maç sonucu, enerji, sakatlık) silerdi ve
   // izin verildikten sonra oyuncu devam düğmesi olmayan bir ekranda kalırdı.
   return new Promise(r => {

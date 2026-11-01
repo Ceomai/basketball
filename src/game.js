@@ -33,6 +33,7 @@ import * as errors from "./errors.js";
 import * as state from "./state.js";
 import * as cloud from "./cloud.js";
 import * as card from "./card.js";
+import * as league from "./league.js";
 
 const MODULES = [
   data,
@@ -66,7 +67,8 @@ const MODULES = [
   errors,
   state,
   cloud,
-  card
+  card,
+  league
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

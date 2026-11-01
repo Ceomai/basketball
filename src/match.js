@@ -406,20 +406,10 @@ export function finishMatch(win) {
     blk: k.blk + M.blk,
     wins: k.wins + (win ? 1 : 0)
   });
+  const rankBefore = late.rankNow();
   if (S.phase === "regular") late.updateLeague(win, opp, M.us, M.them);
-  news(
-    $t("match.117", {
-      short: S.team.short,
-      us: M.us,
-      them: M.them,
-      short2: opp.short,
-      v: fullName(),
-      pts: M.pts,
-      ast: M.ast,
-      reb: M.reb,
-      v2: r.toFixed(1)
-    })
-  );
+  // skor ve maç istatistiği Lig merkezinde (fikstür); gündeme yalnızca anlamlı olaylar düşer
+  late.matchStoryNews({ win, pts: M.pts, ast: M.ast, reb: M.reb, rankBefore });
   const inj = late.rollInjury();
   norm();
   save();
@@ -523,7 +513,7 @@ export function afterMatchFlow(win) {
         cc = pick(EU_CC),
         club = pick(leaguePool(stg, cc));
       S.tryout = { club: club.key, stage: stg, until: S.sched.length, done: false };
-      news(`${club.name} (${leagueName(stg, cc)}) seni seçmelere davet etti.`);
+      news($t("lc.nTryout", { club: club.name, league: leagueName(stg, cc) }));
       save();
       const go = next;
       return chapter("tryout", () => maybeEvent(go));

@@ -414,7 +414,7 @@ export function rivalSeason() {
   R.ppg = +clamp(9 + d * 0.55 + rnd(-2.5, 2.5), 2, 31).toFixed(1);
   R.avg = +clamp(6.5 + d * 0.05 + rnd(-0.4, 0.4), 5, 8.9).toFixed(2);
   R.hist.push({ age: age - 1, stage: R.stage, team: R.team.name, ppg: R.ppg, avg: R.avg });
-  if (moved) news(`${rivalName()} ${moved.name} ile anlaştı (${levelName(R.stage)}).`);
+  if (moved) news($t("lc.nRival", { v: rivalName(), club: moved.name, level: levelName(R.stage) }));
   return moved;
 }
 // Sezon sonu kıyas kartı; rakip seni geçtiyse ya da sen onu geçtiysen hikâye anı

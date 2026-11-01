@@ -297,9 +297,9 @@ export function seasonAwards(avg, champ) {
         ln: ln
       })
     ],
-    ppg: ["award", `${ln} sayı kralı (${per(s.pts, g)})`],
-    apg: ["award", `${ln} asist kralı (${per(s.ast, g)})`],
-    rpg: ["award", `${ln} ribaund kralı (${per(s.reb, g)})`],
+    ppg: ["award", $t("lc.awPts", { ln, v: per(s.pts, g) })],
+    apg: ["award", $t("lc.awAst", { ln, v: per(s.ast, g) })],
+    rpg: ["award", $t("lc.awReb", { ln, v: per(s.reb, g) })],
     dpoy: [
       "award",
       $t("systems.16", {
@@ -512,6 +512,8 @@ export function updateLeague(win, opp, us, them) {
     mr.l++;
     ro.w++;
   }
+  // Lig merkezi için bu haftanın sonuçları (bizim maç dahil)
+  S.lastRound = [{ a: mr.key, b: ro.key, sa: us, sb: them }];
   const others = shuffle(S.league.filter(x => x !== mr && x !== ro));
   for (let i = 0; i + 1 < others.length; i += 2) {
     const a = others[i],
@@ -523,6 +525,7 @@ export function updateLeague(win, opp, us, them) {
     a.pa += sb;
     b.pf += sb;
     b.pa += sa;
+    S.lastRound.push({ a: a.key, b: b.key, sa, sb });
     if (sa > sb) {
       a.w++;
       b.l++;

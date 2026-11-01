@@ -52,6 +52,7 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 - **Sözleşme maddeleri:** pazarlıkta serbest kalma (üst ligden teklif gelince bedelsiz ayrılma), NBA çıkışı ve performans primi (7,5+ notlu maçta haftalık ücretin %15'i) istenebilir. Sözleşme sürerken başka kulübe gitmek fesih bedeli ister.
 - **Günlük ve haftalık görevler:** gerçek takvime göre her gün 3, her hafta 3 görev. Oyunu oynayarak ilerler (maç, antrenman, mini oyun, basın, satın alma); ödül para, enerji ya da fiş.
 - **Emeklilik sonrası:** antrenörlük, televizyon yorumculuğu ya da kulüp başkanlığı ile son bölüm (miras puanı kazandırır). İstersen oğlunla aynı soyadı ve formayla yeni bir kariyere başlarsın; Şöhretler Müzesi kademene göre nitelik bonusu alır.
+- **Lig merkezi:** ana ekrandaki Gündem kartından açılır: puan durumu (playoff çizgisi), fikstür ve sonuçlar (skor, not, ligde bu haftanın diğer maçları), sezon istatistiklerim ve son sezonlar, sayı/asist/ribaund krallıkları. Gündemde rutin skorlar yerine anlamlı olaylar yer alır: seriler, zirve, playoff hattı, kariyer rekoru, 30 sayılık maç, triple-double, transferler.
 - **Önemli maç daveti:** final, yarı final, rakip oyuncuyla derbi ve zirve maçlarında hızlı haftada "kendim oynayayım" öne çıkar; bu maçları kendin oynarsan taraftar ve takipçi bonusu kazanırsın.
 - **Kariyer kartı:** emeklilik ekranında ve Ev → Miras sekmesinde kariyerin tek görselde özeti (1080×1350): istatistikler, kupalar, Şöhretler Müzesi kademesi, kulüpler, en iyi sezon. Paylaşılır ya da PNG olarak indirilir.
 - **Erişilebilirlik ve zorluk:** Ayarlar → Erişilebilirlik: yazı boyutu (normal / büyük / çok büyük), renk körlüğü modu (yeşil/kırmızı yerine mavi/turuncu, mini oyunlar dahil), mini oyun zorluğu (kolay / normal / zor; arcade sıralamaları etkilenmez). Titreşim ayrıca kapatılabilir.
@@ -170,6 +171,7 @@ tools/              tek seferlik dönüşüm araçları (klasik betikten ES mod�
 | `src/main.js`, `src/game.js`, `src/late.js` | Giriş noktası, modül yükleyici ve geç bağlama kaydı |
 | `src/state.js` | Oyun durumunun tanımı |
 | `src/card.js` | Paylaşılabilir kariyer kartı |
+| `src/league.js` | Lig merkezi ve maç sonu gündemi |
 | `src/moments.js` | Özel maç anları |
 | `src/coach.js` | Antrenman programı ve koç sistemi |
 | `src/missions.js` | Günlük ve haftalık görevler |
