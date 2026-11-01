@@ -377,6 +377,7 @@ export function finishMatch(win) {
     opp = M.opp;
   S.buffs.motive = 0;
   const bonus = matchBonus({ stage: S.stage, wage: S.wage, rating: r, win });
+  if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("match.132"), Math.round(S.wage * 0.15));
   tx(
     $t("match.116", {
       short: opp.short
@@ -810,7 +811,7 @@ export function offerHTML(o, i) {
   const up = ORDER.indexOf(o.stage) > ORDER.indexOf(S.stage);
   const lab = o.stay ? $t("match.59") : o.uni ? $t("match.60") : up ? $t("match.61") : $t("match.62"),
     cls = o.stay ? "e" : o.uni ? "i" : up ? "m" : "i";
-  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:8px;font-size:1.08rem">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${
+  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:8px;font-size:1.08rem">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${isPro(o.stage) && !o.uni ? ` · ${late.offerFitNote(t)}` : ""}${buyoutFor(o) ? ` ${$t("match.133")} ${fmt(buyoutFor(o))}` : ""}${
     o.wage
       ? ` ${$t("match.63", {
           wage: fmt(o.wage)
@@ -931,7 +932,18 @@ export function transition(avg, champ, head) {
   };
   show();
 }
+// Sözleşme sürerken başka kulübe gitmek fesih bedeli ister; serbest kalma (üst lige) ve NBA çıkış maddesi bedelsiz yapar
+export function buyoutFor(o) {
+  if (o.stay || o.uni || !S.contract || !isPro(S.stage) || !isPro(o.stage)) return 0;
+  const cl = S.clauses || {},
+    up = ORDER.indexOf(o.stage) > ORDER.indexOf(S.stage);
+  if ((cl.release && up) || (cl.nbaout && o.stage === "nba")) return 0;
+  return Math.round(S.wage * 4 * Math.min(S.contract, 2));
+}
 export function acceptOffer(o) {
+  const fee = buyoutFor(o);
+  if (fee) tx($t("match.134"), -fee);
+  if (!o.stay) S.clauses = o.clauses || {};
   const prevStage = S.stage,
     prevCity = S.city,
     t = o.team;
@@ -1016,6 +1028,7 @@ export function retireScreen() {
    }</p>
    <button class="btn pri big" id="nw">${$t("match.92")}</button></div>
   ${late.hofCard()}
+  ${late.afterCareerHTML()}
   <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
   $("#rp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   if (!S.retired) {
@@ -1023,6 +1036,7 @@ export function retireScreen() {
     save();
   }
   $("#nw").onclick = renderSlots;
+  late.bindAfterCareer(retireScreen);
 }
 
 // Diğer modüllerin bu değişkenleri değiştirebilmesi için ayarlayıcılar

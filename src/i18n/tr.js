@@ -1,5 +1,9 @@
 // Türkçe arayüz metinleri (ana dil). Anahtarlar ekran.öğe biçimindedir.
 export default {
+  "settings.errorReports": "Hata raporları",
+  "settings.errorReportsDesc": "Oyun hatalarını anonim olarak geliştiriciye gönderir (kişisel veri yok).",
+  "settings.notify": "Bildirimler",
+  "settings.notifyDesc": "Uygulamada günde en fazla bir hatırlatma: enerji, görevler, sıradaki maç.",
   "test.title": "Oyun testi",
   "test.sub": "İsteğe bağlı · anonim",
   "test.intro":

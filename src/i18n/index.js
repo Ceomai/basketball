@@ -3,18 +3,26 @@
    Yeni dil eklemek: src/i18n/<kod>.js sözlüğü + LANGS listesi. Olay metinleri ayrıca src/content/events.<kod>.js'tedir.
    Not: Arayüz metinlerinin taşınması kademelidir; henüz taşınmamış metinler Türkçe görünür. */
 import trManual from "./tr.js";
-import enManual from "./en.js";
 import trAuto from "./tr.auto.js";
-import enAuto from "./en.auto.js";
-// elle yazılmış anahtarlar (ekran.öğe) ve araçla çıkarılmış anahtarlar (dosya.no) birlikte
+// elle yazılmış anahtarlar (ekran.öğe) ve araçla çıkarılmış anahtarlar (dosya.no) birlikte.
+// İngilizce sözlük ayrı dosyada: yalnızca İngilizce seçiliyse yüklenir (Türkçe oyuncu indirmez). Bkz. loadLang.
 const tr = { ...trAuto, ...trManual },
-  en = { ...enAuto, ...enManual };
+  en = {};
+/** Dil paketleri (olay çevirileri vb.); loadLang doldurur */
+export const PACKS = { events: [] };
 
 export const LANGS = [
   ["tr", "Türkçe"],
   ["en", "English (beta)"]
 ];
 const DICT = { tr, en };
+/** Seçili dil Türkçe değilse sözlüğünü yükle. Oyun modülleri bundan sonra yüklenir (main.js). */
+export async function loadLang() {
+  if (LANG !== "en") return;
+  const m = await import("./pack.en.js");
+  Object.assign(DICT.en, m.dict);
+  PACKS.events = m.events;
+}
 export let LANG = (() => {
   try {
     const l = localStorage.getItem("pota-lang");

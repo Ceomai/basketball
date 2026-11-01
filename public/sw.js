@@ -1,6 +1,6 @@
 // Pota Kariyeri service worker: oyunu önbelleğe alır, internetsiz açılmasını sağlar.
 // Oyun derlenince tek dosyadır (index.html). Yeni sürüm yayınlarken VERSION değerini artır; eski önbellek silinir.
-const VERSION = "pota-v2";
+const VERSION = "pota-v3";
 const FILES = [
   "./",
   "index.html",

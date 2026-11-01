@@ -78,7 +78,8 @@ export async function playMatch(ctx) {
   arenaFor(opp);
   const role = isPro(S.stage) || ctx.comp === "nat" ? ctx.role || S.role : schoolRole();
   let plan = stintPlan(role);
-  const ourStr = S.team.str + (ovr() - TD() - 45) / 220,
+  const fit = ctx.comp === "nat" ? 0 : late.systemFit(),
+    ourStr = S.team.str + (ovr() - TD() - 45) / 220 + fit * 0.002,
     ppp = SC[S.stage] / 70 / 2.25;
   setM({
     opp,
@@ -271,7 +272,12 @@ export async function playMatch(ctx) {
   const win = M.us > M.them,
     sr = M.wsum ? (M.wgood || 0) / M.wsum : 0.5;
   M.rating = clamp(
-    3.5 + 5.0 * sr + (win ? 0.2 : -0.15) + clamp(M.plus / 35, -0.35, 0.35) + clamp((M.autoPts || 0) / 50, 0, 0.2),
+    3.5 +
+      5.0 * sr +
+      (win ? 0.2 : -0.15) +
+      clamp(M.plus / 35, -0.35, 0.35) +
+      clamp((M.autoPts || 0) / 50, 0, 0.2) +
+      clamp(fit / 40, -0.2, 0.2),
     1,
     10
   );
@@ -325,7 +331,14 @@ export async function playMatch(ctx) {
       desc,
       opts,
       ty = us ? (Math.random() < 0.13 ? "foul" : "off") : "def";
-    if (ty === "off") {
+    // özel anlar (src/moments.js): 2'ye 1, perde savunması, sataşma, son hücum
+    const sp = late.pickSpecial(us, clutch, diff, dn);
+    if (sp && sp.opts) {
+      ty = sp.ty === "def" ? "def" : "sp";
+      head = sp.head;
+      desc = sp.desc;
+      opts = sp.opts;
+    } else if (ty === "off") {
       head = clutch
         ? diff < 0
           ? $t("engine.39", {
@@ -347,6 +360,12 @@ export async function playMatch(ctx) {
         e: eff(st) - (PEN[k] || 0)
       }));
       if (!clutch && opts.length > 3) opts = shuffle(opts).slice(0, 3);
+      if (sp && sp.keys) {
+        head = sp.head;
+        desc = sp.desc;
+        const f = opts.filter(o => sp.keys.includes(o.k));
+        if (f.length >= 2) opts = f;
+      }
     } else if (ty === "def") {
       head = pick([$t("engine.43"), $t("engine.44"), $t("engine.45")]);
       desc = $t("engine.46", {
@@ -386,7 +405,8 @@ export async function playMatch(ctx) {
       : await new Promise(r => $$(".choice").forEach(b => (b.onclick = () => r(b.dataset.k))));
     if (!AUTO) S.tipMoment = 1;
     const b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
-    const res = AUTO ? late.autoResolve(k, sur) : await resolvePlay(k, $("#mview"), sur, dn);
+    const res =
+      sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(k, sur) : await resolvePlay(k, $("#mview"), sur, dn);
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
     M.wsum = (M.wsum || 0) + res.w;

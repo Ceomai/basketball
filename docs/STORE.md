@@ -72,6 +72,43 @@ Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki ad
 - [ ] Görsel tarz ve Oyun Kulübü kararı (derecelendirme)
 - [ ] İç testte en az 20 kişi, `tools/playtest-report.js` raporu incelendi
 
+## 7. Hata raporlama (Sentry, isteğe bağlı)
+
+Hatalar her durumda cihazda saklanır (son 30) ve oyun testi raporuna eklenir. Sunucuya göndermek için:
+
+1. sentry.io'da ücretsiz hesap ve bir "Browser JavaScript" projesi aç.
+2. Proje ayarlarındaki DSN'i `src/errors.js` → `SENTRY_DSN` içine yaz.
+3. Gönderilenler: hata mesajı, yığın izinin ilk satırları, sürüm, dil, platform, kariyer evresi. Kişisel veri yok; oturum başına en fazla 10 hata.
+4. Oyuncu Ayarlar → Hata raporları ile kapatabilir. Play Console'daki veri güvenliği formunda "Uygulama etkinliği → çökme günlükleri" işaretlenmeli.
+
+Android'deki yerel çökmeler Play Console → Android vitals'ta ayrıca görünür.
+
+## 8. Bulut kayıt (Google + Firebase, isteğe bağlı)
+
+Kod hazır ama yapılandırılana kadar kapalı (Ayarlar'da "Yakında" yazar). Firebase SDK eklenmez, REST arayüzleri kullanılır.
+
+1. console.firebase.google.com → yeni proje.
+2. Authentication → Sign-in method → Google'ı aç.
+3. Firestore Database oluştur. Kurallar:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{db}/documents {
+       match /saves/{uid}/slots/{slot} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+       }
+     }
+   }
+   ```
+4. Proje ayarlarından Web API anahtarını ve proje kimliğini, Google Cloud → Kimlik bilgileri'nden OAuth web istemci kimliğini al; `src/cloud.js` → `CLOUD_CONFIG` içine yaz.
+5. Web'de (GitHub Pages) giriş Google Identity Services ile çalışır; OAuth istemcisine `https://ceomai.github.io` yetkili kaynak olarak eklenmeli.
+6. Android'de Google, WebView içinden girişe izin vermez. Yerel bir Google girişi eklentisi (ör. Capacitor Google Auth / Credential Manager) eklenip `window.PotaNative.googleIdToken()` bir kimlik belirteci (ID token) döndürecek şekilde bağlanmalı. Bu adım henüz yapılmadı.
+7. Gizlilik politikası ve Play veri güvenliği formu: e-posta adresi (hesap yönetimi için) ve oyun kayıtları buluta gönderiliyor.
+
+## 9. Bildirimler
+
+`@capacitor/local-notifications` ile yalnızca cihazda planlanır; sunucu yok. Android 13+ ilk planlamada bildirim izni ister. Ayarlar → Bildirimler ile kapatılabilir.
+
 ## iOS (sonra)
 
 iOS paketi macOS ve Xcode ister.

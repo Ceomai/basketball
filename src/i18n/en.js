@@ -1,5 +1,9 @@
 // English UI texts (beta). Missing keys fall back to Turkish.
 export default {
+  "settings.errorReports": "Error reports",
+  "settings.errorReportsDesc": "Sends game errors anonymously to the developer (no personal data).",
+  "settings.notify": "Notifications",
+  "settings.notifyDesc": "In the app, at most one reminder a day: energy, missions, next game.",
   "test.title": "Playtest",
   "test.sub": "Optional · anonymous",
   "test.intro":
