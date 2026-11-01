@@ -28,9 +28,20 @@ Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorul
 
 - **Sezon akışı:** her sezon çift devreli 14 maç ve playoff. "Haftayı hızlı geç" boş zaman dilimlerini mantıklı bir planla doldurur; maçı otomatik oynatabilir ya da kendin oynayabilirsin. Kendin oynamak daha yüksek not getirir.
 - **Rakip oyuncu:** seninle aynı yaşta, aynı şehirden bir rakip. Kariyeri seninkiyle paralel ilerler; aynı ligde olduğunuzda maçlar derbiye döner, sezon sonunda kıyaslanırsınız.
-- **Koçun güveni:** profesyonelken koç her 4 haftada bir rolünü değerlendirir; iyi oynarsan ilk beşe yükselirsin, kötü gidersen yedeğe düşersin.
+- **Koçun güveni:** profesyonelken koç her 4 haftada bir rolünü değerlendirir. İyi oynarsan ilk beşe yükselirsin; kötü seri ya da bozulan ilişki ilk beşteki oyuncuyu da yedeğe düşürür.
 - **Basın toplantısı:** önemli maçlardan sonra mütevazı, özgüvenli ya da iddialı cevap verirsin. İddialı sözlerin bir sonraki maçta karşılığı olur.
-- **Hikâye zincirleri:** birkaç hafta süren olaylar: transfer söylentisi (sezon sonu teklifini etkiler), uzun sakatlıktan dönüş, ailenin dükkânı, lise kaptanlığı, üniversite final haftası.
+- **Hikâye zincirleri:** birkaç hafta süren olaylar:
+  - transfer söylentisi (sezon sonu teklifini etkiler)
+  - uzun sakatlıktan dönüş
+  - ailenin dükkânı
+  - lise kaptanlığı ve üniversite final haftası
+  - tecrübeli bir takım arkadaşının mentorluğu
+  - milli takım kaptanlığı
+  - eski rakibin takım arkadaşı olması
+  - emeklilik kararı ve veda turu
+  - alt liglerde kalmış oyuncu için "geç açılan çiçek" yaz kampı ve ikinci şans teklifi
+- **Rastgele olaylar:** kariyer evresine göre değişen 74 olay (alt ligler, EuroLeague seyahatleri, NBA hayatı, yedek kulübesi, yıldızlık, para, şöhret, ilişkiler, milli takım). Aynı olay 4 sezon içinde tekrar etmez.
+- **Miras:** Ev → Miras sekmesinde miras puanı, oyuncunun vakfı (5 bağış programı) ve memleket kulübü Mavi Martı Spor Kulübü'ne ortaklık yer alır. %51 payla kulüp başkanı olunur. Emeklilikte miras puanına göre Şöhretler Müzesi değerlendirmesi yapılır (ilk oylamada, Şöhretler Müzesi, kulüp efsanesi).
 - **Kariyer yolu:** İstanbul'da lise, ardından gözlemci raporu, sonra 8 ülkenin (TR, ES, IT, FR, DE, GR, RS, LT) 3., 2. ve 1. ligleri, EuroLeague ve NBA. Her teklifte rol, maaş ve sözleşme süresi var.
 - **Şehir haritası:** oynadığın takımın şehrine göre değişiyor. Her şehrin kendi simge yapıları ve silueti var. Stadyum ve ev görselleri kariyer ilerledikçe büyüyor.
 - **Maç anları:** pozisyona özel kritik anlar oynanıyor. Çek-bırak şut, kaydırarak çalım, pas, blok, post-up, ribaund ve alley-oop var.
@@ -186,6 +197,8 @@ npm test
 - Derleme.
 - `tests/smoke.js`: oyunu gerçek tarayıcıda dolaşır.
 - `tests/balance.js`: kısa denge koşusu.
+
+Ekonomi deneyi ("hepsini satın al" stratejisi, reklamsız / günlük sınırda / tam reklam): `npm run test:economy` (sonuç `economy.json`).
 
 Ayrıntılı denge raporu için profil başına 10 kariyer:
 

@@ -49,7 +49,41 @@
       REC.trainGain += g;
     }
     const buyable = () => SHOP.filter(it => !S.items[it.id]);
+    // "Hepsini al" stratejisi: gelir getiren yatırımlar önce, sonra en ucuzdan pahalıya; 6 haftalık gider yedekte kalır
+    function shoppingAll() {
+      const fixed = HOUSING[S.housing].rent + carUpkeep() + (BAL.living[S.stage] || 0);
+      const reserve = fixed * 6 + 20;
+      const list = buyable().sort((a, b) => (b.inc ? 1 : 0) - (a.inc ? 1 : 0) || a.p - b.p);
+      for (const it of list) {
+        if (S.money - it.p < reserve) continue;
+        if (it.up && S.wage * (1 - (BAL.tax[S.stage] || 0)) < fixed + it.up) continue; // bakım masrafını karşılayamıyorsa bekle
+        tx(it.n, -it.p);
+        S.items[it.id] = 1;
+        it.fx && it.fx();
+        REC.buys.push(`${S.age}:${it.id}`);
+      }
+      const order = ["daire", "lux", "villa", "malikane"],
+        cur = order.indexOf(S.housing);
+      const nx = S.stage !== "lise" && order[cur + 1];
+      if (nx) {
+        const h = HOUSING[nx],
+          net = S.wage * (1 - (BAL.tax[S.stage] || 0) - BAL.agent) - (BAL.living[S.stage] || 0) - carUpkeep() + itemWeekly("inc");
+        if (net > h.rent * 1.1 && S.money > h.rent * 4 + reserve) {
+          tx(h.n, -h.rent * 4);
+          S.housing = nx;
+          REC.house.push(`${S.age}:${nx}`);
+        }
+      }
+      if (!buyable().length && S.housing === "malikane") autoLegacy(); // her şey alındıysa vakıf ve kulüp payı
+      if (!REC.allOwned && !buyable().length && S.housing === "malikane")
+        REC.allOwned = { week: REC.weeks, age: S.age, season: S.season, stage: S.stage };
+      if (S.energy < 50 && S.money > 6) {
+        tx("Enerji içeceği", -3);
+        S.energy += 15;
+      }
+    }
     function shopping() {
+      if (window.__SIM.buyAll) return shoppingAll();
       const net = S.wage - HOUSING[S.housing].rent - carUpkeep();
       for (const it of buyable()) {
         const stat = /Çeviklik|Şut|Savunma|Güç|Pas/.test(it.d) && !it.up,
@@ -86,7 +120,22 @@
         S.energy += 15;
       }
     }
+    // Reklam modeli: haftada __SIM.adsPerWeek kadar ödüllü reklam kredisi birikir (günlük 8 sınırının oyun haftasına karşılığı)
+    function useAd(kind) {
+      if (adCredit < 1) return false;
+      adCredit--;
+      REC.ads[kind] = (REC.ads[kind] || 0) + 1;
+      return true;
+    }
+    let adCredit = 0;
     function simWeek() {
+      REC.weeks++;
+      adCredit = Math.min(adCredit + (window.__SIM.adsPerWeek || 0), 8);
+      if (S.injury && S.injury.w > 1 && !S.injury.adHealed && useAd("heal")) {
+        S.injury.w--;
+        S.injury.adHealed = true;
+      }
+      if (S.energy < 60 && !S.injury && useAd("energy")) S.energy += 30;
       S.slot = 3;
       for (let s = 0; s < 3; s++) {
         if (S.injury) {
@@ -163,7 +212,7 @@
       if (done === null || g !== GEN) return;
       const again = () => setTimeout(() => pump(g), 0);
       try {
-        if (S && S.age >= 37 && !S.retired && $("#ret")) {
+        if (S && !S.retired && $("#ret") && (S.age >= 37 || !$("[data-o]"))) {
           $("#ret").click();
           return again();
         }
@@ -248,9 +297,38 @@
         energy: S.energy,
         koc: S.rel.koc,
         inj: S.injury ? S.injury.n : null,
-        rival: S.rival ? S.rival.stage : null
+        rival: S.rival ? S.rival.stage : null,
+        owned: Object.keys(S.items).length,
+        housing: S.housing,
+        weeks: REC.weeks
       });
     });
+    Bus.on("match:end", d => {
+      if (!REC || d.rating == null) return;
+      if (useAd("double")) {
+        const bonus = Math.round(
+          (S.stage === "lise" ? 2 : S.stage === "uni" ? 6 : S.wage * 0.12) * (d.rating / 6) * (d.win ? 1.5 : 1)
+        );
+        tx("Reklam bonusu", bonus);
+        REC.adMoney += bonus;
+      }
+      if (useAd("halftime")) {
+        S.energy += 10;
+        S.moral += 4;
+      }
+    });
+    for (const [ev, key] of [
+      ["event:show", "events"],
+      ["arc", "arcs"],
+      ["press", "press"],
+      ["role:change", "roles"]
+    ])
+      Bus.on(ev, d => {
+        if (!REC) return;
+        const k =
+          ev === "event:show" ? d.title : ev === "arc" ? d.id + ":" + d.step : ev === "press" ? d.tone : d.from + ">" + d.to;
+        REC[key][k] = (REC[key][k] || 0) + 1;
+      });
     Bus.on("career:retire", () => {
       if (REC) {
         REC.retired = S.age;
@@ -263,6 +341,9 @@
       REC.tlab = S ? S.career.trophies.map(t => t.label) : [];
       REC.caps = S ? S.career.natCaps || 0 : 0;
       REC.arcs = S ? Object.keys(S.arcs || {}) : [];
+      REC.legacy = S ? legacyScore() : 0;
+      REC.legacyParts = S ? legacyBreakdown().parts : [];
+      REC.hof = S ? hofTier(legacyScore())[1] : "";
       REC.final = {
         age: S && S.age,
         money: S && Math.round(S.money),
@@ -278,7 +359,23 @@
       new Promise(res => {
         BASE = P[profile];
         window.__SIM.base = BASE;
-        REC = { profile, pos, seasons: [], trainGain: 0, buys: [], house: [] };
+        REC = {
+          profile,
+          pos,
+          seasons: [],
+          trainGain: 0,
+          buys: [],
+          house: [],
+          weeks: 0,
+          ads: {},
+          adMoney: 0,
+          events: {},
+          arcs: {},
+          press: {},
+          roles: {},
+          allOwned: null
+        };
+        adCredit = 0;
         done = res;
         stuckT = 0;
         F.first = "Sim";

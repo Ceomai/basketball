@@ -1,3 +1,4 @@
+import { t as $t, LANG, t } from "./i18n/index.js";
 /* ================= OYUN TESTİ KAYDI (telemetri) =================
    Amaç: gerçek oyuncuların oyunu nerede bıraktığını, hangi mini oyunda zorlandığını, maçları kendisi mi
    oynadığını ölçmek ve dengeyi bu veriyle ayarlamak.
@@ -9,7 +10,6 @@
    Analiz: node tools/playtest-report.js <rapor dosyaları klasörü> */
 import { $, $$, Bus, esc } from "./data.js";
 import { S, closeSheet, sheet } from "./core.js";
-import { LANG, t } from "./i18n/index.js";
 import { late } from "./late.js";
 
 // Raporların otomatik gideceği adres (ör. Google Apps Script web uygulaması). Boşsa yalnızca dosya paylaşılır.
@@ -81,6 +81,8 @@ Bus.on("minigame:end", d => {
 });
 Bus.on("season:end", d => log("season_end", { champ: !!d.champ, avg: +late.seasonAvg().toFixed(2), ovr: late.ovr() }));
 Bus.on("ad", d => log("ad", d));
+for (const ev of ["role:change", "arc", "press", "event:show", "purchase", "housing", "ad:cap", "legacy"])
+  Bus.on(ev, d => log(ev, d));
 Bus.on("week:start", () => log("week"));
 window.addEventListener("error", e =>
   log("error", {
@@ -142,7 +144,7 @@ export async function sendReport() {
       sent = false;
     }
   }
-  const name = `pota-test-${TEL.id || "anon"}-${new Date().toISOString().slice(0, 10)}.json`;
+  const name = `pota-test-${TEL.id || "anon"}-${new Date().toISOString().slice(0, 10)}${".json"}`;
   // uygulamada yerel paylaşım, web'de paylaş ya da indir
   if (late.nativeShareFile) {
     await late.nativeShareFile(name, data, t("test.shareTitle"));

@@ -5,6 +5,7 @@ import {
   $,
   $$,
   BAL,
+  Bus,
   COMMON_DRILLS,
   DRILLS,
   ORDER,
@@ -110,6 +111,7 @@ export function locEv(I, tab = "vitrin") {
     ["yetenek", $t("places.2")],
     ["finans", $t("places.3")],
     ["kariyer", $t("places.4")],
+    ["miras", $t("places.350")],
     ["ev", $t("places.5")]
   ];
   sheet(
@@ -205,6 +207,7 @@ export function locEv(I, tab = "vitrin") {
      }</table></div></div>`;
   }
   if (tab === "kariyer") late.statsTab(c);
+  if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
   if (tab === "ev") {
     const can = S.stage !== "lise";
     const opts = Object.entries(HOUSING).filter(([k]) => (k !== "oda" || S.city === S.home) && (k !== "yurt" || S.studying));
@@ -270,6 +273,7 @@ export function locEv(I, tab = "vitrin") {
               -dep
             );
           S.housing = k;
+          Bus.emit("housing", { to: k });
           news(
             $t("places.327", {
               v: fullName(),

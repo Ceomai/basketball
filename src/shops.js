@@ -1,4 +1,4 @@
-import { t as $t, LOCALE } from "./i18n/index.js";
+import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, INK, ORDER, cOf, fmt, pick, shade, toast } from "./data.js";
 import { ICON, SKINS, ST, drawBall, drawKid, drawScene, ell, hiCanvas, icon, rr, sceneEl, sv } from "./art.js";
@@ -527,7 +527,7 @@ export const SHOP = [
     n: $t("shops.124"),
     d: $t("shops.125"),
     p: 60000,
-    inc: 75,
+    inc: 300,
     ic: () => icon("house", "#90a4ae")
   },
   {
@@ -536,7 +536,7 @@ export const SHOP = [
     n: $t("shops.126"),
     d: $t("shops.125"),
     p: 250000,
-    inc: 325,
+    inc: 1300,
     ic: () => icon("house", "#c96f4a")
   },
   {
@@ -544,8 +544,8 @@ export const SHOP = [
     st: "yatirim",
     n: $t("shops.127"),
     d: $t("shops.125"),
-    p: 1200000,
-    inc: 1600,
+    p: 400000,
+    inc: 2100,
     ic: () => icon("house", "#3f5f8a")
   },
   {
@@ -553,7 +553,7 @@ export const SHOP = [
     st: "yatirim",
     n: $t("shops.128"),
     d: $t("shops.129"),
-    p: 900000,
+    p: 300000,
     ic: () => icon("hoop"),
     fx: () => {
       S.rel.aile += 20;
@@ -571,9 +571,9 @@ export const SHOP = [
     st: "yatirim",
     n: $t("shops.130"),
     d: $t("shops.131"),
-    p: 1500000,
+    p: 400000,
     mo: 3,
-    up: 1250,
+    up: 500,
     ic: () => icon("car", "#eceff1", "suv"),
     fx: () => (S.rel.taraf += 15)
   },
@@ -582,7 +582,7 @@ export const SHOP = [
     st: "yatirim",
     n: $t("shops.132"),
     d: $t("shops.133"),
-    p: 4000000,
+    p: 600000,
     ic: () => icon("trophyRoom"),
     fx: () => {
       S.followers *= 1.2;
@@ -605,9 +605,9 @@ export const SHOP = [
     st: "yatirim",
     n: $t("shops.135"),
     d: $t("shops.136"),
-    p: 7000000,
+    p: 900000,
     en: 8,
-    up: 4500,
+    up: 1200,
     ic: () => icon("car", "#ffffff", "super"),
     fx: () => (S.rel.taraf += 20)
   }
@@ -658,6 +658,7 @@ export function locAvm(I, store = "sneaker") {
         if (S.money < it.p || S.items[it.id]) return;
         tx(it.n, -it.p);
         S.items[it.id] = 1;
+        Bus.emit("purchase", { id: it.id, p: it.p });
         it.fx && it.fx();
         norm();
         save();

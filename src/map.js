@@ -1,4 +1,4 @@
-import { t as $t, LOCALE } from "./i18n/index.js";
+import { LOCALE, t as $t } from "./i18n/index.js";
 import { STY, cityTheme, clamp, esc, luma, shade } from "./data.js";
 /* ================= ŞEHİR HARİTASI ================= */
 export const LOCS = [

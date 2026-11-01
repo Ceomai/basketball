@@ -189,6 +189,7 @@ export async function showRewarded(place) {
     return true;
   }
   if (!rewardLeft()) {
+    Bus.emit("ad:cap", { place }); // test kaydı: sınır gerçek oyuncularda ne sıklıkla doluyor?
     toast($t("ads.26"));
     return false;
   }

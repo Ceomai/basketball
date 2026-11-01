@@ -6,10 +6,13 @@ import { ORDER, STATS, cOf, cityTheme, fmt, isPro, pick, statName, WAGE } from "
 import { S, fame, tx } from "../core.js";
 import { LANG } from "../i18n/index.js";
 import { late } from "../late.js";
-import TR from "./events.tr.js";
-import EN from "./events.en.js";
+import TR_BASE from "./events.tr.js";
+import TR_MORE from "./events.more.tr.js";
+import EN_BASE from "./events.en.js";
+import EN_MORE from "./events.more.en.js";
 
-const PACKS = { en: EN };
+const TR = [...TR_BASE, ...TR_MORE];
+const PACKS = { en: [...EN_BASE, ...EN_MORE] };
 const CONDITIONS = {
   home: () => S.city === S.home,
   abroad: () => S.city !== S.home,
@@ -17,8 +20,33 @@ const CONDITIONS = {
   lise: () => S.stage === "lise",
   studying: () => !!S.studying,
   single: () => !S.partner && S.age >= 16,
-  pro: () => isPro(S.stage)
+  pro: () => isPro(S.stage),
+  school: () => S.stage === "lise" || S.stage === "uni",
+  lower: () => ["t3", "t2"].includes(S.stage),
+  top: () => ["t1", "euro", "nba"].includes(S.stage),
+  euro: () => S.stage === "euro",
+  nba: () => S.stage === "nba",
+  star: () => isPro(S.stage) && S.role === "star",
+  bench: () => isPro(S.stage) && S.role === "bench",
+  young: () => S.age <= 21,
+  veteran: () => S.age >= 30,
+  rich: () => S.money >= 20000,
+  broke: () => S.money < 30,
+  famous: () => S.followers >= 50000,
+  partner: () => !!S.partner,
+  national: () => (S.career.natCaps || 0) > 0,
+  rivalAhead: () =>
+    !!(
+      S.rival &&
+      ["lise", "uni", "t3", "t2", "t1", "euro", "nba"].indexOf(S.rival.stage) >
+        ["lise", "uni", "t3", "t2", "t1", "euro", "nba"].indexOf(S.stage)
+    ),
+  lowMorale: () => S.moral < 40,
+  tired: () => S.energy < 40
 };
+// "when": tek koşul ya da hepsinin sağlanması gereken koşul listesi
+const fits = w => !w || (Array.isArray(w) ? w.every(c => CONDITIONS[c]()) : CONDITIONS[w]());
+export const CONDITION_NAMES = Object.keys(CONDITIONS);
 // çeviri paketini Türkçe olayın üzerine yalnızca metin alanlarıyla bindirir
 function localize(ev) {
   if (LANG === "tr") return ev;
@@ -99,7 +127,7 @@ export function eventPool() {
     statKey,
     stat: statName(statKey)
   };
-  return TR.filter(ev => !ev.when || CONDITIONS[ev.when]())
+  return TR.filter(ev => fits(ev.when))
     .map(localize)
     .filter(Boolean)
     .map(ev => {

@@ -24,6 +24,7 @@ import * as events from "./content/events.js";
 import * as i18n from "./i18n/index.js";
 import * as telemetry from "./telemetry.js";
 import * as native from "./native.js";
+import * as legacy from "./legacy.js";
 
 const MODULES = [
   data,
@@ -48,7 +49,8 @@ const MODULES = [
   events,
   i18n,
   telemetry,
-  native
+  native,
+  legacy
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

@@ -1,5 +1,4 @@
-import { t as $t, LOCALE } from "./i18n/index.js";
-import { t } from "./i18n/index.js";
+import { LOCALE, t as $t, t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, SIM, esc, toast } from "./data.js";
 import { icon, portrait } from "./art.js";

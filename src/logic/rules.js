@@ -27,7 +27,7 @@ export const BAL = {
     [33, -2, -1],
     [99, -3, -1]
   ],
-  need: { t3: 0, t2: 50, t1: 61, euro: 72, nba: 83 }, // teklif için gereken potansiyel
+  need: { t3: 0, t2: 50, t1: 61, euro: 72, nba: 81 }, // teklif için gereken potansiyel
   tax: { lise: 0, uni: 0, t3: 0.2, t2: 0.3, t1: 0.33, euro: 0.35, nba: 0.37 }, // vergi oranı
   agent: 0.05, // profesyonel menajer payı
   living: { lise: 0, uni: 0, t3: 20, t2: 55, t1: 175, euro: 650, nba: 2250 } // haftalık yaşam gideri
