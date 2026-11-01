@@ -1,6 +1,6 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, INK, clamp, ri, shade } from "./data.js";
+import { $, $$, INK, clamp, ri, shade, GOOD, BAD } from "./data.js";
 import { drawBall, drawKid, ell, rr } from "./art.js";
 import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos, setMgKind } from "./games.js";
 import { S, jersey } from "./core.js";
@@ -20,8 +20,7 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
     ux = dx / m,
     uy = dy / m,
     len = 34 + p * 110;
-  const col =
-    p >= ideal[0] && p <= ideal[1] ? "#36d38e" : p < ideal[0] ? (p < ideal[0] * 0.6 ? "#ff5468" : "#ffc54d") : "#ff5468";
+  const col = p >= ideal[0] && p <= ideal[1] ? GOOD() : p < ideal[0] ? (p < ideal[0] * 0.6 ? BAD() : "#ffc54d") : BAD();
   const ex = x + ux * len,
     ey = y + uy * len;
   c.save();
@@ -699,7 +698,7 @@ export function mgRhythm(el, { title, karaoke }) {
         36
       );
       if (ft > 0) {
-        bigText(c, fb, 330, fb === $t("arcade.22") ? "#ff5468" : "#ffc54d", 28);
+        bigText(c, fb, 330, fb === $t("arcade.22") ? BAD() : "#ffc54d", 28);
         ft -= dt;
       }
       if (t < 2.2) hint(c, $t("arcade.25"), H - 14);

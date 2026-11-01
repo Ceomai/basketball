@@ -66,7 +66,10 @@ export const SETTINGS = (() => {
         music: true,
         lowfx: false,
         notify: true,
-        errorReports: true
+        errorReports: true,
+        fs: "m",
+        cb: false,
+        diff: "normal"
       },
       JSON.parse(localStorage.getItem("pota-settings") || "{}")
     );
@@ -74,6 +77,14 @@ export const SETTINGS = (() => {
     return { sound: true, vol: 0.7, haptic: true, crowd: true };
   }
 })();
+/** Erişilebilirlik: yazı boyutu ve renk körlüğü modu kök öğeye sınıf olarak uygulanır */
+export function applyA11y() {
+  const h = document.documentElement.classList;
+  h.toggle("fs-l", SETTINGS.fs === "l");
+  h.toggle("fs-xl", SETTINGS.fs === "xl");
+  h.toggle("cb", !!SETTINGS.cb);
+}
+applyA11y();
 export const saveSettings = () => {
   try {
     localStorage.setItem("pota-settings", JSON.stringify(SETTINGS));
@@ -87,6 +98,22 @@ export function settingsSheet() {
     t("settings.sub"),
     `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts" style="grid-column:1/-1">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
    ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag", "notify", "errorReports"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
+   <div class="eyebrow" style="margin-top:4px">${t("settings.a11y")}</div>
+   <div class="act"><div><h3>${t("settings.fs")}</h3><p>${t("settings.fsDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+     ["m", t("settings.fsM")],
+     ["l", t("settings.fsL")],
+     ["xl", t("settings.fsXL")]
+   ]
+     .map(([v, n]) => `<button class="opt ${SETTINGS.fs === v ? "on" : ""}" data-fs="${v}">${n}</button>`)
+     .join("")}</div></div>
+   ${tog("cb", t("settings.cb"), t("settings.cbDesc"))}
+   <div class="act"><div><h3>${t("settings.diff")}</h3><p>${t("settings.diffDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+     ["kolay", t("settings.diffEasy")],
+     ["normal", t("settings.diffNormal")],
+     ["zor", t("settings.diffHard")]
+   ]
+     .map(([v, n]) => `<button class="opt ${SETTINGS.diff === v ? "on" : ""}" data-diff="${v}">${n}</button>`)
+     .join("")}</div></div>
    ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
    <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
      [0.35, t("settings.volLow")],
@@ -108,7 +135,25 @@ export function settingsSheet() {
         saveSettings();
         if (!SETTINGS.crowd) late.crowd(false);
         late.applyLowFx();
+        applyA11y();
         late.musicFor(late.MUS.want || "menu");
+        settingsSheet();
+      })
+  );
+  $$("[data-fs]").forEach(
+    b =>
+      (b.onclick = () => {
+        SETTINGS.fs = b.dataset.fs;
+        saveSettings();
+        applyA11y();
+        settingsSheet();
+      })
+  );
+  $$("[data-diff]").forEach(
+    b =>
+      (b.onclick = () => {
+        SETTINGS.diff = b.dataset.diff;
+        saveSettings();
         settingsSheet();
       })
   );

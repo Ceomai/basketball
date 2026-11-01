@@ -41,6 +41,15 @@ export const nativeShareFile = isNative
     }
   : null;
 
+// Görsel paylaşımı (kariyer kartı): base64 PNG önbelleğe yazılır, paylaşım menüsü açılır
+export const nativeShareImage = isNative
+  ? async (name, base64, title) => {
+      const r = await Filesystem.writeFile({ path: name, data: base64, directory: Directory.Cache });
+      await Share.share({ title, url: r.uri, dialogTitle: title }).catch(() => {});
+      return true;
+    }
+  : null;
+
 /* ---- Geri tuşu ---- */
 if (isNative) {
   App.addListener("backButton", () => {

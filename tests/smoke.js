@@ -350,6 +350,45 @@ const check = (ok, msg) => {
     out.cloudOff = !Game.cloudReady() && /Bulut/.test(Game.cloudSettingsHTML());
     return out;
   });
+  // 7e) önemli maç daveti, kariyer kartı, zorluk ve erişilebilirlik
+  const nf = await p.evaluate(async () => {
+    const out = {};
+    Game.setS(Game.loadSlot(1).S);
+    const S = Game.S;
+    Game.closeSheet();
+    S.injury = null;
+    S.phase = "regular";
+    S.rival.team = { ...S.rival.team, key: Game.fixture().opp };
+    out.big = (Game.bigMatch() || {}).kind === "derby";
+    Game.renderMain();
+    Game.quickWeek();
+    out.invite = document.querySelector("#qw-self").className.includes("pri");
+    Game.closeSheet();
+    const cv = await Game.careerCardCanvas();
+    out.card = cv.width === 1080 && cv.height === 1350 && cv.toDataURL("image/png").length > 20000;
+    await Game.careerCardSheet();
+    out.cardSheet = !!document.querySelector("#cc-share") && !!document.querySelector("#ovl img");
+    Game.closeSheet();
+    const diffs = ["kolay", "normal", "zor"].map(d => ((Game.SETTINGS.diff = d), Game.dEff(50)));
+    Game.SETTINGS.diff = "normal";
+    out.diff = diffs[0] > diffs[1] && diffs[1] > diffs[2];
+    Game.SETTINGS.fs = "xl";
+    Game.SETTINGS.cb = true;
+    Game.applyA11y();
+    const h = document.documentElement;
+    out.a11y =
+      h.classList.contains("fs-xl") &&
+      h.classList.contains("cb") &&
+      Game.GOOD() !== "#36d38e" &&
+      parseFloat(getComputedStyle(h).fontSize) === 20;
+    Game.SETTINGS.fs = "m";
+    Game.SETTINGS.cb = false;
+    Game.applyA11y();
+    return out;
+  });
+  check(nf.big && nf.invite, "önemli maç (derbi) tanınıyor ve hızlı haftada kendin oynama öne çıkıyor");
+  check(nf.card && nf.cardSheet, "paylaşılabilir kariyer kartı çiziliyor ve önizleme paneli açılıyor");
+  check(nf.diff && nf.a11y, "mini oyun zorluğu, yazı boyutu ve renk körlüğü modu çalışıyor");
   check(nx.mDone && nx.mClaim, "günlük görev maçla ilerliyor ve ödülü alınıyor");
   check(nx.prog && nx.fit, "antrenman programı ve koç sistemi uyumu çalışıyor");
   check(nx.fee && nx.release && nx.nbaout, "sözleşme fesih bedeli ve maddeleri doğru");

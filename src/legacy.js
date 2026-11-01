@@ -181,6 +181,9 @@ export function legacyTab(c, re) {
   $$("[data-fd]").forEach(btn => (btn.onclick = () => (donate(FOUNDATION.find(f => f.id === btn.dataset.fd)), re())));
   const sh = $("#lg-share");
   if (sh) sh.onclick = () => (buyShare(), re());
+  // paylaşılabilir kariyer kartı (src/card.js)
+  c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.cardButtonHTML()}</div>`);
+  late.bindCardButton(() => late.openLoc("ev", "miras"));
 }
 /** Emeklilik ekranı için Şöhretler Müzesi kartı */
 export function hofCard() {

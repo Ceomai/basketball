@@ -111,6 +111,13 @@ canvas{display:block;max-width:100%}
 @keyframes enter{from{opacity:0;transform:translateY(8px)}}
 body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation:none!important;transition:none!important}
 body.lowfx .sheet-bg{backdrop-filter:none}
+/* erişilebilirlik: yazı boyutu (rem tabanı ölçeklenir) ve renk körlüğü modu (yeşil/kırmızı yerine mavi/turuncu) */
+html.fs-l{font-size:18px} html.fs-l body{font-size:15.75px}
+html.fs-xl{font-size:20px} html.fs-xl body{font-size:17.5px}
+html.cb{--good:#4aa8ff;--bad:#ff9b3d}
+html.cb .pill.w{background:rgba(74,168,255,.15)} html.cb .pill.l{background:rgba(255,155,61,.15)}
+html.cb .fx .p{background:rgba(74,168,255,.12)} html.cb .fx .n{background:rgba(255,155,61,.12)}
+html.cb .btn.good{color:#03111f}
 .act{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .act .ai{width:52px;height:52px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}

@@ -1,6 +1,6 @@
 import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, Bus, ORDER, clamp, gauss, pick, rnd, shuffle } from "./data.js";
+import { $, $$, Bus, ORDER, clamp, gauss, pick, rnd, shuffle, GOOD, BAD } from "./data.js";
 import { SKINS, drawBall, drawKid, ell, rr } from "./art.js";
 /* ================= MİNİ OYUN ALTYAPISI ================= */
 export const W = 360,
@@ -276,6 +276,9 @@ export const oppKit = () => ({ jersey: ARENA.away, trim: ARENA.away2 });
 export const me = () => ({ ...late.jersey() });
 // Mini oyun türü (test kaydı için): her mg* fonksiyonu başında ayarlanır
 export let MG_KIND = "";
+// Mini oyun zorluğu (Ayarlar → Erişilebilirlik): oyunun beceri değerine eklenir. Arcade sıralama oyunları etkilenmez.
+export const DIFF_SHIFT = { kolay: 15, normal: 0, zor: -12 };
+export const dEff = e => clamp((e || 0) + (DIFF_SHIFT[(late.SETTINGS && late.SETTINGS.diff) || "normal"] || 0), 1, 100);
 export function setMgKind(k) {
   MG_KIND = k;
 }
@@ -290,6 +293,7 @@ export function finish(stop, res, val) {
 
 /* ---- Şut (çek-bırak) ---- */
 export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null, def = true }) {
+  eff = dEff(eff);
   setMgKind("shoot");
   mkStage(el, title);
   return new Promise(res => {
@@ -424,7 +428,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
           c.textAlign = "left";
           c.fillText($t("games.4"), 14, 64);
           rr(c, 14, 70, 100, 6, 3, "#24314a", false);
-          rr(c, 14, 70, Math.max(4, 100 * st.pr), 6, 3, st.pr > 0.66 ? "#ff5468" : st.pr > 0.33 ? "#ffc54d" : "#36d38e", false);
+          rr(c, 14, 70, Math.max(4, 100 * st.pr), 6, 3, st.pr > 0.66 ? BAD() : st.pr > 0.33 ? "#ffc54d" : GOOD(), false);
         }
         c.font = '800 15px "Barlow Condensed"';
         c.textAlign = "right";
@@ -451,6 +455,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
 }
 /* ---- Zamanlama çubuğu: serbest atış, top çalma, smaç ---- */
 export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kind = "free" }) {
+  eff = dEff(eff);
   setMgKind("timing");
   mkStage(el, title);
   return new Promise(res => {
@@ -551,7 +556,7 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
         bw = 300,
         by = 70;
       rr(c, bx, by, bw, 20, 10, "#141d2e", false);
-      rr(c, bx + bw * (st.zc - st.zw / 2), by, bw * st.zw, 20, 4, "#36d38e", false);
+      rr(c, bx + bw * (st.zc - st.zw / 2), by, bw * st.zw, 20, 4, GOOD(), false);
       rr(c, bx + bw * st.nv - 3, by - 6, 6, 32, 3, "#ffffff", false);
       if (st.ph === "aim") hint(c, kind === "steal" ? $t("games.14") : kind === "dunk" ? $t("games.15") : $t("games.16"), 40);
       if (st.ph === "done") {
@@ -593,6 +598,7 @@ export function headTop(c, x, y, L, col, r = 15) {
   c.fill();
 }
 export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
+  eff = dEff(eff);
   setMgKind("pass");
   mkStage(el, title);
   return new Promise(res => {
@@ -745,7 +751,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
         c.lineWidth = 5;
         c.strokeStyle = "#05080e";
         c.strokeText(st.clock.toFixed(1), W - 12, 42);
-        c.fillStyle = st.clock < 1.5 ? "#ff5468" : "#fff";
+        c.fillStyle = st.clock < 1.5 ? BAD() : "#fff";
         c.fillText(st.clock.toFixed(1), W - 12, 42);
       }
       if (st.ph === "done") {
@@ -770,6 +776,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
 }
 /* ---- Blok ---- */
 export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
+  eff = dEff(eff);
   setMgKind("block");
   mkStage(el, title);
   return new Promise(res => {
@@ -867,7 +874,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
       drawHoopFront(c);
       if (st.ph === "jump") {
         c.lineWidth = 4;
-        c.strokeStyle = "#36d38e";
+        c.strokeStyle = GOOD();
         c.beginPath();
         c.arc(st.ball.x, st.ball.y, 16, 0, 7);
         c.stroke();
@@ -899,6 +906,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
 }
 /* ---- Çalım (kaydırma) ---- */
 export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
+  eff = dEff(eff);
   setMgKind("dribble");
   mkStage(el, title);
   const AR = { L: "←", R: "→", U: "↑", D: "↓" };
@@ -1013,16 +1021,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       st.seq.forEach((k, i) => {
         const done = i < st.i,
           cur = i === st.i && st.ph === "go";
-        rr(
-          c,
-          x0 + i * (bw + gap),
-          56 - (cur ? 6 : 0),
-          bw,
-          bw,
-          10,
-          done ? "#36d38e" : cur ? "#ffc54d" : "rgba(20,29,46,.9)",
-          false
-        );
+        rr(c, x0 + i * (bw + gap), 56 - (cur ? 6 : 0), bw, bw, 10, done ? GOOD() : cur ? "#ffc54d" : "rgba(20,29,46,.9)", false);
         c.fillStyle = done || cur ? "#05080e" : "#eef2f8";
         c.font = '800 34px "Barlow Condensed"';
         c.textAlign = "center";
@@ -1030,7 +1029,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       });
       if (st.ph === "go") {
         rr(c, 30, 124, 300, 6, 3, "#141d2e", false);
-        rr(c, 30, 124, Math.max(2, 300 * (1 - st.t / st.time)), 6, 3, st.t / st.time > 0.7 ? "#ff5468" : "#36d38e", false);
+        rr(c, 30, 124, Math.max(2, 300 * (1 - st.t / st.time)), 6, 3, st.t / st.time > 0.7 ? BAD() : GOOD(), false);
         hint(c, $t("games.30"), 28);
       }
       if (st.ph === "done") {
@@ -1054,6 +1053,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
 }
 /* ---- Post-up: it, sonra kanca ---- */
 export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
+  eff = dEff(eff);
   setMgKind("post");
   mkStage(el, title);
   return new Promise(res => {
@@ -1158,7 +1158,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
       if (st.ph === "aim") {
         const zw = 0.06 + eff * 0.0012 + st.pos * 0.1;
         rr(c, 30, 70, 300, 20, 10, "#141d2e", false);
-        rr(c, 30 + 300 * (st.zc - zw / 2), 70, 300 * zw, 20, 4, "#36d38e", false);
+        rr(c, 30 + 300 * (st.zc - zw / 2), 70, 300 * zw, 20, 4, GOOD(), false);
         rr(c, 30 + 300 * st.nv - 3, 64, 6, 32, 3, "#fff", false);
         hint(c, $t("games.35"), 40);
       }
@@ -1179,6 +1179,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
 }
 /* ---- Ribaund: top halkanın içindeyken zıpla ---- */
 export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
+  eff = dEff(eff);
   setMgKind("rebound");
   mkStage(el, title);
   return new Promise(res => {
@@ -1251,7 +1252,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
       drawHoopFront(c);
       if (st.ph === "wait") {
         const inside = Math.hypot(st.b.x - st.ring.x, st.b.y - st.ring.y) < st.r && st.t > 0.8;
-        c.strokeStyle = inside ? "#36d38e" : "rgba(255,255,255,.6)";
+        c.strokeStyle = inside ? GOOD() : "rgba(255,255,255,.6)";
         c.lineWidth = 3;
         c.setLineDash([6, 5]);
         c.beginPath();
@@ -1342,7 +1343,7 @@ export function mgGym(el, { title = $t("games.41") }) {
       rr(c, 292, by - 20, 14, 40, 3, "#555");
       if (!done) {
         rr(c, 30, 96, 300, 6, 3, "#24314a", false);
-        rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / 5)), 6, 3, "#36d38e", false);
+        rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / 5)), 6, 3, GOOD(), false);
       }
       bigText(c, String(taps), 160, "#ffc54d", 52);
       if (!started) hint(c, $t("games.44"), H - 20);
@@ -1465,7 +1466,7 @@ export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
         c.lineTo(a + 22 * sx, b);
         c.stroke();
       });
-      c.fillStyle = "#ff5468";
+      c.fillStyle = BAD();
       c.beginPath();
       c.arc(24, 24, 5, 0, 7);
       c.fill();
