@@ -59,9 +59,11 @@ function progress(ev, data) {
     if (m.p >= d.goal) {
       m.p = d.goal;
       m.done = true;
-      late.toast($t("missions.14", {
-        n: d.n
-      }));
+      late.toast(
+        $t("missions.14", {
+          n: d.n
+        })
+      );
       Bus.emit("mission:done", { id: m.id });
     }
     changed = true;
@@ -75,11 +77,16 @@ function rewardOf(kind, weekly) {
   const base = Math.max(20, Math.round((S.wage || 10) * (weekly ? 2 : 0.5)));
   return kind === "money" ? { money: base } : kind === "energy" ? { energy: weekly ? 40 : 20 } : { chips: weekly ? 800 : 250 };
 }
-const rewardText = r => (r.money ? `+${fmt(r.money)}` : r.energy ? $t("missions.15", {
-  energy: r.energy
-}) : $t("missions.16", {
-  chips: r.chips
-}));
+const rewardText = r =>
+  r.money
+    ? `+${fmt(r.money)}`
+    : r.energy
+      ? $t("missions.15", {
+          energy: r.energy
+        })
+      : $t("missions.16", {
+          chips: r.chips
+        });
 function grant(r, label) {
   if (r.money) tx(label, r.money);
   if (r.energy) S.energy += r.energy;
@@ -145,9 +152,13 @@ export function missionsSheet() {
 export function missionsButtonHTML() {
   const c = claimable(),
     o = openMissions();
-  return `<button class="btn ${c ? "team" : "ghost"}" id="msb">${$t("missions.27")} ${c ? $t("missions.25", {
-  c: c
-}) : $t("missions.26", {
-  o: o
-})}</button>`;
+  return `<button class="btn ${c ? "team" : "ghost"}" id="msb">${$t("missions.27")} ${
+    c
+      ? $t("missions.25", {
+          c: c
+        })
+      : $t("missions.26", {
+          o: o
+        })
+  }</button>`;
 }

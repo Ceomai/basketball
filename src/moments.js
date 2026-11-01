@@ -19,9 +19,12 @@ export function pickSpecial(us, clutch, diff, dn) {
   // son hücum: maçın son anları, 3 sayı ya da daha az geride/eşit, top bizde
   if (us && clutch && diff <= 0 && diff >= -3)
     return {
-      head: diff === 0 ? $t("moments.1") : $t("moments.2", {
-        v: -diff
-      }),
+      head:
+        diff === 0
+          ? $t("moments.1")
+          : $t("moments.2", {
+              v: -diff
+            }),
       desc: $t("moments.3", {
         dn: dn
       }),
@@ -61,12 +64,14 @@ function fastBreak(dn) {
           good: ok,
           w: 1.2,
           st: "hiz",
-          txt: ok ? $t("match.97", {
-            sur: sur
-          }) : $t("moments.12", {
-            sur: sur,
-            dn: dn
-          })
+          txt: ok
+            ? $t("match.97", {
+                sur: sur
+              })
+            : $t("moments.12", {
+                sur: sur,
+                dn: dn
+              })
         };
       }
       if (k === "fb_pass") {
@@ -76,14 +81,21 @@ function fastBreak(dn) {
           good: ok,
           w: 1.1,
           st: "pas",
-          txt: ok ? $t("moments.13", {
-            sur: sur
-          }) : $t("moments.14")
+          txt: ok
+            ? $t("moments.13", {
+                sur: sur
+              })
+            : $t("moments.14")
         };
       }
-      return { good: true, w: 0.4, st: "pas", txt: $t("moments.15", {
-        sur: sur
-      }) };
+      return {
+        good: true,
+        w: 0.4,
+        st: "pas",
+        txt: $t("moments.15", {
+          sur: sur
+        })
+      };
     }
   };
 }
@@ -115,11 +127,14 @@ function screenDefense(dn) {
             }),
             $t("moments.26")
           ])
-        : pick([$t("moments.27", {
-        dn: dn
-      }), $t("moments.28", {
-        sur: sur
-      })]);
+        : pick([
+            $t("moments.27", {
+              dn: dn
+            }),
+            $t("moments.28", {
+              sur: sur
+            })
+          ]);
       return { good: ok, w: 1, st, txt };
     }
   };
@@ -161,10 +176,15 @@ function provocation(dn) {
           };
         }
         S.rel.taraf += 2;
-        return { good: true, w: 0.6, st: "guc", txt: $t("moments.39", {
-          sur: sur,
-          dn: dn
-        }) };
+        return {
+          good: true,
+          w: 0.6,
+          st: "guc",
+          txt: $t("moments.39", {
+            sur: sur,
+            dn: dn
+          })
+        };
       }
       const ok = coin(0.5);
       if (ok) M.us += 1;
@@ -172,9 +192,11 @@ function provocation(dn) {
         good: ok,
         w: 0.6,
         st: "pas",
-        txt: ok ? $t("moments.40", {
-          dn: dn
-        }) : $t("moments.41")
+        txt: ok
+          ? $t("moments.40", {
+              dn: dn
+            })
+          : $t("moments.41")
       };
     }
   };

@@ -626,22 +626,22 @@ export function negotiateOffer(o, done) {
       $t("systems.64"),
       offer.team.name,
       `<div class="row nowrap">${crestSVG(offer.team, 48)}<div><div class="eyebrow">${esc(leagueName(offer.stage, offer.team.cc))}</div><h3>${esc(offer.team.name)}</h3><div class="small muted">${$t(
-  "systems.68",
-  {
-    city: esc(offer.team.city),
-    agent: esc(S.npc.agent)
-  }
-)}</div></div></div>
+        "systems.68",
+        {
+          city: esc(offer.team.city),
+          agent: esc(S.npc.agent)
+        }
+      )}</div></div></div>
       <div class="card"><div class="kv"><span>${$t("places.155")}</span><b class="gold">${fmt(offer.wage)}</b><span>${$t("match.39")}</span><b>${$t(
-  "systems.69",
-  {
-    years: offer.years
-  }
-)}</b><span>${$t("places.21")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("systems.70")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("systems.71")}</span><b>${interest > 0.75 ? $t("systems.65") : interest > 0.55 ? $t("systems.66") : interest > 0.4 ? $t("match.2") : $t("systems.67")}</b></div></div>
+        "systems.69",
+        {
+          years: offer.years
+        }
+      )}</b><span>${$t("places.21")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("systems.70")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("systems.71")}</span><b>${interest > 0.75 ? $t("systems.65") : interest > 0.55 ? $t("systems.66") : interest > 0.4 ? $t("match.2") : $t("systems.67")}</b></div></div>
       ${msg ? `<div class="say">${msg}</div>` : ""}
       <div class="eyebrow">${$t("systems.72", {
-  v: 3 - asks
-})}</div>
+        v: 3 - asks
+      })}</div>
       <div class="grid2"><button class="btn ghost sm" data-ask="wage" ${asks >= 3 ? "disabled" : ""}>${$t("systems.73")}</button><button class="btn ghost sm" data-ask="years" ${asks >= 3 || offer.years >= 4 ? "disabled" : ""}>${$t("systems.74")}</button><button class="btn ghost sm" data-ask="role" ${asks >= 3 || offer.role === "star" ? "disabled" : ""}>${$t("systems.75")}</button><button class="btn ghost sm" data-ask="bonus" ${asks >= 3 || offer.bonus ? "disabled" : ""}>${$t("systems.70")}</button></div>
       <div class="eyebrow">${$t("systems.146")}</div>
       <div class="grid3"><button class="btn ghost sm" data-ask="release" ${asks >= 3 || cl.release ? "disabled" : ""}>${$t("systems.147")}</button>${offer.stage !== "nba" ? `<button class="btn ghost sm" data-ask="nbaout" ${asks >= 3 || cl.nbaout ? "disabled" : ""}>${$t("systems.138")}</button>` : ""}<button class="btn ghost sm" data-ask="perf" ${asks >= 3 || cl.perf ? "disabled" : ""}>${$t("systems.148")}</button></div>

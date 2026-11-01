@@ -41,9 +41,11 @@ export function nextNotification(state, now = new Date()) {
   return {
     at: new Date(now.getTime() + 2 * 24 * 3600e3),
     title: $t("notify.5"),
-    body: state.next ? $t("notify.6", {
-      next: state.next
-    }) : $t("notify.7")
+    body: state.next
+      ? $t("notify.6", {
+          next: state.next
+        })
+      : $t("notify.7")
   };
 }
 async function schedule() {

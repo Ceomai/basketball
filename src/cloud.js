@@ -52,9 +52,7 @@ async function googleIdToken() {
       client_id: CLOUD_CONFIG.googleClientId,
       callback: r => (r.credential ? res(r.credential) : rej(new Error($t("cloud.1"))))
     });
-    window.google.accounts.id.prompt(
-      n => n.isNotDisplayed && n.isNotDisplayed() && rej(new Error($t("cloud.2")))
-    );
+    window.google.accounts.id.prompt(n => n.isNotDisplayed && n.isNotDisplayed() && rej(new Error($t("cloud.2"))));
   });
 }
 async function firebaseSignIn(idToken) {
@@ -174,8 +172,7 @@ document.addEventListener("visibilitychange", () => {
 
 /* ---- Ayarlar bölümü ---- */
 export function cloudSettingsHTML() {
-  if (!cloudReady())
-    return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${$t("cloud.15")}</p></div></div>`;
+  if (!cloudReady()) return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${$t("cloud.15")}</p></div></div>`;
   return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2" style="grid-column:1/-1">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
 }
 export function bindCloudSettings(re) {

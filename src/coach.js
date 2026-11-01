@@ -72,9 +72,12 @@ export function systemHTML(team = S.team) {
   const sys = SYSTEMS[teamSystem(team)],
     f = systemFit(team),
     best = Object.entries(sys.w).sort((a, b) => b[1] - a[1])[0][0];
-  return `<div class="card"><div class="eyebrow">${$t("coach.21")}</div><div class="row between nowrap"><b>${esc(sys.n)}</b><span class="pill ${f >= 2 ? "g" : f <= -2 ? "l" : ""}">${$t("coach.22")} ${fitLabel(f)}</span></div><p class="small muted">${$t("coach.23", {
-  best: statName(best)
-})}</p></div>`;
+  return `<div class="card"><div class="eyebrow">${$t("coach.21")}</div><div class="row between nowrap"><b>${esc(sys.n)}</b><span class="pill ${f >= 2 ? "g" : f <= -2 ? "l" : ""}">${$t("coach.22")} ${fitLabel(f)}</span></div><p class="small muted">${$t(
+    "coach.23",
+    {
+      best: statName(best)
+    }
+  )}</p></div>`;
 }
 /** Teklif kartı için: o takımın sistemi ve senin uyumun */
 export const offerFitNote = team => `${SYSTEMS[teamSystem(team)].n} ${$t("coach.24")} ${fitLabel(systemFit(team))}`;

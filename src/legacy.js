@@ -224,35 +224,37 @@ export const EPILOGUES = [
     n: $t("legacy.55"),
     pts: 30,
     need: () => true,
-    text: s => $t("legacy.56", {
-      s: s
-    })
+    text: s =>
+      $t("legacy.56", {
+        s: s
+      })
   },
   {
     id: "baskan",
     n: $t("legacy.57"),
     pts: 80,
     need: () => (S.legacy && S.legacy.club) >= CLUB.majority,
-    text: s => $t("legacy.58", {
-      s: s,
-      name: CLUB.name
-    })
+    text: s =>
+      $t("legacy.58", {
+        s: s,
+        name: CLUB.name
+      })
   }
 ];
 export function afterCareerHTML() {
   const ep = S.epilogue && EPILOGUES.find(e => e.id === S.epilogue);
-  return `<div class="card"><div class="eyebrow">${$t("legacy.52")}</div>${ep
-  ? `<h3>${esc(ep.n)}</h3><p>${esc(ep.text(fullName()))}</p>`
-  : `<p class="small">${$t("legacy.60")}</p><div class="choices">${EPILOGUES.filter(
-      e => e.need()
-    )
-      .map(
-        e =>
-          `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.59", {
-  pts: e.pts
-})}</span></button>`
-      )
-      .join("")}</div>`}</div>
+  return `<div class="card"><div class="eyebrow">${$t("legacy.52")}</div>${
+    ep
+      ? `<h3>${esc(ep.n)}</h3><p>${esc(ep.text(fullName()))}</p>`
+      : `<p class="small">${$t("legacy.60")}</p><div class="choices">${EPILOGUES.filter(e => e.need())
+          .map(
+            e =>
+              `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.59", {
+                pts: e.pts
+              })}</span></button>`
+          )
+          .join("")}</div>`
+  }</div>
   <div class="card"><div class="eyebrow">${$t("legacy.61")}</div><p class="small">${$t("legacy.62")}</p><button class="btn team" id="heir">${$t("legacy.63")}</button></div>`;
 }
 export function bindAfterCareer(re) {
@@ -303,9 +305,11 @@ export function applyHeir(h) {
   S.money += h.money;
   S.npc.dad = h.parentFirst;
   S.heir = h;
-  news($t("legacy.64", {
-    v: fullName(),
-    parent: h.parent,
-    name: S.team.name
-  }));
+  news(
+    $t("legacy.64", {
+      v: fullName(),
+      parent: h.parent,
+      name: S.team.name
+    })
+  );
 }
