@@ -79,6 +79,7 @@ export function save() {
   const k = slotKey(S.saveSlot),
     data = JSON.stringify({ v: SAVE_V, ts: Date.now(), S });
   idbPut(k, data);
+  Bus.emit("save:write", k, data); // uygulamada yerel depoya da yansıtılır (native.js)
   askPersist();
   const write = () => {
     const prev = localStorage.getItem(k);
@@ -211,24 +212,32 @@ export const parseSave = raw => {
   }
 };
 export async function storageRestore() {
-  if (!window.indexedDB) return 0;
-  await Promise.race([idbOpen(), new Promise(r => setTimeout(r, 1500))]);
-  const all = await idbAll();
+  // Üç kaynak: tarayıcı hafızası, IndexedDB ve (uygulamada) yerel depo. Her yuva için en yeni geçerli kayıt kazanır.
+  let all = {};
+  if (window.indexedDB) {
+    await Promise.race([idbOpen(), new Promise(r => setTimeout(r, 1500))]);
+    all = await idbAll();
+  }
+  const nat = late.nativeAll ? await late.nativeAll().catch(() => ({})) : {};
   let n = 0;
   for (let i = 1; i <= SLOT_N; i++) {
-    const k = slotKey(i),
-      db = parseSave(all[k]);
-    if (!db) continue;
+    const k = slotKey(i);
     let cur = null;
     try {
       cur = parseSave(localStorage.getItem(k));
     } catch (e) {}
-    if (!cur || (db.ts || 0) > (cur.ts || 0)) {
+    const cands = [
+      [all[k], parseSave(all[k])],
+      [nat[k], parseSave(nat[k])]
+    ].filter(c => c[1]);
+    const best = cands.sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0))[0];
+    if (best && (!cur || (best[1].ts || 0) > (cur.ts || 0))) {
       try {
-        localStorage.setItem(k, typeof all[k] === "string" ? all[k] : JSON.stringify(all[k]));
+        localStorage.setItem(k, typeof best[0] === "string" ? best[0] : JSON.stringify(best[0]));
         n++;
       } catch (e) {}
-    } else if (cur && (cur.ts || 0) > (db.ts || 0)) idbPut(k, localStorage.getItem(k));
+    } else if (cur && all[k] !== undefined && (cur.ts || 0) > ((parseSave(all[k]) || {}).ts || 0))
+      idbPut(k, localStorage.getItem(k));
   }
   if (n)
     setTimeout(
@@ -280,6 +289,11 @@ export function markBackup() {
   save();
 }
 export async function downloadSave() {
+  if (late.nativeShareFile) {
+    await late.nativeShareFile(saveFileName(S), encodeSave(S), $t("save.36"));
+    markBackup();
+    return;
+  }
   const name = saveFileName(S),
     blob = new Blob([encodeSave(S)], { type: "text/plain" });
   try {

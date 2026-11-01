@@ -1,6 +1,6 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, fmt, pick, toast } from "./data.js";
+import { $, Bus, fmt, pick, toast } from "./data.js";
 import { S, closeSheet, norm, sheet, tx } from "./core.js";
 import { save } from "./save.js";
 import { M } from "./match.js";
@@ -45,7 +45,10 @@ export const adsSave = () => {
     localStorage.setItem("pota-ads", JSON.stringify(ADS));
   } catch (e) {}
 };
-export const admob = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
+// Uygulamada AdMob eklentisi native.js tarafından window.PotaNative.AdMob olarak verilir
+export const admob = () =>
+  (window.PotaNative && window.PotaNative.AdMob) ||
+  (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob);
 export const platform = () => {
   try {
     return window.Capacitor.getPlatform();
@@ -193,6 +196,7 @@ export async function showRewarded(place) {
   adStat(place, "shown");
   late.sfx("click");
   const ok = await playAd("rewarded");
+  Bus.emit("ad", { place, kind: "rewarded", ok });
   if (ok) {
     ADS.today++;
     adStat(place, "done");
@@ -220,6 +224,7 @@ export async function adsBetween(next) {
     ADS.lastInterGame = ADS.games;
     adsSave();
     await playAd("interstitial");
+    Bus.emit("ad", { place: "between", kind: "interstitial", ok: true });
     adStat("between", "done");
   }
   next();

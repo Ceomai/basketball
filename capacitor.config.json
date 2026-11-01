@@ -1,0 +1,9 @@
+{
+  "appId": "com.potakariyeri.app",
+  "appName": "Pota Kariyeri",
+  "webDir": "dist",
+  "android": { "backgroundColor": "#090d15" },
+  "plugins": {
+    "StatusBar": { "backgroundColor": "#090d15", "style": "DARK", "overlaysWebView": false }
+  }
+}

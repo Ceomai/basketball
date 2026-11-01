@@ -1,0 +1,87 @@
+# Mağazaya çıkış rehberi (Android önce)
+
+Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki adımlar senin hesaplarınla yapılması gereken işler.
+
+## Hazır olanlar
+
+- `android/` projesi.
+- Uygulama kimliği `com.potakariyeri.app`. Play'e ilk yüklemeden sonra değiştirilemez; değiştirmek istersen şimdi `capacitor.config.json` ve `android/app/build.gradle` içinde değiştir.
+- İkonlar, açılış ekranı, dikey ekran, Android geri tuşu desteği.
+- **Reklam:** AdMob eklentisi, Google rıza formu (UMP) ve oyun içi reklam yerleşimleri (`src/ads.js`). Şu an Google'ın **test** kimlikleri kullanılıyor.
+- **Satın alma:** reklamsız paket (`src/native.js`, ürün kimliği `adfree`).
+- **Kayıtlar:** tarayıcı hafızası ve IndexedDB'ye ek olarak yerel depoya (Preferences) da yazılır. Android otomatik yedekleme açık; kayıtlar kullanıcının Google hesabına yedeklenir ve yeni telefona kurulumda geri gelir.
+- **Gizlilik politikası:** `public/privacy.html`. Derlenince `dist/privacy.html`; GitHub Pages'te `.../privacy.html` adresinde yayınlanır.
+- **Derleme:** GitHub Actions → **Android** her push'ta test APK'sı üretir. Anahtar deposu tanımlıysa imzalı AAB de üretir.
+
+## 1. Test APK'sını dene
+
+1. GitHub → Actions → **Android** → son çalıştırma → Artifacts → `pota-kariyeri-debug-apk`.
+2. Zip'i aç, APK'yı telefona at ve kur (bilinmeyen kaynaklara izin ver).
+3. Reklamlar test reklamı olarak görünür; bu normaldir.
+
+## 2. Google Play Console
+
+1. https://play.google.com/console : geliştirici hesabı (tek seferlik 25 USD).
+2. Yeni uygulama → ad: **Pota Kariyeri**, varsayılan dil Türkçe, oyun, ücretsiz.
+3. **Uygulama içeriği** bölümü:
+   - **Gizlilik politikası:** Pages adresindeki `privacy.html`. Önce dosyadaki `[iletişim e-postası]` alanını doldur.
+   - **Reklamlar:** "Evet, reklam içeriyor".
+   - **Hedef kitle:** 13+ öner. 13 altı seçilirse Aileler politikası ve sertifikalı reklam ağı gerekir.
+   - **Veri güvenliği formu:**
+     - Toplanan: "Cihaz veya diğer kimlikler (reklam kimliği)" → amaç reklam (AdMob), paylaşım: Google.
+     - Uygulama etkinliği: yalnızca kullanıcı oyun testini açıp raporu kendi gönderirse.
+     - Şifreleme: aktarım yok.
+     - Silme: uygulama içinden (Ayarlar → Kaydı temizle).
+   - **İçerik derecelendirmesi anketi:** şiddet yok, kumar yok. Oyun Kulübü yalnızca oyun içi fişle çalışıyor ama "simüle kumar" sorusuna **evet** demek gerekir; bu derecelendirmeyi yükseltir. Mağaza sürümünden Oyun Kulübü'nü kaldırmak istersen söyle.
+4. **Ürünler → Uygulama içi ürünler →** ürün kimliği `adfree`, tek seferlik, fiyat (örn. ₺49,99), etkinleştir.
+
+## 3. AdMob
+
+1. https://admob.google.com : uygulama ekle (Android, Play'de yayımlanmadıysa "henüz yayımlanmadı").
+2. **Uygulama kimliği** (`ca-app-pub-XXXX~YYYY`) → `android/app/src/main/res/values/strings.xml` → `admob_app_id`.
+3. İki reklam birimi oluştur: **Ödüllü** ve **Geçiş**. Kimlikleri `src/ads.js` → `ADS_CFG.admob` içine yaz.
+4. AdMob → Gizlilik ve mesajlaşma → **GDPR (AB) mesajı** oluştur. Uygulamadaki rıza formu bunu gösterir.
+5. Gerçek kimliklerle **kendi telefonunda reklamlara tıklama**; hesabın kapanabilir. Testi test kimlikleriyle ya da AdMob'da test cihazı tanımlayarak yap.
+
+## 4. İmzalama anahtarı ve yayın paketi
+
+1. Anahtar oluştur ve **güvenli sakla**. Kaybedersen güncelleme yayınlayamazsın; Play App Signing açık olsa bile yükleme anahtarı gerekir.
+   ```bash
+   keytool -genkey -v -keystore pota-release.jks -alias pota -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. GitHub → Settings → Secrets and variables → Actions → şu gizli değerleri ekle:
+   - `ANDROID_KEYSTORE_BASE64`: `base64 -w0 pota-release.jks` çıktısı
+   - `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`pota`), `ANDROID_KEY_PASSWORD`
+3. Sonraki push'ta Actions → Android → `pota-kariyeri-release-aab` çıkar. Sürüm kodu her çalıştırmada otomatik artar.
+4. Play Console → **Test → İç test** → yeni sürüm → AAB'yi yükle → test kullanıcılarının e-postalarını ekle. Bu, `docs/PLAYTEST.md`'deki oyun testi için en temiz dağıtım yoludur.
+5. Test bitince **Üretim** kanalına terfi ettir. İlk incelemede 1-7 gün beklenebilir.
+
+## 5. Mağaza sayfası
+
+- Kısa açıklama (80 karakter) ve uzun açıklama: Türkçe ve İngilizce.
+- En az 2 telefon ekran görüntüsü (önerilen 6-8), 512×512 ikon (`public/icons/icon-512.png`), 1024×500 tanıtım görseli.
+- Kategori: Spor. Etiketler: basketbol, kariyer, menajer.
+
+## 6. Yayın öncesi kontrol listesi
+
+- [ ] `strings.xml` → gerçek `admob_app_id`
+- [ ] `src/ads.js` → gerçek ödüllü ve geçiş reklam birimi kimlikleri
+- [ ] `privacy.html` → iletişim e-postası
+- [ ] Play'de `adfree` ürünü etkin
+- [ ] Kulüp adları: gerçek kulüp, NBA ve EuroLeague adları marka sorunu yaratabilir. Mağaza sürümü için kurgusal adlar önerilir.
+- [ ] Görsel tarz ve Oyun Kulübü kararı (derecelendirme)
+- [ ] İç testte en az 20 kişi, `tools/playtest-report.js` raporu incelendi
+
+## iOS (sonra)
+
+iOS paketi macOS ve Xcode ister.
+
+```bash
+npm install @capacitor/ios@7
+```
+
+```bash
+npx cap add ios
+```
+
+Ardından `Info.plist` içine `GADApplicationIdentifier` ve ATT izni metni eklenir, App Store Connect'te ürün `adfree` tanımlanır. Apple geliştirici hesabı yıllık 99 USD.

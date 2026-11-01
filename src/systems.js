@@ -87,6 +87,7 @@ export function settingsSheet() {
      .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}">${n}</button>`)
      .join("")}</div></div>
    ${late.adsSettingsHTML()}
+   ${late.testSettingsHTML()}
    <div class="grid2"><button class="btn" id="st-exp">${t("settings.backup")}</button><button class="btn" id="st-help">${t("btn.guide")}</button></div>
    <button class="btn ghost" id="st-tour">${t("settings.tour")}</button>`
   );
@@ -129,6 +130,7 @@ export function settingsSheet() {
       })
   );
   late.bindAdsSettings(settingsSheet);
+  late.bindTestSettings(settingsSheet);
   $("#st-exp").onclick = exportSheet;
   const ib = $("#st-inst");
   if (ib) ib.onclick = installSheet;
@@ -791,6 +793,7 @@ export function registerPWA() {
   if (
     !("serviceWorker" in navigator) ||
     (location.protocol !== "https:" && location.hostname !== "localhost") ||
+    (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || // uygulamada gerek yok
     window.top !== window
   )
     return;

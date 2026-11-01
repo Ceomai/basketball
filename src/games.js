@@ -1,6 +1,6 @@
 import { t as $t, LOCALE } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, ORDER, clamp, gauss, pick, rnd, shuffle } from "./data.js";
+import { $, $$, Bus, ORDER, clamp, gauss, pick, rnd, shuffle } from "./data.js";
 import { SKINS, drawBall, drawKid, ell, rr } from "./art.js";
 /* ================= MİNİ OYUN ALTYAPISI ================= */
 export const W = 360,
@@ -274,7 +274,13 @@ export const OPP_LOOK = () => ({
 });
 export const oppKit = () => ({ jersey: ARENA.away, trim: ARENA.away2 });
 export const me = () => ({ ...late.jersey() });
+// Mini oyun türü (test kaydı için): her mg* fonksiyonu başında ayarlanır
+export let MG_KIND = "";
+export function setMgKind(k) {
+  MG_KIND = k;
+}
 export function finish(stop, res, val) {
+  Bus.emit("minigame:end", { kind: MG_KIND, ...val, img: undefined });
   stop();
   clearInput();
   const c = $("#mgC");
@@ -284,6 +290,7 @@ export function finish(stop, res, val) {
 
 /* ---- Şut (çek-bırak) ---- */
 export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null, def = true }) {
+  setMgKind("shoot");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -444,6 +451,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
 }
 /* ---- Zamanlama çubuğu: serbest atış, top çalma, smaç ---- */
 export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kind = "free" }) {
+  setMgKind("timing");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -585,6 +593,7 @@ export function headTop(c, x, y, L, col, r = 15) {
   c.fill();
 }
 export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
+  setMgKind("pass");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -761,6 +770,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
 }
 /* ---- Blok ---- */
 export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
+  setMgKind("block");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -889,6 +899,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
 }
 /* ---- Çalım (kaydırma) ---- */
 export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
+  setMgKind("dribble");
   mkStage(el, title);
   const AR = { L: "←", R: "→", U: "↑", D: "↓" };
   return new Promise(res => {
@@ -1043,6 +1054,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
 }
 /* ---- Post-up: it, sonra kanca ---- */
 export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
+  setMgKind("post");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -1167,6 +1179,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
 }
 /* ---- Ribaund: top halkanın içindeyken zıpla ---- */
 export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
+  setMgKind("rebound");
   mkStage(el, title);
   return new Promise(res => {
     let n = 0,
@@ -1267,6 +1280,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
 }
 /* ---- Ağırlık ---- */
 export function mgGym(el, { title = $t("games.41") }) {
+  setMgKind("gym");
   mkStage(el, title);
   return new Promise(res => {
     let taps = 0,
@@ -1364,6 +1378,7 @@ export function mgGym(el, { title = $t("games.41") }) {
 }
 /* ---- Medya: fotoğraf çekimi ---- */
 export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
+  setMgKind("photo");
   mkStage(el, title);
   return new Promise(res => {
     let shots = 0,
