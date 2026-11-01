@@ -207,26 +207,19 @@ const ARC_ONCE={
     {t:"Hemen tam yükle sahaya",d:"+6 moral, ama 5 hafta boyunca sakatlık riskin artar.",do:()=>{S.buffs.injWk=5;S.buffs.injMul=1.8;S.moral+=6;S.rel.taraf+=3;return"Isınmaya koşarak çıktın. Tribün adını bağırdı. Doktor kenarda başını salladı."}}],()=>{})
 };
 
-/* ---- Mevcut akışa bağlantılar ---- */
-// Haftalık: rol değerlendirmesi ve hikâye adımları (All-Star haftasında değil)
-const _weeklyHooks=weeklyHooks;
-weeklyHooks=function(){
-  if(S.buffs.injWk>0)S.buffs.injWk--;
-  if(S.week===8&&S.phase==="regular"&&["t1","euro","nba"].includes(S.stage))return _weeklyHooks();
-  if(roleReview()||storyTick()){const got=[...arcResolve("w")];if((S.week-1)%4===0)got.push(...arcResolve("m"));if(got.length){save();toast(`Arcade ödülü: ${got[0]}`)}if(S.chips!=null&&S.chips<500)S.chips=500;return}
-  _weeklyHooks();
-};
+/* ---- Mevcut akışa bağlantılar (olay sistemi üzerinden) ---- */
+Bus.on("week:start",()=>{if(S.buffs.injWk>0)S.buffs.injWk--});
+Bus.offer("week:sheet",roleReview,20);
+Bus.offer("week:sheet",storyTick,30);
 // Uzun sakatlık bitince dönüş hikâyesi
-const _healTick=healTick;
-healTick=function(){const inj=S.injury;_healTick();if(inj&&!S.injury&&(inj.total||0)>=3)S.arcQ.push("comeback")};
+Bus.on("injury:healed",inj=>{if((inj.total||0)>=3)S.arcQ.push("comeback")});
 // Maç sonrası: önceki basın sözlerinin karşılığı ve yeni basın toplantısı
-const _afterMatch=afterMatch;
-afterMatch=function(win){
-  const fu=pressFollowUp(win);if(fu){news(fu);toast(fu)}
-  if(pressDue(win))return pressConference(win,()=>_afterMatch(win));
+Bus.use("match:after",(ctx,next)=>{
+  const win=ctx.win,fu=pressFollowUp(win);if(fu){news(fu);toast(fu)}
+  if(pressDue(win))return pressConference(win,next);
   if(isDerby(M.opp)&&M.rating!=null){const d=derbyResult(win);toast(d.txt)}
-  _afterMatch(win);
-};
+  next();
+});
 // Sezon sonu teklifleri: transfer söylentisinin sonucu
 function storyOffers(offers){
   const a=S.arcs&&S.arcs.rumor;if(!a||a.season!==S.season-1||a.done)return offers;a.done=true;

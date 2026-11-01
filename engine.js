@@ -27,7 +27,7 @@ function modeChoice(){
   });
 }
 async function playMatch(ctx){
-  closeSheet();window.scrollTo(0,0);
+  closeSheet();window.scrollTo(0,0);Bus.emit("match:start",ctx);
   if(!ctx){const fx=fixture();ctx={opp:teamByKey(fx.opp),home:fx.home,comp:"lig",label:`${lgName()} · ${phaseName()}`}}
   const opp=ctx.opp,AUTO=!!ctx.auto||!!window.__SIM;arenaFor(opp);
   const role=isPro(S.stage)||ctx.comp==="nat"?(ctx.role||S.role):schoolRole();
@@ -121,10 +121,10 @@ async function playMatch(ctx){
        <div class="small"><b>${esc(sur)}:</b> ${Math.floor(M.mins/60)} dk · ${M.pts} sayı · ${M.ast} asist · ${M.reb} ribaund · artı/eksi ${M.plus>=0?"+":""}${M.plus}</div>
        <div class="who"><div id="qcp"></div><div class="say">"${pick(lines[st])}"</div></div>
        ${last?"":`<div class="eyebrow">${half?"Soyunma odası":"Mola"} · taktik seç</div><div class="grid3">${[["tempo","Tempoyu artır"],["def","Savunmaya odaklan"],["ball","Topu bana verin"]].map(([k,n])=>`<button class="btn ${M.tac===k?"team":"ghost"} sm" data-tac="${k}">${n}</button>`).join("")}</div>`}
-       <button class="btn pri" id="qgo">${ot?"Uzatmaya başla":last?"Devam":`${qn+1}. çeyreğe başla`}</button></div>`;
+       ${half?adHalfHTML():""}<button class="btn pri" id="qgo">${ot?"Uzatmaya başla":last?"Devam":`${qn+1}. çeyreğe başla`}</button></div>`;
       const cl=LK.coach();cl[1].mood=st==="lose"?"kizgin":"mutlu";$("#qcp").appendChild(portrait(cl[0],cl[1]));
       $$("[data-tac]").forEach(b=>b.onclick=()=>{M.tac=b.dataset.tac;if(M.tac==="ball")S.rel.koc-=1;$$("[data-tac]").forEach(x=>x.className=`btn ${M.tac===x.dataset.tac?"team":"ghost"} sm`)});
-      if(half)S.energy=Math.min(100,S.energy+4);
+      if(half){S.energy=Math.min(100,S.energy+4);bindAdHalf()}
       try{$("#mview").scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}
       $("#qgo").onclick=()=>{$("#mview").innerHTML="";addFeed(ot?"Uzatma başladı.":`${qn+1}. çeyrek başladı.${M.tac?` Taktik: ${({tempo:"tempo",def:"savunma",ball:"top "+sur+"'de"})[M.tac]}.`:""}`);r()};
     });

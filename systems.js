@@ -8,11 +8,12 @@ function settingsSheet(){
   sheet("Ayarlar","Ses, grafik ve kayıt",`${tog("sound","Ses efektleri","Top, file, düdük, tribün ve arayüz sesleri.")}${tog("music","Müzik","Haritada sakin bir tema, eğlence merkezinde 8-bit tema.")}${tog("crowd","Tribün uğultusu","Maç boyunca arka planda seyirci sesi.")}${tog("haptic","Titreşim","Destekleyen telefonlarda kısa titreşimler.")}${tog("lowfx","Düşük grafik modu","Eski ya da yavaş telefonlar için: daha düşük çözünürlük, animasyonsuz arayüz.")}${tog("backupNag","Yedek hatırlatması","Birkaç sezonda bir yedek dosyası almanı hatırlatır.")}
    ${isInstalled()?"":`<div class="act"><div><h3>Ana ekrana ekle</h3><p>Uygulama gibi açılır, internetsiz çalışır, kayıtlar daha güvende olur.</p></div><button class="btn team sm" id="st-inst">Nasıl?</button></div>`}
    <div class="act"><div><h3>Ses düzeyi</h3><p>Efektlerin yüksekliği.</p></div><div class="opts" style="grid-column:1/-1">${[[.35,"Kısık"],[.7,"Orta"],[1,"Yüksek"]].map(([v,n])=>`<button class="opt ${SETTINGS.vol===v?"on":""}" data-vol="${v}">${n}</button>`).join("")}</div></div>
+   ${adsSettingsHTML()}
    <div class="grid2"><button class="btn" id="st-exp">Yedek al</button><button class="btn" id="st-help">Kılavuz</button></div>
    <button class="btn ghost" id="st-tour">Tanıtım turunu tekrar göster</button>`);
   $$("[data-tg]").forEach(b=>b.onclick=()=>{SETTINGS[b.dataset.tg]=!SETTINGS[b.dataset.tg];saveSettings();if(!SETTINGS.crowd)crowd(false);applyLowFx();musicFor(MUS.want||"menu");settingsSheet()});
   $$("[data-vol]").forEach(b=>b.onclick=()=>{SETTINGS.vol=+b.dataset.vol;saveSettings();sfx("click");musicVolume();settingsSheet()});
-  $("#st-exp").onclick=exportSheet;const ib=$("#st-inst");if(ib)ib.onclick=installSheet;$("#st-help").onclick=()=>guideSheet();$("#st-tour").onclick=()=>{S.tut=0;closeSheet();renderMain();startTour()};
+  bindAdsSettings(settingsSheet);$("#st-exp").onclick=exportSheet;const ib=$("#st-inst");if(ib)ib.onclick=installSheet;$("#st-help").onclick=()=>guideSheet();$("#st-tour").onclick=()=>{S.tut=0;closeSheet();renderMain();startTour()};
 }
 
 /* ================= İSTATİSTİK GEÇMİŞİ ================= */
@@ -78,7 +79,7 @@ function rollInjury(){
   if(pick2[0].startsWith("Diz")){S.st.hiz-=2;S.st.guc-=1}
   S.moral-=8;news(`${fullName()} sakatlandı: ${pick2[0]}, ${w} hafta yok.`);sfx("whistle");return S.injury;
 }
-function healTick(){if(!S.injury)return;S.injury.w--;if(S.injury.w<=0){news(`${fullName()} sakatlığını atlattı ve kadroya döndü.`);toast("Sakatlık bitti, maçlara dönebilirsin.");S.injury=null}}
+function healTick(){if(!S.injury)return;S.injury.w--;if(S.injury.w<=0){const inj=S.injury;news(`${fullName()} sakatlığını atlattı ve kadroya döndü.`);toast("Sakatlık bitti, maçlara dönebilirsin.");S.injury=null;Bus.emit("injury:healed",inj)}}
 // sakatken maç: oyuncu olmadan simüle edilir, tribünden izlenir
 function simWithoutMe(){
   const fx=fixture(),opp=teamByKey(fx.opp),k=SC[S.stage];

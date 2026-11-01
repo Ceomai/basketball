@@ -105,9 +105,11 @@ function weeklyHooks(){
   const got=[...arcResolve("w")];if((S.week-1)%4===0)got.push(...arcResolve("m"));
   if(got.length){save();toast(`Arcade ödülü: ${got[0]}${got.length>1?" ve fazlası":""}`)}
   if(S.chips!=null&&S.chips<500)S.chips=500;
-  if(S.week===8&&S.phase==="regular")allStar(()=>fibaWindow(()=>{}));
-  else if(S.week===3)backupNudge();
+  Bus.emit("week:start");
+  Bus.first("week:sheet");// haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur
 }
+// 8. hafta: All-Star (üst liglerde) ve ardından milli takım penceresi
+Bus.offer("week:sheet",()=>{if(S.week!==8||S.phase!=="regular")return false;allStar(()=>fibaWindow(()=>{}));return true},10);
 
 /* ================= YEREL HİKAYE VE MİZAH ================= */
 function EVENTS_TR(){const n=S.npc,abroad=S.city!==S.home,home=!abroad;return[

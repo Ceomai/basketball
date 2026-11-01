@@ -158,6 +158,7 @@ const ARCADE=[
 ];
 function venueCard(id,title,sub,kind,on){const w=document.createElement("button");w.className="venue"+(on?" on":"");w.dataset.v=id;const[cv,c]=hiCanvas(360,190);drawScene(c,kind,{});w.appendChild(cv);w.insertAdjacentHTML("beforeend",`<span class="vlab"><b>${title}</b><small>${sub}</small></span>`);return w}
 function locEglence(I,tab="arcade"){
+  Bus.emit("place:open","eglence");
   S.rec=Object.assign({arcade:0,reflex:0,hockey:0,rhythm:0,bowling:0},S.rec);
   const b=sheet(I.n,"Nereye gidiyorsun?",`<div class="venues" id="vn"></div><div id="egc" style="display:flex;flex-direction:column;gap:10px"></div>`);
   const vn=$("#vn");vn.appendChild(venueCard("arcade","Arcade salonu",`${ARCADE.length} oyun · jeton ${fmt(1)}`,"arcade",tab==="arcade"));vn.appendChild(venueCard("kulup","Gece kulübü",S.age<18?"18 yaş ve üstü":"Parti, karaoke, VIP","club",tab==="kulup"));
@@ -183,7 +184,7 @@ function locEglence(I,tab="arcade"){
   }
 }
 async function arcadeRun(kind,paid){
-  if(!paid){if(S.money<1)return;tx("Arcade jetonu",-1)}closeSheet();arenaFor(null);
+  if(!paid){if(S.money<1)return;tx("Arcade jetonu",-1)}closeSheet();arenaFor(null);Bus.emit("arcade:start",kind);
   const meta=ARCADE.find(g=>g.id===kind)||{n:"Karaoke",rec:"rhythm"};
   app.innerHTML=`<div style="padding-top:12px"><div class="eyebrow">Eğlence Merkezi</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el=$("#stg");let r;

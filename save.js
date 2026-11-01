@@ -2,14 +2,29 @@
 /* ================= KAYIT SİSTEMİ =================
    5 kariyer yuvası. Her yazımda bir önceki sağlam kayıt yedeğe alınır; ana kayıt bozulursa yedekten açılır.
    Tarayıcı kaydı kapalıysa ya da depolama doluysa oyuncu uyarılır ve kayıt kodu ile ilerlemesini taşıyabilir. */
-const SLOT_N=5,SAVE_V=4,LEGACY_KEY="pota-kariyeri-v3";
+const SLOT_N=5,SAVE_V=5,LEGACY_KEY="pota-kariyeri-v3";
+/* ---- Kayıt şeması sürümleri ----
+   Oyun durumunun yapısı değiştiğinde SAVE_V bir artırılır ve MIGRATIONS'a o sürüme taşıyan adım eklenir.
+   Eski bir kayıt açılırken eksik adımlar sırayla uygulanır; her adım tek bir sürüm atlatır.
+   Eksik alanları varsayılanla dolduran normalizeState() ise her açılışta çalışır (yapı değiştirmez). */
+const MIGRATIONS={
+  // 5: sezon 14 maça çıktı, haftalık ücret yarı ölçeğe indi
+  5:s=>{if(!s.wk14){s.wk14=1;if(s.wage>20)s.wage=Math.round(s.wage/2)}}
+};
+function upgradeSave(s,from){for(let v=(from||3)+1;v<=SAVE_V;v++)if(MIGRATIONS[v])MIGRATIONS[v](s);s.schema=SAVE_V;return s}
+function normalizeState(s){
+  s.buffs=s.buffs||{train:0,motive:0,offer:0};s.rec=s.rec||{arcade:0,reflex:0};s.news=s.news||[];s.teams=s.teams||{};
+  s.arcs=s.arcs||{};s.arcQ=s.arcQ||[];s.career=s.career||{games:0,pts:0,ast:0,reb:0,blk:0,wins:0,trophies:[],mvps:0,earned:0};
+  if(s.team&&s.team.key==="lise|İstanbul|0"){s.team.name=MY_LISE;s.team.short="MMS";if(s.teams[s.team.key])Object.assign(s.teams[s.team.key],{name:MY_LISE,short:"MMS"})}
+  return s;
+}
 const slotKey=i=>`pota-slot-${i}`;
 let storageOK=true,storageWarned=false;
 try{const k="__pota_test";localStorage.setItem(k,"1");localStorage.removeItem(k)}catch(e){storageOK=false}
 function validSave(o){return o&&typeof o==="object"&&o.first&&o.team&&o.team.key&&o.st&&o.league&&Array.isArray(o.league)&&o.rel}
-function readKey(k){try{const raw=localStorage.getItem(k);if(!raw)return null;const o=JSON.parse(raw);const s=o&&o.v?o.S:o;return validSave(s)?s:null}catch(e){return null}}
+function readKey(k){try{const raw=localStorage.getItem(k);if(!raw)return null;const o=JSON.parse(raw);const s=o&&o.v?o.S:o;return validSave(s)?upgradeSave(s,o.v||3):null}catch(e){return null}}
 function save(){
-  if(!S||!S.saveSlot)return;
+  if(!S||!S.saveSlot||SIM())return;
   if(!storageOK){if(!storageWarned){storageWarned=true;toast("Tarayıcı kaydı kapalı. İlerlemeni korumak için Kayıtlar ekranından kayıt kodunu kopyala.")}return}
   const k=slotKey(S.saveSlot),data=JSON.stringify({v:SAVE_V,ts:Date.now(),S});
   idbPut(k,data);askPersist();
@@ -30,7 +45,7 @@ function deleteSlot(i){try{localStorage.removeItem(slotKey(i));localStorage.remo
 function migrateLegacy(){try{const old=readKey(LEGACY_KEY);if(old&&!localStorage.getItem(slotKey(1))){old.saveSlot=1;localStorage.setItem(slotKey(1),JSON.stringify({v:SAVE_V,ts:Date.now(),S:old}));localStorage.removeItem(LEGACY_KEY)}}catch(e){}}
 // kayıt kodu: cihazlar arası taşıma ve depolama kapalıyken yedek
 const encodeSave=s=>btoa(unescape(encodeURIComponent(JSON.stringify({v:SAVE_V,S:s}))));
-function decodeSave(code){try{const o=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));const s=o.v?o.S:o;return validSave(s)?s:null}catch(e){return null}}
+function decodeSave(code){try{const o=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));const s=o.v?o.S:o;return validSave(s)?upgradeSave(s,o.v||3):null}catch(e){return null}}
 
 /* ---- İkinci kopya: IndexedDB ----
    Her kayıt IndexedDB'ye de yazılır. Açılışta tarayıcı hafızasındaki kayıt eksik, bozuk ya da daha eskiyse
@@ -73,14 +88,16 @@ function importCode(code){
 }
 // Yedek hatırlatması: kurulu değilse 2 sezonda, kuruluysa 4 sezonda bir
 function backupNudge(){
-  if(!S||SETTINGS.backupNag===false||S.week!==3||S.phase!=="regular"||S.season<2)return;
-  const gap=S.season-((S.bk&&S.bk.season)||0);if(gap<(isInstalled()?4:2))return;
+  if(!S||SIM()||SETTINGS.backupNag===false||S.week!==3||S.phase!=="regular"||S.season<2)return false;
+  const gap=S.season-((S.bk&&S.bk.season)||0);if(gap<(isInstalled()?4:2))return false;
   sheet("Kariyerini yedekle","Bir dakika sürer",`<div class="card"><div class="eyebrow">Neden?</div><p>Kariyerin bu cihazın tarayıcı hafızasında duruyor. Telefon tarayıcıları uzun süre açılmayan sitelerin verisini silebiliyor, cihaz da kaybolabilir. Bir yedek dosyası alırsan kariyerini her zaman geri yükleyebilirsin.</p>${isInstalled()?"":`<p class="small muted">En güvenli yol: oyunu ana ekrana ekle. Ayarlar'da nasıl yapılacağı yazıyor.</p>`}</div>
    <button class="btn pri" id="bn-dl">Yedek dosyası al</button><div class="grid2"><button class="btn ghost" id="bn-later">Sonra hatırlat</button><button class="btn ghost" id="bn-off">Bir daha sorma</button></div>`);
   $("#bn-dl").onclick=async()=>{await downloadSave();closeSheet()};
   $("#bn-later").onclick=()=>{S.bk={...(S.bk||{}),season:S.season-1};save();closeSheet()};
   $("#bn-off").onclick=()=>{SETTINGS.backupNag=false;saveSettings();closeSheet();toast("Hatırlatma kapatıldı. Yedeği Ayarlar'dan alabilirsin.")};
+  return true;
 }
+Bus.offer("week:sheet",backupNudge,90);
 
 /* ================= KAYIT EKRANI ================= */
 function slotSummary(s){return`${s.age} yaş · ${esc(s.team.name)} · ${s.retired?"Emekli":`${s.year}–${String(s.year+1).slice(2)} sezonu`}`}
@@ -103,6 +120,7 @@ function renderSlots(){
   $("#impf").onchange=async e=>{const t=await readFileText(e.target);e.target.value="";importCode(t)};
   $("#pst").onclick=async()=>{try{const t=await navigator.clipboard.readText();if(!t)throw 0;$("#imp").value=t.trim();toast("Kod yapıştırıldı. Şimdi Kodu yükle'ye bas.")}catch(e){$("#imp").focus();toast("Pano okunamadı. Kutuya basılı tutup Yapıştır'ı seç.")}};
   $("#help0").onclick=()=>guideSheet();
+  Bus.emit("screen:slots");
 }
 function exportSheet(){
   const code=encodeSave(S);

@@ -48,11 +48,13 @@ function finishMatch(win){
    <div class="who"><div id="cp"></div><div><div class="eyebrow">${esc(S.npc.coach)} · Koç</div><div class="say">${coach}</div></div></div>
    <div class="kv"><span>Süre</span><b>${Math.round((M.mins||0)/60)} dk · artı/eksi ${(M.plus||0)>=0?"+":""}${M.plus||0}</b><span>Maç primi</span><b class="good">+${fmt(bonus)}</b><span>Koçla ilişki</span><b>${S.rel.koc}</b><span>Takipçi</span><b>${kfmt(S.followers)}</b></div>
    ${inj?`<div class="say" style="border-left-color:var(--bad)"><b>Sakatlık:</b> ${esc(inj.n)} · ${inj.w} hafta yoksun.</div>`:""}
-   <button class="btn pri" id="nx">Devam</button>`,{noClose:true});
+   ${adDoubleHTML(bonus)}<button class="btn pri" id="nx">Devam</button>`,{noClose:true});
   const cl=LK.coach();cl[1].mood=r>=6.5?"mutlu":"kizgin";$("#cp").appendChild(portrait(cl[0],cl[1]));
-  $("#nx").onclick=()=>afterMatch(win);
+  bindAdDouble(bonus);$("#nx").onclick=()=>adsBetween(()=>afterMatch(win));
 }
-function afterMatch(win){
+// Maç sonrası: önce ara katmanlar (basın toplantısı, derbi), sonra lig akışı
+function afterMatch(win){Bus.run("match:after",{win},()=>afterMatchFlow(win))}
+function afterMatchFlow(win){
   let next=()=>endWeek();
   if(S.phase==="regular"&&S.week>=S.sched.length){
     const st=standings(),rank=st.findIndex(r=>r.key===S.team.key)+1;
@@ -101,6 +103,7 @@ const LK={
   neighbor:()=>[{skin:"#e8c3a0",hatStyle:"kulak",hat:"#8a6b3e"},{adult:true,jersey:"#9a3b3b",sleeves:true,mood:"saskin",glasses:true}],
 };
 function eventSheet(ev,after){
+  if(SIM()){pick(ev.choices).do();norm();setTimeout(after,0);return}
   sheet(ev.title,ev.who,`<div class="who"><div id="ep"></div><div class="say">${ev.text}</div></div><div class="choices" id="ch">${ev.choices.map((x,i)=>`<button class="choice" data-i="${i}"><span class="ct" style="font-size:1.05rem">${x.t}</span></button>`).join("")}</div>`,{noClose:true});
   $("#ep").appendChild(portrait(ev.look[0],ev.look[1]));
   $$("#ch .choice").forEach(btn=>btn.onclick=()=>{const out=ev.choices[+btn.dataset.i].do();norm();save();$("#ch").innerHTML=`<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="ok">Devam</button>`;$("#ok").onclick=after});
@@ -149,6 +152,7 @@ function randomEvent(after){const e=pick([...EVENTS(),...EVENTS_TR()]);eventShee
 
 /* ================= SEZON SONU & TEKLİFLER ================= */
 function seasonEnd(playoff,champ,final){
+  Bus.emit("season:end",{playoff,champ,final});
   const res=S.results,w=res.filter(r=>r.win).length,avg=seasonAvg();
   const awards=[],tn=lgName(),label=seasonLabel();
   if(champ){awards.push(`${tn} şampiyonu`);S.career.trophies.push({type:S.stage==="lise"?"lise":"champ",label:`${label} · ${tn} şampiyonu · ${S.team.name}`});S.rel.taraf+=10;S.followers*=1.25}
@@ -235,6 +239,7 @@ function acceptOffer(o){
   chapter(ch,renderMain);
 }
 function retireScreen(){
+  Bus.emit("career:retire");if(SIM())return;
   closeSheet();const k=S.career;const legend=Math.round((S.items.akademi?150:0)+(S.items.salon?80:0)+(k.allStars||0)*25+(k.natCaps||0)*2+k.pts*.3+k.ast*.6+(k.reb||0)*.4+k.blk*.8+k.trophies.length*40+k.mvps*30+k.wins*2);
   app.innerHTML=`<div style="padding-top:18px"><div class="eyebrow">${seasonLabel()}</div><h1>Emeklilik</h1></div>
   <div class="card"><div class="who"><div id="rp"></div><div><h2>${esc(fullName())}</h2><p class="muted">${S.age} yaşında, ${esc(S.team.name)} formasıyla kariyerini noktaladı.</p></div></div>

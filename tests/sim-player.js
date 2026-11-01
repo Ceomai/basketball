@@ -5,9 +5,8 @@ const P={weak:.37,avg:.5,strong:.62};
 let BASE=.5,REC=null,done=null,stuckT=0,lastSig="",GEN=0;
 const pS=e=>clamp(BASE+(e-40)*.0075,.08,.92);
 const bin=(n,p)=>{let k=0;for(let i=0;i<n;i++)if(Math.random()<p)k++;return k};
+// Test modu: oyun kayıt, ses, bildirim ve olay panellerini kendisi kapatır (SIM()); fonksiyon değiştirilmez.
 window.__SIM={base:.5};
-save=()=>{};toast=()=>{};sfx=()=>{};crowd=()=>{};crowdSwell=()=>{};if(typeof musicFor==="function")musicFor=()=>{};
-eventSheet=(ev,after)=>{pick(ev.choices).do();norm();setTimeout(after,0)};
 const POSW={PG:{pas:1.3,hiz:1.2,sut:1,sav:.8,guc:.7},SG:{sut:1.4,hiz:1.1,pas:.9,sav:.9,guc:.7},SF:{sut:1.1,sav:1,guc:1,hiz:1,pas:.9},PF:{guc:1.3,sav:1.3,sut:.9,hiz:.8,pas:.7},C:{guc:1.5,sav:1.4,sut:.7,hiz:.7,pas:.7}};
 function train(){
   const w=POSW[S.pos],drills=[...DRILLS[S.pos],...COMMON_DRILLS];
@@ -64,13 +63,11 @@ function pump(g){
   const sg=sig();if(sg===lastSig){stuckT++;if(stuckT>4000){REC.stuck=$("#ovl").innerText.slice(0,200)+"//"+app.innerText.slice(0,200);finishCareer()}}else{stuckT=0;lastSig=sg}
   setTimeout(()=>pump(g),1);
 }
-const _se=seasonEnd;
-seasonEnd=function(playoff,champ,final){
+Bus.on("season:end",({champ})=>{if(!REC)return;
   const avg=seasonAvg(),ss={...(S.ss||blankSS())};
   REC.seasons.push({age:S.age,stage:S.stage,cc:S.team.cc,team:S.team.name,role:S.role,ovr:ovr(),avg:+avg.toFixed(2),money:Math.round(S.money),wage:S.wage,w:S.results.filter(x=>x.win).length,l:S.results.filter(x=>!x.win).length,champ:!!champ,ppg:ss.g?+(ss.pts/ss.g).toFixed(1):0,apg:ss.g?+(ss.ast/ss.g).toFixed(1):0,rpg:ss.g?+(ss.reb/ss.g).toFixed(1):0,mpg:ss.g?+(ss.min/ss.g).toFixed(1):0,dnp:ss.dnp,energy:S.energy,koc:S.rel.koc,inj:S.injury?S.injury.n:null,rival:S.rival?S.rival.stage:null});
-  return _se(playoff,champ,final);
-};
-retireScreen=function(){REC.retired=S.age;finishCareer()};
+});
+Bus.on("career:retire",()=>{if(REC){REC.retired=S.age;finishCareer()}});
 function finishCareer(){if(!done)return;REC.trophies=S?S.career.trophies.map(t=>t.type):[];REC.tlab=S?S.career.trophies.map(t=>t.label):[];REC.caps=S?S.career.natCaps||0:0;REC.arcs=S?Object.keys(S.arcs||{}):[];REC.final={age:S&&S.age,money:S&&Math.round(S.money),followers:S&&S.followers,items:S&&Object.keys(S.items).length,housing:S&&S.housing};const d=done;done=null;d(REC)}
 window.__runCareer=(profile,pos)=>new Promise(res=>{
   BASE=P[profile];window.__SIM.base=BASE;REC={profile,pos,seasons:[],trainGain:0,buys:[],house:[]};done=res;stuckT=0;

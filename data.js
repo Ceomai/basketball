@@ -9,11 +9,25 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
 const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+/* ---- Olay sistemi ----
+   Modüller birbirinin fonksiyonlarını sarmak yerine olaylara abone olur.
+   Bus.on/emit: bildirim ("ekran açıldı", "sakatlık bitti").
+   Bus.use/run: akışı durdurup sonra sürdürebilen ara katmanlar (ör. maç sonu basın toplantısı).
+   Bus.offer/first: sırayla sorulan sağlayıcılar; ilk "true" dönen kazanır (ör. haftada tek bir hikâye paneli). */
+const Bus={h:{},m:{},p:{},
+  on(e,f){(this.h[e]=this.h[e]||[]).push(f);return f},
+  emit(e,...a){for(const f of this.h[e]||[]){try{f(...a)}catch(err){console.error(e,err)}}},
+  use(e,f){(this.m[e]=this.m[e]||[]).push(f)},
+  run(e,ctx,final){const L=this.m[e]||[];let i=0;const next=()=>{const f=L[i++];if(f)f(ctx,next);else final(ctx)};next()},
+  offer(e,f,prio=50){(this.p[e]=this.p[e]||[]).push({f,prio});this.p[e].sort((a,b)=>a.prio-b.prio)},
+  first(e,...a){for(const{f}of this.p[e]||[]){try{if(f(...a))return true}catch(err){console.error(e,err)}}return false}};
+// Otomatik test modu (denge simülasyonu): kayıt, ses, bildirim ve olay panelleri kapatılır
+const SIM=()=>!!window.__SIM;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const hash=s=>{let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return Math.abs(h)};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const INK="#141414";
-function toast(t){if(typeof sfx==="function")sfx("notify");$$(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+function toast(t){if(SIM())return;if(typeof sfx==="function")sfx("notify");$$(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 const kfmt=n=>n>=1e6?(n/1e6).toFixed(1).replace(".",",")+"M":n>=1e4?Math.round(n/1e3)+"B":n>=1e3?(n/1e3).toFixed(1).replace(".",",")+"B":String(Math.round(n));
 const RATE=40; // para birimi: içeride €, ekranda ₺
 function fmt(eur){const v=Math.round(eur*RATE),a=Math.abs(v),s=a>=1e7?(a/1e6).toFixed(1).replace(".",",")+"M":a.toLocaleString("tr-TR");return(v<0?"−":"")+"₺"+s}

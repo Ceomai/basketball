@@ -41,7 +41,7 @@ function musTick(){
 function musStop(){if(MUS.timer){clearInterval(MUS.timer);MUS.timer=null}if(MUS.g&&AC){const g=MUS.g;g.gain.setTargetAtTime(0,AC.currentTime,.25);setTimeout(()=>{try{g.disconnect()}catch(e){}},1200)}MUS.g=null;MUS.theme=null}
 // İstenen temayı çal (null: sustur). Ses bağlamı henüz açılmadıysa ilk dokunuşta başlar.
 function musicFor(theme){
-  MUS.want=theme;
+  if(SIM())return;MUS.want=theme;
   if(!theme||!SETTINGS.music||!SETTINGS.sound){musStop();return}
   if(!AC||AC.state!=="running")return;
   if(MUS.theme===theme)return;musStop();
@@ -62,15 +62,12 @@ function countUp(root){
     const t0=performance.now(),D=550;const f=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);el.textContent=m[1]+Math.round(to*e)+m[3];if(k<1&&el.isConnected)requestAnimationFrame(f)};requestAnimationFrame(f)});
 }
 function applyLowFx(){document.body.classList.toggle("lowfx",!!SETTINGS.lowfx)}
-// sheet(): her panel açılışında sayıları canlandır
-const _sheetFx=sheet;
-sheet=function(...a){const r=_sheetFx(...a);try{countUp($("#ovl"))}catch(e){}return r};
-// ekran temaları: haritada menü müziği, maçta sessizlik, eğlence yerlerinde arcade teması
-const _renderMainFx=renderMain;renderMain=function(...a){const r=_renderMainFx(...a);musicFor("menu");app.classList.remove("enter");void app.offsetWidth;app.classList.add("enter");return r};
-const _renderSlotsFx=renderSlots;renderSlots=function(...a){const r=_renderSlotsFx(...a);musicFor("menu");return r};
-const _playMatchFx=playMatch;playMatch=function(...a){musicFor(null);return _playMatchFx(...a)};
-const _locEglenceFx=locEglence;locEglence=function(...a){musicFor("arcade");return _locEglenceFx(...a)};
-const _locSansFx=locSans;locSans=function(...a){if(S&&S.age>=18)musicFor("arcade");return _locSansFx(...a)};
-const _closeSheetFx=closeSheet;closeSheet=function(...a){const r=_closeSheetFx(...a);if(MUS.theme==="arcade"&&S&&$("#gostad"))musicFor("menu");return r};
-const _arcadeRunFx=arcadeRun;arcadeRun=function(...a){setTimeout(()=>musicFor("arcade"),0);return _arcadeRunFx(...a)};
+// Olaylara bağlantı: panel açılınca sayılar canlanır; ekrana göre müzik teması değişir
+Bus.on("sheet:open",el=>countUp(el));
+Bus.on("screen:main",()=>{musicFor("menu");app.classList.remove("enter");void app.offsetWidth;app.classList.add("enter")});
+Bus.on("screen:slots",()=>musicFor("menu"));
+Bus.on("match:start",()=>musicFor(null));
+Bus.on("place:open",()=>musicFor("arcade"));
+Bus.on("arcade:start",()=>setTimeout(()=>musicFor("arcade"),0));
+Bus.on("sheet:close",()=>{if(MUS.theme==="arcade"&&S&&$("#gostad"))musicFor("menu")});
 window.addEventListener("load",applyLowFx);

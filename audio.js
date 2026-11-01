@@ -54,12 +54,12 @@ const SFX={
   coinIn:()=>{tone(1800,.05,{type:"square",vol:.05,filter:5000});tone(2400,.12,{type:"square",vol:.05,filter:5000,delay:.05})},
 };
 function sfx(name,arg){
-  if(!SETTINGS.sound||!AC||AC.state!=="running")return;const now=performance.now();if(lastPlay[name]&&now-lastPlay[name]<60)return;lastPlay[name]=now;
+  if(SIM()||!SETTINGS.sound||!AC||AC.state!=="running")return;const now=performance.now();if(lastPlay[name]&&now-lastPlay[name]<60)return;lastPlay[name]=now;
   MASTER.gain.value=SETTINGS.vol;try{SFX[name]&&SFX[name](arg)}catch(e){}
 }
 // maç boyunca tribün uğultusu; skor anlarında kabarır
 function crowd(on){
-  if(!AC)return;
+  if(!AC||SIM())return;
   if(!on||!SETTINGS.sound||!SETTINGS.crowd){if(CROWD_SND){try{CROWD_SND.g.gain.setTargetAtTime(0,AC.currentTime,.3);const c=CROWD_SND;setTimeout(()=>{try{c.s.stop()}catch(e){}},900)}catch(e){}CROWD_SND=null}return}
   if(CROWD_SND)return;const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NOISE;s.loop=true;f.type="bandpass";f.frequency.value=700;f.Q.value=.5;g.gain.value=0;
   s.connect(f);f.connect(g);g.connect(MASTER);s.start();g.gain.setTargetAtTime(.05,AC.currentTime,.8);CROWD_SND={s,g,f};
