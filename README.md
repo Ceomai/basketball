@@ -16,7 +16,13 @@ npm run build
 
 Geliştirirken canlı yenilenen sunucu için `npm run dev` kullanılır.
 
-**GitHub Pages ile yayın:** Settings → Pages → Source: **GitHub Actions** seç, sonra Actions sekmesinden **Pages** iş akışını çalıştır. Pages üzerinden açılan oyun telefonda ana ekrana eklenebilir ve internetsiz çalışır.
+**Canlı sürüm:** https://ceomai.github.io/basketball/. `main` dalına her push'ta GitHub Actions oyunu derleyip `gh-pages` dalına yayınlar. Pages üzerinden açılan oyun telefonda ana ekrana eklenebilir ve internetsiz çalışır.
+
+**Oyna ve test et (QR):** https://ceomai.github.io/basketball/qr.html
+
+<img src="public/qr/qr-test.png" width="180" alt="Oyun testi QR kodu"> <img src="public/qr/qr-oyna.png" width="180" alt="Oyna QR kodu">
+
+Soldaki kod oyun testi bağlantısını açar (`?test=1`, katılım onayı sorulur), sağdaki yalnızca oyunu açar.
 
 ## Öne çıkanlar
 

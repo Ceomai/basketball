@@ -6,7 +6,7 @@ Amaç: 20-50 gerçek oyuncunun nerede bıraktığını, hangi mini oyunda zorlan
 
 İki yol var:
 
-- **Web bağlantısı:** GitHub Pages'te yayınlanan adresin sonuna `?test=1` ekle. Örnek: `https://<kullanıcı>.github.io/basketball/?test=1`. Oyuncu ilk açılışta oyun testine katılmak isteyip istemediğini görür.
+- **Web bağlantısı:** GitHub Pages'te yayınlanan adresin sonuna `?test=1` ekle. Adres: `https://ceomai.github.io/basketball/?test=1`. Telefonla okutulacak QR kodlar: https://ceomai.github.io/basketball/qr.html Oyuncu ilk açılışta oyun testine katılmak isteyip istemediğini görür.
 - **Android uygulaması:** Actions → **Android** iş akışının ürettiği APK'yı paylaş. Oyuncular bunu Ayarlar → Oyun testi → Açık ile etkinleştirir. Kurulum için "bilinmeyen kaynaklara izin" gerekir. Google Play'in **iç test** kanalı daha temizdir; bkz. `docs/STORE.md`.
 
 ## 2. Oyunculara ne söyleyeceksin
