@@ -39,9 +39,26 @@ Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki ad
 
 1. https://admob.google.com : uygulama ekle (Android, Play'de yayımlanmadıysa "henüz yayımlanmadı").
 2. **Uygulama kimliği** (`ca-app-pub-XXXX~YYYY`) → `android/app/src/main/res/values/strings.xml` → `admob_app_id`.
-3. İki reklam birimi oluştur: **Ödüllü** ve **Geçiş**. Kimlikleri `src/ads.js` → `ADS_CFG.admob` içine yaz.
+3. İki reklam birimi oluştur: **Ödüllü** ve **Geçiş**. Kimlikleri `src/ads.js` → `ADS_CFG.admob` içine yaz. Ödüllü yerleşimler (maç primi, enerji, devre arası, sakatlık, son hücum, ek teklif, geri çağırma, sezon sonu, antrenman, günlük kutu) aynı birimi kullanır; raporlamada ayrıştırmak istenirse her yerleşime ayrı birim açılabilir.
 4. AdMob → Gizlilik ve mesajlaşma → **GDPR (AB) mesajı** oluştur. Uygulamadaki rıza formu bunu gösterir.
 5. Gerçek kimliklerle **kendi telefonunda reklamlara tıklama**; hesabın kapanabilir. Testi test kimlikleriyle ya da AdMob'da test cihazı tanımlayarak yap.
+6. **Aracılık (mediation), gelirin en ucuz artışı (%20-40):** AdMob → Aracılık → aracılık grubu oluştur (Ödüllü ve Geçiş için ayrı ayrı) → kaynak olarak AppLovin, Unity Ads, Meta Audience Network, Liftoff ekle (her birinde hesap açıp uygulama tanımlamak gerekir). Her ağın Android bağdaştırıcısı `android/app/build.gradle` içine `implementation 'com.google.ads.mediation:<ağ>:<sürüm>'` olarak eklenir. Oyun kodunda değişiklik gerekmez.
+7. **Uygulama içi tanıtım (house ads):** başka uygulamalarınız varsa AdMob → Kampanyalar → "Kendi tanıtım kampanyası" ile reklam boşluklarında ücretsiz gösterilir.
+
+## 3b. Uzaktan ayar ve A/B (hazır, ek iş yok)
+
+- Dosya: `public/remote-config.json` → yayında `https://ceomai.github.io/basketball/remote-config.json`. Uygulama açılışta alır (5 sn zaman aşımı), son alınanı saklar; internet yoksa onu, o da yoksa `src/remote.js` varsayılanlarını kullanır.
+- Değiştirilebilenler: günlük ödüllü sınırı, enerji reklamı, geçiş reklamı eşikleri (`minGames`, `everyGames`, `minGapMs`, `breakGapMs`, `breaks`) ve yeni ödüllü yerleşimlerin her biri (`rewards`). Sayılar güvenli aralığa kırpılır; bilinmeyen alan yok sayılır.
+- **A/B deneyi:** `experiments` listesine `{ "id": "...", "on": true, "variants": { "A": {...}, "B": {...} } }`. Her kurulum kararlı bir kovaya düşer. Şu an açık deney: `inter_start` (ilk geçiş reklamı 6. maç mı 4. maç mı).
+- Değişiklik `main`'e push edilince Pages'e çıkar; uygulama güncellemesi gerekmez.
+
+## 3c. Firebase Analytics (elde tutma ve reklam ölçümü)
+
+Olay katmanı hazır (`src/analytics.js`): `active_day` (kurulumdan bu yana gün), `ad_offer`/`ad_reward`/`ad_inter` (yerleşim bazında), `ad_cap`, `purchase`, `career_start`, `season_end`, `retire`; A/B kovaları kullanıcı özelliği (`ab_<deney>`). Yalnızca reklam izninde "izin ver" denmişse gönderilir. Firebase bağlanana kadar aynı özet cihazda tutulur ve oyun testi raporuna eklenir. Bağlamak için:
+1. https://console.firebase.google.com → proje → Android uygulaması ekle (paket adı `com.potakariyeri.app`) → `google-services.json` indir → `android/app/` içine koy.
+2. `npm install @capacitor-firebase/analytics firebase` → `npx cap sync android`.
+3. Firebase'i AdMob'a bağla (AdMob → Uygulama ayarları → Firebase bağlantısı): böylece kullanıcı başına reklam geliri ve elde tutma aynı panelde görünür.
+4. Play veri güvenliği formuna "Uygulama etkileşimleri / analitik" ekle.
 
 ## 4. İmzalama anahtarı ve yayın paketi
 

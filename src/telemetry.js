@@ -131,7 +131,8 @@ export function reportData() {
     ua: navigator.userAgent.slice(0, 120),
     events: TEL.events,
     feedback: TEL.fb,
-    errors: late.errorLog ? late.errorLog() : []
+    errors: late.errorLog ? late.errorLog() : [],
+    analytics: late.analyticsSummary ? late.analyticsSummary() : null
   };
 }
 export async function sendReport() {

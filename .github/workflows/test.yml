@@ -20,3 +20,5 @@ jobs:
       # kapsamlı denetim paketi: işlevsel, uç durum, güvenlik (CSP dahil), arayüz ve performans testleri
       - run: npm run build
       - run: node tests/audit.js
+      # gelir katmanı: uzaktan ayar, A/B, analitik, ödüllü yerleşimler, kırılma anı reklamı
+      - run: node tests/revenue.js

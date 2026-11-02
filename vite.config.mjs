@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
                 "font-src 'self' https://fonts.gstatic.com data:",
                 "img-src 'self' data: blob:",
-                "connect-src 'self' https://*.googleapis.com https://accounts.google.com https://*.sentry.io",
+                "connect-src 'self' https://ceomai.github.io https://*.googleapis.com https://accounts.google.com https://*.sentry.io",
                 "frame-src https://accounts.google.com",
                 "object-src 'none'",
                 "base-uri 'self'"

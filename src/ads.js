@@ -5,6 +5,7 @@ import { S, closeSheet, norm, sheet, tx } from "./core.js";
 import { save } from "./save.js";
 import { M } from "./match.js";
 import { settingsSheet } from "./systems.js";
+import { RC, loadRemote, onRemote } from "./remote.js";
 /* ================= REKLAM GELİR MODELİ =================
    İlke: reklam oyuncunun tercihidir. Ödüllü reklamlar bir karşılık verir; zorunlu geçiş reklamı seyrek ve
    sıklık sınırlıdır, ilk saatlerde hiç gösterilmez.
@@ -30,6 +31,14 @@ export const ADS_CFG = {
   interstitial: { minGames: 6, everyGames: 3, minGapMs: 4 * 60 * 1000 },
   webAdSeconds: { rewarded: 5, interstitial: 3 }
 };
+// sıklık ve sınırlar uzaktan ayarla değişebilir (src/remote.js; varsayılanlar yukarıdakilerle aynı)
+onRemote(rc => {
+  ADS_CFG.dailyRewardCap = rc.ads.dailyRewardCap;
+  ADS_CFG.energyPerWeek = rc.ads.energyPerWeek;
+  const I = rc.ads.interstitial;
+  Object.assign(ADS_CFG.interstitial, { minGames: I.minGames, everyGames: I.everyGames, minGapMs: I.minGapMs });
+});
+loadRemote();
 export const ADS = (() => {
   let st = {};
   try {
@@ -93,7 +102,7 @@ function askConsent() {
     el.id = "acov";
     el.className = "sheet-bg";
     el.style.zIndex = "55";
-    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div style="min-width:0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
+    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div style="min-width:0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")} ${$t("adp.consentStats")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
     document.body.appendChild(el);
     const done = v => {
       ADS.consent = v;
@@ -238,7 +247,27 @@ export async function adsBetween(next) {
   }
   next();
 }
-export const adBtn = (id, label, sub) =>
+// Doğal kırılma anı (sezon sonu imzası, yeni bölüm): maç sayacını artırmaz, kendi en kısa arasını kullanır.
+// İlk maçlarda (minGames) ve son geçiş reklamından kısa süre sonra gösterilmez; maç ortasında asla çağrılmaz.
+export async function adsBreak(place, next) {
+  const C = ADS_CFG.interstitial,
+    I = RC.ads.interstitial,
+    now = Date.now();
+  const due = I.breaks && !ADS.adFree && !window.__SIM && ADS.games >= C.minGames && now - ADS.lastInter >= I.breakGapMs;
+  if (due) {
+    await adsConsent();
+    adStat(place, "shown");
+    ADS.lastInter = now;
+    ADS.lastInterGame = ADS.games; // hemen ardından maç sonu reklamı gelmesin
+    adsSave();
+    await playAd("interstitial");
+    Bus.emit("ad", { place, kind: "interstitial", ok: true });
+    adStat(place, "done");
+  }
+  next();
+}
+export const adBtn = (id, label, sub, place) => (place && late.adOffer && late.adOffer(place), adBtnRaw(id, label, sub));
+const adBtnRaw = (id, label, sub) =>
   `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
@@ -249,7 +278,8 @@ export function adDoubleHTML(bonus) {
         $t("ads.49", {
           bonus: fmt(bonus)
         }),
-        $t("ads.50")
+        $t("ads.50"),
+        "double_bonus"
       )
     : "";
 }
@@ -281,7 +311,7 @@ export function adEnergyHTML() {
     energy: S.energy
   })}</div><p class="small muted" style="margin:2px 0 0">${$t("ads.31", {
     v: ADS_CFG.energyPerWeek - S.adEnergyN
-  })}</p></div></div>${adBtn("ad-en", $t("ads.32"), $t("ads.50"))}</div>`;
+  })}</p></div></div>${adBtn("ad-en", $t("ads.32"), $t("ads.50"), "energy")}</div>`;
 }
 export function bindAdEnergy(after) {
   const b = $("#ad-en");
@@ -302,7 +332,9 @@ export function bindAdEnergy(after) {
   };
 }
 export function adHealHTML() {
-  return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed ? adBtn("ad-heal", $t("ads.52"), $t("ads.53")) : "";
+  return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed
+    ? adBtn("ad-heal", $t("ads.52"), $t("ads.53"), "heal")
+    : "";
 }
 export function bindAdHeal(after) {
   const b = $("#ad-heal");
@@ -322,7 +354,7 @@ export function bindAdHeal(after) {
   };
 }
 export function adHalfHTML() {
-  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.54"), $t("ads.55"));
+  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.54"), $t("ads.55"), "halftime");
 }
 export function bindAdHalf() {
   const b = $("#ad-half");

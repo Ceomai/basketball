@@ -1,0 +1,20 @@
+{
+  "v": 1,
+  "note": "Pota Kariyeri uzaktan ayar. Yalnizca src/remote.js icindeki varsayilanlarda olan alanlar okunur; sayilar guvenli araliga kirpilir.",
+  "ads": {
+    "dailyRewardCap": 8,
+    "energyPerWeek": 2,
+    "interstitial": { "minGames": 6, "everyGames": 3, "minGapMs": 240000, "breakGapMs": 180000, "breaks": true }
+  },
+  "rewards": { "retry": true, "extraOffer": true, "recall": true, "season": true, "trainPerWeek": 1, "box": true },
+  "experiments": [
+    {
+      "id": "inter_start",
+      "on": true,
+      "variants": {
+        "A": { "ads": { "interstitial": { "minGames": 6 } } },
+        "B": { "ads": { "interstitial": { "minGames": 4 } } }
+      }
+    }
+  ]
+}
