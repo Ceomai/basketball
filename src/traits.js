@@ -1,12 +1,12 @@
 /* ================= OYUN KİMLİĞİ: ÖZELLİKLER VE İMZA HAREKET =================
    Özellikler oynayışla kazanılır (karar anlarındaki başarılar sayılır; en fazla 3 özellik):
-   - Clutch: son anlarda başarılı karar. Son hücumda "Topu bana verin" seçeneği, son anlarda +6
-   - Şutör: başarılı dış şutlar. Dış şut seçenekleri +4
-   - Oyun kurucu: başarılı paslar. Pas seçenekleri +4
-   - Savunma canavarı: başarılı savunma anları. Savunma seçenekleri +4
+   - Clutch: son anlarda başarılı karar. Son hücumda "Topu bana verin" seçeneği, son anlarda +3
+   - Şutör: başarılı dış şutlar. Dış şut seçenekleri +2
+   - Oyun kurucu: başarılı paslar. Pas seçenekleri +2
+   - Savunma canavarı: başarılı savunma anları. Savunma seçenekleri +2
    - Lider: koç ve takımla güçlü ilişki (profesyonel). Koçun güveni +3, her hafta takım ilişkisi +1
    İmza hareket: profesyonelde 150 kariyer sayısından sonra pozisyona göre üç hareketten biri seçilir.
-   Maçta bir kez çıkar, başarı değeri +16; olursa tribün coşar, taraftar ve takipçi artar. */
+   Maçta bir kez çıkar, başarı değeri +8; olursa tribün coşar, taraftar ve takipçi artar. */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, isPro, statName } from "./data.js";
 import { S, closeSheet, eff, news, norm, sheet } from "./core.js";
@@ -58,12 +58,12 @@ Bus.on("week:start", () => {
 export function traitMod(k) {
   if (!S) return 0;
   let m = 0;
-  if (k === "clutch") return 10;
-  if (k === "sig") return 16;
-  if (hasTrait("clutch") && M && M.clutchNow) m += 6;
-  if (hasTrait("sutor") && OUT.includes(k)) m += 4;
-  if (hasTrait("kurucu") && PASS.includes(k)) m += 4;
-  if (hasTrait("savunma") && DEF.includes(k)) m += 4;
+  if (k === "clutch") return 5;
+  if (k === "sig") return 8;
+  if (hasTrait("clutch") && M && M.clutchNow) m += 3;
+  if (hasTrait("sutor") && OUT.includes(k)) m += 2;
+  if (hasTrait("kurucu") && PASS.includes(k)) m += 2;
+  if (hasTrait("savunma") && DEF.includes(k)) m += 2;
   return m;
 }
 export const traitTrust = () => (hasTrait("lider") ? 3 : 0);

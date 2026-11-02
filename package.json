@@ -45,5 +45,9 @@
     "@capacitor/share": "^7.0.4",
     "@capacitor/status-bar": "^7.0.6",
     "cordova-plugin-purchase": "^13.20.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.4",
+    "glob": "^14.0.3"
   }
 }

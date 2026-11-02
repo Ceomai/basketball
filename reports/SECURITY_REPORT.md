@@ -24,12 +24,12 @@ Kapsam: savunma amaçlı değerlendirme. Gerçek kullanıcı verisi yok; bütün
 | G5 | Bilgi | Paketlenmiş kodda `eval` / `new Function` yok (`S02`) | Doğrulandı |
 | G6 | Bilgi | Yerel depoda e-posta, belirteç, şifre yok; yalnızca oyun verisi (`S03`) | Doğrulandı |
 | G7 | Bilgi | Kaynak kodda ve depoda gizli anahtar yok (düzenli ifade taraması: Google API anahtarı, özel anahtar, şifre) | Doğrulandı |
-| G8 | Düşük | Geliştirme bağımlılıklarında 8 orta önem açık (`npm audit`); üretim bağımlılıklarında **0** | Açık: yalnızca derleme araçları |
+| G8 | Düşük | Geliştirme bağımlılıklarında 8 orta önem açık (`npm audit`) | **Düzeltildi**: `overrides` ile minimatch 11.0.4, glob 14.0.3; `npm audit` 0 açık |
 | G9 | Bilgi | Herkese açık APK hata ayıklama derlemesi (debuggable WebView); `allowBackup=true` | Test dağıtımı için bilinçli; mağazada imzalı yayın derlemesi kullanılmalı |
 | G10 | Orta (yapılandırılınca) | Bulut kayıt açılırsa Firebase yenileme belirteci `localStorage`'da | Açık: etkinleştirmeden önce güvenli depolama |
 | G11 | Bilgi | Geri bildirim metni (`<script>` dahil) yalnızca JSON rapor olarak indiriliyor, ekrana basılmıyor (`U24`) | Doğrulandı |
 | G12 | Bilgi | Telemetri açık rıza olmadan hiçbir şey kaydetmiyor (duman testi) | Doğrulandı |
-| G13 | Düşük | Cihaz saati oynatılarak görev ödülü yenilenebilir (`E10`) | Açık: yerel oyunda sunucu saati yok |
+| G13 | Düşük | Cihaz saati oynatılarak görev ödülü ve reklam sınırı yenilenebiliyordu (`E10`) | **Düzeltildi**: yalnızca ileri tarih yeniler |
 
 ## Kayıt verisinin bütünlüğü (veritabanının karşılığı)
 
@@ -50,4 +50,4 @@ Kapsam: savunma amaçlı değerlendirme. Gerçek kullanıcı verisi yok; bütün
 2. Bulut kayıt etkinleştirilmeden önce:
    - belirteçleri Android'de güvenli depoya taşımak
    - Firestore kurallarını (`docs/STORE.md`) bir emülatörde test etmek
-3. Geliştirme bağımlılıklarını güncellemek (`eslint` 9 → güncel, `@capacitor/cli` güncel yama).
+3. `overrides` kalıcı değil: eslint ve Capacitor CLI minimatch 11'e geçince kaldırılabilir (`npm audit` ile izlenir).

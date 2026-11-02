@@ -456,7 +456,7 @@ const check = (ok, msg) => {
     S.trk = { clutch: 0, out: 139, pass: 0, def: 0 };
     Game.Bus.emit("match:moment", { id: "off", k: "catch", good: true, clutch: false });
     Game.setM({ dz: null, stint: 0, mmod: 0 });
-    out.trait = !!S.traits.sutor && Game.traitMod("catch") >= 4 && Game.traitsHTML().length > 20;
+    out.trait = !!S.traits.sutor && Game.traitMod("catch") >= 2 && Game.traitsHTML().length > 20;
     S.sig = "stepback";
     const o = Game.addSignature([], "off");
     out.sig =
