@@ -406,7 +406,7 @@ export async function playMatch(ctx) {
     // imza hareket (maçta bir kez) ve maç koşulları + özellikler seçeneklerin başarı değerine eklenir
     if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
     opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));
-    if (!AUTO)
+    const render = () => {
       $("#mview").innerHTML =
         `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
@@ -420,20 +420,26 @@ export async function playMatch(ctx) {
             return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`;
           })
           .join("")}</div></div>`;
-    if (!AUTO)
       try {
         $("#mview").scrollIntoView({ block: "start", behavior: "smooth" });
       } catch (e) {}
-    const k = AUTO
-      ? late.autoChoose(opts)
-      : await new Promise(r => $$(".choice").forEach(b => (b.onclick = () => r(b.dataset.k))));
-    if (!AUTO) S.tipMoment = 1;
-    const b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
-    M.mmod = late.momentMod(k);
-    const pk = sp && sp.resolve ? k : late.playKey(k);
-    const res =
-      sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(pk, sur) : await resolvePlay(pk, $("#mview"), sur, dn);
-    M.mmod = 0;
+    };
+    // son hücumda kaçan şut: oyuncu isterse reklamla bir kez yeniden oynar (src/adplaces.js); maç durumu geri alınır
+    const snap = late.retryAvailable(sp, AUTO) ? late.momentSnap() : null;
+    let k, res, b0;
+    for (;;) {
+      if (!AUTO) render();
+      k = AUTO ? late.autoChoose(opts) : await new Promise(r => $$(".choice").forEach(b => (b.onclick = () => r(b.dataset.k))));
+      if (!AUTO) S.tipMoment = 1;
+      b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
+      M.mmod = late.momentMod(k);
+      const pk = sp && sp.resolve ? k : late.playKey(k);
+      res =
+        sp && sp.resolve ? sp.resolve(k, sur) : AUTO ? late.autoResolve(pk, sur) : await resolvePlay(pk, $("#mview"), sur, dn);
+      M.mmod = 0;
+      if (res.good || !snap || M.adRetry || !(await late.offerRetry($("#mview")))) break;
+      late.momentRestore(snap);
+    }
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
     Bus.emit("match:moment", { id: (sp && sp.id) || ty, k, good: !!res.good, clutch: !!clutch, auto: !!AUTO });

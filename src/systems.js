@@ -498,7 +498,8 @@ export function simWithoutMe() {
     )}</p><button class="btn pri" id="nx">${$t("ads.25")}</button>`,
     { noClose: true }
   );
-  $("#nx").onclick = () => afterMatch(win);
+  // sakatken izlenen maç da maç sayılır (geçiş reklamı sıklığı aynı kurallarla)
+  $("#nx").onclick = () => late.adsBetween(() => afterMatch(win));
 }
 export function updateLeague(win, opp, us, them) {
   const mr = S.league.find(x => x.key === S.team.key),

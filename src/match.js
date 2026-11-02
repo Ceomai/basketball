@@ -764,7 +764,7 @@ export function seasonEnd(playoff, champ, final) {
   })}</div><h2>${$t("match.54", {
     w: w,
     v: res.length - w
-  })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}${late.rivalCard(avg)}`;
+  })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}<div id="seasonad">${late.seasonAdHTML()}</div>${late.rivalCard(avg)}`;
   late.summerTournament(avg, () => transition(avg, champ, head));
 }
 export function potential(avg, champ) {
@@ -912,6 +912,8 @@ export function transition(avg, champ, head) {
   window.__lastOffers = offers;
   const retire = S.age >= 34 || !!S.farewell,
     force = S.age >= 38 || (S.farewell && S.season > S.farewell); // veda turu sezonu bitince emeklilik
+  // menajerin ek kulüp araması (reklamla): yalnızca gerçek bir kulüp seçimi yapılan yazlarda
+  const allowExtra = !force && (S.stage !== "lise" || S.stageSeason > 2);
   const show = () => {
     // bütün kulüpler masadan kalktıysa ilk tekliflerinde (pazarlıksız) dururlar; oyuncu teklifsiz kalmaz
     if (offers.length && offers.every(o => o.withdrawn))
@@ -933,10 +935,17 @@ export function transition(avg, champ, head) {
                   ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.135")}</span></button>`
                   : offerHTML(o, i)
               )
-              .join("")}</div>${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
+              .join(
+                ""
+              )}</div>${late.offerAdsHTML(offers, allowExtra)}${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
       }`,
       { noClose: true }
     );
+    // sezon sonu ödülü bir kez alınınca yeniden çizimde düğme yerine bilgi kalmasın diye kutu tazelenir
+    const sa = $("#seasonad");
+    if (sa) sa.innerHTML = late.seasonAdHTML();
+    late.bindSeasonAd();
+    if (!force) late.bindOfferAds(offers, () => genOffers(avg, champ, 1), show);
     $$("[data-o]").forEach(
       x => (x.onclick = () => late.negotiateOffer(offers[+x.dataset.o], sg => (sg ? acceptOffer(sg) : show())))
     );
@@ -1016,7 +1025,8 @@ export function acceptOffer(o) {
           : S.stage === prevStage
             ? null
             : S.stage;
-  chapter(ch, renderMain);
+  // doğal kırılma anı: imza sonrası, yeni bölüm başlamadan (sıklık sınırlı geçiş reklamı)
+  late.adsBreak("season_break", () => chapter(ch, renderMain));
 }
 export function retireScreen() {
   if (!S.retired) Bus.emit("career:retire"); // ekran yeniden çizilince (son bölüm seçimi, kaydı açma) tekrar tetiklenmez

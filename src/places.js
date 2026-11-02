@@ -623,7 +623,8 @@ export async function runDrill([id, name, k, kind]) {
       v: S.st[k],
       v2: Math.round((S.stf[k] || 0) * 100)
     }
-  )}</p><div class="bar"><i style="width:${Math.round((S.stf[k] || 0) * 100)}%"></i></div><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  )}</p><div class="bar"><i style="width:${Math.round((S.stf[k] || 0) * 100)}%"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  late.bindTrainAd(k, gain);
   $("#bk").onclick = renderMain;
 }
 export async function runTryout() {

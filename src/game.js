@@ -41,6 +41,9 @@ import * as traits from "./traits.js";
 import * as album from "./album.js";
 import * as dilemmas from "./dilemmas.js";
 import * as modes from "./modes.js";
+import * as remote from "./remote.js";
+import * as analytics from "./analytics.js";
+import * as adplaces from "./adplaces.js";
 
 const MODULES = [
   data,
@@ -82,7 +85,10 @@ const MODULES = [
   traits,
   album,
   dilemmas,
-  modes
+  modes,
+  remote,
+  analytics,
+  adplaces
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
