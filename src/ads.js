@@ -46,9 +46,12 @@ export const adsSave = () => {
   } catch (e) {}
 };
 // Uygulamada AdMob eklentisi native.js tarafından window.PotaNative.AdMob olarak verilir
-export const admob = () =>
-  (window.PotaNative && window.PotaNative.AdMob) ||
-  (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob);
+export const admob = () => {
+  // yalnızca gerçek uygulamada: web'de eklentinin "web taklidi" reklam göstermeden "izlendi" der ve ödül bedavaya verilirdi
+  const C = window.Capacitor;
+  if (!(C && C.isNativePlatform && C.isNativePlatform())) return null;
+  return (window.PotaNative && window.PotaNative.AdMob) || (C.Plugins && C.Plugins.AdMob) || null;
+};
 export const platform = () => {
   try {
     return window.Capacitor.getPlatform();

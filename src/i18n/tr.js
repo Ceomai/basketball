@@ -364,5 +364,6 @@ export default {
     "Tek devreli lig, sezon başına 7 maç: bir kariyer yaklaşık yarı sürede biter. Antrenman ve ücretler buna göre ayarlı.",
   "mode.efsane": "Efsane modu",
   "mode.efsaneD": "Daha zor: kulüpler daha seçici, gelişim daha yavaş, sakatlık riski daha yüksek. Miras puanı %25 fazla.",
-  "mode.legacyPart": "Efsane modu bonusu"
+  "mode.legacyPart": "Efsane modu bonusu",
+  "games.quickShot": "Hızlı şut (çekip bırakmak yerine)"
 };

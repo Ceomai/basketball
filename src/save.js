@@ -22,12 +22,35 @@ export const MIGRATIONS = {
     }
   }
 };
+/** Kayıttaki metinlerden işaretleme karakterlerini temizle: başkasından gelen kayıt kodu ya da yedek dosyası
+    (ad, takım, haber metni içine gömülü HTML/JS) ekrana basılınca çalışmasın. Oyunun kendi metinlerinde < > yoktur. */
+export function cleanStrings(o, depth = 0) {
+  if (!o || typeof o !== "object" || depth > 12) return o;
+  for (const k of Object.keys(o)) {
+    const v = o[k];
+    if (typeof v === "string") {
+      if (/[<>]/.test(v)) o[k] = v.replace(/[<>]/g, "");
+    } else if (v && typeof v === "object") cleanStrings(v, depth + 1);
+  }
+  return o;
+}
 export function upgradeSave(s, from) {
+  cleanStrings(s); // bütün yükleme yolları buradan geçer: yuva, yedek, IndexedDB, kayıt kodu, dosya
   for (let v = (from || 3) + 1; v <= SAVE_V; v++) if (MIGRATIONS[v]) MIGRATIONS[v](s);
   s.schema = SAVE_V;
   return s;
 }
 export function normalizeState(s) {
+  // eksik alanlar (yarım kayıt, eski sürüm, elle düzenlenmiş kod): yeni kariyerin varsayılanlarıyla tamamlanır
+  const def = late.createState(
+    { first: s.first || "Oyuncu", last: s.last || "", pos: s.pos || "SF", num: s.num || 7, look: s.look || {} },
+    { posBonus: {}, npc: {} }
+  );
+  for (const k of Object.keys(def)) if (k !== "unlocks" && (s[k] === undefined || s[k] === null)) s[k] = def[k];
+  for (const k of ["mom", "dad", "friend", "rival", "agent", "journalist", "coach"])
+    if (typeof s.npc[k] !== "string" || !s.npc[k]) s.npc[k] = "-";
+  for (const k of ["koc", "takim", "taraf", "aile", "ark", "partner"])
+    if (typeof s.rel[k] !== "number" || !isFinite(s.rel[k])) s.rel[k] = 50;
   // Bozuk ya da eksik alanları onar (depolama hatası, yarım yazılmış kayıt, eski sürüm): oyun hiçbir kayıtta çökmemeli
   for (const k of ["hist", "tx", "news", "arcQ", "results"]) if (!Array.isArray(s[k])) s[k] = [];
   for (const k of ["items", "teams", "arcs", "chapters", "clauses", "evSeen", "npc", "rel"])
@@ -226,7 +249,11 @@ export function idbAll() {
 export const parseSave = raw => {
   try {
     const o = typeof raw === "string" ? JSON.parse(raw) : raw;
-    return o && validSave(o.v ? o.S : o) ? o : null;
+    if (o && validSave(o.v ? o.S : o)) {
+      cleanStrings(o);
+      return o;
+    }
+    return null;
   } catch (e) {
     return null;
   }

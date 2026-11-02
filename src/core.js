@@ -329,9 +329,14 @@ export function renderCreate() {
     ${late.modePickerHTML(F.mode || "normal")}
   </div>
   <button class="btn pri big" id="go">${$t("core.33")}</button>`;
+  // adlar ekrana basılır: işaretleme karakterleri alınmaz
   const keep = () => {
-    F.first = $("#fn").value.trim();
-    F.last = $("#ln").value.trim();
+    F.first = $("#fn")
+      .value.replace(/[<>"&]/g, "")
+      .trim();
+    F.last = $("#ln")
+      .value.replace(/[<>"&]/g, "")
+      .trim();
   };
   const bind = (id, fn) => {
     const el = $("#" + id);
@@ -687,7 +692,7 @@ export function renderMain() {
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
    <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.missionsButtonHTML()}</div>
-  <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${n.w}</time><span>${n.t}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
+  <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
   <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   $$(".loc").forEach(g => {

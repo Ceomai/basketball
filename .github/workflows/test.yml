@@ -17,3 +17,6 @@ jobs:
       # sağlamlık: maymun oyuncu (8 koşu × 45 sn) ve uç durumlar (24 durum); her güncellemede farklı tohum
       - run: node tests/fuzz.js 8 45 ${{ github.run_number }}
       - run: node tests/fuzz-state.js 24 ${{ github.run_number }}
+      # kapsamlı denetim paketi: işlevsel, uç durum, güvenlik (CSP dahil), arayüz ve performans testleri
+      - run: npm run build
+      - run: node tests/audit.js

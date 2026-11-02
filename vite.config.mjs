@@ -46,6 +46,26 @@ export default defineConfig(({ mode }) => {
             }
           }
         ]
-      : []
+      : [
+          {
+            // İçerik güvenlik politikası (Pages ve Android derlemesi): satır içi betik ve olay işleyicisi çalışmaz,
+            // dış kaynaklar yalnızca yazı tipi ve (yapılandırılırsa) Google girişi / Firebase / Sentry
+            name: "csp",
+            transformIndexHtml(html) {
+              const csp = [
+                "default-src 'self'",
+                "script-src 'self' https://accounts.google.com/gsi/client",
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
+                "font-src 'self' https://fonts.gstatic.com data:",
+                "img-src 'self' data: blob:",
+                "connect-src 'self' https://*.googleapis.com https://accounts.google.com https://*.sentry.io",
+                "frame-src https://accounts.google.com",
+                "object-src 'none'",
+                "base-uri 'self'"
+              ].join("; ");
+              return html.replace("<head>", `<head>\n<meta http-equiv="Content-Security-Policy" content="${csp}">`);
+            }
+          }
+        ]
   };
 });

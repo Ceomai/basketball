@@ -365,5 +365,6 @@ export default {
   "mode.hizliD": "Single round-robin, 7 games per season: a career takes about half the time. Training and wages are adjusted.",
   "mode.efsane": "Legend mode",
   "mode.efsaneD": "Harder: clubs are pickier, progress is slower, injuries are more likely. 25% more legacy points.",
-  "mode.legacyPart": "Legend mode bonus"
+  "mode.legacyPart": "Legend mode bonus",
+  "games.quickShot": "Quick shot (instead of pull and release)"
 };

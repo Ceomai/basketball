@@ -213,7 +213,7 @@ export function roulette(I) {
           ang = start + (target - start) * e;
           ballA = b0 + (bT - b0) * e;
           if (p >= 1) ballA = -Math.PI / 2;
-          draw();
+          if ($("#rmsg")) draw();
           if (p < 1) requestAnimationFrame(step);
           else done();
         };
@@ -226,12 +226,14 @@ export function roulette(I) {
             bet === col || (n > 0 && ((bet === "odd" && n % 2) || (bet === "even" && n % 2 === 0) || (bet === "low" && n <= 18)));
           const pay = win ? (bet === "g" ? BET * 36 : BET * 2) : 0;
           if (pay) chipTx(pay);
-          $("#rmsg").innerHTML =
-            `<span style="color:${col === "r" ? "#ff6b6b" : col === "g" ? "#7ee2a8" : "#fff"}">${n}</span> · ${win ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">−${fis(BET)}</span>`}`;
+          // dönüş sırasında panel kapatılmış olabilir: sonuç yine kaydedilir, rulet kilitli kalmaz
+          busy = false;
           norm();
           save();
+          const msg = $("#rmsg");
+          if (!msg) return;
+          msg.innerHTML = `<span style="color:${col === "r" ? "#ff6b6b" : col === "g" ? "#7ee2a8" : "#fff"}">${n}</span> · ${win ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">−${fis(BET)}</span>`}`;
           updBal();
-          busy = false;
         };
       })
   );
@@ -414,10 +416,12 @@ export function slots(I) {
     if (res[0] === res[1] && res[1] === res[2]) pay = BET * SYM[res[0]][2];
     else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) pay = Math.round(BET * 1.5);
     if (pay) chipTx(pay);
-    $("#smsg").innerHTML = pay ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">${$t("casino.43")}</span>`;
+    busy = false;
     norm();
     save();
+    const sm = $("#smsg");
+    if (!sm) return;
+    sm.innerHTML = pay ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">${$t("casino.43")}</span>`;
     updBal();
-    busy = false;
   };
 }
