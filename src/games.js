@@ -359,10 +359,27 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
       buzz(10);
       late.sfx("throw");
     };
+    // Çek-bırak hareketini bilmeyen oyuncu takılmasın: 6 sn şut atılmazsa "Hızlı şut" düğmesi çıkar.
+    // İsabet niteliğe bağlı ama iyi bir elle şuttan düşük (avantaj değil, kurtarma).
+    const quick = () => {
+      if (st.ph !== "aim") return;
+      const good = Math.random() < 0.25 + eff / 300;
+      aimAt(st.ball, HOOP.x + (good ? rnd(-3, 3) : (Math.random() < 0.5 ? -1 : 1) * rnd(15, 24)), HOOP.y - 8, 0.85);
+      st.ph = "fly";
+      st.t = 0;
+      st.quick = false;
+      $("#mgC").innerHTML = "";
+      late.sfx("throw");
+    };
     const stop = loop((dt, T) => {
       const c = CX;
       drawArena(c, T, { cheer: st.ph === "done" && st.ball.in });
       st.t += dt;
+      if (st.ph === "aim" && !st.drag && st.t > 6 && !st.quick) {
+        st.quick = true;
+        $("#mgC").innerHTML = `<button class="btn ghost" id="qshot">${$t("games.quickShot")}</button>`;
+        $("#qshot").onclick = quick;
+      }
       if (st.ph !== "aim") {
         if (stepBall(st.ball, dt)) {
           made++;
@@ -517,6 +534,8 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
       drawArena(c, T, { cheer: st.ph === "done" && (st.ball.in || st.ok) });
       st.t += dt;
       if (st.ph === "aim") st.nv = 0.5 + 0.5 * Math.sin(st.t * st.speed);
+      // hiç dokunulmazsa 8 sn sonra o anki konumla bırakılır (takılmaz; rastgele bir dokunuşa eşdeğer)
+      if (st.ph === "aim" && st.t > 8) go();
       if (kind !== "steal") {
         if (st.ph !== "aim") {
           if (stepBall(st.ball, dt)) {
@@ -1123,6 +1142,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         $("#pb").style.opacity = "";
       }
       if (st.ph === "aim") st.nv = 0.5 + 0.5 * Math.sin(st.t * (2.6 + lvl() * 0.3));
+      if (st.ph === "aim" && st.t > 8) act(); // hiç dokunulmazsa kendiliğinden şut (takılmaz)
       if (st.ph === "fly" || st.ph === "done") {
         if (stepBall(st.ball, dt)) {
           st.ok = true;
