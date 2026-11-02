@@ -588,7 +588,8 @@ export function drillGain(k, ratio) {
     trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) *
     late.programMul(k) *
     late.charTrainMul() *
-    late.modeTrainMul();
+    late.modeTrainMul() *
+    late.originTrainMul();
   if (S.buffs.train > 0) S.buffs.train--;
   S.stf[k] = (S.stf[k] || 0) + f;
   const g = Math.floor(S.stf[k]);

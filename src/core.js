@@ -319,14 +319,15 @@ export function renderCreate() {
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${F.look.hatStyle === "yok" ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(F.look.hatStyle === "yok" ? HAIRC : HATC).map(c => `<button class="sw ${(F.look.hatStyle === "yok" ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">${F.look.hatStyle === "yok" ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(F.look.hatStyle === "yok" ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(F.look.hatStyle === "yok" ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
     ${F.look.hatStyle === "band" ? `<div><div class="eyebrow" style="margin-bottom:6px">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
     <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
       .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}"><span class="cc">${k}</span>${p.n}</button>`)
       .join("")}</div>
       <p class="small muted" style="margin-top:6px">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
     ${late.modePickerHTML(F.mode || "normal")}
+    ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
   </div>
   <button class="btn pri big" id="go">${$t("core.33")}</button>`;
   // adlar ekrana basılır: işaretleme karakterleri alınmaz
@@ -352,6 +353,7 @@ export function renderCreate() {
   };
   $("#bkS").onclick = late.renderSlots;
   bind("mode", v => (F.mode = v));
+  bind("origin", v => (F.origin = v));
   $("#fn").onkeydown = e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -525,6 +527,10 @@ export function startCareer() {
   S.team = makeTeam("mylise", "İstanbul", 0);
   newSeasonLeague();
   late.migrateStory();
+  S.cid = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+  // başlangıç hikâyesi (src/legends.js); oğul kariyeri babasının yolundan gelir
+  if (!F.heir) late.applyOrigin(F.origin);
+  else S.origin = "istanbul";
   if (F.heir) {
     late.applyHeir(F.heir); // efsanenin oğlu: nitelik bonusu, miras, baba adı
     F.heir = null;
@@ -691,9 +697,9 @@ export function renderMain() {
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
-   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.missionsButtonHTML()}</div>
+   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.dayRowHTML(late.missionsButtonHTML())}</div>
   <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
-  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.boxButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
+  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   $$(".loc").forEach(g => {
     const go = () => late.openLoc(g.dataset.loc);
@@ -715,8 +721,8 @@ export function renderMain() {
   Bus.emit("screen:main");
   $("#rst").onclick = late.renderSlots;
   $("#opt").onclick = late.settingsSheet;
-  const bx = $("#dbox");
-  if (bx) bx.onclick = () => late.boxSheet(renderMain);
+  const td = $("#today");
+  if (td) td.onclick = () => late.todaySheet(renderMain);
 }
 
 /* ================= BAŞLAT ================= */

@@ -462,12 +462,17 @@ export function weeklyHooks() {
   Bus.emit("week:start");
   Bus.first("week:sheet"); // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur
 }
-// 8. hafta: All-Star (üst liglerde) ve ardından milli takım penceresi
+// sezon ortası (normalde 8., hızlı kariyerde 5. hafta): All-Star seçilen üst lig oyuncusu All-Star'a, diğer herkes
+// Yıldızlar Hafta Sonu beceri yarışmalarına (src/peaks.js); ardından milli takım penceresi
 Bus.offer(
   "week:sheet",
   () => {
-    if (S.week !== 8 || S.phase !== "regular") return false;
-    late.allStar(() => fibaWindow(() => {}));
+    // aynı hafta başka bir panel öne geçerse bir sonraki hafta gelir
+    if (S.week < late.midWeek() || S.week > late.midWeek() + 1 || S.phase !== "regular") return false;
+    if (late.allStarEligible()) late.allStar(() => fibaWindow(() => {}));
+    else if (S.skillWk !== S.season && S.allStar !== S.season) late.skillWeekend(() => fibaWindow(() => {}));
+    else if (S.week === late.midWeek()) fibaWindow(() => {});
+    else return false;
     return true;
   },
   10

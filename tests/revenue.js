@@ -274,7 +274,8 @@ test("antrenman 2 katı: haftada bir, kazanç eklenir", async () => {
 test("günlük kutu: ücretsiz + reklamla bir tane, saat geri alınınca yenilenmez", async () => {
   const p = await page();
   await career(p);
-  assert(await p.isVisible("#dbox"), "ana ekranda kutu düğmesi yok");
+  assert(await p.isVisible("#today"), "ana ekranda Bugün düğmesi yok");
+  await p.click("#today");
   await p.click("#dbox");
   await p.click("#bx-free");
   await p.waitForTimeout(50);
@@ -293,6 +294,7 @@ test("günlük kutu: ücretsiz + reklamla bir tane, saat geri alınınca yenilen
     return G.boxReady();
   });
   assert(rb === false, "saat geri alınınca kutu yenilendi");
+  await p.click("#today");
   await p.click("#dbox");
   await p.click("#bx-x");
   return p;
@@ -355,6 +357,7 @@ test("reklamsız pakette yeni yerleşimler reklamsız ödül verir, geçiş rekl
 test("analitik: oturum, aktif gün, sunulan ve izlenen reklamlar yerel özette; rıza metni gösteriliyor", async () => {
   const p = await page();
   await career(p);
+  await p.click("#today");
   await p.click("#dbox");
   await p.click("#bx-free");
   await p.click("#bx-ad");

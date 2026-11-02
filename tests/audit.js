@@ -113,7 +113,11 @@ async function week(p) {
         "#aok",
         "#bn-later",
         "#tr-skip",
-        "#ng-ok"
+        "#ng-ok",
+        "#pk-no",
+        "#mt-stay",
+        "#hk-ok",
+        "#hk-a"
       ]) {
         const e = $(s);
         if (e && !e.disabled) return (e.click(), "c");

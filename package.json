@@ -22,6 +22,7 @@
     "test:fuzz": "npm run build:single && node tests/fuzz.js 8 45 && node tests/fuzz-state.js 24",
     "test:audit": "npm run build && npm run build:single && node tests/audit.js",
     "test:revenue": "npm run build && npm run build:single && node tests/revenue.js",
+    "test:retention": "npm run build && npm run build:single && node tests/retention.js",
     "test:personas": "npm run build && npm run build:single && node tests/personas.js",
     "fixture": "npm run build:single && node tests/make-fixture.js"
   },

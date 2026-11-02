@@ -324,15 +324,15 @@ export function seasonAwards(avg, champ) {
   return kinds.map(k => award(label[k][0], label[k][1]));
 }
 // All-Star: sezonun ortasında, not ortalaması yüksekse; üçlük yarışması mini oyunu
+export const allStarEligible = () =>
+  ["t1", "euro", "nba"].includes(S.stage) &&
+  S.allStar !== S.season &&
+  !S.injury &&
+  rated().length >= 3 &&
+  seasonAvg() >= AWARD_T.allstar &&
+  dominance() >= 3;
 export function allStar(done) {
-  if (
-    !["t1", "euro", "nba"].includes(S.stage) ||
-    S.allStar === S.season ||
-    S.injury ||
-    rated().length < 3 ||
-    seasonAvg() < AWARD_T.allstar ||
-    dominance() < 3
-  ) {
+  if (!allStarEligible()) {
     done();
     return;
   }
