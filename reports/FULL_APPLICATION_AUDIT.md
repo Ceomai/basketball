@@ -12,7 +12,7 @@ Ayrıntılı raporlar:
 
 Ham sonuçlar: `reports/data/`.
 
-## 1. Genel sağlık puanı: **86 / 100**
+## 1. Genel sağlık puanı: **88 / 100**
 
 Gerekçe:
 - **Kritik ve yüksek önemde açık hata yok;** bu denetimde bulunan 3 kritik/yüksek hata düzeltildi ve testle doğrulandı.
@@ -20,7 +20,7 @@ Gerekçe:
 - **Puanı düşürenler:**
   - Gerçek cihazda test yapılamadı.
   - Yerel servisler (AdMob, bildirim, bulut, Sentry) uçtan uca doğrulanamadı.
-  - Birkaç düşük önemli açık bulgu var: saat oynatarak görev yenileme, geliştirme bağımlılıkları.
+  - Düşük önemli açık bulgu kalmadı (saat oynatma ve geliştirme bağımlılıkları sonraki turda düzeltildi); yalnızca bilgi notları ve bulut açılırsa geçerli olacak bir koşullu bulgu var.
 
 ## 2. Mimari ve teknoloji
 
@@ -78,7 +78,7 @@ Düzeltmeden önce başarısız olanların hepsi `BUGS_AND_FIXES.md`'de.
 | Kritik | 1 (kayıt koduyla XSS) | 1 | 0 |
 | Yüksek | 2 (ad ile HTML enjeksiyonu; web'de reklamsız ödül) | 2 | 0 |
 | Orta | 3 (kumarhane kilitlenmesi, eksik alanlı kayıt çökmesi, şut mini oyununda takılma) | 3 | 0 (+1 koşullu: bulut açılırsa belirteç depolama) |
-| Düşük | 4 (CSP yok, iki mini oyunda sonsuz bekleme, saat oynatarak görev, geliştirme bağımlılıkları) | 2 | 2 |
+| Düşük | 4 (CSP yok, iki mini oyunda sonsuz bekleme, saat oynatarak görev, geliştirme bağımlılıkları) | 4 | 0 |
 | Bilgi | 3 (iki sekme son yazan kazanır, debug APK, allowBackup) | — | kayda geçti |
 
 ## 8–9. Düzeltilenler ve kalanlar
@@ -96,7 +96,7 @@ Kritik XSS kapatıldı. Ek savunma katmanı olarak CSP eklendi: temizlik atlatı
 
 Ayrıntı: `PERFORMANCE_REPORT.md`.
 
-**Denge notu:** son denge ölçümünde (profil başına 6 kariyer) zayıf profilin EuroLeague'e çıkma oranı %83'e yükseldi (önceki ölçüm %20-30); NBA oranları değişmedi (zayıf %0, ortalama %67, güçlü %83). Sebep, bu oturumda eklenen özellikler ve imza hareketinin maç notlarını artırması. İş kuralı olduğu için sessizce değiştirilmedi; istenirse özellik bonusları biraz düşürülebilir.
+**Denge notu:** özellikler ve imza hareket zayıf profilin EuroLeague oranını %20-30'dan %83'e çıkarmıştı. Bonuslar yaklaşık yarıya indirildi; son ölçüm (profil başına 12 kariyer): zayıf EuroLeague **%42**, NBA %0 / %42 / %92.
 
 ## 12. Veri bütünlüğü
 - **Kayıt yolları:** bütün yükleme yolları tek noktadan geçiyor. Orada metin temizliği, eksik alan tamamlama ve sayısal doğrulama yapılıyor.
@@ -128,8 +128,6 @@ Gerçek cihaz/emülatör, AdMob gerçek reklam, yerel bildirimler, Firebase/Goog
 ## 16. Önerilen sonraki adımlar
 1. **Firebase Test Lab** ile 10+ gerçek Android cihazda otomatik dolaşma. CSP'nin Capacitor WebView'da sorunsuz olduğu da burada doğrulanmalı (yerel köprü CSP'den etkilenmez, ama cihazda görülmedi).
 2. Mağaza için imzalı yayın derlemesi; debug APK'yı yalnızca test grubuna vermek.
-3. Saat oynatarak görev yenilemeyi kapatmak: son görülen tarih saklanır, geriye gidilirse görev yenilenmez.
-4. Geliştirme bağımlılıklarını güncellemek.
 5. Bulut kayıt açılmadan önce güvenli belirteç depolama ve Firestore kural testleri.
 6. 10–20 kişilik kapalı test (telemetri ve rapor aracı hazır).
 

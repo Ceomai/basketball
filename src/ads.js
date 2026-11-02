@@ -61,7 +61,8 @@ export const platform = () => {
 };
 export function adsDayTick() {
   const d = new Date().toISOString().slice(0, 10);
-  if (ADS.day !== d) {
+  // yalnızca ileri bir gün günlük reklam sınırını sıfırlar (saat geri alınarak sınır aşılmasın)
+  if (ADS.day !== d && (!ADS.day || d > ADS.day)) {
     ADS.day = d;
     ADS.today = 0;
   }

@@ -36,12 +36,22 @@ Bunlar uygulama kusuru sayılmadı; test beklentisi ya da otomasyon yanlıştı:
 - `U14`: `p.evaluate(() => playMatch())` maç sözünü bekleyip kilitleniyordu; fare tıklamaları mini oyun alanına denk gelmiyordu.
 - `U15`: ödüllü reklamın düğmesi geri sayım sırasında da etkin; test erken basıyordu.
 
+## Denge ayarı (sonraki tur)
+
+Özellik bonusları ve imza hareket otomatik oyuncunun notunu yükselterek zayıf profilin EuroLeague oranını %20-30'dan %83'e çıkarmıştı. İstek üzerine düşürüldü:
+- dış şut / pas / savunma özellikleri: +4 → +2
+- Clutch son anlar: +6 → +3
+- "Topu bana verin": +10 → +5
+- imza hareket: +16 → +8
+
+Ölçüm (profil başına 12 kariyer): zayıf EuroLeague **%42** (hedef 35-50), NBA zayıf %0 / ortalama %42 / güçlü %92, takılan kariyer 0.
+
 ## Düzeltilmeyen / açık bulgular
 
 | # | Önem | Bulgu | Neden düzeltilmedi | Öneri |
 |---|---|---|---|---|
-| A1 | Düşük | Cihaz saati geri alınınca günlük görevler yeniden üretilir (`E10`): saat oynatarak ek görev ödülü alınabilir | Sunucu saati yok; tamamen yerel oyun. Ödüller küçük (gelirin %5-9'u) | Bulut kayıt açılırsa sunucu zamanıyla doğrulanabilir; ya da son görülen tarih saklanıp geriye gidilirse görev yenilenmez |
+| ~~A1~~ | Düşük | **Düzeltildi (sonraki tur):** cihaz saati geri alınınca günlük görevler ve günlük reklam sınırı yenileniyordu (`E10`) | — | Görülen en ileri gün/hafta saklanıyor; yalnızca ileri bir tarih yeniler. `E10` artık bunu doğruluyor |
 | A2 | Bilgi | Aynı yuva iki sekmede aynı anda oynanırsa son yazan kazanır (`E07`, kayıt bozulmuyor) | Tek oyunculu yerel oyun; bilinçli | Gerekirse `storage` olayıyla diğer sekmeyi uyarmak |
-| A3 | Düşük | Geliştirme bağımlılıklarında 8 orta önem açık (eslint, @capacitor/cli dolaylı: minimatch, glob, rimraf) | Oyuncuya giden pakette yok; npm'in önerdiği "düzeltme" eski sürüme düşürme | Bağımlılıkları ileride güncel sürümlere yükseltmek |
+| ~~A3~~ | Düşük | **Düzeltildi (sonraki tur):** geliştirme bağımlılıklarında 8 orta önem açık (minimatch < 11.0.1, glob < 14.0.2) | — | Güncel eslint bile minimatch 10 kullandığı için `package.json` → `overrides` ile minimatch 11.0.4 ve glob 14.0.3; `npm audit` **0 açık**; eslint (kasıtlı hata yakalama dahil) ve `cap sync` doğrulandı |
 | A4 | Bilgi | Herkese açık APK hata ayıklama (debug) derlemesi; `allowBackup=true` | Test dağıtımı için bilinçli; yedekleme gizlilik sayfasında belirtilmiş | Mağaza için imzalı yayın derlemesi (CI hazır, anahtarlar girilince) |
 | A5 | Orta (yapılandırılınca) | Bulut kayıt açılırsa Firebase belirteçleri `localStorage`'da saklanacak | Bulut kayıt şu an kapalı | Etkinleştirmeden önce Android'de güvenli depolama (Keystore) eklentisi |

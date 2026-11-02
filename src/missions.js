@@ -30,6 +30,12 @@ export const WEEKLY = [
 // yerel gün (gece yarısı yenilenir; UTC kullanılsaydı Türkiye'de 03:00'te yenilenirdi)
 const today = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const validDay = k => /^\d{4}-\d{2}-\d{2}$/.test(k);
+/** "2026-W5" → 202605 (karşılaştırma için; eski kayıtlardaki dolgusuz biçim de okunur) */
+const weekNum = k => {
+  const m = /^(\d{4})-W(\d{1,2})$/.exec(k || "");
+  return m ? +m[1] * 100 + +m[2] : 0;
+};
 function weekKey(d = new Date()) {
   const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = t.getUTCDay() || 7;
@@ -48,8 +54,14 @@ export function missions() {
   // bozuk ya da eski sürümden kalan görevler (silinmiş görev türü) yenilenir
   if (!Array.isArray(M.daily) || M.daily.some(m => !m || !def(m.id))) M.day = null;
   if (!Array.isArray(M.weekly) || M.weekly.some(m => !m || !def(m.id))) M.week = null;
-  if (M.day !== today()) Object.assign(M, { day: today(), daily: fresh(DAILY, 3), bonus: false });
-  if (M.week !== weekKey()) Object.assign(M, { week: weekKey(), weekly: fresh(WEEKLY, 3) });
+  // Cihaz saati geri alınırsa yeni gün/hafta sayılmaz (saat oynatarak görev ödülü yenilenmesin):
+  // yalnızca daha önce görülenden ileri bir gün ya da hafta görevleri yeniler. Bozuk görev verisinde day/week null.
+  const d = today(),
+    w = weekKey();
+  if (M.day !== d && (!M.day || !validDay(M.day) || d > M.day))
+    Object.assign(M, { day: d, daily: fresh(DAILY, 3), bonus: false });
+  if (M.week !== w && (!M.week || weekNum(M.week) === 0 || weekNum(w) > weekNum(M.week)))
+    Object.assign(M, { week: w, weekly: fresh(WEEKLY, 3) });
   return M;
 }
 function def(id) {

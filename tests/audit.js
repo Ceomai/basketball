@@ -684,20 +684,36 @@ test("E09", "uç", "Yaz saati geçişi ve gece yarısı: günlük görevler tam 
   assert(d1 === "2026-03-28" && d2 === "2026-03-29" && d3 === d2, [d1, d2, d3].join(" → "));
   await close(p);
 });
-test("E10", "uç", "Cihaz saati geri alınınca görevler yeniden üretilir (bilgi: istismar olabilir)", async () => {
+test("E10", "uç", "Cihaz saati geri alınınca görevler ve reklam sınırı yenilenmez, ileri gün yenilenir", async () => {
   const p = await page();
   await p.clock.install({ time: new Date("2026-06-10T12:00:00") });
   await p.reload();
   await p.waitForTimeout(500);
   await career(p);
   const a = await p.evaluate(() => {
-    window.Game.S.season = 2;
-    return window.Game.missions().day;
+    const G = window.Game;
+    G.S.season = 2;
+    const M = G.missions();
+    G.adsDayTick(); // bugünü işaretle, sonra sınırı doldur
+    G.ADS.today = 8;
+    return { day: M.day, ids: M.daily.map(m => m.id).join() };
   });
   await p.clock.setSystemTime(new Date("2026-06-09T12:00:00"));
-  const b = await p.evaluate(() => window.Game.missions().day);
+  const b = await p.evaluate(() => {
+    const G = window.Game;
+    G.adsDayTick();
+    const M = G.missions();
+    return { day: M.day, ids: M.daily.map(m => m.id).join(), left: G.rewardLeft() };
+  });
+  await p.clock.setSystemTime(new Date("2026-06-11T12:00:00"));
+  const c = await p.evaluate(() => ({ day: window.Game.missions().day, left: window.Game.rewardLeft() }));
+  assert(
+    b.day === a.day && b.ids === a.ids && b.left === 0,
+    "geri alınan saat görevleri/sınırı yeniledi: " + JSON.stringify({ a, b })
+  );
+  assert(c.day === "2026-06-11" && c.left === 8, "ileri gün yenilemedi: " + JSON.stringify(c));
   await close(p);
-  return `${a} → ${b}${a !== b ? " (geri alınan saat yeni görev seti üretir)" : ""}`;
+  return `${a.day} → (saat geri) ${b.day}, sınır ${b.left} → (ileri gün) ${c.day}, sınır ${c.left}`;
 });
 test("E11", "uç", "Boşluk ve satır sonu içeren kayıt kodu içe aktarılır", async () => {
   const p = await page();
