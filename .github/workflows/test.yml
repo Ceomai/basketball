@@ -22,3 +22,5 @@ jobs:
       - run: node tests/audit.js
       # gelir katmanı: uzaktan ayar, A/B, analitik, ödüllü yerleşimler, kırılma anı reklamı
       - run: node tests/revenue.js
+      # oyuncuyu tutma: Efsaneler, Günün Maçı, ertesi güne kalan anlar, Yıldızlar Hafta Sonu, ara transfer
+      - run: node tests/retention.js

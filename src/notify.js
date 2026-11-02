@@ -33,6 +33,13 @@ export function nextNotification(state, now = new Date()) {
       title: $t("notify.1"),
       body: $t("notify.2", { c: state.claimable })
     };
+  // dünden kalan hikâye anı (src/hooks.js): ertesi gün akşam
+  if (state.hook) {
+    const at = new Date(now);
+    at.setDate(at.getDate() + 1);
+    at.setHours(18, 30, 0, 0);
+    return { at, title: $t("hk.notifyTitle"), body: state.hook };
+  }
   if (state.openMissions > 0) {
     const at = new Date(now);
     at.setDate(at.getDate() + 1);
@@ -54,7 +61,7 @@ async function schedule() {
   } catch (e) {
     /* takvim yok */
   }
-  const n = nextNotification({ claimable: late.claimable(), openMissions: late.openMissions(), next });
+  const n = nextNotification({ claimable: late.claimable(), openMissions: late.openMissions(), next, hook: late.hookText() });
   if (!n) return;
   await LocalNotifications.cancel({ notifications: [{ id: ID }] }).catch(() => {});
   await LocalNotifications.schedule({

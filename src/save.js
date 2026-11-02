@@ -452,9 +452,20 @@ export function renderSlots() {
   closeSheet();
   window.scrollTo(0, 0);
   migrateLegacy();
+  // önceki emekli kariyerler Efsaneler koleksiyonuna (src/legends.js); miras puanı o kariyerin durumuyla hesaplanır
+  late.scanRetired(loadSlot, SLOT_N, st => {
+    try {
+      setS(st);
+      return late.legacyScore();
+    } catch (e) {
+      return 0;
+    } finally {
+      setS(null);
+    }
+  });
   const rows = [];
   for (let i = 1; i <= SLOT_N; i++) rows.push([i, loadSlot(i)]);
-  app.innerHTML = `<div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div>
+  app.innerHTML = `<div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><div class="row" style="gap:6px">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div></div>
    ${storageOK ? "" : `<div class="say" style="border-left-color:var(--bad)">${t("slots.storageOff")}</div>`}
    <div class="eyebrow">${t("slots.header", { n: SLOT_N })}</div>
    <div class="choices">${rows
@@ -537,6 +548,7 @@ export function renderSlots() {
     }
   };
   $("#help0").onclick = () => late.guideSheet();
+  $("#legb").onclick = () => late.legendsSheet(renderSlots);
   Bus.emit("screen:slots");
 }
 export function exportSheet() {

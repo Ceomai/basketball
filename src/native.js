@@ -50,6 +50,14 @@ export const nativeShareImage = isNative
     }
   : null;
 
+// Metin paylaşımı (Günün Maçı sonucu)
+export const nativeShareText = isNative
+  ? async (text, title) => {
+      await Share.share({ title, text, dialogTitle: title }).catch(() => {});
+      return true;
+    }
+  : null;
+
 /* ---- Geri tuşu ---- */
 if (isNative) {
   App.addListener("backButton", () => {

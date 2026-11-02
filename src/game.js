@@ -44,6 +44,10 @@ import * as modes from "./modes.js";
 import * as remote from "./remote.js";
 import * as analytics from "./analytics.js";
 import * as adplaces from "./adplaces.js";
+import * as legends from "./legends.js";
+import * as daily from "./daily.js";
+import * as hooks from "./hooks.js";
+import * as peaks from "./peaks.js";
 
 const MODULES = [
   data,
@@ -88,7 +92,11 @@ const MODULES = [
   modes,
   remote,
   analytics,
-  adplaces
+  adplaces,
+  legends,
+  daily,
+  hooks,
+  peaks
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
