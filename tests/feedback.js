@@ -735,6 +735,89 @@ test("reklamla teklifleri yenile: kalma teklifi yerinde, diğerleri yeni kulüpl
   return p;
 });
 
+test("kılavuz: ana ekrandan açılır, 9 bölüm, ileri/geri; yuvalar ekranından açılıp kapatılınca hata yok", async () => {
+  const p = await page();
+  await career(p);
+  await p.click("#gdb");
+  const n = await p.evaluate(() => document.querySelectorAll("[data-gd]").length);
+  assert(n === 9, "bölüm sayısı: " + n);
+  await p.click("#gd-next");
+  assert(/Mekanlar/.test(await p.textContent("#ovl")), "ileri gitmedi");
+  await p.click('[data-gd="2"]');
+  assert(/Seviye çarpanı/.test(await p.textContent("#ovl")), "nitelikler bölümü");
+  await p.click("#shx");
+  assert(await p.isVisible("#gostad"), "ana ekrana dönmedi");
+  await p.evaluate(() => window.Game.renderSlots());
+  await p.click("#help0");
+  await p.click("#shx");
+  assert(await p.isVisible("#legb"), "yuvalar ekranına dönmedi");
+  return p;
+});
+
+test("ilk hafta görev listesi ve ilk ziyaret ipuçları", async () => {
+  const p = await page();
+  await career(p);
+  assert(await p.isVisible("#onb"), "görev kartı yok");
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const m0 = S.moral;
+    G.Bus.emit("train:done", { k: "sut", ratio: 1 });
+    G.openLoc("aile");
+    const tip1 = /İpucu/.test(document.querySelector("#ovl").textContent);
+    G.closeSheet();
+    G.openLoc("aile");
+    const tip2 = /İpucu/.test(document.querySelector("#ovl").textContent);
+    G.closeSheet();
+    G.openLoc("market");
+    G.closeSheet();
+    G.Bus.emit("match:end", {});
+    G.renderMain();
+    return { done: S.onb.done, dm: S.moral - m0, tip1, tip2, card: !!document.querySelector("#onb") };
+  });
+  assert(r.done && r.dm >= 5 && !r.card, "görevler: " + JSON.stringify(r));
+  assert(r.tip1 && !r.tip2, "ipucu bir kez: " + JSON.stringify(r));
+  return p;
+});
+
+test("sokak sahası: haritada, çocuklarla oyna, 3'e 3 turnuva (haftada bir), miras katkısı", async () => {
+  const p = await page();
+  await career(p);
+  const onMap = await p.evaluate(() => !!document.querySelector('.loc[data-loc="sokak"]'));
+  assert(onMap, "haritada yok");
+  await p.click('.loc[data-loc="sokak"]');
+  await p.click("#st-kids");
+  const k = await p.evaluate(() => ({ kids: window.Game.S.street.kids, slot: window.Game.S.slot }));
+  assert(k.kids === 1 && k.slot === 2, "çocuklar: " + JSON.stringify(k));
+  await p.evaluate(() => {
+    window.Game.closeSheet();
+    window.Game.S.energy = 100;
+    window.Game.openLoc("sokak");
+  });
+  await p.click("#st-tour");
+  // şut mini oyununda "Hızlı şut" düğmesine bas (6 sn sonra çıkar); top sürme süre dolunca kendiliğinden biter
+  for (let i = 0; i < 180 && !(await p.$("#bk")); i++) {
+    await p.evaluate(() => {
+      const q = [...document.querySelectorAll("button")].find(x => /Hızlı şut/.test(x.textContent));
+      if (q) q.click();
+    });
+    await p.waitForTimeout(500);
+  }
+  await p.waitForSelector("#bk", { timeout: 5000 });
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.openLoc("sokak");
+    const again = document.querySelector("#st-tour").disabled;
+    G.S.legacy = G.S.legacy || { found: {}, club: 0 };
+    const l0 = G.legacyScore();
+    G.S.legacy.kids = 2;
+    return { played: G.S.street.played, again, dl: G.legacyScore() - l0 };
+  });
+  assert(r.played === 1 && r.again, "turnuva: " + JSON.stringify(r));
+  assert(r.dl === 30, "miras katkısı: " + r.dl);
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

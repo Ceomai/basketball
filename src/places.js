@@ -95,8 +95,10 @@ export function openLoc(id, tab) {
     eglence: late.locEglence,
     avm: late.locAvm,
     market: late.locMarket,
-    sans: late.locSans
+    sans: late.locSans,
+    sokak: late.locSokak
   })[id](I, tab);
+  late.placeTip(id); // ilk ziyarette kısa tanıtım (src/guide.js)
 }
 export const HOUSING = {
   oda: { n: $t("places.265"), rent: 0, en: 0 },

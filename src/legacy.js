@@ -52,6 +52,7 @@ export const HOF = [
 
 const L = () => (S.legacy = S.legacy || { found: {}, club: 0 });
 /** Miras puanı ve dökümü */
+const TROPHY_W = { cup: 10, super: 10, street: 10, skill: 10, ec: 20, el: 40 };
 export function legacyBreakdown() {
   const k = S.career,
     lg = L();
@@ -60,14 +61,16 @@ export function legacyBreakdown() {
   const parts = [
     [$t("legacy.20"), Math.round((k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25) * late.modeLegacy().stat)],
     [$t("legacy.21"), Math.round(k.wins * 0.6 * late.modeLegacy().stat)],
-    [$t("legacy.22"), k.trophies.length * 30 + k.mvps * 60 + (k.allStars || 0) * 50],
+    // kupa türüne göre ağırlık: küçük kupalar (Süper Kupa, ülke kupası, sokak, beceri yarışması) az sayılır
+    [$t("legacy.22"), k.trophies.reduce((a, t) => a + (TROPHY_W[t.type] ?? 30), 0) + k.mvps * 60 + (k.allStars || 0) * 50],
     [$t("legacy.23"), top * 40],
     [$t("legacy.24"), (k.natCaps || 0) * 3 + (S.natCaptain ? 80 : 0)],
     [$t("legacy.25"), S.coachCourse ? 30 : 0],
     [$t("legacy.26"), (S.items.akademi ? 150 : 0) + (S.items.salon ? 80 : 0)],
     [$t("legacy.27"), FOUNDATION.filter(f => lg.found[f.id]).reduce((a, f) => a + f.pts, 0)],
     [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
-    [$t("legacy.52"), S.epiloguePts || 0]
+    [$t("legacy.52"), S.epiloguePts || 0],
+    [$t("st.legacyPart"), (lg.kids || 0) * 15]
   ];
   const sum = parts.reduce((a, p) => a + p[1], 0),
     mul = late.modeLegacy().total;
