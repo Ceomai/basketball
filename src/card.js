@@ -4,7 +4,7 @@
    Uygulamada yerel paylaşım menüsü; web'de paylaş (destekleniyorsa) ya da PNG indir. */
 import { LOCALE, t as $t } from "./i18n/index.js";
 import { $, POS, esc, toast } from "./data.js";
-import { portrait } from "./art.js";
+import { portrait, svgImage } from "./art.js";
 import { S, fullName, sheet } from "./core.js";
 import { late } from "./late.js";
 
@@ -111,6 +111,17 @@ export async function careerCardCanvas() {
     c.fillStyle = "#d8b25a";
     fit(c, up(ids.join(" · ")), 560, 30, DISP);
     c.fillText(up(ids.join(" · ")), 70, 450);
+  }
+  // unvan (başarımlar) ve ayakkabı tasarımı (src/feats.js, src/custom.js)
+  const ttl = late.titleText ? late.titleText() : "";
+  if (ttl) {
+    c.fillStyle = "rgba(255,255,255,.9)";
+    fit(c, "« " + up(ttl) + " »", 560, 30, DISP);
+    c.fillText("« " + up(ttl) + " »", 70, 154);
+  }
+  if (S.shoe && S.shoe.made && late.shoeSVG) {
+    const im = await svgImage(late.shoeSVG(S.shoe, 260));
+    if (im) c.drawImage(im, W - 380, 486, 260, 132);
   }
   // Şöhretler Müzesi
   c.fillStyle = "#d8b25a";

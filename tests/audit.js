@@ -117,6 +117,7 @@ async function week(p) {
         "#pk-no",
         "#mt-stay",
         "#hk-ok",
+        "#jy-ok",
         "#hk-a",
         "#nt-sim",
         "#nt-done",

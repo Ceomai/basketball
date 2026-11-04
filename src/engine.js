@@ -51,7 +51,7 @@ export function modeChoice() {
   if (window.__SIM) return Promise.resolve("key");
   return new Promise(r => {
     const cur = S.matchMode || "full";
-    $("#mview").innerHTML = `<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
+    $("#mview").innerHTML = `${late.preMatchHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
       <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
@@ -119,6 +119,7 @@ export async function playMatch(ctx) {
    <div class="card"><div class="row between"><div class="eyebrow">${$t("engine.15")}</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
   if (!AUTO) late.courtStart(opp); // saha görünümü (src/court.js)
+  late.matchdayStart(ctx, foes, mates); // hakem, seyirci, rakip yıldız, kimya (src/matchday.js)
   let mode = AUTO ? "key" : await modeChoice();
   $("#mview").innerHTML = "";
   const renderSpd = () => {
@@ -152,7 +153,7 @@ export async function playMatch(ctx) {
           v2: M.plus >= 0 ? "+" : "",
           plus: M.plus
         }
-      )} · ${$t("pf.short", { n: M.pf || 0, l: late.foulLimit() })}${late.liveLine()}</div>`;
+      )} · ${$t("pf.short", { n: M.pf || 0, l: late.foulLimit() })}${late.liveLine()}</div>${late.crowdLine()}`;
   };
   const banner = (t, good) => {
     late.sfx("whistle");
@@ -271,6 +272,7 @@ export async function playMatch(ctx) {
       await moment(ourBall, clutch);
     } else simPossession(ourBall);
     if (on) M.plus += M.us - before[0] - (M.them - before[1]);
+    M.low = Math.min(M.low || 0, M.us - M.them); // en büyük geri düşülen fark (geri dönüş başarımı)
     ourBall = !ourBall;
     updBug();
     if (on) statLine();
@@ -285,6 +287,7 @@ export async function playMatch(ctx) {
     await pace();
   }
   M.qs.push([M.us, M.them]);
+  late.matchdayEnd();
   M.q = 4;
   M.clock = "00:00";
   updBug();
@@ -324,6 +327,8 @@ export async function playMatch(ctx) {
         pts = three ? 3 : 2;
       if (us) M.us += pts;
       else M.them += pts;
+      if (!us && Math.random() < 0.3) late.starScore(pts); // rakip yıldızın payı
+      late.crowdTick(us);
       if (us && on) {
         const sk = (eff("sut") + eff("hiz") + eff("guc")) / 3,
           share = { star: 0.21, rot: 0.13, bench: 0.08 }[role] * (0.6 + (clamp(sk, 0, 100) / 100) * 0.8) * late.passTrustMul();
@@ -401,6 +406,7 @@ export async function playMatch(ctx) {
         const co = sp.id === "lastshot" ? late.clutchOption() : null;
         if (co) opts = [co, ...opts];
       }
+      opts = late.extraOffOpts(opts, clutch, AUTO); // ikili kombinasyon, oyun kur (src/matchday.js)
     } else if (ty === "def") {
       head = pick([$t("engine.43"), $t("engine.44"), $t("engine.45")]);
       desc = $t("engine.46", {
@@ -455,11 +461,23 @@ export async function playMatch(ctx) {
       if (!AUTO) S.tipMoment = 1;
       b0 = { pts: M.pts, ast: M.ast, stl: M.stl, stops: M.stops };
       M.mmod = late.momentMod(k);
-      let pk = sp && sp.resolve ? k : late.playKey(k);
+      let pk = sp && sp.resolve ? k : late.playKey(k),
+        dm = 0;
+      if (k === "set") {
+        const r = await late.setPlay($("#mview"));
+        pk = r.pk;
+        dm = r.mod;
+      } else if (k === "duo") {
+        pk = "lob";
+        dm = late.duoMod();
+      }
       // ikinci karar: pivot önüne çıktı / savunmacı üstüne geldi (kendin oynarken)
-      const fu = !AUTO && !(sp && sp.resolve) && ty !== "foul" ? await late.followUp(pk, $("#mview"), scn, sur) : null;
+      const fu =
+        !AUTO && !(sp && sp.resolve) && ty !== "foul" && k !== "set" && k !== "duo"
+          ? await late.followUp(pk, $("#mview"), scn, sur)
+          : null;
       if (fu && fu.pk) pk = fu.pk;
-      M.effMod = (fu && fu.mod) || 0;
+      M.effMod = ((fu && fu.mod) || 0) + dm;
       if (fu && fu.foulChance && Math.random() < fu.foulChance) pk = "free"; // turnikeyi zorladı, faul aldı
       res =
         fu && fu.resolve
@@ -471,6 +489,7 @@ export async function playMatch(ctx) {
               : await resolvePlay(pk, $("#mview"), sur, dn);
       M.effMod = 0;
       late.trackPlay(pk, b0.pts, res);
+      late.afterMoment(k, pk, res);
       M.mmod = 0;
       if (res.good || !snap || M.adRetry || !(await late.offerRetry($("#mview")))) break;
       late.momentRestore(snap);
@@ -481,6 +500,7 @@ export async function playMatch(ctx) {
     M.wsum = (M.wsum || 0) + res.w;
     if (res.good) M.wgood = (M.wgood || 0) + res.w;
     late.sfx(res.good ? "cheer" : "ooh");
+    if (!AUTO && res.good && M.pts > b0.pts) late.celebrate(); // kutlama hareketi (src/custom.js)
     late.crowdSwell(res.good ? 1.4 : 0.6);
     let txt = res.txt + late.afterSignature(k, res.good) + (ty === "def" ? late.foulAfterMoment(k, res.good) : "");
     if (res.good) {

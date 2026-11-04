@@ -65,6 +65,9 @@ import * as district from "./district.js";
 import * as academy from "./academy.js";
 import * as harbor from "./harbor.js";
 import * as court from "./court.js";
+import * as feats from "./feats.js";
+import * as custom from "./custom.js";
+import * as matchday from "./matchday.js";
 
 const MODULES = [
   data,
@@ -130,7 +133,10 @@ const MODULES = [
   district,
   academy,
   harbor,
-  court
+  court,
+  feats,
+  custom,
+  matchday
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

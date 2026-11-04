@@ -110,6 +110,7 @@ export function comfort() {
   if (!S) return 0;
   let c = HOUSE_C[S.housing] || 0;
   for (const [id, v] of Object.entries(ITEM_C)) if (S.items && S.items[id]) c += v;
+  c += late.decorComfort ? late.decorComfort() : 0; // poster ve halı (src/custom.js)
   return Math.min(100, c);
 }
 export const moraleBase = () => 42 + Math.round(comfort() * 0.28) + (late.partnerBase ? late.partnerBase() : 0); // evlilik/çocuk (src/harbor.js)

@@ -104,6 +104,7 @@ export const PEN = {
 // Basket faul: sayı geçerli, bir serbest atış
 async function andOne(el, sur, dn, st, w) {
   addFeed($t("match.11", { sur, dn }));
+  M.and1 = (M.and1 || 0) + 1;
   const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("match.98"), tries: 1, label: $t("games.8") });
   M.pts += f.ok;
   return { good: true, w, st, txt: f.ok ? $t("match.12") : $t("match.13") };
@@ -235,7 +236,7 @@ export async function resolvePlay(k, el, sur, dn) {
   if (k === "post") {
     const r = await mgPost(el, { eff: eff("guc"), reps: 1, title: $t("data.107") });
     if (r.ok) M.pts += 2;
-    if (r.ok && Math.random() < 0.1) return andOne(el, sur, dn, "guc", 1.3);
+    if (r.ok && Math.random() < 0.1 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.3);
     return {
       good: r.ok > 0,
       w: 1.2,
@@ -253,7 +254,7 @@ export async function resolvePlay(k, el, sur, dn) {
   if (k === "dunk") {
     const r = await mgTiming(el, { eff: eff("guc") + 5, title: $t("data.132"), tries: 1, label: $t("games.37"), kind: "dunk" });
     if (r.ok) M.pts += 2;
-    if (r.ok && Math.random() < 0.08) return andOne(el, sur, dn, "guc", 1.4);
+    if (r.ok && Math.random() < 0.08 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.4);
     return {
       good: r.ok > 0,
       w: 1.3,
@@ -396,6 +397,7 @@ export async function resolvePlay(k, el, sur, dn) {
   };
 }
 export function finishMatch(win) {
+  late.duelSettle(); // rakip yıldız düellosu (src/matchday.js)
   Bus.emit("match:end", { win, rating: M.rating, pts: M.pts, auto: !!M.auto, stage: S.stage, us: M.us, them: M.them });
   late.recordGame();
   late.sfx(win ? "win" : "lose");
@@ -465,6 +467,7 @@ export function finishMatch(win) {
        : ""
    }
    ${late.reportHTML()}
+   ${late.duelHTML()}
    ${late.gainsHTML()}
    ${late.adDoubleHTML(bonus)}<button class="btn pri" id="nx">${$t("ads.25")}</button>`,
     { noClose: true }

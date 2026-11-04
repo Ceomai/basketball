@@ -14,6 +14,7 @@ import { t as $t } from "./i18n/index.js";
 import { $, esc, pick } from "./data.js";
 import { S, eff } from "./core.js";
 import { M } from "./match.js";
+import { courtShoe } from "./custom.js";
 
 const W = 300,
   H = 210,
@@ -40,7 +41,7 @@ function floor() {
   <path d="M100 ${H - 2} A50 50 0 0 1 200 ${H - 2}" fill="none" stroke="${line}" stroke-width="2"/>`;
 }
 const dot = (id, x, y, fill, ring, label) =>
-  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}<circle r="9" fill="${fill}" stroke="#141414" stroke-width="1.5"/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
+  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="#141414" stroke-width="1.5"/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
 /** Maç başında: oyuncuları yerleştir */
 export function courtStart(opp) {
   C = { c1: S.team.c1, c2: opp ? opp.c1 : "#4a5568", flow: [] };
@@ -51,6 +52,9 @@ export function courtStart(opp) {
     POSS.map(p => dot(`d-${p}`, SLOT[p][0], SLOT[p][1] - 20, C.c2, false, "")).join("") +
     `<g id="ball" style="transform:translate(150px,172px);transition:transform .45s ease"><circle r="4.5" fill="#ff8a3d" stroke="#141414" stroke-width="1"/></g><g id="arrows"></g>`;
 }
+/** Dizilişteki hücum noktası (oyun kur ekranı için) */
+export const courtSlot = p => SLOT[p] || SLOT.PG;
+export const courtMove = (id, x, y) => mv(id, x, y);
 const mv = (id, x, y) => {
   const e = $(`#${id}`);
   if (e) e.style.transform = `translate(${Math.max(8, Math.min(W - 8, x))}px,${Math.max(8, Math.min(H - 8, y))}px)`;

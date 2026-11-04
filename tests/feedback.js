@@ -632,6 +632,214 @@ test("maç günü güçlendirmesi efektif niteliğe yansır", async () => {
   return p;
 });
 
+test("başarımlar: 100+ başarım, kariyer ve maç denetimi, unvan, kozmetik açılır ve yeni kariyerde kalır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    localStorage.removeItem("pota-feats");
+    for (const k of Object.keys(G.FEATS_ST.got)) delete G.FEATS_ST.got[k];
+    const n = G.FEATS.length;
+    const names = G.FEATS.map(f => G.featName(f) + "|" + G.featDesc(f));
+    const bad = names.filter(x => /ft\.|undefined/.test(x));
+    const before = G.cosOpen("c1");
+    G.S.career.trophies.push({ type: "champ", label: G.seasonLabel() + " · Şampiyon" });
+    G.S.career.pts = 600;
+    G.checkFeats();
+    const got = ["troph1", "champ", "pts1", "pts2"].map(id => G.featGot(id));
+    // maç başarımı: basket faulle kazanılan maç
+    G.checkMatchFeats({ win: true, and1: 1, pts: 12, ast: 10, reb: 10, fga: 5, fgm: 5, fta: 0, ftm: 0, tpm: 0, low: -14, us: 80, them: 70 });
+    const mf = ["andone", "triple", "perfect", "comeback"].map(id => G.featGot(id));
+    G.S.title = "champ";
+    return { n, bad, before, after: G.cosOpen("c1"), got, mf, title: G.titleText(), stored: !!JSON.parse(localStorage.getItem("pota-feats")).got.champ };
+  });
+  assert(r.n >= 100, "başarım sayısı: " + r.n);
+  assert(!r.bad.length, "eksik metin: " + r.bad.slice(0, 3));
+  assert(!r.before && r.after, "kupa kutlama hareketini açmalı");
+  assert(r.got.every(Boolean), "kariyer başarımları: " + r.got);
+  assert(r.mf.every(Boolean), "maç başarımları: " + r.mf);
+  assert(r.title === "Şampiyon" && r.stored, "unvan ve saklama");
+  await p.reload();
+  await p.waitForTimeout(400);
+  assert(await p.evaluate(() => window.Game.cosOpen("c1")), "kozmetik yeni oturumda da açık");
+  return p;
+});
+
+test("tasarım: ayakkabı ürettir (kart ve sahada), forma adı/numara, kutlama seçimi, tema; Başarımlar sekmesi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.money = 9000;
+    G.FEATS_ST.got.reb1 = 1; // Ribaund Kralı I → şerit desen
+    G.FEATS_ST.got.troph1 = 1; // omuz dansı
+    G.S.cuTab = "shoe";
+    G.locEv({ n: "Ev" }, "tasarim");
+  });
+  await p.click('#cu-pat [data-v="stripe"]');
+  await p.click('#cu-c1 [data-v="#141414"]');
+  await p.click("#cu-make");
+  const r1 = await p.evaluate(() => ({ shoe: window.Game.S.shoe, svg: /<svg/.test(window.Game.shoeSVG(window.Game.S.shoe)) }));
+  assert(r1.shoe.made && r1.shoe.pat === "stripe" && r1.shoe.c1 === "#141414" && r1.svg, "ayakkabı: " + JSON.stringify(r1));
+  await p.evaluate(() => {
+    window.Game.S.cuTab = "jersey";
+    window.Game.locEv({ n: "Ev" }, "tasarim");
+  });
+  await p.click('#cu-jn [data-v="first"]');
+  await p.click('#cu-num [data-v="7"]');
+  const r2 = await p.evaluate(() => ({ jn: window.Game.jName(), num: window.Game.S.num, svg: window.Game.jerseyBackSVG() }));
+  assert(r2.jn === "Deniz" && r2.num === 7 && /DENIZ/.test(r2.svg), "forma: " + JSON.stringify(r2).slice(0, 200));
+  await p.evaluate(() => {
+    window.Game.S.cuTab = "celeb";
+    window.Game.locEv({ n: "Ev" }, "tasarim");
+  });
+  assert(await p.isDisabled('[data-cb="archer"]'), "kilitli kutlama seçilemez");
+  await p.click('[data-cb="shimmy"]');
+  const r3 = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.cuTab = "theme";
+    G.locEv({ n: "Ev" }, "tasarim");
+    const lockedNight = document.querySelector('[data-th="night"]').disabled;
+    G.ADS.adFree = true;
+    G.locEv({ n: "Ev" }, "tasarim");
+    document.querySelector('[data-th="retro"]').click();
+    const th = document.documentElement.dataset.theme;
+    G.ADS.adFree = false;
+    G.SETTINGS.theme = "default";
+    G.applyTheme();
+    return { celeb: G.S.celeb, lockedNight, th };
+  });
+  assert(r3.celeb === "shimmy" && r3.lockedNight && r3.th === "retro", "kutlama/tema: " + JSON.stringify(r3));
+  await p.evaluate(() => window.Game.locEv({ n: "Ev" }, "rozet"));
+  assert((await p.$$(".ft")).length > 10, "Başarımlar listesi");
+  const cv = await p.evaluate(async () => !!(await window.Game.careerCardCanvas()));
+  assert(cv, "kariyer kartı ayakkabıyla çizilir");
+  return p;
+});
+
+test("ev dekoru konforu artırır; takım değişince yeni forma anı; sayıdan sonra kutlama", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const c0 = G.comfort();
+    G.S.decor = { p1: "p1", p2: null, rug: "r1" };
+    const c1 = G.comfort();
+    G.S.jTeam = "Eski Takım";
+    return { c0, c1, ov: /<svg/.test(G.decorOverlay()) };
+  });
+  assert(r.c1 === r.c0 + 3 && r.ov, "dekor konforu: " + JSON.stringify(r));
+  await p.evaluate(() => window.Game.Bus.first("week:sheet"));
+  await p.waitForSelector("#jy-ok", { timeout: 3000 });
+  assert(/kez giy/.test(await p.textContent(".sheet")), "yeni forma metni");
+  await p.click("#jy-ok");
+  const r2 = await p.evaluate(() => {
+    const G = window.Game;
+    const n0 = (G.S.fx && G.S.fx.celeb) || 0;
+    document.body.insertAdjacentHTML("beforeend", '<div id="mcourt"></div>');
+    G.celebrate();
+    return { n: G.S.fx.celeb - n0, el: !!document.querySelector("#mcourt .celeb"), jt: G.S.jTeam === G.S.team.name };
+  });
+  assert(r2.n === 1 && r2.el && r2.jt, "kutlama: " + JSON.stringify(r2));
+  return p;
+});
+
+test("maç günü: hakem, atmosfer, rakip yıldız kartı maç öncesi; hakem faul ve basket faul şansını değiştirir; seyirci etkisi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m]", { timeout: 8000 });
+  const txt = await p.textContent("#mview");
+  assert(/Hakem/.test(txt) && /yıldızı/.test(txt) && /Atmosfer/.test(txt), "maç öncesi kart: " + txt.slice(0, 200));
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      M = G.M;
+    const out = {};
+    for (const ref of ["strict", "normal", "lenient"]) {
+      M.ref = ref;
+      out[ref] = [G.refMul(), G.refAnd1()];
+    }
+    M.home = true;
+    M.hypeOn = 0;
+    const b0 = G.crowdBoost();
+    M.hypeOn = 2;
+    const b1 = G.crowdBoost();
+    M.home = false;
+    M.loud = true;
+    const b2 = G.crowdBoost();
+    M.home = true;
+    M.hypeOn = 0;
+    M.hype = 95;
+    G.afterMoment("pull", "pull", { good: true });
+    return { out, b0, b1, b2, hypeOn: M.hypeOn, line: G.crowdLine() };
+  });
+  assert(r.out.strict[0] > 1 && r.out.lenient[0] < 1 && r.out.strict[1] > r.out.lenient[1], "hakem: " + JSON.stringify(r.out));
+  assert(r.b0 === 0 && r.b1 > 0 && r.b2 < 0, "seyirci etkisi: " + JSON.stringify(r));
+  assert(r.hypeOn > 0 && /Seyirci/.test(r.line), "heyecan çubuğu dolar");
+  return p;
+});
+
+test("kimya: başarılı pas kimyayı artırır, yeterince yüksekse ikili kombinasyon gelir; kilit anda Oyunu kur oklarla", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m]", { timeout: 8000 });
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      M = G.M;
+    const v0 = G.chemVal();
+    G.afterMoment("kick", "kick", { good: true });
+    const v1 = G.chemVal();
+    G.S.chem.v = 60;
+    const R = Math.random;
+    Math.random = () => 0.1;
+    const o = G.extraOffOpts([{ k: "pull", t: "x", d: "d", e: 50 }], true, false);
+    const oa = G.extraOffOpts([{ k: "pull", t: "x", d: "d", e: 50 }], true, true);
+    Math.random = R;
+    G.afterMoment("duo", "lob", { good: true });
+    return { v0, v1, keys: o.map(x => x.k), auto: oa.length, combo: M.combo, v2: G.chemVal() };
+  });
+  assert(r.v1 > r.v0, "pas kimyayı artırır");
+  assert(r.keys.includes("duo") && r.keys.includes("set") && r.auto === 1, "ek seçenekler: " + JSON.stringify(r));
+  assert(r.combo === 1 && r.v2 > 60, "kombinasyon sayılır");
+  // oyun kur ekranı
+  await p.evaluate(() => {
+    window.__sp = window.Game.setPlay(document.querySelector("#mview"));
+  });
+  await p.click('#sp-s [data-v="C"]');
+  await p.click('#sp-r [data-v="paint"]');
+  const arrows = await p.evaluate(() => document.querySelector("#arrows").innerHTML.length);
+  await p.click("#sp-go");
+  const res = await p.evaluate(() => window.__sp);
+  assert(arrows > 50, "sahada oklar");
+  assert(res.pk === "lay" && res.fit && res.mod > 0, "set: " + JSON.stringify(res));
+  return p;
+});
+
+test("rakip yıldız düellosu maç sonunda; kazanınca başarım ve takipçi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
+  });
+  await p.waitForSelector("#nx", { timeout: 60000 });
+  const t = await p.textContent("#ovl");
+  assert(/Yıldız düellosu/.test(t), "düello kartı");
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    return { won: G.M.duelWon, star: G.M.star.pts, me: G.M.pts };
+  });
+  assert(r.won === (r.me > r.star), "düello sonucu: " + JSON.stringify(r));
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
@@ -1252,7 +1460,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [
