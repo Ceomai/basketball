@@ -780,6 +780,7 @@ export const GUIDE = [
   [$t("systems.94"), $t("systems.95")]
 ];
 export function guideSheet(i = 0) {
+  if (late.fullGuide) return late.fullGuide(i); // yeni ayrıntılı kılavuz (src/guide.js)
   sheet(
     $t("systems.96"),
     $t("systems.97"),

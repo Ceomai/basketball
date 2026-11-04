@@ -11,7 +11,8 @@ export const LOCS = [
   { id: "eglence", x: 322, y: 466 },
   { id: "avm", x: 84, y: 596 },
   { id: "market", x: 200, y: 600 },
-  { id: "sans", x: 320, y: 596 }
+  { id: "sans", x: 320, y: 596 },
+  { id: "sokak", x: 196, y: 214 }
 ];
 export const HOUSE_NAMES = {
   oda: $t("map.14"),
@@ -43,7 +44,8 @@ export function locInfo(id, P) {
     eglence: { n: $t("shops.37"), slot: false },
     avm: { n: $t("map.13"), slot: false },
     market: { n: $t("map.21"), slot: false },
-    sans: { n: P.age < 18 ? $t("map.10") : $t("casino.6"), slot: false, locked: P.age < 18 }
+    sans: { n: P.age < 18 ? $t("map.10") : $t("casino.6"), slot: false, locked: P.age < 18 },
+    sokak: { n: $t("st.name"), slot: true }
   }[id];
 }
 export function box(x, y, w, h, d, f, s, t) {
@@ -362,6 +364,11 @@ export function mapSVG(P) {
       box(x - 36, y + 30, 60, 32, 12, "#e9e6df", "#c9c5bc", roof) +
       `<path d="M${x - 38} ${y - 2}h64l-4 9h-56z" fill="#1f7a5c"/>` +
       windows(x - 36, y + 30, 60, 20, 3, 1, lit),
+    // sokak sahası: turuncu zemin, çizgiler, pota ve tel örgü
+    sokak: (x, y) =>
+      `<path d="M${x - 40} ${y + 30}L${x - 26} ${y + 4}H${x + 34}L${x + 20} ${y + 30}Z" fill="${lit ? "#7a3d17" : "#c96a2b"}" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/><path d="M${x - 3} ${y + 30}L${x + 4} ${y + 4}" stroke="#fff" stroke-opacity=".7"/><ellipse cx="${x + 0.5}" cy="${y + 17}" rx="9" ry="4" fill="none" stroke="#fff" stroke-opacity=".7"/>` +
+      `<rect x="${x + 22}" y="${y - 22}" width="3" height="30" fill="#9aa4b2"/><rect x="${x + 12}" y="${y - 30}" width="18" height="12" fill="#fff" stroke="#141414" stroke-width="1"/><circle cx="${x + 21}" cy="${y - 16}" r="4" fill="none" stroke="#ff6b2b" stroke-width="2"/>` +
+      `<path d="M${x - 44} ${y + 30}V${y - 4}M${x - 44} ${y - 4}H${x - 28}" stroke="#6b7686" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="${x - 10}" cy="${y + 20}" r="3.2" fill="#ff8a3d" stroke="#141414" stroke-width=".8"/>`,
     sans: (x, y) =>
       box(x - 38, y + 30, 64, 44, 12, "#2a1013", "#1c0a0c", "#3d171c") +
       `<rect x="${x - 30}" y="${y - 8}" width="48" height="16" rx="3" fill="${lit ? "#ffd34d" : "#a8862d"}"/><text x="${x - 6}" y="${y + 4}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="10" fill="#2a1013">♠ ♥ ♦ ♣</text>` +
