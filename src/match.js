@@ -477,7 +477,8 @@ export function finishMatch(win) {
 }
 // Maç sonrası: önce ara katmanlar (basın toplantısı, derbi), sonra lig akışı
 export function afterMatch(win) {
-  Bus.run("match:after", { win }, () => afterMatchFlow(win));
+  // hafta içi kupa/Avrupa maçları lig maçından sonra, hafta bitmeden (src/comps.js)
+  Bus.run("match:after", { win }, () => late.midweek(() => afterMatchFlow(win)));
 }
 export function afterMatchFlow(win) {
   let next = () => endWeek();
@@ -489,6 +490,7 @@ export function afterMatchFlow(win) {
       S.phase = "semi";
       S.playoffOpp = st[oi].key;
       S._otherSemi = [0, 1, 2, 3].filter(i => i !== rank - 1 && i !== oi).map(i => st[i].key);
+      late.poStart(st, rank, S.playoffOpp, S._otherSemi);
       news(
         $t("match.118", {
           short: S.team.short,
@@ -511,12 +513,14 @@ export function afterMatchFlow(win) {
         a = teamByKey(o[0]),
         b = teamByKey(o[1]);
       S.playoffOpp = Math.random() < a.str / (a.str + b.str) ? a.key : b.key;
+      late.poSemi(true, S.playoffOpp);
       news(
         `${$t("match.120", {
           short: S.team.short
         })} ${teamByKey(S.playoffOpp).name}.`
       );
     } else {
+      late.poSemi(false, null);
       news(
         $t("match.121", {
           short: S.team.short
@@ -525,6 +529,7 @@ export function afterMatchFlow(win) {
       next = () => seasonEnd(true, false);
     }
   } else if (S.phase === "final") {
+    late.poFinal(win);
     news(
       win
         ? $t("match.122", {
@@ -750,7 +755,7 @@ export function seasonEnd(playoff, champ, final) {
   S.hist.push({
     label,
     team: S.team.name,
-    league: tn,
+    league: S.stage === "euro" ? `${tn} · EuroLeague` : tn, // miras puanı ve kartlar EuroLeague sezonlarını sayar
     w,
     l: res.length - w,
     avg,

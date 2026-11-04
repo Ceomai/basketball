@@ -10,7 +10,7 @@
    Maç öncesi hazırlık (önemli maçlarda: derbi, zirve, playoff): basın toplantısı (hızlı cevap mini oyunu) ve
    video analizi (rakibin hücum dizisini ezberle). Başarı o maçta küçük bir avantaj verir. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, fmt, pick, ri, rnd, shuffle, statName } from "./data.js";
+import { $, $$, Bus, clamp, esc, fmt, pick, ri, rnd, shuffle, statName } from "./data.js";
 import { S, closeSheet, fame, news, norm, resultView, sheet, tx, useSlot, fullName } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
@@ -364,4 +364,58 @@ function videoGame(re) {
     save();
     resultView($t("prep.video"), res);
   };
+}
+
+/* ---- Kulüp temsilcisi (sözleşme pazarlığında karşındaki kişi) ----
+   Her kulübün kendine özgü bir sportif direktörü olur (kulüp anahtarından türetilir; aynı kulüp hep aynı kişi).
+   Pazarlıktaki ilgiye göre ruh hali ve sözleri değişir. */
+const REP_SKINS = ["#f1c9a5", "#e0ac7e", "#c68642", "#8d5524", "#f6d7b8"];
+function hashOf(s) {
+  let h = 7;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+export function repOf(team) {
+  const h = hashOf(String(team.key || team.name)),
+    c = late.cOf(team.city);
+  const first = c.first[h % c.first.length],
+    last = c.last[(h >> 5) % c.last.length];
+  return {
+    n: `${first} ${last}`,
+    look: {
+      skin: REP_SKINS[h % REP_SKINS.length],
+      hatStyle: "yok",
+      hair: ["#111111", "#5a3a22", "#9e9e9e", "#2a1a10"][(h >> 3) % 4]
+    },
+    glasses: h % 3 === 0,
+    mustache: h % 4 === 1
+  };
+}
+export function repHTML(team, interest) {
+  const r = repOf(team),
+    line = interest > 0.7 ? "rep.hi" : interest > 0.5 ? "rep.mid" : interest > 0.38 ? "rep.lo" : "rep.edge";
+  return `<div class="who" id="repbox"><div id="rep"></div><div style="min-width:0"><div class="eyebrow">${$t("rep.title")}</div><b>${esc(r.n)}</b><div class="say">${$t(line, { t: esc(team.name) })}</div></div></div>`;
+}
+export function mountRep(team, interest) {
+  const el = $("#rep");
+  if (!el) return;
+  const r = repOf(team);
+  el.innerHTML = "";
+  el.appendChild(
+    late.portrait(
+      r.look,
+      {
+        adult: true,
+        tie: true,
+        jersey: "#1d2433",
+        trim: team.c1,
+        glasses: r.glasses,
+        mustache: r.mustache,
+        mood: interest > 0.6 ? "mutlu" : interest < 0.4 ? "kizgin" : "saskin"
+      },
+      64,
+      64,
+      team.c1
+    )
+  );
 }

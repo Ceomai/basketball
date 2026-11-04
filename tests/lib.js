@@ -93,7 +93,11 @@ async function toMain(p, limit = 400) {
         "#pk-no",
         "#mt-stay",
         "#hk-ok",
-        "#hk-a"
+        "#hk-a",
+        "#nt-sim",
+        "#nt-done",
+        "#mw-sim",
+        "#mw-ok"
       ]) {
         const e = $(s);
         if (e && !e.disabled) return (e.click(), "c");

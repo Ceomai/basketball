@@ -106,7 +106,7 @@ async function week(p) {
       const a = $("#adx");
       if (a) return a.disabled ? "wait" : (a.click(), "c");
       const c = document.querySelector(
-        "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a"
+        "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok"
       );
       if (c) return (c.click(), "c");
       for (const s of [

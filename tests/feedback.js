@@ -527,6 +527,214 @@ test("maç sonu ekranında faul sayısı; faulle oyun dışı kalan oyuncu kenar
   return p;
 });
 
+test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const club = G.leaguePool("euro").find(t => t.name === "Baskonia");
+    S.stage = "euro";
+    S.team = club;
+    S.city = club.city;
+    S.wage = 6000;
+    G.newSeasonLeague();
+    const pool = G.leaguePool("euro").map(t => t.key);
+    return {
+      cc: club.cc,
+      lg: G.lgName(),
+      domestic: S.league.filter(x => x.key !== S.team.key).every(x => G.teamByKey(x.key).cc === club.cc),
+      euroInLeague: S.league.filter(x => x.key !== S.team.key && pool.includes(x.key)).length,
+      euro: S.comps && S.comps.euro && S.comps.euro.games.length,
+      kind: S.comps.euro.kind,
+      cup: S.comps.cup && S.comps.cup.rounds.length
+    };
+  });
+  assert(r.cc === "ES" && !/EuroLeague/.test(r.lg), "ülke ligi değil: " + JSON.stringify(r));
+  assert(r.domestic, "rakipler başka ülkeden");
+  assert(r.euro === 6 && r.kind === "el" && r.cup === 3, "yarışmalar: " + JSON.stringify(r));
+  return p;
+});
+
+test("hafta içi maçı: lig maçından sonra gelir, simüle edilir, grup tablosu ve kariyer güncellenir", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const club = G.leaguePool("euro")[3];
+    S.stage = "euro";
+    S.team = club;
+    S.wage = 6000;
+    G.newSeasonLeague();
+    S.week = 2; // ilk EuroLeague maç haftası
+    window.__g0 = S.career.games;
+    window.__next = false;
+    G.closeSheet();
+    G.midweek(() => (window.__next = true));
+  });
+  await p.waitForSelector("#mw-sim", { timeout: 5000 });
+  const t = await p.textContent("#ovl");
+  assert(/EuroLeague/.test(t), "hafta içi ekranı: " + t.slice(0, 80));
+  await p.click("#mw-sim");
+  await p.waitForSelector("#mw-ok", { timeout: 60000 });
+  await p.click("#mw-ok");
+  const r = await p.evaluate(() => {
+    const E = window.Game.S.comps.euro;
+    return {
+      played: E.games.filter(g => g.res).length,
+      tw: E.table.reduce((a, x) => a + x.w, 0),
+      g: window.Game.S.career.games - window.__g0
+    };
+  });
+  assert(r.played === 1 && r.tw === 4 && r.g === 1, "grup sonucu: " + JSON.stringify(r));
+  return p;
+});
+
+test("Final Four, ülke kupası, Süper Kupa ve Lig merkezi Kupalar sekmesi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.stage = "t2";
+    S.wage = 450;
+    S.superNext = S.season;
+    G.newSeasonLeague();
+    const sup = !!S.comps.sup,
+      cup = S.comps.cup.rounds.map(x => x.week);
+    G.leagueSheet("kupa");
+    const html = document.querySelector("#ovl").textContent;
+    // Final Four: EuroLeague grubu bitmiş, son hafta
+    const club = G.leaguePool("euro")[0];
+    S.stage = "euro";
+    S.team = club;
+    S.superNext = 0;
+    G.newSeasonLeague();
+    const E = S.comps.euro;
+    E.games.forEach(g => (g.res = { win: true, us: 80, them: 70 }));
+    E.table.find(x => x.key === S.team.key).w = 6;
+    S.week = S.sched.length;
+    return {
+      sup,
+      cup,
+      html,
+      due: (() => {
+        const s = [];
+        G.midweek(() => s.push("next"));
+        return document.querySelector("#ovl").textContent;
+      })()
+    };
+  });
+  assert(r.sup && JSON.stringify(r.cup) === "[4,9,12]", "kupa/süper: " + JSON.stringify(r));
+  assert(/Kupası/.test(r.html) && /Süper Kupa/.test(r.html), "Kupalar sekmesi");
+  assert(/Final Four/.test(r.due), "Final Four gelmedi: " + r.due.slice(0, 100));
+  return p;
+});
+
+test("playoff ağacı: yarı final kaydı ve Lig merkezi Playoff sekmesi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.week = S.sched.length;
+    S.league.find(x => x.key === S.team.key).w = 20;
+    window.__TEST = { noEvents: true };
+    G.closeSheet();
+    G.afterMatchFlow(true);
+    const semi = { phase: S.phase, po: !!S.po };
+    G.leagueSheet("po");
+    return { ...semi, html: document.querySelector("#ovl").textContent };
+  });
+  assert(r.phase === "semi" && r.po, "playoff başlamadı: " + JSON.stringify(r));
+  assert(/Yarı final/.test(r.html) && /Final/.test(r.html), "playoff sekmesi: " + r.html.slice(0, 120));
+  return p;
+});
+
+test("milli turnuva: merkez ekran, grup tablosu, maç arası hazırlık, sonuna kadar oynanır", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.stage = "t1";
+    S.age = 24;
+    window.__ntDone = false;
+    G.natTourney("A", "EuroBasket", ["IT", "FR", "GR", "ES"], () => (window.__ntDone = true));
+  });
+  assert(await p.isVisible("#nt-play"), "turnuva merkezi yok");
+  await p.click('[data-np="rest"]');
+  assert(/hazırlığını yaptın/.test(await p.textContent("#ovl")), "hazırlık işlenmedi");
+  await p.click('[data-nt="tablo"]');
+  assert(/İtalya|Fransa|Yunanistan/.test(await p.textContent("#ovl")), "grup tablosu yok");
+  for (let i = 0; i < 12; i++) {
+    if (await p.evaluate(() => window.__ntDone)) break;
+    const st = await p.evaluate(() => {
+      const $ = s => document.querySelector(s);
+      for (const s of ["#nt-done", "#nok"]) if ($(s)) return ($(s).click(), "c");
+      if ($('[data-nt="hub"]') && !$("#nt-sim")) return ($('[data-nt="hub"]').click(), "c");
+      if ($("#nt-sim")) return ($("#nt-sim").click(), "c");
+      return "w";
+    });
+    await p.waitForTimeout(st === "w" ? 400 : 200);
+    if (st === "w") await p.waitForSelector("#nok,#nt-sim,#nt-done", { timeout: 60000 }).catch(() => {});
+  }
+  const r = await p.evaluate(() => ({ done: window.__ntDone, caps: window.Game.S.career.natCaps || 0 }));
+  assert(r.done && r.caps >= 3, "turnuva bitmedi: " + JSON.stringify(r));
+  return p;
+});
+
+test("sözleşme pazarlığında kulüp temsilcisi (portre, ad, ilgiye göre söz); aynı kulüp hep aynı kişi", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const t = G.leaguePool("t1", "TR")[0];
+    const a = G.repOf(t).n,
+      b = G.repOf(t).n;
+    G.negotiateOffer({ team: t, stage: "t1", role: "rot", wage: 1500, years: 2 }, () => {});
+    return {
+      same: a === b,
+      name: a,
+      box: !!document.querySelector("#repbox"),
+      cv: !!document.querySelector("#rep canvas"),
+      txt: document.querySelector("#repbox").textContent
+    };
+  });
+  assert(r.same && r.box && r.cv, "temsilci: " + JSON.stringify(r));
+  assert(r.txt.includes(r.name) && /sportif direktör/.test(r.txt), "temsilci metni: " + r.txt);
+  return p;
+});
+
+test("reklamla teklifleri yenile: kalma teklifi yerinde, diğerleri yeni kulüpler; yaz başına bir kez", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => window.Game.transition(6.5, false, '<div id="seasonad"></div>'));
+  const before = await p.evaluate(() => window.__lastOffers.map(o => o.team.key + (o.stay ? "*" : "")));
+  assert(await p.isVisible("#ad-reroll"), "yenile düğmesi yok");
+  await p.click("#ad-reroll");
+  await watchAd(p);
+  const r = await p.evaluate(() => ({
+    after: window.__lastOffers.map(o => o.team.key + (o.stay ? "*" : "")),
+    again: !!document.querySelector("#ad-reroll"),
+    rows: document.querySelectorAll("[data-o]").length
+  }));
+  const stays = before.filter(k => k.endsWith("*"));
+  assert(
+    stays.every(k => r.after.includes(k)),
+    "kalma teklifi değişti"
+  );
+  assert(
+    r.after.filter(k => !k.endsWith("*")).some(k => !before.includes(k)),
+    "yeni kulüp yok: " + JSON.stringify([before, r.after])
+  );
+  assert(!r.again && r.rows === r.after.length, "ikinci kez / liste: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);
@@ -546,7 +754,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [

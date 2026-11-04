@@ -143,11 +143,20 @@ export function leagueSheet(tab = "hedef") {
     ["tablo", $t("lc.table")],
     ["fikstur", $t("lc.fixtures")],
     ["istat", $t("lc.stats")],
-    ["kral", $t("lc.leaders")]
+    ["kral", $t("lc.leaders")],
+    ...(S.po && S.po.season === S.season ? [["po", $t("cp.poTab")]] : []),
+    ...(late.hasComps() ? [["kupa", $t("cp.tab")]] : [])
   ];
   const body =
-    { hedef: () => late.goalsHTML(true), tablo: tableHTML, fikstur: fixturesHTML, istat: statsHTML, kral: leadersHTML }[tab] ||
-    tableHTML;
+    {
+      hedef: () => late.goalsHTML(true),
+      tablo: tableHTML,
+      fikstur: fixturesHTML,
+      istat: statsHTML,
+      kral: leadersHTML,
+      po: () => late.playoffHTML(),
+      kupa: () => late.compsHTML()
+    }[tab] || tableHTML;
   sheet(
     $t("lc.title"),
     `${esc(lgName())} · ${seasonLabel()}`,
@@ -165,8 +174,7 @@ export function matchStoryNews({ win, pts, ast, reb, rankBefore }) {
   // kişisel: kariyer rekoru, 30 sayı, triple-double
   if (ast >= 10 && reb >= 10 && pts >= 10) news($t("lc.nTriple", { v: n, pts, ast, reb }));
   else if (pts >= 30) news($t("lc.n30", { v: n, pts }));
-  else if (k.games > 8 && pts > (k.high || 0) && pts >= 15) news($t("lc.nHigh", { v: n, pts }));
-  if (pts > (k.high || 0)) k.high = pts;
+  else if (k.games > 8 && pts > (k.prevHighPts || 0) && pts >= 15) news($t("lc.nHigh", { v: n, pts }));
   // seri
   const res = (S.results || []).filter(r => !r.dnp);
   let streak = 0;

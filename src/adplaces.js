@@ -55,6 +55,8 @@ export function offerAdsHTML(offers, allowExtra) {
   const w = offers.find(o => o.withdrawn);
   if (RC.rewards.recall && w && !z.recall && canAd())
     h += adBtn("ad-recall", $t("adp.recall", { t: esc(w.team.name) }), $t("adp.recallSub"), "recall");
+  if (RC.rewards.extraOffer && allowExtra && !z.reroll && canAd() && offers.some(o => !o.stay && !o.uni && !o.story))
+    h += adBtn("ad-reroll", $t("rep.reroll"), $t("rep.rerollSub"), "reroll_offers");
   if (RC.rewards.extraOffer && allowExtra && !z.extra && canAd())
     h += adBtn("ad-extra", $t("adp.extra", { v: esc(S.npc.agent) }), $t("adp.extraSub"), "extra_offer");
   return h;
@@ -75,6 +77,34 @@ export function bindOfferAds(offers, gen, reshow) {
       }
       save();
       toast($t("adp.recallOk"));
+      reshow();
+    };
+  const rr = $("#ad-reroll");
+  if (rr)
+    rr.onclick = async () => {
+      rr.disabled = true;
+      const ok = await showRewarded("reroll_offers");
+      if (gone(rr)) return;
+      if (!ok) return void (rr.disabled = false);
+      summer().reroll = true;
+      // kalma, üniversite ve hikâye teklifleri yerinde kalır; diğerleri yeni kulüplerle değişir
+      const keep = new Set(offers.filter(o => o.stay || o.uni || o.story).map(o => o.team.key));
+      let n = 0;
+      for (let i = 0; i < offers.length; i++) {
+        const o = offers[i];
+        if (o.stay || o.uni || o.story) continue;
+        for (let t = 0; t < 8; t++) {
+          const nw = gen()[0];
+          if (nw && !keep.has(nw.team.key)) {
+            keep.add(nw.team.key);
+            offers[i] = nw;
+            n++;
+            break;
+          }
+        }
+      }
+      save();
+      toast($t("rep.rerolled", { n }));
       reshow();
     };
   const x = $("#ad-extra");

@@ -231,7 +231,7 @@ export function natSelected(avg, cat) {
   return natPotential(avg) >= need;
 }
 // Milli maçı oynatmak için kulüp takımı geçici olarak milli takımla değiştirilir, maç bitince geri alınır.
-export function natMatch(cat, opp, label, after) {
+export function natMatch(cat, opp, label, after, auto = false) {
   const club = S.team,
     us = natTeam("TR", cat);
   S._club = club;
@@ -244,6 +244,7 @@ export function natMatch(cat, opp, label, after) {
     comp: "nat",
     label,
     role,
+    auto,
     onEnd: win => {
       const r = M.rating,
         line = { pts: M.pts, ast: M.ast, reb: M.reb, us: M.us, them: M.them };
@@ -393,56 +394,8 @@ export function summerTournament(avg, done) {
     (a, b) => NAT[a].str - NAT[b].str + rnd(-0.04, 0.04)
   );
   pool.splice(0, pool.length - 4);
-  const stages = [$t("extras.51"), $t("extras.52"), $t("extras.53")];
-  let i = 0;
-  const medal = (type, lab) => {
-    S.career.trophies.push({ type, label: `${S.year} ${name} · ${lab}` });
-    news(
-      $t("extras.80", {
-        v: fullName(),
-        name: name,
-        lab: lab
-      })
-    );
-    save();
-  };
-  const nextGame = () => {
-    const opp = natTeam(pool[i], cat);
-    natMatch(cat, opp, `${name} · ${stages[i]}`, win => {
-      if (i === 0 && !win) {
-        news(
-          $t("extras.81", {
-            name: name
-          })
-        );
-        done();
-        return;
-      }
-      if (i === 1 && !win) {
-        const bo = natTeam(pool[3], cat);
-        natMatch(
-          cat,
-          bo,
-          $t("extras.54", {
-            name: name
-          }),
-          w2 => {
-            if (w2) medal("nat_bronze", "bronz");
-            done();
-          }
-        );
-        return;
-      }
-      if (i === 2) {
-        medal(win ? "nat_gold" : "nat_silver", win ? $t("extras.55") : $t("extras.56"));
-        done();
-        return;
-      }
-      i++;
-      nextGame();
-    });
-  };
-  camp(cat, name, nextGame);
+  // turnuva artık peş peşe maç değil: grup + eleme, maç aralarında dinlenme/antrenman (src/natcup.js)
+  camp(cat, name, () => late.natTourney(cat, name, pool, done));
 }
 
 /* ================= HAFTA GEÇİŞ KANCALARI ================= */
