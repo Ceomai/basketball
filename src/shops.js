@@ -645,8 +645,9 @@ export function locAvm(I, store = "sneaker") {
                   up: fmt(it.up)
                 })}`
               : "") +
-            late.itemNote(it),
-          price: it.p,
+            late.itemNote(it) +
+            late.wearNote(it),
+          price: late.avmPrice(it),
           own: !!S.items[it.id]
         })
       )
@@ -656,11 +657,15 @@ export function locAvm(I, store = "sneaker") {
   items.forEach(
     it =>
       (m[it.id] = () => {
-        if (S.money < it.p || S.items[it.id]) return;
-        tx(it.n, -it.p);
+        const price = late.avmPrice(it),
+          renew = late.isRenewal(it);
+        if (S.money < price || S.items[it.id]) return;
+        tx(it.n, -price);
         S.items[it.id] = 1;
-        Bus.emit("purchase", { id: it.id, p: it.p });
-        it.fx && it.fx();
+        Bus.emit("purchase", { id: it.id, p: price });
+        // eskiyen eşyanın yenilenmesi: tek seferlik nitelik katkısı yeniden verilmez (src/gear.js)
+        if (renew) late.renewDone(it);
+        else it.fx && it.fx();
         norm();
         save();
         toast(
@@ -1014,7 +1019,7 @@ export function locMarket(I) {
             .join("")}</div>`
       )
       .join("") +
-      `<p class="small muted">${$t("life.mktHead", { v: late.marketEnergyLeft(), c: late.MKT_EN_CAP })}</p>` +
+      `<p class="small muted">${$t("life.mktHead", { v: late.marketEnergyLeft(), c: late.MKT_EN_CAP })}</p>${late.boostsHTML()}` +
       (S.buffs.train
         ? `<p class="small good">${$t("shops.7", {
             train: S.buffs.train
@@ -1212,6 +1217,7 @@ export function locEglence(I, tab = "arcade") {
         tx($t("shops.12"), -pp);
         S.moral += 16;
         S.energy -= 22;
+        late.fitHit(3); // gece hayatı kondisyonu düşürür (src/fitness.js)
         let t = $t("shops.28");
         if (Math.random() < 0.2) {
           S.rel.koc -= 8;

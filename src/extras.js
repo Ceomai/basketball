@@ -413,6 +413,7 @@ export function weeklyHooks() {
   }
   if (S.chips != null && S.chips < 100) S.chips = 100; // teselli fişi (fiş artık paraya çevrilebildiği için küçük)
   Bus.emit("week:start");
+  save(); // hafta başı işleyicilerinin değişiklikleri (ücretler, gelirler, ilişkiler) yeniden açılışta kaybolmasın
   Bus.first("week:sheet"); // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur
 }
 // sezon ortası (normalde 8., hızlı kariyerde 5. hafta): All-Star seçilen üst lig oyuncusu All-Star'a, diğer herkes

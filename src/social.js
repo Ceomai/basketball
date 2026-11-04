@@ -125,6 +125,7 @@ export function nightVisit(kind) {
   S.nightWk = wk();
   S.rel.koc -= 3;
   S.moral += 3;
+  if (kind !== "sans") late.fitHit(1);
   if (kind === "sans") {
     const t = (S.trk = S.trk || { clutch: 0, out: 0, pass: 0, def: 0 });
     t.clutch += 2; // soğukkanlılık: Clutch özelliğine ilerleme

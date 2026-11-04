@@ -769,6 +769,7 @@ export function seasonEnd(playoff, champ, final) {
     let g = ri(gr[1], gr[2]);
     if (S.age >= 30 && (k === "sut" || k === "pas")) g = Math.max(g, -1);
     if (S.age >= 30 && (k === "hiz" || k === "guc")) g -= Math.random() < 0.5 ? 1 : 0;
+    if (g < 0 && Math.random() < late.fitSave()) g++; // yüksek kondisyon yaş düşüşünün bir kısmını önler
     S.st[k] += g;
   }
   let schoolMsg = "";
