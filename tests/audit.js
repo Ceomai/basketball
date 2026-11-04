@@ -699,7 +699,7 @@ test("E10", "uç", "Cihaz saati geri alınınca görevler ve reklam sınırı ye
     G.S.season = 2;
     const M = G.missions();
     G.adsDayTick(); // bugünü işaretle, sonra sınırı doldur
-    G.ADS.today = 8;
+    G.ADS.today = G.ADS_CFG.dailyRewardCap;
     return { day: M.day, ids: M.daily.map(m => m.id).join() };
   });
   await p.clock.setSystemTime(new Date("2026-06-09T12:00:00"));
@@ -715,7 +715,8 @@ test("E10", "uç", "Cihaz saati geri alınınca görevler ve reklam sınırı ye
     b.day === a.day && b.ids === a.ids && b.left === 0,
     "geri alınan saat görevleri/sınırı yeniledi: " + JSON.stringify({ a, b })
   );
-  assert(c.day === "2026-06-11" && c.left === 8, "ileri gün yenilemedi: " + JSON.stringify(c));
+  const cap = await p.evaluate(() => window.Game.ADS_CFG.dailyRewardCap);
+  assert(c.day === "2026-06-11" && c.left === cap, "ileri gün yenilemedi: " + JSON.stringify(c));
   await close(p);
   return `${a.day} → (saat geri) ${b.day}, sınır ${b.left} → (ileri gün) ${c.day}, sınır ${c.left}`;
 });

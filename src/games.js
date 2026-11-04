@@ -941,7 +941,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       st = {
         seq: Array.from({ length: len }, () => pick("LRUD")),
         i: 0,
-        time: clamp(2.2 + eff * 0.028 - lvl() * 0.12, 1.7, 5),
+        time: clamp(2.2 + eff * 0.028 - lvl() * 0.12, 1.7, 5) * 1.08, // oklar: diğer aksiyonlara göre zor kalıyordu, %8 ek süre
         t: 0,
         ph: "go",
         msg: "",
@@ -1310,6 +1310,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
   });
 }
 /* ---- Ağırlık ---- */
+const GYM_T = 5.5; // saniye
 export function mgGym(el, { title = $t("games.41") }) {
   setMgKind("gym");
   mkStage(el, title);
@@ -1358,8 +1359,10 @@ export function mgGym(el, { title = $t("games.41") }) {
         W / 2,
         70
       );
-      drawKid(c, 180, GROUND, 1.05, late.S.look, { ...me(), armsUp: lift > 0.5, mood: lift > 0.5 ? "kizgin" : "saskin" });
-      const by = lift > 0.5 ? GROUND - 178 : GROUND - 80 - lift * 60;
+      // halter kaldırma seviyesiyle kesintisiz yükselir (önceden 0,5'te aniden baş üstüne zıplıyordu)
+      const e = lift * lift * (3 - 2 * lift); // yumuşak geçiş
+      drawKid(c, 180, GROUND, 1.05, late.S.look, { ...me(), armsUp: e > 0.55, mood: e > 0.55 ? "kizgin" : "saskin" });
+      const by = GROUND - 80 - e * 98;
       c.lineWidth = 6;
       c.strokeStyle = "#05080e";
       c.beginPath();
@@ -1373,11 +1376,11 @@ export function mgGym(el, { title = $t("games.41") }) {
       rr(c, 292, by - 20, 14, 40, 3, "#555");
       if (!done) {
         rr(c, 30, 96, 300, 6, 3, "#24314a", false);
-        rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / 5)), 6, 3, GOOD(), false);
+        rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / GYM_T)), 6, 3, GOOD(), false);
       }
       bigText(c, String(taps), 160, "#ffc54d", 52);
       if (!started) hint(c, $t("games.44"), H - 20);
-      if (t >= 5 && !done) {
+      if (t >= GYM_T && !done) {
         done = true;
         setTimeout(() => finish(stop, res, { taps }), 900);
       }
@@ -1401,7 +1404,7 @@ export function mgGym(el, { title = $t("games.41") }) {
         );
       info(
         $t("arcade.34", {
-          v: Math.max(0, 5 - t).toFixed(1)
+          v: Math.max(0, GYM_T - t).toFixed(1)
         })
       );
     });

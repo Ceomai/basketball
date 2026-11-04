@@ -26,8 +26,9 @@ export const ADS_CFG = {
     rewarded: { android: "ca-app-pub-3940256099942544/5224354917", ios: "ca-app-pub-3940256099942544/1712485313" },
     interstitial: { android: "ca-app-pub-3940256099942544/1033173712", ios: "ca-app-pub-3940256099942544/4411468910" }
   },
-  dailyRewardCap: 8,
-  energyPerWeek: 2,
+  // ödüllü reklam oyuncunun tercihi: günlük sınır yok, yalnızca bot/hatalı trafiğe karşı güvenlik tavanı
+  dailyRewardCap: 100,
+  energyPerWeek: 20,
   interstitial: { minGames: 6, everyGames: 3, minGapMs: 4 * 60 * 1000 },
   webAdSeconds: { rewarded: 5, interstitial: 3 }
 };
@@ -266,9 +267,14 @@ export async function adsBreak(place, next) {
   }
   next();
 }
-export const adBtn = (id, label, sub, place) => (place && late.adOffer && late.adOffer(place), adBtnRaw(id, label, sub));
+// Günlük sınır dolduysa düğme yerine kısa not: oyuncu reklama basıp "bugünlük bitti" uyarısıyla karşılaşmasın
+export const adBtn = (id, label, sub, place) => {
+  if (!ADS.adFree && !rewardLeft()) return `<p class="small muted adcap">${$t("adx.capNote")}</p>`;
+  if (place && late.adOffer) late.adOffer(place);
+  return adBtnRaw(id, label, sub);
+};
 const adBtnRaw = (id, label, sub) =>
-  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}`}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
 export function adDoubleHTML(bonus) {

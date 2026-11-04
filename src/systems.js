@@ -622,7 +622,7 @@ export function rosterTab(c) {
       slot: 1,
       fx: [
         [$t("systems.56"), "p"],
-        [$t("systems.57"), "p"],
+        [$t("prog.pasSmall"), "p"],
         [$t("systems.58"), "n"]
       ],
       btn: $t("systems.137"),
@@ -643,7 +643,7 @@ export function rosterTab(c) {
     ikili: () => {
       useSlot();
       r[0].chem = Math.min(100, r[0].chem + 12);
-      S.st.pas += 1;
+      late.gainStat("pas", 0.4 * late.levelMul("pas"));
       S.energy -= 10;
       norm();
       save();
@@ -654,7 +654,7 @@ export function rosterTab(c) {
         }),
         [
           [$t("systems.56"), "p"],
-          [$t("systems.57"), "p"]
+          [$t("prog.pasSmall"), "p"]
         ]
       );
     }

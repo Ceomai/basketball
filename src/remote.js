@@ -11,8 +11,8 @@
 export const RC_URL_NATIVE = "https://ceomai.github.io/basketball/remote-config.json";
 export const RC_DEFAULTS = {
   ads: {
-    dailyRewardCap: 8,
-    energyPerWeek: 2,
+    dailyRewardCap: 100, // güvenlik tavanı (gerçek oyuncu görmez)
+    energyPerWeek: 20, // enerji reklamı zaten yalnızca enerji 60 altındayken çıkar
     // breakGapMs: doğal kırılma anlarındaki (sezon sonu, transfer) geçiş reklamı için en kısa ara
     interstitial: { minGames: 6, everyGames: 3, minGapMs: 240000, breakGapMs: 180000, breaks: true }
   },
@@ -20,8 +20,8 @@ export const RC_DEFAULTS = {
   rewards: { retry: true, extraOffer: true, recall: true, season: true, trainPerWeek: 1, box: true }
 };
 const LIMITS = {
-  "ads.dailyRewardCap": [0, 20],
-  "ads.energyPerWeek": [0, 7],
+  "ads.dailyRewardCap": [0, 200],
+  "ads.energyPerWeek": [0, 20],
   "ads.interstitial.minGames": [2, 50],
   "ads.interstitial.everyGames": [2, 20],
   "ads.interstitial.minGapMs": [120000, 3600000],

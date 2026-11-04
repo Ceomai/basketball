@@ -44,8 +44,7 @@
         reps = best[3] === "gym" ? 1 : 3,
         p = pS(clamp(eff(k) + 10, 5, 100));
       const ratio = best[3] === "gym" ? clamp(p * 1.1, 0, 1) : bin(reps, p) / reps;
-      const g = drillGain(k, ratio);
-      S.st[k] += g;
+      const g = drillGain(k, ratio); // kazancı kendisi ekler (ondalık)
       S.energy -= 18;
       if (ratio > 0.6) S.rel.koc += 2;
       REC.trainGain += g;
@@ -79,10 +78,10 @@
       if (!buyable().length && S.housing === "malikane") autoLegacy(); // her şey alındıysa vakıf ve kulüp payı
       if (!REC.allOwned && !buyable().length && S.housing === "malikane")
         REC.allOwned = { week: REC.weeks, age: S.age, season: S.season, stage: S.stage };
-      if (S.energy < 50 && S.money > 6) {
-        tx("Enerji içeceği", -3);
-        S.energy += 15;
-      }
+      // enerji içeceği oyunun gerçek market kuralıyla (seviyeye göre fiyat, haftalık enerji sınırı, en fazla 2 içecek)
+      const drink = MARKET.find(m => m.id === "enerji");
+      if (S.energy < 50 && S.money > marketPrice(drink) * 2 && marketEnergyLeft() > 0 && (!S.mkt || S.mkt.drinks < 2))
+        marketBuy(drink);
     }
     function shopping() {
       if (window.__SIM.buyAll) return shoppingAll();
@@ -117,10 +116,10 @@
           }
         }
       }
-      if (S.energy < 50 && S.money > 6) {
-        tx("Enerji içeceği", -3);
-        S.energy += 15;
-      }
+      // enerji içeceği oyunun gerçek market kuralıyla (seviyeye göre fiyat, haftalık enerji sınırı, en fazla 2 içecek)
+      const drink = MARKET.find(m => m.id === "enerji");
+      if (S.energy < 50 && S.money > marketPrice(drink) * 2 && marketEnergyLeft() > 0 && (!S.mkt || S.mkt.drinks < 2))
+        marketBuy(drink);
     }
     // Reklam modeli: haftada __SIM.adsPerWeek kadar ödüllü reklam kredisi birikir (günlük 8 sınırının oyun haftasına karşılığı)
     function useAd(kind) {

@@ -98,7 +98,7 @@ const EV = [
           bump("mentor", 8);
           S.energy -= 12;
           const k = Object.keys(S.st).reduce((a, b) => (S.st[b] < S.st[a] ? b : a));
-          S.st[k] += 1;
+          late.gainStat(k, 0.6 * late.levelMul(k));
         }
       ],
       ["ch.m1b", () => bump("mentor", -5)]

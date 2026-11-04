@@ -48,6 +48,8 @@ import * as legends from "./legends.js";
 import * as daily from "./daily.js";
 import * as hooks from "./hooks.js";
 import * as peaks from "./peaks.js";
+import * as progress from "./progress.js";
+import * as lifestyle from "./lifestyle.js";
 
 const MODULES = [
   data,
@@ -96,7 +98,9 @@ const MODULES = [
   legends,
   daily,
   hooks,
-  peaks
+  peaks,
+  progress,
+  lifestyle
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
