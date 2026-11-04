@@ -470,6 +470,63 @@ test("reklam: güvenlik tavanı dolunca düğme yerine not; normalde kalan hak g
   return p;
 });
 
+test("maç seçenekleri: turnike, köşe/tepeden üçlük, floater, orta mesafe; 3 ya da 4 seçenek; otomatik çözüm yeni anahtarları tanır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const keys = Object.fromEntries(Object.entries(G.PLAYS).map(([pos, P]) => [pos, P.off.map(o => o[0])]));
+    const counts = new Set(Array.from({ length: 200 }, () => G.optCount()));
+    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0 });
+    const res = ["lay", "corner", "top3", "float", "mid"].map(k => G.autoResolve(k, "X"));
+    return { keys, counts: [...counts].sort(), ok: res.every(x => x && typeof x.good === "boolean" && x.st) };
+  });
+  assert(
+    r.keys.PG.includes("lay") && r.keys.PG.includes("top3") && r.keys.SG.includes("corner") && r.keys.SF.includes("mid"),
+    "ek seçenekler: " + JSON.stringify(r.keys)
+  );
+  assert(JSON.stringify(r.counts) === "[3,4]", "seçenek sayısı: " + r.counts);
+  assert(r.ok, "otomatik çözüm yeni anahtarlar");
+  return p;
+});
+
+test("kişisel faul: riskli savunma faul olabilir, güvenli asla; sınır 5 (NBA 6), uyarı ve oyun dışı; not cezası", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.setM({ pf: 0 });
+    const R = Math.random;
+    Math.random = () => 0.01;
+    const safe = G.foulAfterMoment("safe", false),
+      good = G.foulAfterMoment("steal", true),
+      f1 = G.foulAfterMoment("steal", false);
+    Math.random = R;
+    const msgs = [f1];
+    for (let i = 0; i < 6; i++) msgs.push(G.addFoul());
+    const lim = G.foulLimit();
+    G.S.stage = "nba";
+    return { safe, good, pf: G.M.pf, fo: G.M.fo, lim, nba: G.foulLimit(), pen: G.foulPenalty(), msgs, note: G.foulNote("block") };
+  });
+  assert(r.safe === "" && r.good === "", "güvenli/başarılı faul olmamalı");
+  assert(r.lim === 5 && r.nba === 6 && r.pf === 5 && r.fo, "sınır: " + JSON.stringify(r));
+  assert(/Faul sorunu/.test(r.msgs[3]) && /oyun dışı/.test(r.msgs[4]) && r.msgs[5] === "", "mesajlar: " + JSON.stringify(r.msgs));
+  assert(r.pen === 0.4 && /faul riski/.test(r.note), "ceza/not");
+  return p;
+});
+
+test("maç sonu ekranında faul sayısı; faulle oyun dışı kalan oyuncu kenara alınır", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
+  });
+  await p.waitForSelector("#nx", { timeout: 60000 });
+  assert(/Faul/.test(await p.textContent("#ovl")), "faul satırı yok");
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

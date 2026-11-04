@@ -68,8 +68,8 @@ export function autoChoose(opts) {
   return opts.map(o => ({ k: o.k, v: (o.k === "safe" ? o.e - 10 : o.e) + rnd(0, 10) })).sort((a, b) => b.v - a.v)[0].k;
 }
 export function autoResolve(k, sur) {
-  const P3 = ["pull", "catch", "wing"],
-    P2 = ["step", "pop", "mid"];
+  const P3 = ["pull", "catch", "wing", "corner", "top3"],
+    P2 = ["step", "pop", "mid", "float"];
   if (P3.includes(k) || P2.includes(k)) {
     const th = P3.includes(k),
       ok = coin(autoP(eff("sut") - (PEN[k] || 0) - (th ? 6 : 0)) * (th ? 0.85 : 1));
@@ -85,8 +85,8 @@ export function autoResolve(k, sur) {
           })
     };
   }
-  if (k === "drive" || k === "break") {
-    if (!coin(autoP(eff("hiz"))))
+  if (k === "drive" || k === "break" || k === "lay") {
+    if (!coin(autoP(eff("hiz") - (PEN[k] || 0))))
       return {
         good: false,
         w: 1,
@@ -96,7 +96,7 @@ export function autoResolve(k, sur) {
         })
       };
     M.pts += 2;
-    if (k === "drive" && coin(0.18) && coin(autoP(eff("sut") + 10))) M.pts++;
+    if ((k === "drive" || k === "lay") && coin(k === "lay" ? 0.12 : 0.18) && coin(autoP(eff("sut") + 10))) M.pts++;
     return {
       good: true,
       w: k === "break" ? 1.2 : 1,
@@ -125,6 +125,7 @@ export function autoResolve(k, sur) {
   if (k === "post" || k === "dunk") {
     const ok = coin(autoP(eff("guc") + (k === "dunk" ? 5 : 0)));
     if (ok) M.pts += 2;
+    if (ok && coin(k === "dunk" ? 0.08 : 0.1) && coin(autoP(eff("sut") + 10))) M.pts++; // basket faul
     return {
       good: ok,
       w: k === "dunk" ? 1.3 : 1.2,

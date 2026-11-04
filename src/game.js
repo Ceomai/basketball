@@ -53,6 +53,7 @@ import * as lifestyle from "./lifestyle.js";
 import * as social from "./social.js";
 import * as style from "./style.js";
 import * as agent from "./agent.js";
+import * as plays from "./plays.js";
 
 const MODULES = [
   data,
@@ -106,7 +107,8 @@ const MODULES = [
   lifestyle,
   social,
   style,
-  agent
+  agent,
+  plays
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
