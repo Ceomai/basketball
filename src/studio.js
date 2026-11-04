@@ -60,8 +60,9 @@ export function locStudio(I) {
         g =>
           `<button class="btn ${c.gear[g] ? "ghost" : ""} sm" data-sg="${g}" ${c.gear[g] || S.money < gearCost(g) ? "disabled" : ""}>${$t(`sd.g.${g}`)}${c.gear[g] ? " ✓" : ` (${fmt(gearCost(g))}${g === "kurgu" ? $t("sd.perWeek") : ""})`}</button>`
       )
-      .join("")}</div>`
+      .join("")}</div>${late.studioExtraHTML()}`
   );
+  late.bindStudioExtra(() => locStudio(I)); // canlı yayın, ortak video, rekorlar (src/venues.js)
   $$("[data-sc]").forEach(b => (b.onclick = () => content(b.dataset.sc)));
   $$("[data-sg]").forEach(
     b =>
@@ -109,6 +110,8 @@ async function content(type) {
   c.n++;
   const fx = [[$t("sd.fxFollow", { v: late.kfmt(add) }), "p"]];
   let txt = $t("sd.res", { q: Math.round(q * 100) });
+  const rm = late.studioRecord(add);
+  if (rm) txt += ` <b class="gold">${rm}</b>`;
   if (type === "qa") S.rel.taraf += 3;
   if (type === "vlog") S.moral += 2;
   if (type === "train") S.rel.taraf += 1;

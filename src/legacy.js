@@ -296,7 +296,8 @@ function startHeir() {
       return S.saveSlot; // boş yuva yoksa emekli kariyerin yuvası kullanılır
     })();
   const F = late.F;
-  F.first = late.pick(late.NAME_FIRST.filter(n => n !== S.first));
+  const kid = late.heirKid ? late.heirKid() : null; // limandaki çocuk büyüdüyse onun adıyla (src/venues.js)
+  F.first = kid && kid.baller ? kid.n : late.pick(late.NAME_FIRST.filter(n => n !== S.first));
   F.last = S.last;
   F.pos = late.pick(["PG", "SG", "SF", "PF", "C"]);
   F.look = { ...S.look };
@@ -307,7 +308,7 @@ function startHeir() {
     parent: fullName(),
     parentFirst: S.first,
     // son bölümün oğula etkisi: antrenör baba nitelik, yorumcu baba para ve tanınırlık, başkan baba ikisi birden
-    bonus: heirBonus(score) + (S.epilogue === "koc" || S.epilogue === "baskan" ? 1 : 0),
+    bonus: heirBonus(score) + (S.epilogue === "koc" || S.epilogue === "baskan" ? 1 : 0) + (kid && kid.baller ? 1 : 0),
     money: Math.min(S.epilogue === "tv" || S.epilogue === "baskan" ? 8000 : 4000, Math.round(S.money * 0.05)),
     fame: S.epilogue === "tv" || S.epilogue === "baskan" ? 2000 : 0,
     tier: hofTier(score)[1]

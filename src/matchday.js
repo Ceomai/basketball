@@ -35,6 +35,7 @@ export function matchdayStart(ctx, foes, mates) {
   };
   M.starPts = 0;
   M.mates = mates || [];
+  if (late.gradMeet) late.gradMeet(foes || [], M.mates); // akademi mezunu sahada (src/venues.js)
   chemFor(M.mates);
 }
 export const matchdayEnd = () => M && (M.live = 0);

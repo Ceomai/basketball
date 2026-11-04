@@ -1550,8 +1550,9 @@ export function locKafe(I) {
           }
     ]
       .map(prodHTML)
-      .join("")}</div>`
+      .join("")}</div>${late.quizHTML()}`
   );
+  late.bindQuiz(); // bilgi gecesi (src/venues.js)
   addScene(b, "kafe", $t("places.348"), {
     friend: {
       L: { skin: SKINS[hash(f) % 4], hatStyle: "bere", hat: "#2d8a3e", pom: "#f4c534" },
