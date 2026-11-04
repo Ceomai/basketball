@@ -527,6 +527,111 @@ test("maç sonu ekranında faul sayısı; faulle oyun dışı kalan oyuncu kenar
   return p;
 });
 
+test("saha görünümü: kendin oynarken saha çizilir; pozisyona göre durum etiketleri ve seçenek etkisi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("#crt-p", { timeout: 8000 });
+  const n = await p.evaluate(() => document.querySelectorAll("#crt-p g[id^='o-'], #crt-p g[id^='d-']").length);
+  assert(n === 10, "10 oyuncu noktası olmalı: " + n);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const base = [
+      { k: "corner", t: "x", d: "d", e: 50 },
+      { k: "lay", t: "x", d: "d", e: 50 },
+      { k: "kick", t: "x", d: "d", e: 50 }
+    ];
+    const open = G.applyScenario(base, { us: true, zone: "corner", guard: "open", help: true, mate: true, drive: false });
+    const tight = G.applyScenario(base, { us: true, zone: "top", guard: "tight", help: false, mate: false, drive: false });
+    const def = G.applyScenario([{ k: "block", t: "x", d: "d", e: 50 }], { us: false, drive: true });
+    const sc = Array.from({ length: 50 }, () => G.courtScenario(true));
+    return {
+      open: open.map(o => [o.e, o.d, !!o.fav]),
+      tight: tight.map(o => o.e),
+      def: def[0],
+      zones: [...new Set(sc.map(x => x.zone))],
+      guards: [...new Set(sc.map(x => x.guard))]
+    };
+  });
+  assert(r.open[0][0] > 50 && /Boşsun/.test(r.open[0][1]) && r.open[0][2], "boş köşe üçlüğü: " + JSON.stringify(r.open[0]));
+  assert(r.open[1][0] < 50 && /kalabalık/.test(r.open[1][1]), "pota altı kalabalık turnikeyi zorlaştırır");
+  assert(r.tight[0] < 50, "sıkı savunma şutu zorlaştırır");
+  assert(r.def.e > 50 && /penetre/.test(r.def.d), "savunma: penetrasyonda blok");
+  assert(r.zones.length >= 3 && r.guards.length >= 2, "durumlar çeşitli: " + JSON.stringify(r));
+  return p;
+});
+
+test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etkisi; istatistik takibi ve maç raporu", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game;
+    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, qs: [[20, 18], [41, 40]] });
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const pr = G.followUp("lay", el, { help: true, guard: "normal" }, "Test");
+    const keys = [...el.querySelectorAll("[data-fu]")].map(b => b.dataset.fu);
+    el.querySelector('[data-fu="pull"]').click();
+    const pull = await pr;
+    const pr2 = G.followUp("lay", el, { help: true }, "Test");
+    el.querySelector('[data-fu="force"]').click();
+    const force = await pr2;
+    const pr3 = G.followUp("lay", el, { help: true }, "Test");
+    el.querySelector('[data-fu="pass"]').click();
+    const pass = await pr3;
+    const pres = pass.resolve();
+    const none = await G.followUp("corner", el, { guard: "open" }, "Test");
+    // istatistik: üçlük isabet, ikilik kaçış, serbest atış
+    const M = G.M;
+    let p0 = M.pts;
+    M.pts += 3;
+    G.trackPlay("corner", p0, { good: true });
+    G.trackPlay("mid", M.pts, { good: false });
+    p0 = M.pts;
+    M.pts += 1;
+    G.trackPlay("free", p0, { good: true });
+    // efektif değer: maç içi düzeltme eff'e yansır
+    const e0 = G.eff("sut");
+    M.effMod = -10;
+    const e1 = G.eff("sut");
+    M.effMod = 0;
+    const live = G.liveLine();
+    const rep = G.reportHTML();
+    el.remove();
+    return { keys, pull, force, pres, none, M: { fga: M.fga, fgm: M.fgm, tpa: M.tpa, tpm: M.tpm, fta: M.fta, ftm: M.ftm }, e0, e1, live, rep };
+  });
+  assert(JSON.stringify(r.keys) === '["pass","pull","spin","force"]', "seçenekler: " + r.keys);
+  assert(r.pull.pk === "mid" && r.pull.mod < 0, "ikiliğe kalk orta mesafe olur");
+  assert(r.force.foulChance > 0 && r.force.mod < 0, "turnikeyi zorla: zor ama faul şansı");
+  assert(typeof r.pres.good === "boolean" && r.pres.st === "pas", "pas sonucu");
+  assert(r.none === null, "boş şutta ikinci karar yok");
+  assert(r.M.fga === 2 && r.M.fgm === 1 && r.M.tpa === 1 && r.M.tpm === 1 && r.M.fta === 2 && r.M.ftm === 1, "takip: " + JSON.stringify(r.M));
+  assert(r.e1 < r.e0, "effMod eff'e yansımalı");
+  assert(/1\/2/.test(r.live), "canlı satır: " + r.live);
+  assert(/Maç raporu/.test(r.rep) && /Serbest atış/.test(r.rep), "rapor");
+  return p;
+});
+
+test("maç günü güçlendirmesi efektif niteliğe yansır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const a = G.eff("sut");
+    const b0 = G.boostOf ? G.boostOf("sut") : 0;
+    return { a, b0, has: typeof G.boostOf === "function" };
+  });
+  assert(r.has, "boostOf tanımlı");
+  // boost 0 iken de eff sayıdır; boost varsa eff içinde yer alır (kaynakta doğrulanır)
+  const src = fs.readFileSync(path.join(ROOT, "src/core.js"), "utf8");
+  assert(/late\.boostOf\s*\?\s*late\.boostOf\(k\)/.test(src), "eff boostOf içermeli");
+  assert(typeof r.a === "number" && !isNaN(r.a), "eff sayı");
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);

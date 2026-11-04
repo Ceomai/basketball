@@ -55,7 +55,14 @@ export function ovr() {
 export function eff(k) {
   // moral maçta daha belirgin: 50'nin altı ve üstü ±8'e kadar (önceden ±5)
   return clamp(
-    statVal(k) - TD() + (S.energy - 60) / 6 + (S.moral - 50) / 6.25 + (S.buffs.motive ? 4 : 0) + (S.buffs.scoutK === k ? 4 : 0),
+    statVal(k) -
+      TD() +
+      (S.energy - 60) / 6 +
+      (S.moral - 50) / 6.25 +
+      (S.buffs.motive ? 4 : 0) +
+      (S.buffs.scoutK === k ? 4 : 0) +
+      (late.boostOf ? late.boostOf(k) : 0) + // maç günü güçlendiricileri (src/gear.js)
+      (late.effMod ? late.effMod() : 0), // karar anı durumu / ikinci karar (src/court.js)
     3,
     100
   );
