@@ -127,7 +127,9 @@ export function locEv(I, tab = "vitrin") {
     ["kariyer", $t("places.4")],
     ...(late.unlocked("miras") ? [["miras", $t("places.350")]] : []),
     ["ev", $t("places.5")],
-    ["stil", $t("sty.title")]
+    ["stil", $t("sty.title")],
+    ["tasarim", $t("cu.title")],
+    ["rozet", $t("ft.title")]
   ];
   sheet(
     I.n,
@@ -158,15 +160,21 @@ export function locEv(I, tab = "vitrin") {
       if (v) {
         v.innerHTML = "";
         v.appendChild(cv);
+        v.style.position = "relative";
+        v.insertAdjacentHTML("beforeend", late.decorOverlay());
       }
     });
     bindActs({ rest: restAct });
+    c.insertAdjacentHTML("beforeend", late.decorHTML()); // ev dekoru (src/custom.js)
+    late.bindDecor(() => locEv(I, "vitrin"));
   }
   if (tab === "stil") late.styleTab(c, () => locEv(I, "stil"));
+  if (tab === "tasarim") late.designTab(c, () => locEv(I, "tasarim"));
+  if (tab === "rozet") late.featsTab(c, () => locEv(I, "rozet"));
   if (tab === "genel") {
     const rs = late.rated();
     const avg = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(2) : "–";
-    c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start"><div id="pp"></div><div style="flex:1;min-width:0"><div class="eyebrow">${POS[S.pos].n} · #${S.num}</div><h2>${esc(fullName())}</h2><div class="small muted">${$t(
+    c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start"><div id="pp"></div><div style="flex:1;min-width:0"><div class="eyebrow">${POS[S.pos].n} · #${S.num}</div><h2>${esc(fullName())}</h2>${late.titleText() ? `<div class="small gold">${esc(late.titleText())}</div>` : ""}<div class="small muted">${$t(
       "places.19",
       {
         age: S.age
@@ -1542,8 +1550,9 @@ export function locKafe(I) {
           }
     ]
       .map(prodHTML)
-      .join("")}</div>`
+      .join("")}</div>${late.quizHTML()}`
   );
+  late.bindQuiz(); // bilgi gecesi (src/venues.js)
   addScene(b, "kafe", $t("places.348"), {
     friend: {
       L: { skin: SKINS[hash(f) % 4], hatStyle: "bere", hat: "#2d8a3e", pom: "#f4c534" },

@@ -69,6 +69,7 @@ export const SETTINGS = (() => {
         errorReports: true,
         fs: "m",
         cb: false,
+        theme: "default",
         diff: "normal"
       },
       JSON.parse(localStorage.getItem("pota-settings") || "{}")

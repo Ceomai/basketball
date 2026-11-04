@@ -60,7 +60,7 @@ export function locAkademi(I) {
             )
             .join("")}`
         : ""
-    }`
+    }${late.gradsHTML()}`
   );
   $$("[data-ak]").forEach(b => (b.onclick = () => coach(+b.dataset.ak)));
   $$("[data-ac]").forEach(

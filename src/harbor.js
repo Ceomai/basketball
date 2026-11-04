@@ -64,7 +64,7 @@ export function locLiman(I) {
     ${st === 1 ? `<div class="act"><div><h3>${$t("hb.propose")}</h3><p>${$t("hb.proposeD", { v: fmt(ringCost) })}</p></div><button class="btn good sm" id="hb-prop" ${S.money < ringCost || S.rel.partner < 80 ? "disabled" : ""}>${$t("hb.ask")}</button></div>` : ""}
     ${st === 2 ? `<div class="act"><div><h3>${$t("hb.wedding")}</h3><p>${$t("hb.weddingD", { v: fmt(wedCost) })}</p></div><button class="btn good sm" id="hb-wed" ${!S.weddingReady || S.money < wedCost ? "disabled" : ""}>${$t("hb.marry")}</button></div>` : ""}`;
   }
-  sheet(I.n, $t("hb.sub"), body);
+  sheet(I.n, $t("hb.sub"), body + late.kidHTML());
   const w = $("#hb-walk");
   if (w)
     w.onclick = () => {
@@ -183,14 +183,14 @@ export function locBorsa(I) {
   sheet(
     I.n,
     $t("bs.sub"),
-    `<div class="card"><div class="kv"><span>${$t("bs.value")}</span><b class="gold">${fmt(Math.round(value))}</b><span>${$t("bs.cash")}</span><b>${fmt(S.money)}</b></div><p class="small muted">${$t("bs.note")}</p></div>${STOCKS.map(
+    `<div class="card"><div class="kv"><span>${$t("bs.value")}</span><b class="gold">${fmt(Math.round(value))}</b><span>${$t("bs.cash")}</span><b>${fmt(S.money)}</b></div><p class="small muted">${$t("bs.note")}</p></div>${late.borsaExtraHTML()}${STOCKS.map(
       s => {
         const h = m.h[s.id],
           prev = h[h.length - 2] ?? h[0],
           ch = ((m.p[s.id] - prev) / prev) * 100,
           own = m.own[s.id] || 0,
           pl = own ? Math.round(own * m.p[s.id] - (m.cost[s.id] || 0)) : 0;
-        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: m.p[s.id].toFixed(2), n: own })}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2" style="grid-column:1/-1"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
+        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: m.p[s.id].toFixed(2), n: own })}${late.stockInfo(s.id)}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2" style="grid-column:1/-1"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
       }
     ).join("")}`
   );

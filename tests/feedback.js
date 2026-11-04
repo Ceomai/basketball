@@ -632,6 +632,346 @@ test("maç günü güçlendirmesi efektif niteliğe yansır", async () => {
   return p;
 });
 
+test("başarımlar: 100+ başarım, kariyer ve maç denetimi, unvan, kozmetik açılır ve yeni kariyerde kalır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    localStorage.removeItem("pota-feats");
+    for (const k of Object.keys(G.FEATS_ST.got)) delete G.FEATS_ST.got[k];
+    const n = G.FEATS.length;
+    const names = G.FEATS.map(f => G.featName(f) + "|" + G.featDesc(f));
+    const bad = names.filter(x => /ft\.|undefined/.test(x));
+    const before = G.cosOpen("c1");
+    G.S.career.trophies.push({ type: "champ", label: G.seasonLabel() + " · Şampiyon" });
+    G.S.career.pts = 600;
+    G.checkFeats();
+    const got = ["troph1", "champ", "pts1", "pts2"].map(id => G.featGot(id));
+    // maç başarımı: basket faulle kazanılan maç
+    G.checkMatchFeats({ win: true, and1: 1, pts: 12, ast: 10, reb: 10, fga: 5, fgm: 5, fta: 0, ftm: 0, tpm: 0, low: -14, us: 80, them: 70 });
+    const mf = ["andone", "triple", "perfect", "comeback"].map(id => G.featGot(id));
+    G.S.title = "champ";
+    return { n, bad, before, after: G.cosOpen("c1"), got, mf, title: G.titleText(), stored: !!JSON.parse(localStorage.getItem("pota-feats")).got.champ };
+  });
+  assert(r.n >= 100, "başarım sayısı: " + r.n);
+  assert(!r.bad.length, "eksik metin: " + r.bad.slice(0, 3));
+  assert(!r.before && r.after, "kupa kutlama hareketini açmalı");
+  assert(r.got.every(Boolean), "kariyer başarımları: " + r.got);
+  assert(r.mf.every(Boolean), "maç başarımları: " + r.mf);
+  assert(r.title === "Şampiyon" && r.stored, "unvan ve saklama");
+  await p.reload();
+  await p.waitForTimeout(400);
+  assert(await p.evaluate(() => window.Game.cosOpen("c1")), "kozmetik yeni oturumda da açık");
+  return p;
+});
+
+test("tasarım: ayakkabı ürettir (kart ve sahada), forma adı/numara, kutlama seçimi, tema; Başarımlar sekmesi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.money = 9000;
+    G.FEATS_ST.got.reb1 = 1; // Ribaund Kralı I → şerit desen
+    G.FEATS_ST.got.troph1 = 1; // omuz dansı
+    G.S.cuTab = "shoe";
+    G.locEv({ n: "Ev" }, "tasarim");
+  });
+  await p.click('#cu-pat [data-v="stripe"]');
+  await p.click('#cu-c1 [data-v="#141414"]');
+  await p.click("#cu-make");
+  const r1 = await p.evaluate(() => ({ shoe: window.Game.S.shoe, svg: /<svg/.test(window.Game.shoeSVG(window.Game.S.shoe)) }));
+  assert(r1.shoe.made && r1.shoe.pat === "stripe" && r1.shoe.c1 === "#141414" && r1.svg, "ayakkabı: " + JSON.stringify(r1));
+  await p.evaluate(() => {
+    window.Game.S.cuTab = "jersey";
+    window.Game.locEv({ n: "Ev" }, "tasarim");
+  });
+  await p.click('#cu-jn [data-v="first"]');
+  await p.click('#cu-num [data-v="7"]');
+  const r2 = await p.evaluate(() => ({ jn: window.Game.jName(), num: window.Game.S.num, svg: window.Game.jerseyBackSVG() }));
+  assert(r2.jn === "Deniz" && r2.num === 7 && /DENIZ/.test(r2.svg), "forma: " + JSON.stringify(r2).slice(0, 200));
+  await p.evaluate(() => {
+    window.Game.S.cuTab = "celeb";
+    window.Game.locEv({ n: "Ev" }, "tasarim");
+  });
+  assert(await p.isDisabled('[data-cb="archer"]'), "kilitli kutlama seçilemez");
+  await p.click('[data-cb="shimmy"]');
+  const r3 = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.cuTab = "theme";
+    G.locEv({ n: "Ev" }, "tasarim");
+    const lockedNight = document.querySelector('[data-th="night"]').disabled;
+    G.ADS.adFree = true;
+    G.locEv({ n: "Ev" }, "tasarim");
+    document.querySelector('[data-th="retro"]').click();
+    const th = document.documentElement.dataset.theme;
+    G.ADS.adFree = false;
+    G.SETTINGS.theme = "default";
+    G.applyTheme();
+    return { celeb: G.S.celeb, lockedNight, th };
+  });
+  assert(r3.celeb === "shimmy" && r3.lockedNight && r3.th === "retro", "kutlama/tema: " + JSON.stringify(r3));
+  await p.evaluate(() => window.Game.locEv({ n: "Ev" }, "rozet"));
+  assert((await p.$$(".ft")).length > 10, "Başarımlar listesi");
+  const cv = await p.evaluate(async () => !!(await window.Game.careerCardCanvas()));
+  assert(cv, "kariyer kartı ayakkabıyla çizilir");
+  return p;
+});
+
+test("ev dekoru konforu artırır; takım değişince yeni forma anı; sayıdan sonra kutlama", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const c0 = G.comfort();
+    G.S.decor = { p1: "p1", p2: null, rug: "r1" };
+    const c1 = G.comfort();
+    G.S.jTeam = "Eski Takım";
+    return { c0, c1, ov: /<svg/.test(G.decorOverlay()) };
+  });
+  assert(r.c1 === r.c0 + 3 && r.ov, "dekor konforu: " + JSON.stringify(r));
+  await p.evaluate(() => window.Game.Bus.first("week:sheet"));
+  await p.waitForSelector("#jy-ok", { timeout: 3000 });
+  assert(/kez giy/.test(await p.textContent(".sheet")), "yeni forma metni");
+  await p.click("#jy-ok");
+  const r2 = await p.evaluate(() => {
+    const G = window.Game;
+    const n0 = (G.S.fx && G.S.fx.celeb) || 0;
+    document.body.insertAdjacentHTML("beforeend", '<div id="mcourt"></div>');
+    G.celebrate();
+    return { n: G.S.fx.celeb - n0, el: !!document.querySelector("#mcourt .celeb"), jt: G.S.jTeam === G.S.team.name };
+  });
+  assert(r2.n === 1 && r2.el && r2.jt, "kutlama: " + JSON.stringify(r2));
+  return p;
+});
+
+test("maç günü: hakem, atmosfer, rakip yıldız kartı maç öncesi; hakem faul ve basket faul şansını değiştirir; seyirci etkisi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m]", { timeout: 8000 });
+  const txt = await p.textContent("#mview");
+  assert(/Hakem/.test(txt) && /yıldızı/.test(txt) && /Atmosfer/.test(txt), "maç öncesi kart: " + txt.slice(0, 200));
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      M = G.M;
+    const out = {};
+    for (const ref of ["strict", "normal", "lenient"]) {
+      M.ref = ref;
+      out[ref] = [G.refMul(), G.refAnd1()];
+    }
+    M.home = true;
+    M.hypeOn = 0;
+    const b0 = G.crowdBoost();
+    M.hypeOn = 2;
+    const b1 = G.crowdBoost();
+    M.home = false;
+    M.loud = true;
+    const b2 = G.crowdBoost();
+    M.home = true;
+    M.hypeOn = 0;
+    M.hype = 95;
+    G.afterMoment("pull", "pull", { good: true });
+    return { out, b0, b1, b2, hypeOn: M.hypeOn, line: G.crowdLine() };
+  });
+  assert(r.out.strict[0] > 1 && r.out.lenient[0] < 1 && r.out.strict[1] > r.out.lenient[1], "hakem: " + JSON.stringify(r.out));
+  assert(r.b0 === 0 && r.b1 > 0 && r.b2 < 0, "seyirci etkisi: " + JSON.stringify(r));
+  assert(r.hypeOn > 0 && /Seyirci/.test(r.line), "heyecan çubuğu dolar");
+  return p;
+});
+
+test("kimya: başarılı pas kimyayı artırır, yeterince yüksekse ikili kombinasyon gelir; kilit anda Oyunu kur oklarla", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m]", { timeout: 8000 });
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      M = G.M;
+    const v0 = G.chemVal();
+    G.afterMoment("kick", "kick", { good: true });
+    const v1 = G.chemVal();
+    G.S.chem.v = 60;
+    const R = Math.random;
+    Math.random = () => 0.1;
+    const o = G.extraOffOpts([{ k: "pull", t: "x", d: "d", e: 50 }], true, false);
+    const oa = G.extraOffOpts([{ k: "pull", t: "x", d: "d", e: 50 }], true, true);
+    Math.random = R;
+    G.afterMoment("duo", "lob", { good: true });
+    return { v0, v1, keys: o.map(x => x.k), auto: oa.length, combo: M.combo, v2: G.chemVal() };
+  });
+  assert(r.v1 > r.v0, "pas kimyayı artırır");
+  assert(r.keys.includes("duo") && r.keys.includes("set") && r.auto === 1, "ek seçenekler: " + JSON.stringify(r));
+  assert(r.combo === 1 && r.v2 > 60, "kombinasyon sayılır");
+  // oyun kur ekranı
+  await p.evaluate(() => {
+    window.__sp = window.Game.setPlay(document.querySelector("#mview"));
+  });
+  await p.click('#sp-s [data-v="C"]');
+  await p.click('#sp-r [data-v="paint"]');
+  const arrows = await p.evaluate(() => document.querySelector("#arrows").innerHTML.length);
+  await p.click("#sp-go");
+  const res = await p.evaluate(() => window.__sp);
+  assert(arrows > 50, "sahada oklar");
+  assert(res.pk === "lay" && res.fit && res.mod > 0, "set: " + JSON.stringify(res));
+  return p;
+});
+
+test("rakip yıldız düellosu maç sonunda; kazanınca başarım ve takipçi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
+  });
+  await p.waitForSelector("#nx", { timeout: 60000 });
+  const t = await p.textContent("#ovl");
+  assert(/Yıldız düellosu/.test(t), "düello kartı");
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    return { won: G.M.duelWon, star: G.M.star.pts, me: G.M.pts };
+  });
+  assert(r.won === (r.me > r.star), "düello sonucu: " + JSON.stringify(r));
+  return p;
+});
+
+test("stüdyo: canlı yayın (3 soru, cevap tarzı), ortak video (kimya), takipçi rekorları", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.slot = 3;
+    G.S.energy = 90;
+    G.locStudio({ n: "Stüdyo" });
+  });
+  assert(/Kanal rekorları/.test(await p.textContent(".sheet")), "rekor kartı");
+  const f0 = await p.evaluate(() => window.Game.S.followers);
+  await p.click("#vn-live");
+  for (let i = 0; i < 3; i++) {
+    await p.waitForSelector("[data-ls]");
+    await p.click('[data-ls="warm"]');
+  }
+  await p.waitForTimeout(200);
+  const r = await p.evaluate(() => ({ f: window.Game.S.followers, rec: window.Game.S.channel.rec, live: window.Game.S.fx.live }));
+  assert(r.f > f0 && r.rec.live > 0 && r.live === 1, "canlı yayın: " + JSON.stringify(r));
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.slot = 3;
+    G.S.chem = { n: "A. Test", v: 20 };
+    G.locStudio({ n: "Stüdyo" });
+  });
+  assert(await p.isDisabled("#vn-live"), "canlı yayın haftada bir");
+  await p.click("#vn-col");
+  const c = await p.evaluate(() => window.Game.S.chem.v);
+  assert(c === 25, "ortak video kimya: " + c);
+  return p;
+});
+
+test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te basketbol isteği varis kariyerine bağlanır; yıldönümü", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.acad = { prestige: 10, kids: [], cand: [], grads: [{ n: "Ali Mezun", pos: "PG", pro: true, s: "x" }], cups: 0, wk: 0 };
+    G.setM({ opp: { name: "Rakip SK" }, pts: 0, feed: [] });
+    const R = Math.random;
+    Math.random = () => 0.05;
+    const foes = ["A", "B", "C"],
+      mates = ["X", "Y"];
+    G.gradMeet(foes, mates);
+    Math.random = R;
+    G.S.partner = "Eş";
+    G.S.pstage = 4;
+    G.Bus.emit("week:start");
+    return { foes, grad: G.S.acad.grads[0], meet: G.S.fx.gradMeet, kid: !!G.S.kid, wed: !!G.S.wed, html: G.gradsHTML() };
+  });
+  assert(r.foes[1] === "Ali Mezun" && r.grad.club === "Rakip SK" && r.meet === 1, "mezun: " + JSON.stringify(r));
+  assert(/Mezunlar/.test(r.html) && r.kid && r.wed, "mezun listesi, çocuk, nikâh kaydı");
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.S.kid.born = G.S.season - 14;
+    G.S.week = 5;
+    G.Bus.first("week:sheet");
+  });
+  await p.waitForSelector('[data-kd="1"]', { timeout: 3000 });
+  await p.click('[data-kd="1"]');
+  const h = await p.evaluate(() => window.Game.heirKid());
+  assert(h.baller && h.n, "varis çocuk");
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.wed = { s: G.S.season - 2, w: G.S.week };
+    G.S.annWk = "";
+    G.S.money = 5000;
+    G.Bus.first("week:sheet");
+  });
+  await p.waitForSelector('[data-an="trip"]', { timeout: 3000 });
+  const rp = await p.evaluate(() => window.Game.S.rel.partner);
+  await p.click('[data-an="trip"]');
+  assert((await p.evaluate(() => window.Game.S.rel.partner)) > rp, "yıldönümü ilişkiyi artırır");
+  return p;
+});
+
+test("kafe bilgi gecesi (5 soru, 4 doğru kazanır); gece sokak ligi tablosu ve 10 hafta sonunda şampiyonluk", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.slot = 3;
+    G.S.money = 100;
+    G.locKafe({ n: "Kafe" });
+  });
+  await p.click("#vn-quiz");
+  // doğru cevapları sözlükten bilmeden: her soruda ilk şıkkı seç, sonuç ekranı gelir
+  for (let i = 0; i < 5; i++) {
+    await p.waitForSelector("[data-qa]");
+    await p.click("[data-qa]");
+  }
+  await p.waitForTimeout(200);
+  assert(await p.evaluate(() => window.Game.S.quizWk === `${window.Game.S.season}-${window.Game.S.week}`), "bilgi gecesi oynandı");
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.age = 17;
+    const html = G.nightLeagueHTML();
+    const L = G.S.sl;
+    L.round = 10;
+    L.t.me.w = 10;
+    return { html: /Gece sokak ligi/.test(html) && /Senin ekip/.test(html), teams: Object.keys(L.t).length };
+  });
+  assert(r.html && r.teams === 6, "lig tablosu: " + JSON.stringify(r));
+  return p;
+});
+
+test("borsa: sektör haberleri fiyatı oynatır, 4 haftada temettü, endeks; oyuncu performansına bağlı değil", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.locBorsa({ n: "Borsa" });
+    const m = G.S.mkt2;
+    m.own.gda = 100;
+    const m0 = G.S.money;
+    const R = Math.random;
+    Math.random = () => 0.1;
+    for (let i = 0; i < 4; i++) G.Bus.emit("week:start");
+    Math.random = R;
+    G.locBorsa({ n: "Borsa" });
+    return { news: m.news.length, idx: m.idx.length, div: G.S.money > m0, html: document.querySelector(".sheet").textContent };
+  });
+  assert(r.news >= 1 && r.idx >= 4, "haber/endeks: " + JSON.stringify(r).slice(0, 200));
+  assert(r.div, "temettü geliri");
+  assert(/Piyasa endeksi/.test(r.html) && /risk/.test(r.html), "borsa ekranı");
+  const src = require("fs").readFileSync(require("path").join(ROOT, "src/venues.js"), "utf8");
+  assert(!/rating|M\.pts/.test(src.slice(src.indexOf("BORSA"))), "borsa performansa bağlı olmamalı");
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
@@ -1114,7 +1454,8 @@ test("haftalık hazırlık her maç haftasında: şut seansı, video, odaklanma;
   await career(p);
   await p.evaluate(() => window.Game.openLoc("stad", "mac"));
   assert(
-    (await p.isVisible("#pr-shot")) && (await p.isVisible("#pr-focus")) && !(await p.$("#pr-press")),
+    // derbi/zirve haftasında şut seansı yerine basın toplantısı gelir
+    ((await p.isVisible("#pr-shot")) !== !!(await p.$("#pr-press"))) && (await p.isVisible("#pr-focus")),
     "haftalık hazırlık düğmeleri"
   );
   await p.evaluate(() => {
@@ -1252,7 +1593,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [

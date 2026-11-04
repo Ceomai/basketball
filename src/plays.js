@@ -117,12 +117,12 @@ export const foulRisky = k => k in RISK;
 export const foulNote = k => (k in RISK ? ` · ${$t("pf.risk")}` : "");
 /** Savunma anı sonrası: başarısız riskli hamle faul olabilir. Faul olduysa açıklama metni döner. */
 export function foulAfterMoment(k, good) {
-  if (good || !(k in RISK) || Math.random() >= RISK[k]) return "";
+  if (good || !(k in RISK) || Math.random() >= RISK[k] * late.refMul()) return ""; // hakem kişiliği (src/matchday.js)
   return addFoul();
 }
 /** Arka plan savunmasında ara sıra faul */
 export function backgroundFoul() {
-  return Math.random() < 0.015 ? addFoul() : "";
+  return Math.random() < 0.015 * late.refMul() ? addFoul() : "";
 }
 export function addFoul() {
   if (!M || M.fo) return "";

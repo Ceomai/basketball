@@ -93,6 +93,7 @@ async function toMain(p, limit = 400) {
         "#pk-no",
         "#mt-stay",
         "#hk-ok",
+        "#jy-ok",
         "#hk-a",
         "#nt-sim",
         "#nt-done",
