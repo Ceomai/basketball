@@ -464,6 +464,7 @@ export function finishMatch(win) {
          })}</div>`
        : ""
    }
+   ${late.reportHTML()}
    ${late.gainsHTML()}
    ${late.adDoubleHTML(bonus)}<button class="btn pri" id="nx">${$t("ads.25")}</button>`,
     { noClose: true }

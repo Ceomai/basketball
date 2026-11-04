@@ -42,7 +42,7 @@ export function pickOffOpts(opts, clutch) {
   const n = clutch ? 5 : 4;
   if (opts.length <= n) return opts;
   const sh = a => a.slice().sort(() => Math.random() - 0.5);
-  const out = [];
+  const out = opts.filter(o => o.fav).slice(0, 1); // konumuna uyan seçenek mutlaka gelir (src/court.js)
   for (const cat of sh([THREE, TWO, FIN, PASSK])) {
     const c = sh(opts.filter(o => cat.includes(o.k) && !out.includes(o)))[0];
     if (c && out.length < n) out.push(c);
