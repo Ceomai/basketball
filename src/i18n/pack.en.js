@@ -3,5 +3,6 @@ import enManual from "./en.js";
 import enAuto from "./en.auto.js";
 import EN_BASE from "../content/events.en.js";
 import EN_MORE from "../content/events.more.en.js";
+import EN_HARD from "../content/events.hard.en.js";
 export const dict = { ...enAuto, ...enManual };
-export const events = [...EN_BASE, ...EN_MORE];
+export const events = [...EN_BASE, ...EN_MORE, ...EN_HARD];

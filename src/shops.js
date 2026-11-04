@@ -1093,6 +1093,8 @@ export function locEglence(I, tab = "arcade") {
   if (tab === "arcade") {
     c.insertAdjacentHTML("beforeend", late.arcBoardCard());
     $("#brd").onclick = () => late.boardSheet("arcade", "w");
+    c.insertAdjacentHTML("beforeend", late.arcMateHTML());
+    late.bindArcMate(() => locEglence(I, "arcade"));
     c.insertAdjacentHTML(
       "beforeend",
       `<div class="eyebrow">${$t("shops.17")}</div><div class="pgrid">${ARCADE.map(g =>
@@ -1123,6 +1125,9 @@ export function locEglence(I, tab = "arcade") {
       );
       return;
     }
+    // gece kulübü ziyareti: koç ilişkisi -3, moral +3 (haftada bir kez)
+    const nv = late.nightVisit("club");
+    if (nv) c.insertAdjacentHTML("beforeend", `<div class="say" style="border-left-color:var(--warn)">${nv}</div>`);
     const ix = ORDER.indexOf(S.stage),
       pp = Math.round(15 * (1 + ix)),
       vp = Math.round(120 * (1 + ix * 2)),
@@ -1327,6 +1332,7 @@ export async function arcadeRun(kind, paid) {
     S.followers *= 1.05;
     extra = $t("shops.42");
   }
+  if (kind !== "karaoke") extra += late.arcMateResult(r.score);
   norm();
   save();
   $("#stg").innerHTML = "";

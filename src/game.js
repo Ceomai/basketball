@@ -50,6 +50,9 @@ import * as hooks from "./hooks.js";
 import * as peaks from "./peaks.js";
 import * as progress from "./progress.js";
 import * as lifestyle from "./lifestyle.js";
+import * as social from "./social.js";
+import * as style from "./style.js";
+import * as agent from "./agent.js";
 
 const MODULES = [
   data,
@@ -100,7 +103,10 @@ const MODULES = [
   hooks,
   peaks,
   progress,
-  lifestyle
+  lifestyle,
+  social,
+  style,
+  agent
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

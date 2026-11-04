@@ -231,7 +231,7 @@ export function drawKid(c, x, y, s, L, o = {}) {
   c.arc(-4 + lx, ey + 1, 2.6, 0, 7);
   c.arc(4 + lx, ey + 1, 2.6, 0, 7);
   c.fill();
-  if (o.glasses) {
+  if (o.glasses || L.glasses) {
     c.beginPath();
     c.moveTo(-1, ey);
     c.lineTo(1, ey);
@@ -240,6 +240,31 @@ export function drawKid(c, x, y, s, L, o = {}) {
     ell(c, 9, ey, 11, 13, null, 0.18);
   }
   const my = hY + 18;
+  // sakal (oyuncunun görünümü: kirli sakal, sakal, keçi sakal); ağız üstüne çizilir
+  if (L.beard && L.beard !== "yok") {
+    const bc = L.hair || INK;
+    c.save();
+    if (L.beard === "keci") {
+      ell(c, 2, hY + 27, 9, 7, bc);
+    } else {
+      c.beginPath();
+      c.ellipse(0, hY, 38, 33, 0, 0.12 * Math.PI, 0.88 * Math.PI);
+      c.quadraticCurveTo(0, hY + 4, 35.2, hY + 12.3);
+      c.closePath();
+      if (L.beard === "kirli") {
+        c.globalAlpha = 0.35;
+        c.fillStyle = bc;
+        c.fill();
+      } else {
+        c.fillStyle = bc;
+        c.fill();
+        c.stroke();
+      }
+    }
+    c.restore();
+    c.strokeStyle = INK;
+    c.fillStyle = INK;
+  }
   c.beginPath();
   if (o.mood === "mutlu") {
     c.arc(2, my - 4, 6, 0.15, Math.PI - 0.15);
@@ -254,7 +279,7 @@ export function drawKid(c, x, y, s, L, o = {}) {
     c.lineTo(7, my - 1);
     c.stroke();
   }
-  if (o.mustache) {
+  if (o.mustache || L.mustache) {
     c.beginPath();
     c.moveTo(-14, my - 6);
     c.quadraticCurveTo(2, my - 14, 18, my - 6);

@@ -54,7 +54,11 @@ export function ovr() {
 }
 export function eff(k) {
   // moral maçta daha belirgin: 50'nin altı ve üstü ±8'e kadar (önceden ±5)
-  return clamp(statVal(k) - TD() + (S.energy - 60) / 6 + (S.moral - 50) / 6.25 + (S.buffs.motive ? 4 : 0), 3, 100);
+  return clamp(
+    statVal(k) - TD() + (S.energy - 60) / 6 + (S.moral - 50) / 6.25 + (S.buffs.motive ? 4 : 0) + (S.buffs.scoutK === k ? 4 : 0),
+    3,
+    100
+  );
 }
 export function fame() {
   return clamp(Math.round(Math.log10(Math.max(10, S.followers)) * 16 - 28), 0, 100);

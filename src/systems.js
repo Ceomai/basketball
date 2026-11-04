@@ -218,6 +218,7 @@ export function recordGame() {
     reb: s.reb + M.reb,
     blk: s.blk + M.blk,
     stl: s.stl + M.stl,
+    tch: (s.tch || 0) + (M.touches || 0),
     rs: s.rs + M.rating
   });
   const h = (S.career.high = S.career.high || { pts: 0, ast: 0, reb: 0 });
@@ -594,6 +595,7 @@ export function rosterTab(c) {
     best = r.reduce((a, b) => (b.chem > a.chem ? b : a));
   c.innerHTML =
     late.systemHTML() +
+    late.trustCardHTML() +
     late.charactersHTML() +
     `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("systems.50", {
       name: esc(S.team.name)

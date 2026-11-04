@@ -24,3 +24,5 @@ jobs:
       - run: node tests/revenue.js
       # oyuncuyu tutma: Efsaneler, Günün Maçı, ertesi güne kalan anlar, Yıldızlar Hafta Sonu, ara transfer
       - run: node tests/retention.js
+      # oyuncu geri bildirimi turu: gelişim, ekonomi, konfor, takım ilişkisi, kumarhane, stil, sponsor, hazırlık
+      - run: node tests/feedback.js
