@@ -8,8 +8,9 @@ import { LANG, PACKS } from "../i18n/index.js";
 import { late } from "../late.js";
 import TR_BASE from "./events.tr.js";
 import TR_MORE from "./events.more.tr.js";
+import TR_HARD from "./events.hard.tr.js";
 
-const TR = [...TR_BASE, ...TR_MORE];
+const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD];
 // çeviri paketleri dil yüklenince i18n/index.js → PACKS.events içine gelir
 const CONDITIONS = {
   home: () => S.city === S.home,
@@ -89,8 +90,9 @@ function applyFx(fx, ctx) {
     else if (k === "followers") S.followers = typeof v === "string" && v[0] === "x" ? S.followers * +v.slice(1) : S.followers + v;
     else if (k === "statUp") S.st[ctx.statKey] += v;
     else if (k === "partner") {
-      S.partner = ctx.fem;
-      S.rel.partner = 55;
+      // true: partner olur; false: ayrılık
+      S.partner = v ? ctx.fem : null;
+      S.rel.partner = v ? 55 : 0;
     } else S[k] += v; // moral, energy, aka
   }
 }
@@ -132,6 +134,7 @@ export function eventPool() {
       const c = { ...ctx, title: ev.title };
       return {
         w: ev.w,
+        hard: !!ev.hard,
         who: fill(ev.who, c),
         title: ev.title,
         text: fill(ev.text, c),

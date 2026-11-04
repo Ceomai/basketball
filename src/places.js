@@ -117,7 +117,8 @@ export function locEv(I, tab = "vitrin") {
     ["finans", $t("places.3")],
     ["kariyer", $t("places.4")],
     ...(late.unlocked("miras") ? [["miras", $t("places.350")]] : []),
-    ["ev", $t("places.5")]
+    ["ev", $t("places.5")],
+    ["stil", $t("sty.title")]
   ];
   sheet(
     I.n,
@@ -152,6 +153,7 @@ export function locEv(I, tab = "vitrin") {
     });
     bindActs({ rest: restAct });
   }
+  if (tab === "stil") late.styleTab(c, () => locEv(I, "stil"));
   if (tab === "genel") {
     const rs = late.rated();
     const avg = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(2) : "–";
@@ -227,7 +229,7 @@ export function locEv(I, tab = "vitrin") {
         en: HOUSING[S.housing].en
       }
     )}</p></div></div></div>
-     ${late.comfortHTML()}
+     ${late.comfortHTML()}${late.housePartyHTML()}
      ${
        can
          ? `<div class="pgrid">${opts
@@ -297,6 +299,7 @@ export function locEv(I, tab = "vitrin") {
         })
     );
     bindActs(m);
+    late.bindHouseParty(() => locEv(I, "ev"));
   }
 }
 export function restAct() {
@@ -406,7 +409,7 @@ export function locStad(I, tab = "mac") {
            })}</p>`
          : ""
      }</div>
-     ${late.adEnergyHTML()}${late.derbyNote(opp)}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
+     ${late.adEnergyHTML()}${late.derbyNote(opp)}${late.prepHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
       late.playMatch();
@@ -416,6 +419,7 @@ export function locStad(I, tab = "mac") {
       late.playMatch({ opp, home: fx.home, comp: "lig", label: `${lgName()} · ${phaseName()}`, auto: true });
     };
     late.bindAdEnergy(() => locStad(I, "mac"));
+    late.bindPrep(() => locStad(I, "mac"));
   }
   if (tab === "idman" && S.injury) {
     c.innerHTML =
@@ -951,6 +955,8 @@ export function locOkul(I) {
           ],
           btn: $t("places.293")
         }) +
+        late.sponsorDealHTML() +
+        late.agentExtrasHTML() +
         (S.transferReq === S.season
           ? `<p class="small warn">${$t("places.161")}</p>`
           : actHTML({
@@ -967,6 +973,7 @@ export function locOkul(I) {
             }))
     );
     addScene(b, "ofis", fame() > 40 ? $t("places.336") : $t("places.337"));
+    late.bindAgentExtras();
     bindActs({
       tr: () => {
         S.transferReq = S.season;
@@ -991,7 +998,7 @@ export function locOkul(I) {
           ]
         );
       },
-      sp: () => negotiate(sp),
+      sp: () => late.sponsorTalk(sp),
       pr: () => {
         useSlot();
         const g = ri(2, 6);

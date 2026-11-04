@@ -12,8 +12,8 @@ export const WHEEL = [
   35, 3, 26
 ];
 export const REDS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
-/* Oyun Kulübü: yalnızca fişle oynanır. Fişler parayla alınamaz, paraya çevrilemez; her hafta en az 500'e tamamlanır.
-   Ödül olarak sadece vitrin kupaları verilir. */
+/* Kumarhane: fişle oynanır. Fiş kasada parayla alınır ve paraya çevrilir (kur kariyer seviyesine göre, src/social.js).
+   Ziyaret koçla ilişkiyi düşürür, moral ve soğukkanlılık kazandırır. Fiş biterse haftalık 100 fişlik teselli. */
 export let BET = 10;
 export const chips = () => {
   if (S.chips == null) S.chips = 1000;
@@ -86,7 +86,10 @@ export function locSans(I, game = "rulet") {
   $$(".tabs button").forEach(x => (x.onclick = () => locSans(I, x.dataset.g)));
   addScene(b, "sans", { rulet: $t("casino.44"), bj: $t("casino.45"), slot: $t("casino.46") }[game]);
   ({ rulet: roulette, bj: blackjack, slot: slots })[game](I);
-  b.insertAdjacentHTML("beforeend", `<p class="small muted">${$t("casino.18")}</p>`);
+  b.insertAdjacentHTML("beforeend", late.cashierHTML());
+  late.bindCashier(() => locSans(I, game));
+  const nv = late.nightVisit("sans");
+  if (nv) b.insertAdjacentHTML("afterbegin", `<div class="say" style="border-left-color:var(--warn)">${nv}</div>`);
 }
 export function roulette(I) {
   const c = $("#gc");
@@ -224,7 +227,7 @@ export function roulette(I) {
             bet = btn.dataset.p;
           const win =
             bet === col || (n > 0 && ((bet === "odd" && n % 2) || (bet === "even" && n % 2 === 0) || (bet === "low" && n <= 18)));
-          const pay = win ? (bet === "g" ? BET * 36 : BET * 2) : 0;
+          const pay = win ? (bet === "g" ? BET * 36 : Math.round(BET * 2.1)) : 0;
           if (pay) chipTx(pay);
           // dönüş sırasında panel kapatılmış olabilir: sonuç yine kaydedilir, rulet kilitli kalmaz
           busy = false;
@@ -414,7 +417,7 @@ export function slots(I) {
     }
     let pay = 0;
     if (res[0] === res[1] && res[1] === res[2]) pay = BET * SYM[res[0]][2];
-    else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) pay = Math.round(BET * 1.5);
+    else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) pay = Math.round(BET * 1.8);
     if (pay) chipTx(pay);
     busy = false;
     norm();

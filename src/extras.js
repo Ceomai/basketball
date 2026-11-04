@@ -458,7 +458,7 @@ export function weeklyHooks() {
       })}${got.length > 1 ? $t("extras.57") : ""}`
     );
   }
-  if (S.chips != null && S.chips < 500) S.chips = 500;
+  if (S.chips != null && S.chips < 100) S.chips = 100; // teselli fişi (fiş artık paraya çevrilebildiği için küçük)
   Bus.emit("week:start");
   Bus.first("week:sheet"); // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur
 }

@@ -261,9 +261,11 @@ export async function playMatch(ctx) {
     } else M.stint = Math.max(0, M.stint - dur * 2);
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
-    const involve = 0.08 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0);
+    // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
+    const involve = 0.08 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0);
     const before = [M.us, M.them];
     if (on && Math.random() < involve) {
+      if (ourBall) M.touches = (M.touches || 0) + 1;
       await moment(ourBall, clutch);
     } else simPossession(ourBall);
     if (on) M.plus += M.us - before[0] - (M.them - before[1]);
@@ -317,8 +319,9 @@ export async function playMatch(ctx) {
       else M.them += pts;
       if (us && on) {
         const sk = (eff("sut") + eff("hiz") + eff("guc")) / 3,
-          share = { star: 0.21, rot: 0.13, bench: 0.08 }[role] * (0.6 + (clamp(sk, 0, 100) / 100) * 0.8);
+          share = { star: 0.21, rot: 0.13, bench: 0.08 }[role] * (0.6 + (clamp(sk, 0, 100) / 100) * 0.8) * late.passTrustMul();
         if (Math.random() < share) {
+          M.touches = (M.touches || 0) + 1;
           M.pts += pts;
           M.autoPts = (M.autoPts || 0) + pts;
           if (mode === "full")

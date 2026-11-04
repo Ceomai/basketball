@@ -376,6 +376,7 @@ export function finishMatch(win) {
   const r = M.rating,
     opp = M.opp;
   S.buffs.motive = 0;
+  S.buffs.scoutK = null; // video analizi avantajı tek maçlık (src/agent.js)
   late.matchStatGains(M); // maç istatistiğine göre ondalık gelişim (src/progress.js)
   const bonus = matchBonus({ stage: S.stage, wage: S.wage, rating: r, win });
   if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("match.132"), Math.round(S.wage * 0.15));
@@ -428,7 +429,7 @@ export function finishMatch(win) {
      v: Math.round((M.mins || 0) / 60),
      v2: (M.plus || 0) >= 0 ? "+" : "",
      v3: M.plus || 0
-   })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b></div>
+   })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}</div>
    ${
      inj
        ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("match.34")}</b> ${$t("match.35", {
@@ -564,6 +565,7 @@ export function endWeek() {
       S.moral -= 15;
     }
   }
+  late.sponsorWeekly(); // haftalık sponsor ödemesi (src/agent.js)
   S.rel.aile -= 2;
   S.rel.ark -= 2;
   // moral kendiliğinden bir taban değere döner (galibiyetlerin morali sonsuza dek taşımaması için); taban konfora bağlı
@@ -666,7 +668,12 @@ export function randomEvent(after) {
   const now = weekIndex(),
     fresh = late.eventPool().filter(x => !(S.evSeen[x.title] && now - S.evSeen[x.title] < 60));
   if (!fresh.length) return after();
-  const e = pick(fresh);
+  // zorlu olaylar (events.hard.tr.js): olay haftalarının ~%30'unda (haftaların ~%10'u) bunlardan biri seçilir
+  const hard = fresh.filter(x => x.hard);
+  const e =
+    hard.length && Math.random() < 0.3
+      ? pick(hard)
+      : pick(fresh.filter(x => !x.hard).length ? fresh.filter(x => !x.hard) : fresh);
   S.evSeen[e.title] = now;
   Bus.emit("event:show", { title: e.title });
   eventSheet({ ...e, look: LK[e.w]() }, after);
