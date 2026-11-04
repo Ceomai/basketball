@@ -54,6 +54,8 @@ import * as social from "./social.js";
 import * as style from "./style.js";
 import * as agent from "./agent.js";
 import * as plays from "./plays.js";
+import * as comps from "./comps.js";
+import * as natcup from "./natcup.js";
 
 const MODULES = [
   data,
@@ -108,7 +110,9 @@ const MODULES = [
   social,
   style,
   agent,
-  plays
+  plays,
+  comps,
+  natcup
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

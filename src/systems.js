@@ -221,7 +221,9 @@ export function recordGame() {
     tch: (s.tch || 0) + (M.touches || 0),
     rs: s.rs + M.rating
   });
-  const h = (S.career.high = S.career.high || { pts: 0, ast: 0, reb: 0 });
+  if (typeof S.career.high !== "object" || !S.career.high) S.career.high = { pts: +S.career.high || 0, ast: 0, reb: 0 };
+  const h = S.career.high;
+  S.career.prevHighPts = h.pts; // maç sonu gündemi "kariyer rekoru" haberi için (src/league.js)
   for (const k of ["pts", "ast", "reb"])
     if (M[k] > h[k]) {
       h[k] = M[k];
@@ -686,6 +688,7 @@ export function negotiateOffer(o, done) {
           agent: esc(S.npc.agent)
         }
       )}</div></div></div>
+      ${late.repHTML(offer.team, interest)}
       <div class="card"><div class="kv"><span>${$t("places.155")}</span><b class="gold">${fmt(offer.wage)}</b><span>${$t("match.39")}</span><b>${$t(
         "systems.69",
         {
@@ -703,6 +706,7 @@ export function negotiateOffer(o, done) {
       <div class="grid2"><button class="btn ghost" id="ng-back">${$t("systems.76")}</button><button class="btn good" id="ng-ok">${$t("systems.77")}</button></div>`,
       { noClose: true }
     );
+    late.mountRep(offer.team, interest);
     $$("[data-ask]").forEach(
       b =>
         (b.onclick = () => {

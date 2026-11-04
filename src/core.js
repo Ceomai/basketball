@@ -110,7 +110,7 @@ export function news(t) {
   S.news = S.news.slice(0, 8);
 }
 export const seasonLabel = () => `${S.year}–${String(S.year + 1).slice(2)}`;
-export const lgName = () => leagueName(S.stage, S.team.cc, S.stageSeason);
+export const lgName = () => leagueName(S.stage === "euro" ? "t1" : S.stage, S.team.cc, S.stageSeason);
 export function setTeamVars() {
   const t = S && S.team;
   const r = document.documentElement.style;
@@ -203,7 +203,12 @@ export function leagueTeams() {
     list = shuffle(LEAGUES.TR.cities.filter(c => c !== own.city))
       .slice(0, 7)
       .map(c => makeTeam("uni", c, 0));
-  else list = shuffle(leaguePool(st, own.cc).filter(t => t.key !== own.key && t.name !== own.name)).slice(0, 7);
+  // EuroLeague kulübü hafta sonu kendi ülkesinin ligini oynar; EuroLeague hafta içi ayrı turnuvadır (src/comps.js)
+  else
+    list = shuffle(leaguePool(st === "euro" ? "t1" : st, own.cc).filter(t => t.key !== own.key && t.name !== own.name)).slice(
+      0,
+      7
+    );
   list.forEach((t, i) => {
     if (!t.real && (t.c1 === own.c1 || t.c1 === own.c2)) {
       const alt = COLORS.filter(x => x[0] !== own.c1 && x[0] !== own.c2);
@@ -231,6 +236,7 @@ export function newSeasonLeague() {
   S.playoffOpp = null;
   S.ss = late.blankSS();
   late.newGoals(); // sezon hedefleri (src/goals.js)
+  late.setupComps(); // Avrupa, kupa ve Süper Kupa (src/comps.js)
   late.applyPainDebt(); // ağrı kesiciyle oynanan playoffun bedeli (src/dilemmas.js)
 }
 export const teamByKey = k => S.teams[k];
@@ -241,7 +247,7 @@ export function fixture() {
   return S.phase === "regular" ? S.sched[clamp(S.week, 1, S.sched.length) - 1] : { opp: S.playoffOpp, home: true };
 }
 export function phaseName() {
-  const tour = S.stage === "lise" ? $t("core.1") : S.stage === "euro" ? $t("core.2") : $t("core.3");
+  const tour = S.stage === "lise" ? $t("core.1") : $t("core.3");
   return S.phase === "regular"
     ? $t("core.4")
     : S.phase === "semi"
