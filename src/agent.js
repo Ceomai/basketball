@@ -160,7 +160,7 @@ function backToList(offers) {
 function sign(o) {
   late.sfx("levelup");
   if (o.up) tx($t("ag.txUp", { v: brandName(o.b) }), o.up);
-  S.sponsorDeal = { b: o.b.id, wk: o.wk, perf: o.perf, until: S.season + o.seasons - 1 };
+  S.sponsorDeal = { b: o.b.id, wk: o.wk, perf: o.perf, until: S.season + o.seasons - 1, rel: 60 }; // ilişki: src/studio.js
   S.buffs.sponsorSeason = S.season;
   S.rel.taraf += 2;
   news($t("ag.news", { v: fullName(), b: brandName(o.b) }));
@@ -177,6 +177,7 @@ export function sponsorWeekly() {
     return;
   }
   if (d.wk) tx($t("ag.txWk", { v: $t(`ag.b.${d.b}`) }), d.wk);
+  late.sponsorRelTick(); // sponsor ilişkisi her hafta azalır; bakım ister (src/studio.js)
 }
 /** Performans primi (maç notu 7.5 ve üstü) */
 Bus.on("match:end", e => {

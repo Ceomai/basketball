@@ -818,6 +818,151 @@ test("sokak sahası: haritada, çocuklarla oyna, 3'e 3 turnuva (haftada bir), mi
   return p;
 });
 
+test("semtler: harita üstünde geçiş, ikinci semtte stüdyo, taraftar bölgesi, performans merkezi", async () => {
+  const p = await page();
+  await career(p);
+  assert(await p.isVisible("#dist"), "semt düğmeleri yok");
+  await p.click('[data-dist="kompleks"]');
+  const locs = await p.evaluate(() => [...document.querySelectorAll(".loc")].map(g => g.dataset.loc));
+  assert(["studyo", "taraftar", "performans"].every(l => locs.includes(l)) && !locs.includes("avm"), "ikinci semt: " + locs);
+  await p.click('.loc[data-loc="performans"]');
+  assert(/Kondisyon/.test(await p.textContent("#ovl")), "performans merkezi açılmadı");
+  await p.evaluate(() => window.Game.renderMain());
+  await p.click('[data-dist="merkez"]');
+  assert(await p.evaluate(() => !!document.querySelector('.loc[data-loc="avm"]')), "merkeze dönmedi");
+  return p;
+});
+
+test("haftalık harita olayı: işaret görünür, katılınca etkisi uygulanır ve kaybolur", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.district = "merkez";
+    S.mapEv = { w: `${S.season}-${S.week}`, list: [{ id: "imza", loc: "avm", done: false }] };
+    window.__t0 = S.rel.taraf;
+    G.renderMain();
+  });
+  assert(await p.isVisible(".mev"), "olay işareti yok");
+  await p.evaluate(() => document.querySelector(".mev").dispatchEvent(new MouseEvent("click", { bubbles: true }))); // nabız animasyonu: doğrudan tıkla
+  await p.click("#mev-go");
+  const r = await p.evaluate(() => ({ dt: window.Game.S.rel.taraf - window.__t0, done: window.Game.S.mapEv.list[0].done }));
+  assert(r.dt === 3 && r.done, "olay: " + JSON.stringify(r));
+  await p.click("#mev-ok");
+  assert(!(await p.$(".mev")), "işaret kaybolmadı");
+  return p;
+});
+
+test("kondisyon: en yüksek enerji, beslenme planı haftalık etkisi, sakatlık çarpanı, gece hayatı düşürür", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.fit = 50;
+    const me = G.maxEnergy();
+    S.energy = 100;
+    G.norm();
+    const capped = S.energy;
+    S.diet = "sporcu";
+    S.money = 1000;
+    G.Bus.emit("week:start");
+    const afterDiet = S.fit;
+    S.fit = 100;
+    const inj = G.fitInjMul();
+    G.fitHit(3);
+    return { me, capped, afterDiet, inj, after: S.fit };
+  });
+  assert(r.me === 85 && r.capped === 85, "en yüksek enerji: " + JSON.stringify(r));
+  assert(r.afterDiet === 51.5, "beslenme: " + r.afterDiet);
+  assert(Math.abs(r.inj - 0.85) < 1e-9 && r.after === 97, "çarpan/gece: " + JSON.stringify(r));
+  return p;
+});
+
+test("ekipman eskir (30 maç), %60 fiyatla yenilenir ve tek seferlik katkı yeniden verilmez; maç günü güçlendiricisi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.money = 10000;
+    G.locAvm({ n: "AVM" }, "sneaker");
+    const h0 = S.st.hiz;
+    document.querySelector('[data-act="ayak1"]').click();
+    const h1 = S.st.hiz;
+    for (let i = 0; i < 30; i++) G.Bus.emit("match:end", {});
+    const worn = !S.items.ayak1 && S.worn && S.worn.ayak1;
+    const it = G.SHOP.find(x => x.id === "ayak1");
+    const price = G.avmPrice(it);
+    G.locAvm({ n: "AVM" }, "sneaker");
+    const m0 = S.money;
+    document.querySelector('[data-act="ayak1"]').click();
+    const h2 = S.st.hiz,
+      spent = m0 - S.money;
+    // güçlendirici
+    G.marketBuy(G.MARKET.find(x => x.id === "macayak"));
+    const b1 = G.boostOf("hiz");
+    for (let i = 0; i < 3; i++) G.Bus.emit("match:end", {});
+    return { gain: h1 - h0, worn, price, spent, h2, h1, owned: !!S.items.ayak1, b1, b2: G.boostOf("hiz") };
+  });
+  assert(r.gain === 2 && r.worn, "eskime: " + JSON.stringify(r));
+  assert(r.price === 36 && r.spent === 36 && r.h2 === r.h1 && r.owned, "yenileme: " + JSON.stringify(r));
+  assert(r.b1 === 3 && r.b2 === 0, "güçlendirici: " + JSON.stringify(r));
+  return p;
+});
+
+test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edilirse anlaşma bozulur; kanal geliri", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.sponsorDeal = { b: "spor", wk: 0, perf: 0, until: S.season, rel: 60 };
+    G.sponsorWeekly();
+    const a = S.sponsorDeal.rel;
+    S.slot = 3;
+    S.energy = 100;
+    G.locStudio({ n: "Stüdyo" });
+    document.querySelector("#sd-shoot").click();
+    const b = S.sponsorDeal.rel;
+    S.sponsorDeal.rel = 22;
+    G.sponsorWeekly();
+    const lost = S.sponsorDeal === null;
+    S.channel = { xp: 200, posts: 0, wk: "", n: 0, gear: {} };
+    const m0 = S.money;
+    G.Bus.emit("week:start");
+    return { a, b, lost, lvl: G.chLevel(), inc: S.money - m0 };
+  });
+  assert(r.a === 55 && r.b === 80 && r.lost, "sponsor ilişkisi: " + JSON.stringify(r));
+  assert(r.lvl >= 3 && r.inc > 0, "kanal geliri: " + JSON.stringify(r));
+  return p;
+});
+
+test("taraftar bölgesi: imza günü, önemli maç haftasında taraftar grubu motivasyon verir", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.slot = 3;
+    S.energy = 100;
+    S.rel.taraf = 40;
+    G.locFans({ n: "Taraftar" });
+    document.querySelector("#fz-sign").click();
+    const t1 = S.rel.taraf;
+    S.phase = "final";
+    S.playoffOpp = S.league.find(x => x.key !== S.team.key).key;
+    S.buffs.motive = 0;
+    G.locFans({ n: "Taraftar" });
+    document.querySelector("#fz-ultra").click();
+    return { t1, mot: S.buffs.motive, again: (G.locFans({ n: "T" }), document.querySelector("#fz-ultra").disabled) };
+  });
+  assert(r.t1 === 44 && r.mot === 1 && r.again, "taraftar: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

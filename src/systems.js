@@ -413,7 +413,7 @@ export function injuryRisk() {
     age: S.age,
     kryo: !!S.items.kryo,
     fizyo: !!S.items.fizyo,
-    mul: S.buffs && S.buffs.injWk > 0 ? S.buffs.injMul || 1 : 1
+    mul: (S.buffs && S.buffs.injWk > 0 ? S.buffs.injMul || 1 : 1) * late.fitInjMul()
   });
 }
 export function rollInjury() {

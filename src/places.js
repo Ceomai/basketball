@@ -96,7 +96,10 @@ export function openLoc(id, tab) {
     avm: late.locAvm,
     market: late.locMarket,
     sans: late.locSans,
-    sokak: late.locSokak
+    sokak: late.locSokak,
+    studyo: late.locStudio,
+    taraftar: late.locFans,
+    performans: late.locPerf
   })[id](I, tab);
   late.placeTip(id); // ilk ziyarette kısa tanıtım (src/guide.js)
 }
@@ -411,7 +414,7 @@ export function locStad(I, tab = "mac") {
            })}</p>`
          : ""
      }</div>
-     ${late.adEnergyHTML()}${late.derbyNote(opp)}${late.prepHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
+     ${late.adEnergyHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
       late.playMatch();

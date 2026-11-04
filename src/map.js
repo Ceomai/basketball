@@ -14,6 +14,12 @@ export const LOCS = [
   { id: "sans", x: 320, y: 596 },
   { id: "sokak", x: 196, y: 214 }
 ];
+// ikinci semt: Spor kompleksi ve sahil (src/district.js)
+export const LOCS2 = [
+  { id: "studyo", x: 92, y: 200 },
+  { id: "taraftar", x: 304, y: 196 },
+  { id: "performans", x: 282, y: 326 }
+];
 export const HOUSE_NAMES = {
   oda: $t("map.14"),
   yurt: $t("map.15"),
@@ -45,7 +51,10 @@ export function locInfo(id, P) {
     avm: { n: $t("map.13"), slot: false },
     market: { n: $t("map.21"), slot: false },
     sans: { n: P.age < 18 ? $t("map.10") : $t("casino.6"), slot: false, locked: P.age < 18 },
-    sokak: { n: $t("st.name"), slot: true }
+    sokak: { n: $t("st.name"), slot: true },
+    studyo: { n: $t("sd.name"), slot: true },
+    taraftar: { n: $t("fz.name"), slot: true },
+    performans: { n: $t("fit.name"), slot: false }
   }[id];
 }
 export function box(x, y, w, h, d, f, s, t) {
@@ -325,7 +334,53 @@ export function mapSVG(P) {
     g += `<rect x="${x}" y="${y}" width="22" height="10" rx="3" fill="${c}"/>`;
     if (lit) g += `<circle cx="${x + 24}" cy="${y + 5}" r="6" fill="url(#glow)" opacity=".7"/>`;
   });
+  const D2 = P.district === "kompleks";
+  if (D2) {
+    // sahil: alt yarıda deniz, iskele ve tekneler (ileride liman, akademi, hipodrom için)
+    g += `<rect x="0" y="414" width="400" height="256" fill="${lit ? "#0e2342" : "#2f6fa6"}"/>`;
+    for (let i = 0; i < 12; i++)
+      g += `<path d="M${(i * 37) % 400} ${440 + ((i * 53) % 210)}q6 -4 12 0t12 0" stroke="#fff" stroke-opacity=".35" fill="none" stroke-width="1.5"/>`;
+    g += `<rect x="60" y="430" width="14" height="120" fill="#8d6e63"/><rect x="40" y="540" width="120" height="12" fill="#8d6e63"/>`;
+    [
+      [210, 470],
+      [300, 540],
+      [140, 610]
+    ].forEach(
+      ([x, y]) =>
+        (g += `<path d="M${x - 22} ${y}H${x + 22}L${x + 14} ${y + 10}H${x - 14}Z" fill="#eceff1"/><rect x="${x - 1}" y="${y - 26}" width="2" height="26" fill="#cfd8dc"/><path d="M${x + 1} ${y - 24}L${x + 16} ${y - 4}H${x + 1}Z" fill="#fff"/>`)
+    );
+    g += `<text x="200" y="650" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" letter-spacing="3" font-size="13" fill="#fff" fill-opacity=".55">${$t("dist.sahil")}</text>`;
+  }
   const B = {
+    // stüdyo: cam bina, ışık ve kamera
+    studyo: (x, y) =>
+      box(x - 38, y + 30, 64, 46, 12, "#1d2433", "#141a26", "#2c3650") +
+      windows(x - 38, y + 30, 64, 40, 5, 3, lit, true) +
+      `<rect x="${x - 30}" y="${y - 10}" width="48" height="12" rx="3" fill="#ff5468"/><text x="${x - 6}" y="${y - 1}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="8" fill="#fff">● REC</text>`,
+    // taraftar bölgesi: bayraklar ve tribün
+    taraftar: (x, y) =>
+      box(
+        x - 40,
+        y + 30,
+        66,
+        22,
+        10,
+        P.team ? P.team.c1 : "#c8102e",
+        shade(P.team ? P.team.c1 : "#c8102e", -35),
+        shade(P.team ? P.team.c1 : "#c8102e", 20)
+      ) +
+      [0, 1, 2, 3]
+        .map(
+          i =>
+            `<rect x="${x - 34 + i * 16}" y="${y - 14}" width="2" height="22" fill="#cfd6df"/><path d="M${x - 32 + i * 16} ${y - 14}h12l-3 5 3 5h-12z" fill="${i % 2 ? (P.team ? P.team.c2 : "#fff") : P.team ? P.team.c1 : "#c8102e"}"/>`
+        )
+        .join(""),
+    // performans merkezi: geniş cam bina ve koşu pisti
+    performans: (x, y) =>
+      `<ellipse cx="${x}" cy="${y + 36}" rx="70" ry="16" fill="${lit ? "#5a2a1a" : "#b5523b"}"/><ellipse cx="${x}" cy="${y + 36}" rx="56" ry="10" fill="${lit ? "#1f3a2a" : "#3d6e4b"}"/>` +
+      box(x - 44, y + 30, 76, 52, 14, "#dfe6ee", "#b9c3cf", "#c8d1dc") +
+      windows(x - 44, y + 30, 76, 46, 6, 3, lit, true) +
+      `<rect x="${x - 30}" y="${y - 30}" width="48" height="10" rx="2" fill="#141414"/><text x="${x - 6}" y="${y - 22}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#36d38e">PERFORMANS</text>`,
     okul: (x, y) =>
       P.studying
         ? box(x - 46, y + 30, 84, 46, 14, wallC, shade(wallC, -35), roof) +
@@ -374,7 +429,7 @@ export function mapSVG(P) {
       `<rect x="${x - 30}" y="${y - 8}" width="48" height="16" rx="3" fill="${lit ? "#ffd34d" : "#a8862d"}"/><text x="${x - 6}" y="${y + 4}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="10" fill="#2a1013">♠ ♥ ♦ ♣</text>` +
       windows(x - 38, y + 30, 64, 14, 4, 1, lit)
   };
-  LOCS.forEach(Lc => {
+  (D2 ? LOCS2 : LOCS).forEach(Lc => {
     const I = locInfo(Lc.id, P);
     const off = (I.slot && P.slot <= 0) || I.locked;
     const big = Lc.id === "stad";
@@ -389,5 +444,11 @@ export function mapSVG(P) {
   });
   if (lit)
     g += `<rect width="400" height="670" fill="${tod === "night" ? "#050a24" : "#2a1d55"}" opacity="${tod === "night" ? 0.22 : 0.1}" pointer-events="none"/>`;
+  // haftalık olay işaretleri (src/district.js): tıklanınca olay paneli
+  (P.mev || []).forEach(m => {
+    const Lc = (D2 ? LOCS2 : LOCS).find(l => l.id === m.loc);
+    if (!Lc) return;
+    g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="!"><circle cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" fill="#ffc54d" stroke="#141414" stroke-width="2"><animate attributeName="r" values="12;15;12" dur="1.4s" repeatCount="indefinite"/></circle><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
+  });
   return g + "</svg>";
 }

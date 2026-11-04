@@ -58,9 +58,13 @@
       for (const it of list) {
         if (S.money - it.p < reserve) continue;
         if (it.up && S.wage * (1 - (BAL.tax[S.stage] || 0)) < fixed + it.up) continue; // bakım masrafını karşılayamıyorsa bekle
-        tx(it.n, -it.p);
+        // oyunun AVM kuralı: eskiyen eşyanın yenilemesi %60 ve tek seferlik katkı yeniden verilmez (src/gear.js)
+        const renew = isRenewal(it);
+        tx(it.n, -avmPrice(it));
         S.items[it.id] = 1;
-        it.fx && it.fx();
+        Bus.emit("purchase", { id: it.id, p: avmPrice(it) });
+        if (renew) renewDone(it);
+        else it.fx && it.fx();
         REC.buys.push(`${S.age}:${it.id}`);
       }
       const order = ["daire", "lux", "villa", "malikane"],
@@ -97,9 +101,12 @@
         else if (car) ok = S.money >= it.p * 2.5 && net > it.up * 8;
         else ok = S.money >= it.p * 6 && Math.random() < 0.15;
         if (ok) {
-          tx(it.n, -it.p);
+          const renew = isRenewal(it);
+          tx(it.n, -avmPrice(it));
           S.items[it.id] = 1;
-          it.fx && it.fx();
+          Bus.emit("purchase", { id: it.id, p: avmPrice(it) });
+          if (renew) renewDone(it);
+          else it.fx && it.fx();
           REC.buys.push(`${S.age}:${it.id}`);
         }
       }

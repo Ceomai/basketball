@@ -58,6 +58,10 @@ import * as comps from "./comps.js";
 import * as natcup from "./natcup.js";
 import * as street from "./street.js";
 import * as guide from "./guide.js";
+import * as fitness from "./fitness.js";
+import * as gear from "./gear.js";
+import * as studio from "./studio.js";
+import * as district from "./district.js";
 
 const MODULES = [
   data,
@@ -116,7 +120,11 @@ const MODULES = [
   comps,
   natcup,
   street,
-  guide
+  guide,
+  fitness,
+  gear,
+  studio,
+  district
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

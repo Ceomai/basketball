@@ -92,7 +92,7 @@ export function norm() {
   for (const [k] of STATS) S.st[k] = clamp(Math.round(S.st[k]), 1, 99);
   for (const [k] of RELS) S.rel[k] = clamp(Math.round(S.rel[k]), 0, 100);
   S.moral = clamp(Math.round(S.moral), 0, 100);
-  S.energy = clamp(Math.round(S.energy), 0, 100);
+  S.energy = clamp(Math.round(S.energy), 0, late.maxEnergy ? late.maxEnergy() : 100); // kondisyon (src/fitness.js)
   S.aka = clamp(Math.round(S.aka), 0, 100);
   S.followers = Math.max(0, Math.round(S.followers));
 }
@@ -711,7 +711,9 @@ export function mapState() {
     age: S.age,
     housing: S.housing,
     team: S.team,
-    car: bestCar()
+    car: bestCar(),
+    district: late.district ? late.district() : "merkez",
+    mev: late.mapEventsHere ? late.mapEventsHere() : []
   };
 }
 export function renderMain() {
@@ -724,11 +726,14 @@ export function renderMain() {
     opp = teamByKey(fx.opp),
     tods = [$t("core.71"), $t("core.72"), $t("core.73"), $t("core.74")];
   app.innerHTML = `${hudHTML()}
-  <div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t("core.75", {
-    v: seasonLabel(),
-    week: S.week,
-    v2: tods[S.slot]
-  })}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
+  ${late.districtTabsHTML ? late.districtTabsHTML() : ""}<div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t(
+    "core.75",
+    {
+      v: seasonLabel(),
+      week: S.week,
+      v2: tods[S.slot]
+    }
+  )}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
   <div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
@@ -748,6 +753,7 @@ export function renderMain() {
     };
   });
   $("#gostad").onclick = () => late.openLoc("stad", "mac");
+  late.bindDistrict && late.bindDistrict(renderMain);
   $("#quickw").onclick = late.quickWeek;
   const msb = $("#msb");
   if (msb) msb.onclick = () => late.missionsSheet();
