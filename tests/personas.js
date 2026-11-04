@@ -298,10 +298,11 @@ persona("U15", "Reklam seven: enerji ve prim reklamlarını günlük sınıra ka
   await career(p);
   const r = await p.evaluate(async () => {
     const G = window.Game;
-    G.ADS.today = 0;
+    // güvenlik tavanının hemen altından başla (tavan 100: gerçek oyuncu görmez)
+    G.ADS.today = G.ADS_CFG.dailyRewardCap - 6;
     G.ADS.day = new Date().toISOString().slice(0, 10);
     let ok = 0;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 8; i++) {
       const pr = G.showRewarded("energy");
       for (let t = 0; t < 90; t++) {
         const b = document.querySelector("#adx");
@@ -314,12 +315,12 @@ persona("U15", "Reklam seven: enerji ve prim reklamlarını günlük sınıra ka
       }
       if (await pr) ok++;
     }
-    return { ok, today: G.ADS.today };
+    return { ok, today: G.ADS.today, cap: G.ADS_CFG.dailyRewardCap };
   });
-  assert(r.ok === 8 && r.today === 8, JSON.stringify(r));
+  assert(r.ok === 6 && r.today === r.cap, JSON.stringify(r));
   noErr(p);
   await p.ctx.close();
-  return "8 ödül, 9. ve 10. reklam sınırda reddedildi";
+  return `güvenlik tavanına (${r.cap}) kadar ödül verildi, sonraki 2 reklam reddedildi`;
 });
 persona("U16", "Reklam reddeden: izin vermez, reklamı erken kapatır, oyuna devam eder", async () => {
   const p = await open(browser);

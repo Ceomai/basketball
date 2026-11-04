@@ -644,7 +644,8 @@ export function locAvm(I, store = "sneaker") {
               ? ` ${$t("shops.3", {
                   up: fmt(it.up)
                 })}`
-              : ""),
+              : "") +
+            late.itemNote(it),
           price: it.p,
           own: !!S.items[it.id]
         })
@@ -1009,10 +1010,11 @@ export function locMarket(I) {
       .map(
         ct =>
           `<div class="eyebrow" style="margin-top:4px">${ct}</div><div class="pgrid">${MARKET.filter(m => m.cat === ct)
-            .map(it => prodHTML({ id: it.id, ic: it.ic(), t: it.n, d: it.d, price: it.p }))
+            .map(it => prodHTML({ id: it.id, ic: it.ic(), t: it.n, d: it.d + late.marketNote(it), price: late.marketPrice(it) }))
             .join("")}</div>`
       )
       .join("") +
+      `<p class="small muted">${$t("life.mktHead", { v: late.marketEnergyLeft(), c: late.MKT_EN_CAP })}</p>` +
       (S.buffs.train
         ? `<p class="small good">${$t("shops.7", {
             train: S.buffs.train
@@ -1024,24 +1026,22 @@ export function locMarket(I) {
   MARKET.forEach(
     it =>
       (m[it.id] = () => {
-        if (S.money < it.p) return;
-        tx(it.n, -it.p);
-        it.fx();
-        norm();
+        const note = late.marketBuy(it);
+        if (note === null) return;
         save();
         toast(
           $t("shops.8", {
             n: it.n,
             energy: S.energy,
             moral: S.moral
-          })
+          }) + (note ? ` ${note}` : "")
         );
         $("#shsub").textContent = $t("shops.6", {
           money: fmt(S.money)
         });
         $$("[data-act]").forEach(x => {
           const p = MARKET.find(q => q.id === x.dataset.act);
-          if (p) x.disabled = S.money < p.p;
+          if (p) x.disabled = S.money < late.marketPrice(p);
         });
       })
   );
@@ -1320,8 +1320,8 @@ export async function arcadeRun(kind, paid) {
     extra = $t("shops.40");
   }
   if (kind === "ref" && r.score >= 18 && Math.random() < 0.4) {
-    S.st.hiz += 1;
-    extra = $t("shops.41");
+    const g = late.gainStat("hiz", Math.round(0.2 * late.levelMul("hiz") * 100) / 100);
+    extra = $t("prog.reflex", { v: g.toFixed(2) });
   }
   if (kind === "karaoke" && r.score >= 20) {
     S.followers *= 1.05;

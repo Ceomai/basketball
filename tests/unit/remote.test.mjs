@@ -13,7 +13,7 @@ test("sayılar güvenli aralığa kırpılır, yanlış tip ve bilinmeyen alan y
     rewards: { retry: false, trainPerWeek: -5 },
     __proto__: { polluted: true }
   });
-  assert.equal(c.ads.dailyRewardCap, 20);
+  assert.equal(c.ads.dailyRewardCap, 200);
   assert.equal(c.ads.interstitial.minGames, 2);
   assert.equal(c.ads.interstitial.everyGames, RC_DEFAULTS.ads.interstitial.everyGames);
   assert.equal(c.ads.interstitial.minGapMs, 120000);

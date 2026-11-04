@@ -449,13 +449,10 @@ export async function playMatch(ctx) {
     late.crowdSwell(res.good ? 1.4 : 0.6);
     let txt = res.txt + late.afterSignature(k, res.good);
     if (res.good) {
-      S.stf = S.stf || {};
-      S.stf[res.st] = (S.stf[res.st] || 0) + BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul();
-      if (S.stf[res.st] >= 1) {
-        S.stf[res.st] -= 1;
-        S.st[res.st] += 1;
-        txt += ` <span class="good">+1 ${statName(res.st)}</span>`;
-      }
+      // başarılı an niteliğe ondalık katkı (maç sonunda toplamı gösterilir); seviye yükseldikçe azalır ama sıfırlanmaz
+      const g = BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul() * (0.25 + 0.75 * late.levelMul(res.st));
+      late.gainStat(res.st, g);
+      txt += ` <span class="good">+${g.toFixed(2)} ${statName(res.st)}</span>`;
     }
     addFeed(txt);
     $("#mview").innerHTML = "";

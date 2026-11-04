@@ -14,6 +14,7 @@ import { M } from "./match.js";
 import { save } from "./save.js";
 import { ADS, adBtn, adsSave, rewardLeft, showRewarded } from "./ads.js";
 import { RC } from "./remote.js";
+import { late } from "./late.js";
 
 const canAd = () => ADS.adFree || rewardLeft() > 0;
 const gone = el => !S || (el && !document.body.contains(el));
@@ -160,7 +161,7 @@ export function bindTrainAd(k, gain) {
     if (!ok) return void (b.disabled = false);
     trainWeek();
     S.adTrainN++;
-    S.st[k] += gain;
+    late.gainStat(k, gain);
     norm();
     save();
     b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("adp.trainOk", { v: gain, k: statName(k) })}</div>`;
@@ -205,12 +206,7 @@ function roll() {
     return $t("adp.rFans");
   }
   const [k] = pick(STATS);
-  S.stf = S.stf || {};
-  S.stf[k] = (S.stf[k] || 0) + 0.6;
-  if (S.stf[k] >= 1) {
-    S.stf[k] -= 1;
-    S.st[k] += 1;
-  }
+  late.gainStat(k, 0.6);
   return $t("adp.rTrain", { k: statName(k) });
 }
 export function boxSheet(after) {

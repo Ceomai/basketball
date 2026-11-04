@@ -376,6 +376,7 @@ export function finishMatch(win) {
   const r = M.rating,
     opp = M.opp;
   S.buffs.motive = 0;
+  late.matchStatGains(M); // maç istatistiğine göre ondalık gelişim (src/progress.js)
   const bonus = matchBonus({ stage: S.stage, wage: S.wage, rating: r, win });
   if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("match.132"), Math.round(S.wage * 0.15));
   // önemli maçı kendin oynadıysan: taraftar ve takipçi (kazanınca daha çok)
@@ -436,6 +437,7 @@ export function finishMatch(win) {
          })}</div>`
        : ""
    }
+   ${late.gainsHTML()}
    ${late.adDoubleHTML(bonus)}<button class="btn pri" id="nx">${$t("ads.25")}</button>`,
     { noClose: true }
   );
@@ -541,7 +543,7 @@ export function endWeek() {
     income: itemWeekly("inc")
   }))
     tx(it.label, it.amount);
-  S.energy += 26 + h.en + itemWeekly("en") + Math.round((S.moral - 50) / 10);
+  S.energy += 26 + h.en + itemWeekly("en") + Math.round((S.moral - 50) / 10) + late.comfortEnergy();
   S.moral += (h.mo || 0) + itemWeekly("mo");
   if (S.partner) {
     S.rel.partner -= 4;
@@ -564,7 +566,10 @@ export function endWeek() {
   }
   S.rel.aile -= 2;
   S.rel.ark -= 2;
-  S.moral += (S.rel.aile - 50) / 25 + (S.rel.ark - 50) / 30;
+  // moral kendiliğinden bir taban değere döner (galibiyetlerin morali sonsuza dek taşımaması için); taban konfora bağlı
+  S.moral += (late.moraleBase() - S.moral) * 0.15;
+  // aile ve arkadaşlar: ilişki düştükçe moral her hafta belirgin düşer (aileyle vakit geçirmenin karşılığı)
+  S.moral += (S.rel.aile - 50) / 12 + (S.rel.ark - 50) / 20 - (S.rel.aile < 30 ? 3 : 0) - (S.rel.aile < 15 ? 3 : 0);
   if (S.studying && !S.studied) S.aka -= 3;
   S.studied = false;
   late.healTick();

@@ -47,16 +47,42 @@ export function ovr() {
   let t = 0,
     ws = 0;
   STATS.forEach(([k], i) => {
-    t += S.st[k] * w[i];
+    t += statVal(k) * w[i];
     ws += w[i];
   });
-  return Math.round(t / ws);
+  return Math.round((t / ws) * 10) / 10; // tek ondalık: 85.6
 }
 export function eff(k) {
-  return clamp(S.st[k] - TD() + (S.energy - 60) / 6 + (S.moral - 50) / 10 + (S.buffs.motive ? 4 : 0), 3, 100);
+  // moral maçta daha belirgin: 50'nin altı ve üstü ±8'e kadar (önceden ±5)
+  return clamp(statVal(k) - TD() + (S.energy - 60) / 6 + (S.moral - 50) / 6.25 + (S.buffs.motive ? 4 : 0), 3, 100);
 }
 export function fame() {
   return clamp(Math.round(Math.log10(Math.max(10, S.followers)) * 16 - 28), 0, 100);
+}
+/* ---- Yetenek gelişimi: tek giriş noktası ----
+   Nitelik tam sayı kısmı S.st, ondalık birikimi S.stf'de tutulur; ekranda ikisinin toplamı tek ondalıkla görünür (45.3).
+   Bütün kaynaklar (maç, antrenman, takım antrenmanı, eşya) gainStat ile ekler; maç sırasında kazanılanlar
+   maç sonu ekranında ayrıca gösterilir (S.gainNow). */
+export const statVal = k => Math.round(((S.st[k] || 0) + ((S.stf && S.stf[k]) || 0)) * 10) / 10;
+export const stat1 = k => statVal(k).toFixed(1);
+/** Seviye çarpanı: nitelik yükseldikçe her kaynaktan gelen gelişim azalır (yalnızca mini oyun değil, hepsi) */
+export const levelMul = k => Math.pow(Math.max(0, 100 - statVal(k)) / 70, 2);
+export const ageGainMul = () => (S.age <= 21 ? 1.25 : S.age <= 24 ? 1.1 : S.age >= 33 ? 0.3 : S.age >= 30 ? 0.6 : 1);
+export function gainStat(k, amt) {
+  if (!S || !amt || !S.st || S.st[k] == null) return 0;
+  S.stf = S.stf || {};
+  let f = (S.stf[k] || 0) + amt;
+  while (f >= 1) {
+    f -= 1;
+    S.st[k] += 1;
+  }
+  while (f < 0 && S.st[k] > 1) {
+    f += 1;
+    S.st[k] -= 1;
+  }
+  S.stf[k] = Math.max(0, Math.round(f * 1000) / 1000);
+  if (S.gainNow) S.gainNow[k] = Math.round(((S.gainNow[k] || 0) + amt) * 1000) / 1000;
+  return amt;
 }
 export function norm() {
   for (const [k] of STATS) S.st[k] = clamp(Math.round(S.st[k]), 1, 99);

@@ -58,7 +58,10 @@ import {
   fame,
   fixture,
   fullName,
+  ageGainMul,
+  gainStat,
   jersey,
+  levelMul,
   lgName,
   mapState,
   news,
@@ -71,6 +74,8 @@ import {
   seasonLabel,
   sheet,
   standings,
+  stat1,
+  statVal,
   tabsHTML,
   teamByKey,
   tx,
@@ -177,7 +182,7 @@ export function locEv(I, tab = "vitrin") {
     $("#pp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   }
   if (tab === "yetenek") {
-    c.innerHTML = `<div class="card"><div class="row between"><div class="eyebrow">${$t("places.26")}</div><span class="pill">${$t("places.27")} ${TD()}</span></div>${STATS.map(([k, n]) => `<div class="attr"><span>${n}</span><div class="bar"><i style="width:${S.st[k]}%"></i></div><b>${S.st[k]}</b></div>`).join("")}
+    c.innerHTML = `<div class="card"><div class="row between"><div class="eyebrow">${$t("places.26")}</div><span class="pill">${$t("places.27")} ${TD()}</span></div>${STATS.map(([k, n]) => `<div class="attr"><span>${n}</span><div class="bar"><i style="width:${statVal(k)}%"></i></div><b>${stat1(k)}</b></div>`).join("")}
      <p class="small muted">${$t("places.28")} ${STATS.map(([k, n]) => `${n} ${Math.round(eff(k))}`).join(" · ")}.</p></div>
      <div class="card"><div class="eyebrow">${$t("places.29", {
        n: POS[S.pos].n
@@ -222,6 +227,7 @@ export function locEv(I, tab = "vitrin") {
         en: HOUSING[S.housing].en
       }
     )}</p></div></div></div>
+     ${late.comfortHTML()}
      ${
        can
          ? `<div class="pgrid">${opts
@@ -245,6 +251,7 @@ export function locEv(I, tab = "vitrin") {
                      }),
                      "p"
                    ],
+                   [$t("life.comfortPlus", { v: late.houseComfort(k) }), "p"],
                    ...(h.mo
                      ? [
                          [
@@ -441,7 +448,7 @@ export function locStad(I, tab = "mac") {
             d: $t("places.328", {
               d: d,
               k: statName(k),
-              v: S.st[k]
+              v: stat1(k)
             }),
             slot: 1,
             fx: [
@@ -462,7 +469,8 @@ export function locStad(I, tab = "mac") {
         fx: [
           [$t("places.82"), "n"],
           [$t("places.83"), "p"],
-          [$t("places.84"), "p"]
+          [$t("places.84"), "p"],
+          [$t("prog.teamFx"), "p"]
         ],
         btn: $t("places.273"),
         disabled: S.energy < 12
@@ -492,15 +500,20 @@ export function locStad(I, tab = "mac") {
       S.energy -= 12;
       S.rel.koc += 4;
       S.rel.takim += 3;
-      const k = pick(STATS)[0];
-      S.st[k] += 1;
+      // takım antrenmanı: sabit +1 yerine programın odak niteliğine (yoksa rastgele) seviyeye bağlı ondalık katkı;
+      // iyi oynanan bir mini oyunlu antrenmandan azdır ama boşa gitmez
+      const pg = late.program(),
+        k = STATS.some(x => x[0] === pg) ? pg : pick(STATS)[0],
+        g = Math.round(0.6 * levelMul(k) * ageGainMul() * late.modeTrainMul() * 100) / 100;
+      gainStat(k, g);
       norm();
       save();
       resultView(
         $t("places.86"),
-        $t("places.87", {
+        $t("prog.team", {
           coach: S.npc.coach,
-          k: statName(k)
+          k: statName(k),
+          v: g.toFixed(2)
         }),
         [
           [$t("places.83"), "p"],
@@ -582,18 +595,18 @@ export function runGame(kind, el, e, reps, title) {
   return mgGym(el, { title }).then(r => clamp(r.taps / 40, 0, 1));
 }
 // antrenman kazancı: başarı oranı, mevcut nitelik ve bonuslar; denge simülasyonu da aynı fonksiyonu kullanır
+// Kazancı niteliğe ekler (gainStat) ve ondalık değeri döndürür (ör. 0.8)
 export function drillGain(k, ratio) {
-  S.stf = S.stf || {};
   const f =
-    trainingGain({ ratio, stat: S.st[k], age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) *
+    trainingGain({ ratio, stat: statVal(k), age: S.age, coach: !!S.items.hoca, buff: S.buffs.train > 0 }) *
     late.programMul(k) *
     late.charTrainMul() *
     late.modeTrainMul() *
-    late.originTrainMul();
+    late.originTrainMul() *
+    late.itemTrainMul(k);
   if (S.buffs.train > 0) S.buffs.train--;
-  S.stf[k] = (S.stf[k] || 0) + f;
-  const g = Math.floor(S.stf[k]);
-  S.stf[k] -= g;
+  const g = Math.round(f * 100) / 100;
+  gainStat(k, g);
   return g;
 }
 export async function runDrill([id, name, k, kind]) {
@@ -608,7 +621,6 @@ export async function runDrill([id, name, k, kind]) {
   const ratio = await runGame(kind, $("#stg"), clamp(eff(k) + 10, 5, 100), 3, name);
   const gain = drillGain(k, ratio);
   Bus.emit("train:done", { k, ratio });
-  S.st[k] += gain;
   if (ratio > 0.6) S.rel.koc += 2;
   norm();
   save();
@@ -617,14 +629,13 @@ export async function runDrill([id, name, k, kind]) {
     {
       v: Math.round(ratio * 100)
     }
-  )}</div><h2>${gain >= 4 ? $t("places.94") : gain >= 2 ? $t("places.95") : gain > 0 ? $t("places.96") : $t("places.97")}</h2></div><div class="big-num ${gain ? "good" : ""}">+${gain}</div></div><p class="small muted">${$t(
-    "places.99",
+  )}</div><h2>${gain >= 1 ? $t("places.94") : gain >= 0.5 ? $t("places.95") : gain >= 0.1 ? $t("places.96") : $t("places.97")}</h2></div><div class="big-num ${gain >= 0.05 ? "good" : ""}">+${gain.toFixed(2)}</div></div><p class="small muted">${$t(
+    "prog.drillNow",
     {
       k: statName(k),
-      v: S.st[k],
-      v2: Math.round((S.stf[k] || 0) * 100)
+      v: stat1(k)
     }
-  )}</p><div class="bar"><i style="width:${Math.round((S.stf[k] || 0) * 100)}%"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  )}</p><div class="bar"><i style="width:${statVal(k)}%"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
   late.bindTrainAd(k, gain);
   $("#bk").onclick = renderMain;
 }
@@ -905,7 +916,7 @@ export function locOkul(I) {
       }
     });
   } else {
-    const sp = Math.max(50, Math.round(fame() * fame() * ({ nba: 9, euro: 4, t1: 2 }[S.stage] || 1.2)));
+    const sp = Math.max(50, Math.round(fame() * fame() * ({ nba: 9, euro: 4, t1: 2 }[S.stage] || 1.2) * late.sponsorMul()));
     const b = sheet(
       $t("map.3"),
       $t("places.153", {
@@ -1292,8 +1303,8 @@ export function locAile(I) {
         slot: 1,
         price: travel,
         fx: [
-          [$t("places.225"), "p"],
-          [$t("places.226"), "p"]
+          [$t("prog.dadAile"), "p"],
+          [$t("prog.dadMoral"), "p"]
         ],
         btn: $t("places.309")
       },
@@ -1385,9 +1396,9 @@ export function locAile(I) {
           def: false
         });
         const win = r.made >= 2;
-        S.rel.aile += 6;
-        const k = pick(STATS)[0];
-        S.st[k] += 1;
+        // babayla birebir: yetenek vermez (aileyle bir aktiviteden nitelik kazanmak mantıksızdı); aile ve moral
+        S.rel.aile += 9;
+        S.moral += win ? 4 : 2;
         norm();
         save();
         $("#stg").innerHTML = "";
@@ -1399,8 +1410,8 @@ export function locAile(I) {
             : $t("places.237", {
                 dad: S.npc.dad
               })
-        } ${$t("places.238", {
-          k: statName(k)
+        } ${$t("prog.dadRes", {
+          v: win ? 4 : 2
         })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
         $("#bk").onclick = renderMain;
       },
@@ -1556,8 +1567,8 @@ export function locKafe(I) {
         S.moral += 5;
         let t = $t("places.254");
         if (Math.random() < 0.5) {
-          S.st.pas += 1;
-          t += $t("places.255");
+          const g = gainStat("pas", Math.round(0.25 * levelMul("pas") * 100) / 100);
+          t += ` ${$t("prog.watch", { v: g.toFixed(2) })}`;
         }
         norm();
         save();

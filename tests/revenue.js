@@ -93,8 +93,8 @@ test("uzaktan ayar ADS_CFG'ye uygulanır, bozuk ayar kırpılır, varsayılana d
     return { before, mid, after: [G.ADS_CFG.dailyRewardCap, G.ADS_CFG.interstitial.minGames, G.RC.rewards.box] };
   });
   assert(r.before === 6, "varsayılan minGames 6 değil: " + r.before);
-  assert(JSON.stringify(r.mid) === "[20,3,false]", "uygulanan: " + JSON.stringify(r.mid));
-  assert(JSON.stringify(r.after) === "[8,6,true]", "geri dönüş: " + JSON.stringify(r.after));
+  assert(JSON.stringify(r.mid) === "[200,3,false]", "uygulanan: " + JSON.stringify(r.mid));
+  assert(JSON.stringify(r.after) === "[100,6,true]", "geri dönüş: " + JSON.stringify(r.after));
   return p;
 });
 

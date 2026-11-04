@@ -305,14 +305,13 @@ export function autoWeekPlan() {
       ratio = clamp(autoP(eff(k) + 10) * 0.9, 0, 1),
       g = drillGain(k, ratio);
     Bus.emit("train:done", { k, ratio, auto: true });
-    S.st[k] += g;
     S.energy -= 18;
     out.push([
       $t("story.22", {
         v: best[1]
       }),
-      g
-        ? `+${g} ${statName(k)}`
+      g >= 0.05
+        ? `+${g.toFixed(2)} ${statName(k)}`
         : $t("story.23", {
             k: statName(k)
           })
