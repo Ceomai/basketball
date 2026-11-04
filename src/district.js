@@ -10,7 +10,7 @@ import { $, $$, Bus, shuffle } from "./data.js";
 import { S, closeSheet, norm, sheet } from "./core.js";
 import { save } from "./save.js";
 
-const IN2 = ["studyo", "taraftar", "performans"];
+const IN2 = ["studyo", "taraftar", "performans", "akademi", "borsa", "hipodrom", "liman"];
 export const district = () => (S && S.district === "kompleks" ? "kompleks" : "merkez");
 export function districtTabsHTML() {
   if (!S) return "";

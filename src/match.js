@@ -95,11 +95,11 @@ export const PEN = {
   lob: -4,
   pnr: 0,
   kick: -6,
-  corner: 3,
-  top3: 7,
-  float: 1,
-  mid: 0,
-  lay: -3
+  corner: 7,
+  top3: 11,
+  float: 5,
+  mid: 4,
+  lay: 3
 };
 // Basket faul: sayı geçerli, bir serbest atış
 async function andOne(el, sur, dn, st, w) {
@@ -137,15 +137,16 @@ export async function resolvePlay(k, el, sur, dn) {
       reps: 1,
       title: k === "break" ? $t("match.9") : k === "lay" ? $t("pl.lay") : $t("match.10")
     });
-    if (!r.ok)
+    if (!r.ok) {
+      // penetrede hücum faulü: kişisel faul sayılır
+      const of = k !== "break" && Math.random() < 0.15 ? late.addFoul() : "";
       return {
         good: false,
         w: 1,
         st: "hiz",
-        txt: $t("match.96", {
-          sur: sur
-        })
+        txt: of ? `${$t("m2.charge", { sur })}${of}` : $t("match.96", { sur: sur })
       };
+    }
     if (k === "break") {
       M.pts += 2;
       return {
@@ -384,16 +385,14 @@ export async function resolvePlay(k, el, sur, dn) {
           })
     };
   }
-  const r = await mgTiming(el, { eff: eff("sut") + 12, title: $t("data.70"), tries: 2, label: $t("games.8") });
+  const n = k === "free3" ? 3 : 2; // üçlükte faul: 3 serbest atış
+  const r = await mgTiming(el, { eff: eff("sut") + 12, title: $t("data.70"), tries: n, label: $t("games.8") });
   M.pts += r.ok;
   return {
     good: r.ok > 0,
     w: 0.6,
     st: "sut",
-    txt: $t("match.109", {
-      sur: sur,
-      ok: r.ok
-    })
+    txt: n === 3 ? $t("m2.ft3", { sur, ok: r.ok }) : $t("match.109", { sur: sur, ok: r.ok })
   };
 }
 export function finishMatch(win) {

@@ -18,7 +18,11 @@ export const LOCS = [
 export const LOCS2 = [
   { id: "studyo", x: 92, y: 200 },
   { id: "taraftar", x: 304, y: 196 },
-  { id: "performans", x: 282, y: 326 }
+  { id: "performans", x: 282, y: 326 },
+  { id: "akademi", x: 86, y: 334 },
+  { id: "borsa", x: 80, y: 466 },
+  { id: "hipodrom", x: 300, y: 474 },
+  { id: "liman", x: 200, y: 600 }
 ];
 export const HOUSE_NAMES = {
   oda: $t("map.14"),
@@ -54,7 +58,11 @@ export function locInfo(id, P) {
     sokak: { n: $t("st.name"), slot: true },
     studyo: { n: $t("sd.name"), slot: true },
     taraftar: { n: $t("fz.name"), slot: true },
-    performans: { n: $t("fit.name"), slot: false }
+    performans: { n: $t("fit.name"), slot: false },
+    akademi: { n: $t("ac.name"), slot: false },
+    borsa: { n: $t("bs.name"), slot: false },
+    hipodrom: { n: P.age < 18 ? $t("hp.locked") : $t("hp.name"), slot: false, locked: P.age < 18 },
+    liman: { n: $t("hb.name"), slot: true }
   }[id];
 }
 export function box(x, y, w, h, d, f, s, t) {
@@ -337,21 +345,37 @@ export function mapSVG(P) {
   const D2 = P.district === "kompleks";
   if (D2) {
     // sahil: alt yarıda deniz, iskele ve tekneler (ileride liman, akademi, hipodrom için)
-    g += `<rect x="0" y="414" width="400" height="256" fill="${lit ? "#0e2342" : "#2f6fa6"}"/>`;
-    for (let i = 0; i < 12; i++)
-      g += `<path d="M${(i * 37) % 400} ${440 + ((i * 53) % 210)}q6 -4 12 0t12 0" stroke="#fff" stroke-opacity=".35" fill="none" stroke-width="1.5"/>`;
-    g += `<rect x="60" y="430" width="14" height="120" fill="#8d6e63"/><rect x="40" y="540" width="120" height="12" fill="#8d6e63"/>`;
+    g += `<rect x="0" y="556" width="400" height="114" fill="${lit ? "#0e2342" : "#2f6fa6"}"/>`;
+    for (let i = 0; i < 10; i++)
+      g += `<path d="M${(i * 41) % 400} ${572 + ((i * 29) % 90)}q6 -4 12 0t12 0" stroke="#fff" stroke-opacity=".35" fill="none" stroke-width="1.5"/>`;
     [
-      [210, 470],
-      [300, 540],
-      [140, 610]
+      [60, 640],
+      [330, 630]
     ].forEach(
       ([x, y]) =>
         (g += `<path d="M${x - 22} ${y}H${x + 22}L${x + 14} ${y + 10}H${x - 14}Z" fill="#eceff1"/><rect x="${x - 1}" y="${y - 26}" width="2" height="26" fill="#cfd8dc"/><path d="M${x + 1} ${y - 24}L${x + 16} ${y - 4}H${x + 1}Z" fill="#fff"/>`)
     );
-    g += `<text x="200" y="650" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" letter-spacing="3" font-size="13" fill="#fff" fill-opacity=".55">${$t("dist.sahil")}</text>`;
   }
   const B = {
+    // akademi: küçük salon ve dış saha
+    akademi: (x, y) =>
+      box(x - 40, y + 30, 66, 40, 12, "#e9e2d0", "#c9c0a9", roof) +
+      windows(x - 40, y + 30, 66, 30, 4, 2, lit) +
+      `<rect x="${x - 36}" y="${y - 6}" width="58" height="10" rx="2" fill="#1d428a"/><text x="${x - 7}" y="${y + 2}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#fff">AKADEMİ</text><circle cx="${x + 30}" cy="${y + 22}" r="3" fill="#ff8a3d"/>`,
+    // borsa: yüksek kule ve kayan yazı
+    borsa: (x, y) =>
+      box(x - 26, y + 30, 46, 80, 12, "#2b3d58", "#1f2d42", "#40587c") +
+      windows(x - 26, y + 30, 46, 74, 3, 7, lit, true) +
+      `<rect x="${x - 26}" y="${y - 22}" width="46" height="9" fill="#06090f"/><text x="${x - 3}" y="${y - 15}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#36d38e">▲ BORSA ▼</text>`,
+    // hipodrom: oval pist ve tribün
+    hipodrom: (x, y) =>
+      `<ellipse cx="${x}" cy="${y + 20}" rx="58" ry="22" fill="${lit ? "#4a3a24" : "#c8a46a"}"/><ellipse cx="${x}" cy="${y + 20}" rx="44" ry="13" fill="${lit ? "#1f3a2a" : "#3d6e4b"}"/>` +
+      box(x - 30, y + 2, 52, 18, 8, "#f5f0e6", "#d7cfbf", "#a33") +
+      `<path d="M${x + 16} ${y + 26}l6 -6 4 2 -3 6z" fill="#5d4037"/>`,
+    // liman: iskele, deniz feneri ve yat
+    liman: (x, y) =>
+      `<rect x="${x - 50}" y="${y + 6}" width="100" height="10" fill="#8d6e63"/><rect x="${x - 6}" y="${y - 40}" width="12" height="46" fill="#fff" stroke="#c62828" stroke-width="2"/><rect x="${x - 6}" y="${y - 22}" width="12" height="8" fill="#c62828"/><circle cx="${x}" cy="${y - 44}" r="5" fill="${lit ? "#ffd27a" : "#ffe082"}"/>` +
+      `<path d="M${x + 20} ${y + 30}H${x + 58}L${x + 52} ${y + 40}H${x + 26}Z" fill="#eceff1" stroke="#141414"/><rect x="${x + 38}" y="${y + 8}" width="2" height="22" fill="#cfd8dc"/>`,
     // stüdyo: cam bina, ışık ve kamera
     studyo: (x, y) =>
       box(x - 38, y + 30, 64, 46, 12, "#1d2433", "#141a26", "#2c3650") +

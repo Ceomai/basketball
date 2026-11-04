@@ -349,13 +349,17 @@ export function renderCreate() {
           ["kep", $t("core.12")],
           ["kulak", $t("core.13")],
           ["band", $t("core.14")],
-          ["yok", $t("core.15")]
+          ["yok", $t("core.15")],
+          ["uzun", $t("sty.h.uzun")],
+          ["afro", $t("sty.h.afro")],
+          ["orgu", $t("sty.h.orgu")],
+          ["kel", $t("sty.h.kel")]
         ]
           .map(([v, t]) => `<button class="opt ${F.look.hatStyle === v ? "on" : ""}" data-v="${v}">${t}</button>`)
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${F.look.hatStyle === "yok" ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(F.look.hatStyle === "yok" ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(F.look.hatStyle === "yok" ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">${["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
     ${F.look.hatStyle === "band" ? `<div><div class="eyebrow" style="margin-bottom:6px">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
     <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
       .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}"><span class="cc">${k}</span>${p.n}</button>`)
@@ -426,7 +430,7 @@ export function renderCreate() {
   bind("skin", v => (F.look.skin = v));
   bind("hs", v => (F.look.hatStyle = v));
   bind("hc", v => {
-    if (F.look.hatStyle === "yok") F.look.hair = v;
+    if (["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle)) F.look.hair = v;
     else F.look.hat = v;
   });
   bind("hc2", v => (F.look.hair = v));
@@ -742,6 +746,11 @@ export function renderMain() {
   <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
   <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
+  // portreye dokununca görünüm/stil (Ev → Stil)
+  const hav = $("#hav");
+  hav.style.cursor = "pointer";
+  hav.title = t("sty.title");
+  hav.onclick = () => late.openLoc("ev", "stil");
   $$(".loc").forEach(g => {
     const go = () => late.openLoc(g.dataset.loc);
     g.onclick = go;

@@ -212,7 +212,7 @@ export async function playMatch(ctx) {
     }
     // rotasyon
     const minute = t / 60,
-      want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo; // faulle oyun dışı
+      want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo && M.ftSit !== M.q; // faulle oyun dışı / faul sorunu
     if (want !== on) {
       on = want;
       if (on) {
@@ -385,14 +385,15 @@ export async function playMatch(ctx) {
         d: `${d} · ${statName(st)} ${Math.round(eff(st))}`,
         e: eff(st) - (PEN[k] || 0)
       }));
-      if (!clutch && opts.length > 3) opts = shuffle(opts).slice(0, late.optCount());
+      const all = opts;
+      opts = late.pickOffOpts(all, clutch); // şut, bitiriş ve pas karışık; 4 seçenek, kilit anda 5
       if (sp && sp.keys) {
         head = sp.head;
         desc = sp.desc;
-        const f = opts.filter(o => sp.keys.includes(o.k));
-        if (f.length >= 2) opts = f;
+        const f = all.filter(o => sp.keys.includes(o.k));
+        if (f.length >= 2) opts = late.pickOffOpts(f, true);
         // Clutch özelliği: son hücumda "Topu bana verin"
-        const co = late.clutchOption();
+        const co = sp.id === "lastshot" ? late.clutchOption() : null;
         if (co) opts = [co, ...opts];
       }
     } else if (ty === "def") {
@@ -407,10 +408,15 @@ export async function playMatch(ctx) {
         e: eff(st) + (k === "safe" ? 15 : 0)
       }));
     } else {
-      head = $t("engine.47");
-      desc = $t("engine.48");
-      opts = [{ k: "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }];
+      // faul anı: çoğunlukla 2 serbest atış, bazen üçlükte faul (3 serbest atış)
+      const three = Math.random() < 0.3;
+      head = three ? $t("m2.foul3") : $t("engine.47");
+      desc = three ? $t("m2.foul3D") : $t("engine.48");
+      opts = [
+        { k: three ? "free3" : "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }
+      ];
     }
+    if (sp && sp.pen) opts = opts.map(o => ({ ...o, e: o.e - sp.pen })); // şut saati baskısı
     // imza hareket (maçta bir kez) ve maç koşulları + özellikler seçeneklerin başarı değerine eklenir
     if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
     opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));

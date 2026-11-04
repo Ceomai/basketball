@@ -15,6 +15,7 @@ import { t as $t } from "./i18n/index.js";
 import { fmt, statName, toast } from "./data.js";
 import { S, norm, tx } from "./core.js";
 import { SHOP } from "./shops.js";
+import { late } from "./late.js";
 
 /* ---- Market ---- */
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
@@ -111,7 +112,7 @@ export function comfort() {
   for (const [id, v] of Object.entries(ITEM_C)) if (S.items && S.items[id]) c += v;
   return Math.min(100, c);
 }
-export const moraleBase = () => 42 + Math.round(comfort() * 0.28);
+export const moraleBase = () => 42 + Math.round(comfort() * 0.28) + (late.partnerBase ? late.partnerBase() : 0); // evlilik/çocuk (src/harbor.js)
 export const comfortEnergy = () => Math.round(comfort() / 25);
 export const sponsorMul = () => 1 + comfort() / 200;
 export function comfortHTML() {

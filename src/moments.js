@@ -52,6 +52,8 @@ export function conditionsHTML(us) {
 export const conditionsHint = () => (M.dz === "zone" ? $t("cond.zoneHint") : $t("cond.manHint"));
 
 export function pickSpecial(us, clutch, diff, dn) {
+  const situ = late.situSpecial(us, clutch, diff, dn);
+  if (situ) return situ;
   // son hücum: maçın son anları, 3 sayı ya da daha az geride/eşit, top bizde
   if (us && clutch && diff <= 0 && diff >= -3)
     return {

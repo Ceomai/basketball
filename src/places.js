@@ -99,7 +99,11 @@ export function openLoc(id, tab) {
     sokak: late.locSokak,
     studyo: late.locStudio,
     taraftar: late.locFans,
-    performans: late.locPerf
+    performans: late.locPerf,
+    akademi: late.locAkademi,
+    borsa: late.locBorsa,
+    hipodrom: late.locHipodrom,
+    liman: late.locLiman
   })[id](I, tab);
   late.placeTip(id); // ilk ziyarette kısa tanıtım (src/guide.js)
 }
