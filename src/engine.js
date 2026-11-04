@@ -151,7 +151,7 @@ export async function playMatch(ctx) {
           v2: M.plus >= 0 ? "+" : "",
           plus: M.plus
         }
-      )}</div>`;
+      )} · ${$t("pf.short", { n: M.pf || 0, l: late.foulLimit() })}</div>`;
   };
   const banner = (t, good) => {
     late.sfx("whistle");
@@ -212,7 +212,7 @@ export async function playMatch(ctx) {
     }
     // rotasyon
     const minute = t / 60,
-      want = inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench");
+      want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo; // faulle oyun dışı
     if (want !== on) {
       on = want;
       if (on) {
@@ -296,7 +296,8 @@ export async function playMatch(ctx) {
       (win ? 0.2 : -0.15) +
       clamp(M.plus / 35, -0.35, 0.35) +
       clamp((M.autoPts || 0) / 50, 0, 0.2) +
-      clamp(fit / 40, -0.2, 0.2),
+      clamp(fit / 40, -0.2, 0.2) -
+      late.foulPenalty(),
     1,
     10
   );
@@ -312,6 +313,10 @@ export async function playMatch(ctx) {
     const p = clamp(ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT), 0.15, 0.85);
     const who = us ? pick(mates) : pick(foes),
       team = us ? S.team.short : opp.short;
+    if (!us && on) {
+      const f = late.backgroundFoul();
+      if (f) addFeed(`${S.team.short} · <b>${sur}</b>${f}`);
+    }
     if (Math.random() < p) {
       const three = Math.random() < 0.32,
         pts = three ? 3 : 2;
@@ -380,7 +385,7 @@ export async function playMatch(ctx) {
         d: `${d} · ${statName(st)} ${Math.round(eff(st))}`,
         e: eff(st) - (PEN[k] || 0)
       }));
-      if (!clutch && opts.length > 3) opts = shuffle(opts).slice(0, 3);
+      if (!clutch && opts.length > 3) opts = shuffle(opts).slice(0, late.optCount());
       if (sp && sp.keys) {
         head = sp.head;
         desc = sp.desc;
@@ -398,7 +403,7 @@ export async function playMatch(ctx) {
       opts = PL.def.map(([k, tt, st, d]) => ({
         k,
         t: tt,
-        d: `${d} · ${statName(st)} ${Math.round(eff(st))}`,
+        d: `${d} · ${statName(st)} ${Math.round(eff(st))}${late.foulNote(k)}`,
         e: eff(st) + (k === "safe" ? 15 : 0)
       }));
     } else {
@@ -450,7 +455,7 @@ export async function playMatch(ctx) {
     if (res.good) M.wgood = (M.wgood || 0) + res.w;
     late.sfx(res.good ? "cheer" : "ooh");
     late.crowdSwell(res.good ? 1.4 : 0.6);
-    let txt = res.txt + late.afterSignature(k, res.good);
+    let txt = res.txt + late.afterSignature(k, res.good) + (ty === "def" ? late.foulAfterMoment(k, res.good) : "");
     if (res.good) {
       // başarılı an niteliğe ondalık katkı (maç sonunda toplamı gösterilir); seviye yükseldikçe azalır ama sıfırlanmaz
       const g = BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul() * (0.25 + 0.75 * late.levelMul(res.st));

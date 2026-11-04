@@ -86,10 +86,31 @@ export function addFeed(t) {
   const f = $("#feed");
   if (f) f.innerHTML = M.feed.map(x => `<div><time>${x.t}</time><span>${x.x}</span></div>`).join("");
 }
-export const PEN = { pull: 6, catch: 4, wing: 5, step: 2, pop: 2, lob: -4, pnr: 0, kick: -6 };
+export const PEN = {
+  pull: 6,
+  catch: 4,
+  wing: 5,
+  step: 2,
+  pop: 2,
+  lob: -4,
+  pnr: 0,
+  kick: -6,
+  corner: 3,
+  top3: 7,
+  float: 1,
+  mid: 0,
+  lay: -3
+};
+// Basket faul: sayı geçerli, bir serbest atış
+async function andOne(el, sur, dn, st, w) {
+  addFeed($t("match.11", { sur, dn }));
+  const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("match.98"), tries: 1, label: $t("games.8") });
+  M.pts += f.ok;
+  return { good: true, w, st, txt: f.ok ? $t("match.12") : $t("match.13") };
+}
 export async function resolvePlay(k, el, sur, dn) {
-  const three = ["pull", "catch", "wing"],
-    mid = ["step", "pop", "mid"];
+  const three = ["pull", "catch", "wing", "corner", "top3"],
+    mid = ["step", "pop", "mid", "float"];
   if (three.includes(k) || mid.includes(k)) {
     const th = three.includes(k);
     const r = await mgShoot(el, {
@@ -110,8 +131,12 @@ export async function resolvePlay(k, el, sur, dn) {
           })
     };
   }
-  if (k === "drive" || k === "break") {
-    const r = await mgDribble(el, { eff: eff("hiz"), reps: 1, title: k === "break" ? $t("match.9") : $t("match.10") });
+  if (k === "drive" || k === "break" || k === "lay") {
+    const r = await mgDribble(el, {
+      eff: eff("hiz") - (PEN[k] || 0),
+      reps: 1,
+      title: k === "break" ? $t("match.9") : k === "lay" ? $t("pl.lay") : $t("match.10")
+    });
     if (!r.ok)
       return {
         good: false,
@@ -132,7 +157,7 @@ export async function resolvePlay(k, el, sur, dn) {
         })
       };
     }
-    if (Math.random() < 0.18) {
+    if (Math.random() < (k === "lay" ? 0.12 : 0.18)) {
       M.pts += 2;
       addFeed(
         $t("match.11", {
@@ -209,6 +234,7 @@ export async function resolvePlay(k, el, sur, dn) {
   if (k === "post") {
     const r = await mgPost(el, { eff: eff("guc"), reps: 1, title: $t("data.107") });
     if (r.ok) M.pts += 2;
+    if (r.ok && Math.random() < 0.1) return andOne(el, sur, dn, "guc", 1.3);
     return {
       good: r.ok > 0,
       w: 1.2,
@@ -226,6 +252,7 @@ export async function resolvePlay(k, el, sur, dn) {
   if (k === "dunk") {
     const r = await mgTiming(el, { eff: eff("guc") + 5, title: $t("data.132"), tries: 1, label: $t("games.37"), kind: "dunk" });
     if (r.ok) M.pts += 2;
+    if (r.ok && Math.random() < 0.08) return andOne(el, sur, dn, "guc", 1.4);
     return {
       good: r.ok > 0,
       w: 1.3,
@@ -429,7 +456,7 @@ export function finishMatch(win) {
      v: Math.round((M.mins || 0) / 60),
      v2: (M.plus || 0) >= 0 ? "+" : "",
      v3: M.plus || 0
-   })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}</div>
+   })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}<span>${$t("pf.label")}</span><b class="${M.fo ? "bad" : ""}">${M.pf || 0}${M.fo ? ` · ${$t("pf.outShort")}` : ""}</b></div>
    ${
      inj
        ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("match.34")}</b> ${$t("match.35", {

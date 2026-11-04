@@ -703,5 +703,22 @@ export default {
   "prep.watchD": "Okları aklında tut; sonra aynı sırayla tekrar edeceksin.",
   "prep.repeat": "Diziyi tekrar et ({a}/{b})",
   "prep.videoA": "Rakibin setlerini ezberledin: bu maçta {k} +4.",
-  "prep.videoB": "Diziyi karıştırdın; bu sefer avantaj yok."
+  "prep.videoB": "Diziyi karıştırdın; bu sefer avantaj yok.",
+  "pl.lay": "Turnike",
+  "pl.layD": "Hızla potaya gir, tabelaya bırak",
+  "pl.top3": "Tepeden üçlük",
+  "pl.top3D": "Uzun mesafe, zor ama 3 sayı",
+  "pl.float": "Floater",
+  "pl.floatD": "Uzun adamların üstünden yumuşak atış",
+  "pl.corner": "Köşe üçlüğü",
+  "pl.cornerD": "En kısa üçlük mesafesi",
+  "pl.mid": "Orta mesafe",
+  "pl.midD": "Pull-up ikilik",
+  "pf.risk": "faul riski",
+  "pf.foul": "Faul ({n}/{l}).",
+  "pf.warn": "Faul sorunu: {n}/{l}! Bir faul daha yaparsan oyun dışı kalırsın.",
+  "pf.out": "Faulle oyun dışı ({n})! Maçın kalanını kenardan izleyeceksin.",
+  "pf.short": "faul {n}/{l}",
+  "pf.label": "Faul",
+  "pf.outShort": "oyun dışı"
 };

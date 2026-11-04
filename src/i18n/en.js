@@ -704,5 +704,22 @@ export default {
   "prep.watchD": "Remember the arrows; you'll repeat them in the same order.",
   "prep.repeat": "Repeat the sequence ({a}/{b})",
   "prep.videoA": "You memorized their sets: {k} +4 in this game.",
-  "prep.videoB": "You mixed up the sequence; no edge this time."
+  "prep.videoB": "You mixed up the sequence; no edge this time.",
+  "pl.lay": "Layup",
+  "pl.layD": "Attack the rim, kiss it off the glass",
+  "pl.top3": "Three from the top",
+  "pl.top3D": "Long range, tough but worth 3",
+  "pl.float": "Floater",
+  "pl.floatD": "Soft shot over the bigs",
+  "pl.corner": "Corner three",
+  "pl.cornerD": "The shortest three",
+  "pl.mid": "Mid-range",
+  "pl.midD": "Pull-up jumper",
+  "pf.risk": "foul risk",
+  "pf.foul": "Foul ({n}/{l}).",
+  "pf.warn": "Foul trouble: {n}/{l}! One more and you foul out.",
+  "pf.out": "Fouled out ({n})! You'll watch the rest from the bench.",
+  "pf.short": "fouls {n}/{l}",
+  "pf.label": "Fouls",
+  "pf.outShort": "fouled out"
 };
