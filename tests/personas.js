@@ -264,6 +264,19 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       if (window.Game.S.career.games > g0) return "done";
       const ch = $("#mview [data-k]");
       if (ch) return (ch.click(), "k");
+      // ikinci karar (src/court.js) ve oyunu kur ekranı (src/matchday.js)
+      const fu = $("#mview [data-fu]");
+      if (fu) return (fu.click(), "fu");
+      const sg = $("#sp-go");
+      if (sg) {
+        if (sg.disabled) {
+          const a = $("#sp-s [data-v]:not(.on)"),
+            b = $("#sp-r [data-v]:not(.on)");
+          if (!$("#sp-s .on") && a) a.click();
+          else if (!$("#sp-r .on") && b) b.click();
+        } else sg.click();
+        return "sp";
+      }
       const q = $("#qgo");
       if (q) return (q.click(), "q");
       const cv = $("#mview canvas");
