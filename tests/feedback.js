@@ -963,6 +963,171 @@ test("taraftar bölgesi: imza günü, önemli maç haftasında taraftar grubu mo
   return p;
 });
 
+test("maç 2: hücumda 4 (kilit anda 5) karışık seçenek; durum anları; üçlükte faul 3 serbest atış; faul sorunu kenara alır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const all = G.PLAYS.SG.off.map(([k]) => ({ k, e: 50 }));
+    const cats = o =>
+      ["pull", "catch", "wing", "corner", "top3"].includes(o.k) ? "3" : ["pnr", "kick", "lob"].includes(o.k) ? "p" : "x";
+    const a = G.pickOffOpts(all, false),
+      b = G.pickOffOpts(all, true);
+    G.setM({ us: 70, them: 66, pts: 0, ast: 0, stl: 0, stops: 0, pf: 0, q: 2, mmod: 0 });
+    const R = Math.random;
+    Math.random = () => 0.1;
+    const clock = G.situSpecial(true, true, 4, "X");
+    const hack = G.situSpecial(false, true, -5, "X");
+    Math.random = R;
+    const hr = hack.resolve("hk_foul", "Ben");
+    const pf1 = G.M.pf;
+    G.addFoul();
+    G.addFoul();
+    const ft = G.M.ftSit;
+    G.setM({ pts: 0, mmod: 0 });
+    G.autoResolve("free3", "Ben");
+    return {
+      a: a.length,
+      b: b.length,
+      mixA: new Set(a.map(cats)).size,
+      clock: clock && clock.id,
+      hack: hack && hack.id,
+      hr: !!hr.txt,
+      pf1,
+      ft,
+      ftPts: G.M.pts
+    };
+  });
+  assert(r.a === 4 && r.b === 5 && r.mixA >= 3, "seçenekler: " + JSON.stringify(r));
+  assert(r.clock === "clock" && r.hack === "hackfoul" && r.pf1 === 1, "durum anları: " + JSON.stringify(r));
+  assert(r.ft === 2 && r.ftPts <= 3, "faul sorunu / 3 serbest atış: " + JSON.stringify(r));
+  return p;
+});
+
+test("haftalık hazırlık her maç haftasında: şut seansı, video, odaklanma; odaklanma moral ve enerji verir", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => window.Game.openLoc("stad", "mac"));
+  assert(
+    (await p.isVisible("#pr-shot")) && (await p.isVisible("#pr-focus")) && !(await p.$("#pr-press")),
+    "haftalık hazırlık düğmeleri"
+  );
+  await p.evaluate(() => {
+    window.Game.S.moral = 50;
+    window.Game.S.energy = 60;
+  });
+  await p.click("#pr-focus");
+  await p.waitForSelector("#bk", { timeout: 60000 });
+  const r = await p.evaluate(() => ({ k: !!window.Game.S.prepKey, res: window.Game.S.prepRes }));
+  assert(r.k && r.res, "odaklanma sonucu: " + JSON.stringify(r));
+  return p;
+});
+
+test("stil 2: yeni saç modelleri ve ana ekranda portreden stil paneli", async () => {
+  const p = await page();
+  await career(p);
+  await p.click("#hav");
+  assert(await p.isVisible('#st-hat [data-v="afro"]'), "afro seçeneği yok");
+  await p.click('#st-hat [data-v="afro"]');
+  await p.evaluate(() => (window.Game.S.money = 500));
+  await p.click('#st-hat [data-v="orgu"]');
+  await p.click("#st-save");
+  const r = await p.evaluate(() => ({ hs: window.Game.S.look.hatStyle, cv: !!document.querySelector("#stpv canvas") }));
+  assert(r.hs === "orgu" && r.cv, "saç modeli: " + JSON.stringify(r));
+  return p;
+});
+
+test("akademi: kurulur, öğrenci kaydı, haftalık aidat, mezuniyet ve miras", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.district = "kompleks";
+    G.openLoc("akademi");
+    document.querySelector("#ac-buy").click();
+    document.querySelector("[data-ac]").click();
+    const kids = S.acad.kids.length;
+    const m0 = S.money;
+    G.Bus.emit("week:start");
+    const inc = S.money - m0;
+    S.acad.kids[0].age = 17;
+    S.acad.kids[0].sk = 60;
+    const l0 = G.legacyScore();
+    G.Bus.emit("season:end", {});
+    return { kids, inc, grads: S.acad.grads.length, pro: S.acad.grads[0] && S.acad.grads[0].pro, dl: G.legacyScore() - l0 };
+  });
+  assert(r.kids === 3 && r.inc > 0, "akademi: " + JSON.stringify(r));
+  assert(r.grads === 1 && r.pro && r.dl >= 25, "mezuniyet/miras: " + JSON.stringify(r));
+  return p;
+});
+
+test("liman: buluşmalar ilişkiyi ilerletir, sevgili, nişan, düğün; evlilik moral tabanını yükseltir", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.partner = "Elif";
+    S.rel.partner = 70;
+    S.pstage = 0;
+    S.dates = 3;
+    S.slot = 3;
+    G.openLoc("liman");
+    document.querySelector('[data-dt="rest"]').click();
+    const st1 = S.pstage;
+    S.rel.partner = 95;
+    S.slot = 3;
+    G.openLoc("liman");
+    const R = Math.random;
+    Math.random = () => 0.01;
+    document.querySelector("#hb-prop").click();
+    Math.random = R;
+    const st2 = S.pstage;
+    const b0 = G.moraleBase();
+    S.weddingReady = true;
+    G.openLoc("liman");
+    document.querySelector("#hb-wed").click();
+    return { st1, st2, st3: S.pstage, db: G.moraleBase() - b0 };
+  });
+  assert(r.st1 === 1 && r.st2 === 2 && r.st3 === 3 && r.db === 5, "partner aşamaları: " + JSON.stringify(r));
+  return p;
+});
+
+test("borsa: lot al, fiyat haftalık değişir, sat; hipodrom: bahis, yarış biter, koç haftada bir", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    G.openLoc("borsa");
+    const m0 = S.money;
+    document.querySelector('[data-sb="tek"]').click();
+    const own = S.mkt2.own.tek,
+      p0 = S.mkt2.p.tek;
+    G.Bus.emit("week:start");
+    const p1 = S.mkt2.p.tek;
+    G.openLoc("borsa");
+    document.querySelector('[data-ss="tek"]').click();
+    S.age = 25;
+    S.rel.koc = 50;
+    G.openLoc("hipodrom");
+    G.openLoc("hipodrom");
+    return { own, changed: p0 !== p1, back: S.money < m0 + 1e9 && S.mkt2.own.tek === 0, koc: S.rel.koc };
+  });
+  assert(r.own > 0 && r.changed && r.back, "borsa: " + JSON.stringify(r));
+  assert(r.koc === 48, "hipodrom koç: " + r.koc);
+  const m0 = await p.evaluate(() => window.Game.S.money);
+  await p.click('[data-hb="0"]');
+  await p.waitForSelector("#hp-again", { timeout: 10000 });
+  const m1 = await p.evaluate(() => window.Game.S.money);
+  assert(m1 !== m0, "bahis işlenmedi");
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

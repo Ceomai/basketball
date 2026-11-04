@@ -62,6 +62,8 @@ import * as fitness from "./fitness.js";
 import * as gear from "./gear.js";
 import * as studio from "./studio.js";
 import * as district from "./district.js";
+import * as academy from "./academy.js";
+import * as harbor from "./harbor.js";
 
 const MODULES = [
   data,
@@ -124,7 +126,9 @@ const MODULES = [
   fitness,
   gear,
   studio,
-  district
+  district,
+  academy,
+  harbor
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

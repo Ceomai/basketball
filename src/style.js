@@ -11,9 +11,20 @@ import { late } from "./late.js";
 
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
 export const styleFee = () => Math.round(8 * (PM[S.stage] || 1));
-const HATS = ["bere", "kep", "kulak", "band", "yok"];
+const HATS = ["bere", "kep", "kulak", "band", "yok", "uzun", "afro", "orgu", "kel"];
 const BEARDS = ["yok", "kirli", "keci", "sakal"];
-const HAT_N = { bere: "core.11", kep: "core.12", kulak: "core.13", band: "core.14", yok: "core.15" };
+const HAT_N = {
+  bere: "core.11",
+  kep: "core.12",
+  kulak: "core.13",
+  band: "core.14",
+  yok: "core.15",
+  uzun: "sty.h.uzun",
+  afro: "sty.h.afro",
+  orgu: "sty.h.orgu",
+  kel: "sty.h.kel"
+};
+const NO_HAT = ["yok", "uzun", "afro", "orgu", "kel"];
 const BEARD_N = { yok: "sty.b0", kirli: "sty.b1", keci: "sty.b2", sakal: "sty.b3" };
 
 /** Ev → Stil sekmesi */
@@ -32,7 +43,7 @@ export function styleTab(c, re) {
       L.hatStyle,
       $t("sty.hat")
     )}
-    ${L.hatStyle === "yok" ? "" : sw("st-hatc", [...HATC, ...late.extraHatColors()], L.hat, $t("core.17"))}
+    ${NO_HAT.includes(L.hatStyle) ? "" : sw("st-hatc", [...HATC, ...late.extraHatColors()], L.hat, $t("core.17"))}
     ${sw("st-hair", HAIRC, L.hair, $t("core.16"))}
     </div></div>
     ${opt(

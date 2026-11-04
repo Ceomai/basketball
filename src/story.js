@@ -86,7 +86,8 @@ export function autoResolve(k, sur) {
     };
   }
   if (k === "drive" || k === "break" || k === "lay") {
-    if (!coin(autoP(eff("hiz") - (PEN[k] || 0))))
+    if (!coin(autoP(eff("hiz") - (PEN[k] || 0)))) {
+      if (k !== "break" && coin(0.15)) late.addFoul(); // hücum faulü
       return {
         good: false,
         w: 1,
@@ -95,6 +96,7 @@ export function autoResolve(k, sur) {
           sur: sur
         })
       };
+    }
     M.pts += 2;
     if ((k === "drive" || k === "lay") && coin(k === "lay" ? 0.12 : 0.18) && coin(autoP(eff("sut") + 10))) M.pts++;
     return {
@@ -224,7 +226,7 @@ export function autoResolve(k, sur) {
     return { good: ok, w: 0.5, st: "sav", txt: ok ? $t("story.11") : $t("story.12") };
   }
   let m = 0;
-  for (let i = 0; i < 2; i++) if (coin(autoP(eff("sut") + 12))) m++;
+  for (let i = 0; i < (k === "free3" ? 3 : 2); i++) if (coin(autoP(eff("sut") + 12))) m++;
   M.pts += m;
   return {
     good: m > 0,

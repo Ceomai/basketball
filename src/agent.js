@@ -234,20 +234,66 @@ export function bindAgentExtras() {
 /* ---- Maç öncesi hazırlık (önemli maçlar) ---- */
 const matchKey = () => `${S.season}-${S.week}-${S.phase}`;
 export function prepHTML() {
+  if (window.__SIM || !S || S.injury || !S.league) return "";
   const big = late.bigMatch && late.bigMatch();
-  if (!big || window.__SIM) return "";
   const done = S.prepKey === matchKey();
-  return `<div class="card"><div class="eyebrow">${$t("prep.title", { v: big.label })}</div><p class="small">${$t("prep.intro")}</p>${
+  return `<div class="card"><div class="eyebrow">${big ? $t("prep.title", { v: big.label }) : $t("m2.prepWeek")}</div><p class="small">${big ? $t("prep.intro") : $t("m2.prepIntro")}</p>${
     done
       ? `<p class="small good">${S.prepRes || ""}</p>`
-      : `<div class="grid2"><button class="btn sm" id="pr-press">${$t("prep.press")}</button><button class="btn sm" id="pr-video">${$t("prep.video")}</button></div>`
+      : `<div class="grid2">${big ? `<button class="btn sm" id="pr-press">${$t("prep.press")}</button>` : `<button class="btn sm" id="pr-shot">${$t("m2.shotS")}</button>`}<button class="btn sm" id="pr-video">${$t("prep.video")}</button><button class="btn sm" id="pr-focus">${$t("m2.focus")}</button></div>`
   }</div>`;
 }
 export function bindPrep(re) {
   const a = $("#pr-press"),
-    b = $("#pr-video");
+    b = $("#pr-video"),
+    c = $("#pr-shot"),
+    d = $("#pr-focus");
   if (a) a.onclick = () => pressGame(re);
   if (b) b.onclick = () => videoGame(re);
+  if (c) c.onclick = () => shotSession();
+  if (d) d.onclick = () => focusGame();
+}
+// Ekstra şut seansı: 4 şut; 3 ve üstü isabet → bu maçta şut +3
+async function shotSession() {
+  S.prepKey = matchKey();
+  late.closeSheet();
+  late.arenaFor(null);
+  late.app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.shotS")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  const r = await late.mgShoot($("#stg"), {
+    eff: clamp(late.eff("sut") + 10, 5, 100),
+    shots: 4,
+    title: $t("m2.shotS"),
+    dist: "mid",
+    def: false
+  });
+  const ok = r.made >= 3;
+  if (ok) S.boosts = [...(S.boosts || []).filter(x => x.id !== "prep"), { id: "prep", k: "sut", v: 3, g: 1 }];
+  S.prepRes = ok ? $t("m2.shotOk", { v: r.made }) : $t("m2.shotNo", { v: r.made });
+  save();
+  $("#stg").innerHTML = "";
+  $("#res").innerHTML =
+    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  $("#bk").onclick = () => late.openLoc("stad", "mac");
+}
+// Odaklanma: nefes ritmi (zamanlama); başarılıysa moral +5, enerji +5
+async function focusGame() {
+  S.prepKey = matchKey();
+  late.closeSheet();
+  late.arenaFor(null);
+  late.app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.focus")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  const r = await late.mgTiming($("#stg"), { eff: 60, title: $t("m2.focus"), tries: 2, label: $t("m2.breath"), kind: "free" });
+  const ok = r.ok >= 1;
+  if (ok) {
+    S.moral += 5;
+    S.energy += 5;
+    norm();
+  }
+  S.prepRes = ok ? $t("m2.focusOk") : $t("m2.focusNo");
+  save();
+  $("#stg").innerHTML = "";
+  $("#res").innerHTML =
+    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  $("#bk").onclick = () => late.openLoc("stad", "mac");
 }
 // Basın toplantısı: 3 soru, her biri 6 saniye; tutarlı ve sakin cevaplar iyi not getirir
 const Q = ["prep.q1", "prep.q2", "prep.q3", "prep.q4", "prep.q5"];

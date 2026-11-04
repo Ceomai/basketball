@@ -149,7 +149,33 @@ export function drawKid(c, x, y, s, L, o = {}) {
   ell(c, 0, hY, 38, 33, sk);
   const hs = L.hatStyle || "yok",
     hat = L.hat || "#333";
-  if (hs === "yok" || hs === "uzun") {
+  // oyuncu saç modelleri (Ev → Stil): afro, örgü, kel
+  if (hs === "afro") {
+    ell(c, 0, hY - 22, 50, 38, L.hair || "#222");
+    for (let i = 0; i < 9; i++) ell(c, -40 + i * 10, hY - 50 + Math.abs(4 - i) * 4, 9, 9, L.hair || "#222", 0, false);
+  } else if (hs === "orgu") {
+    c.fillStyle = L.hair || "#222";
+    c.beginPath();
+    c.ellipse(0, hY - 8, 38, 30, 0, Math.PI, Math.PI * 2);
+    c.closePath();
+    c.fill();
+    c.stroke();
+    c.strokeStyle = shade(L.hair || "#222", 40);
+    c.lineWidth = 2;
+    for (let i = -3; i <= 3; i++) {
+      c.beginPath();
+      c.moveTo(i * 9, hY - 36 + Math.abs(i) * 2);
+      c.lineTo(i * 10, hY - 8);
+      c.stroke();
+    }
+    c.strokeStyle = INK;
+    c.lineWidth = 2.2;
+  } else if (hs === "kel") {
+    c.save();
+    c.globalAlpha = 0.25;
+    ell(c, -10, hY - 20, 9, 5, "#fff", -0.4, false);
+    c.restore();
+  } else if (hs === "yok" || hs === "uzun") {
     c.fillStyle = L.hair || "#222";
     c.beginPath();
     c.moveTo(-36, hY - 6);
