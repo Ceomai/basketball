@@ -269,9 +269,27 @@ export function h2hHTML() {
 
 /* ================= YAZ KAMPI ================= */
 const CAMP = ["beach", "trail", "gym", "fire", "legend", "prank", "sneak"];
+const ROOMIES = ["snore", "early", "snack"];
+// kamp grup fotoğrafı: takım renklerinde sıra sıra oyuncular, önde sen
+function campPhoto(loc) {
+  const c1 = S.team.c1,
+    c2 = S.team.c2,
+    sk = (S.look && S.look.skin) || "#d9a477";
+  const guy = (x, y, me, i) =>
+    `<g transform="translate(${x},${y})"><circle r="7" cy="-20" fill="${me ? sk : ["#f1c9a5", "#a8714b", "#d9a477", "#6e452c"][i % 4]}" stroke="#141414" stroke-width="1.2"/><rect x="-8" y="-13" width="16" height="18" rx="3" fill="${me ? "#ffc54d" : c1}" stroke="#141414" stroke-width="1.2"/><text y="0" text-anchor="middle" font-size="7" font-weight="900" font-family="Barlow Condensed" fill="${me ? "#141414" : c2}">${me ? S.num : (i * 7 + 3) % 99}</text>${me ? "" : `<path d="M-8 -6 L-13 ${i % 2 ? -18 : 0}" stroke="${["#f1c9a5", "#a8714b", "#d9a477"][i % 3]}" stroke-width="3" stroke-linecap="round"/>`}</g>`;
+  const back = Array.from({ length: 6 }, (_, i) => guy(40 + i * 44, 64, false, i)).join(""),
+    front = Array.from({ length: 5 }, (_, i) => (i === 2 ? guy(150, 96, true, 0) : guy(62 + i * 44, 96, false, i + 6))).join("");
+  return `<svg viewBox="0 0 300 130" width="100%" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px"><rect width="300" height="130" fill="#7ec8e3"/><path d="M0 70 L60 30 L110 60 L170 20 L240 62 L300 35 L300 130 L0 130 Z" fill="#5b8c5a"/><rect y="104" width="300" height="26" fill="#c98f53"/><rect x="70" y="6" width="160" height="18" rx="4" fill="${c1}" stroke="#141414"/><text x="150" y="19" text-anchor="middle" font-size="11" font-weight="900" font-family="Barlow Condensed" fill="${c2}">${esc(String(loc).toUpperCase())} ${S.year}</text>${back}${front}</svg>`;
+}
 async function campDay(day, journal) {
   const opts = shuffle(CAMP.slice()).slice(0, 3);
-  const k = await ask($t("cp.t"), $t("cp.day", { n: day }), $t(`cp.dayB${day}`), [
+  // sabah: koçun notu ve oda arkadaşının gecesi
+  const room = S.campRoom ? $t(`cp.rm.${S.campRoom.k}.n${day}`, { m: esc(S.campRoom.m) }) : "";
+  if (S.campRoom && S.campRoom.k === "snore") S.energy -= 2;
+  if (S.campRoom && S.campRoom.k === "early") S.rel.koc += 1;
+  if (S.campRoom && S.campRoom.k === "snack") S.moral += 1;
+  if (room) journal.push(room);
+  const k = await ask($t("cp.t"), $t("cp.day", { n: day }), `<i>${$t(`cp.coach${ri(1, 5)}`, { c: esc(S.npc.coach) })}</i><br>${room}<br>${$t(`cp.dayB${day}`)}`, [
     ...opts.map(o => [o, $t(`cp.a.${o}`), $t(`cp.a.${o}D`)]),
     ["auto", $t("cp.auto"), $t("cp.autoD")]
   ]);
@@ -338,6 +356,10 @@ async function summerCamp() {
     return result($t("cp.t"), $t("cp.skipR", { l: loc }), [[$t("tl.fx.team", { v: 2 }), "p"]]);
   }
   const journal = [];
+  // oda arkadaşı seç: üç gün boyunca komik anlar ve küçük etkiler
+  const mates = shuffle((late.mateNames ? late.mateNames(5) : ["B. Pivot", "K. Kaptan", "Ç. Çaylak"]).slice()).slice(0, 3);
+  const rk = await ask($t("cp.t"), $t("cp.room"), $t("cp.roomB"), ROOMIES.map((r, i) => [r, `${esc(mates[i] || "?")} · ${$t(`cp.rm.${r}`)}`, $t(`cp.rm.${r}D`)]));
+  S.campRoom = { k: rk, m: mates[ROOMIES.indexOf(rk)] || "?" };
   for (let d = 1; d <= 3; d++) {
     const r = await campDay(d, journal);
     if (r === "auto" && d < 3) {
@@ -369,7 +391,8 @@ async function summerCamp() {
   }
   journal.push(mvp ? $t("cp.j.mvp") : $t("cp.j.noMvp"));
   save();
-  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="gap:6px">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
+  S.campRoom = null;
+  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:6px">${campPhoto(loc)}</div><div class="card" style="gap:6px">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
   $("#cp-ok").onclick = renderMain;
 }
 function campSheet() {
