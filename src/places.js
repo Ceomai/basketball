@@ -526,7 +526,7 @@ export function locStad(I, tab = "mac") {
       // iyi oynanan bir mini oyunlu antrenmandan azdır ama boşa gitmez
       const pg = late.program(),
         k = STATS.some(x => x[0] === pg) ? pg : pick(STATS)[0],
-        g = Math.round(0.6 * levelMul(k) * ageGainMul() * late.modeTrainMul() * 100) / 100;
+        g = Math.round(0.55 * levelMul(k) * ageGainMul() * late.modeTrainMul() * 100) / 100;
       gainStat(k, g);
       norm();
       save();
@@ -1021,7 +1021,7 @@ export function locOkul(I) {
         useSlot();
         const g = ri(2, 6);
         S.rel.taraf += g;
-        S.followers *= 1.04;
+        late.mediaGain(0.03, 4);
         norm();
         save();
         resultView(
@@ -1149,7 +1149,7 @@ export function locMedya(I) {
       tx($t("places.341"), -pr);
       const g = ri(5, 10);
       S.rel.taraf += g;
-      S.followers *= 1.06;
+      late.mediaGain(0.04, 5);
       norm();
       save();
       resultView($t("places.179"), $t("places.180"), [
@@ -1171,9 +1171,8 @@ export async function photoSession(bg) {
   app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("places.184")}</div><h2>${bg === "arena" ? $t("places.182") : $t("places.183")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgPhoto($("#stg"), { title: bg === "arena" ? $t("places.185") : $t("places.186") + S.city, bg });
   const q = Math.max(0, r.score);
-  const add = Math.round(S.followers * (q / 100) * 0.12 * (S.items.telefon ? 1.5 : 1) + ri(5, 30));
+  const add = late.mediaGain((q / 100) * 0.05 * (S.items.telefon ? 1.3 : 1), ri(5, 30) / 5); // medya yorgunluğu (src/economy.js)
   const tr = q >= 80 ? ri(2, 5) : q >= 50 ? ri(0, 2) : -1;
-  S.followers += add;
   S.rel.taraf += tr;
   norm();
   save();
@@ -1443,8 +1442,11 @@ export function locAile(I) {
       para: () => {
         if (S.money < gift) return;
         tx($t("places.347"), -gift);
-        S.rel.aile += 15;
-        S.moral += 4;
+        // para göndermek haftada bir tam etkili: tekrarında aile yalnızca küçük bir teşekkür eder (akşam yemeği anlamsızlaşmasın)
+        const again = S.giftWk === `${S.season}-${S.week}`;
+        S.giftWk = `${S.season}-${S.week}`;
+        S.rel.aile += again ? 2 : 10;
+        S.moral += again ? 0 : 3;
         norm();
         save();
         resultView(

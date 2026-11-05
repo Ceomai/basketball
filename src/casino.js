@@ -227,7 +227,7 @@ export function roulette(I) {
             bet = btn.dataset.p;
           const win =
             bet === col || (n > 0 && ((bet === "odd" && n % 2) || (bet === "even" && n % 2 === 0) || (bet === "low" && n <= 18)));
-          const pay = win ? (bet === "g" ? BET * 36 : Math.round(BET * 2.1)) : 0;
+          const pay = win ? (bet === "g" ? BET * 36 : BET * 2) : 0; // gerçek rulet: sıfır yüzünden kasa önde
           if (pay) chipTx(pay);
           // dönüş sırasında panel kapatılmış olabilir: sonuç yine kaydedilir, rulet kilitli kalmaz
           busy = false;
@@ -311,7 +311,7 @@ export function blackjack(I) {
     over = false;
     if (val(ph) === 21) {
       over = true;
-      const p = Math.round(stake * 2.5);
+      const p = Math.round(stake * 2.3);
       chipTx(p);
       save();
       render(`<span class="good">${$t("casino.34")}${fis(p)}</span>`);
@@ -417,7 +417,7 @@ export function slots(I) {
     }
     let pay = 0;
     if (res[0] === res[1] && res[1] === res[2]) pay = BET * SYM[res[0]][2];
-    else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) pay = Math.round(BET * 1.8);
+    else if (res[0] === res[1] || res[1] === res[2] || res[0] === res[2]) pay = BET; // çift: bahsi geri al (beklenen dönüş ≈ 0,92)
     if (pay) chipTx(pay);
     busy = false;
     norm();

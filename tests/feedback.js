@@ -1099,6 +1099,53 @@ test("maç 3: tam saha (iki pota), hücum geçiş-set-şut akışı, mini oyun s
   return p;
 });
 
+test("ekonomi: medya yorgunluğu, pasif gelir sınırı, fiş değeri korunur, teselli fişi bozdurulamaz, arabalar üst üste binmez, arcade haftada 2, kumarda kasa önde", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    // medya yorgunluğu: aynı hafta ikinci iş daha az
+    S.followers = 10000;
+    const a1 = G.mediaGain(0.04, 0),
+      a2 = G.mediaGain(0.04, 0);
+    // pasif gelir: maaşın oranını geçmez
+    S.stage = "nba";
+    S.wage = 20000;
+    const cap = G.passiveCap(70000, 0.5);
+    // fiş: terfide para değeri korunur
+    S.stage = "uni";
+    S.chips = 200000;
+    S.freeChips = 0;
+    G.Bus.emit("week:start");
+    const v0 = S.chips * G.chipRate();
+    S.stage = "nba";
+    G.Bus.emit("week:start");
+    const v1 = S.chips * G.chipRate();
+    // teselli fişi: oynanır ama bozdurulamaz
+    S.chips = 20;
+    S.freeChips = 0;
+    G.weeklyHooks();
+    G.closeSheet();
+    // arabalar: en iyisinin enerjisi
+    S.items = { araba1: 1, araba2: 1, araba3: 1, scooter: 1 };
+    const en = G.itemWeekly("en"),
+      maxCar = Math.max(...G.SHOP.filter(it => it.st === "galeri" && it.en).map(it => it.en));
+    // arcade
+    const c = [G.arcadeCounts(), G.arcadeCounts(), G.arcadeCounts()];
+    return { a1, a2, cap, v0, v1, chips: S.chips, free: S.freeChips, en, maxCar, c, cost: G.arcadeCost() };
+  });
+  assert(r.a2 < r.a1 && r.a1 <= 400, "medya yorgunluğu: " + JSON.stringify(r));
+  assert(r.cap === 10000, "pasif gelir sınırı: " + r.cap);
+  assert(Math.abs(r.v1 - r.v0) / r.v0 < 0.05, "fiş değeri korunmalı: " + r.v0 + " → " + r.v1);
+  assert(r.chips === 100 && r.free === 80, "teselli fişi: " + JSON.stringify(r));
+  assert(r.en === r.maxCar, "araba enerjisi: " + r.en + " / " + r.maxCar);
+  assert(JSON.stringify(r.c) === "[true,true,false]" && r.cost >= 350, "arcade: " + JSON.stringify(r));
+  const src = require("fs").readFileSync(require("path").join(ROOT, "src/casino.js"), "utf8");
+  assert(/pay = BET; \/\/ çift/.test(src) && !/BET \* 2\.1/.test(src), "slot ve rulet kasa lehine");
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
@@ -1502,10 +1549,11 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
     S.sponsorDeal.rel = 22;
     G.sponsorWeekly();
     const lost = S.sponsorDeal === null;
-    S.channel = { xp: 200, posts: 0, wk: "", n: 0, gear: {} };
-    const m0 = S.money;
+    S.channel = { xp: 200, posts: 0, wk: "", n: 0, gear: {}, last: G.ecoWeek() }; // aktif kanal: son 4 haftada paylaşım
+    S.tx = [];
     G.Bus.emit("week:start");
-    return { a, b, lost, lvl: G.chLevel(), inc: S.money - m0 };
+    const t = S.tx.find(x => /Kanal|reklam/i.test(x.d)); // kanal reklam geliri (diğer haftalık giderlerden bağımsız)
+    return { a, b, lost, lvl: G.chLevel(), inc: t ? t.a : 0 };
   });
   assert(r.a === 55 && r.b === 80 && r.lost, "sponsor ilişkisi: " + JSON.stringify(r));
   assert(r.lvl >= 3 && r.inc > 0, "kanal geliri: " + JSON.stringify(r));

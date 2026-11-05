@@ -100,7 +100,9 @@ async function coach(i) {
     `<div class="card"><h2 class="good">${k.n} +${g.toFixed(1)}</h2><p class="small muted">${$t("ac.coachRes", { s: k.sk })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
-const weeklyIncome = () => (A() ? Math.round(A().kids.length * (1 + A().prestige / 25) * 3 * (PM[S.stage] || 1)) : 0);
+// aidat: maaşın %40'ını geçmez; prestij 60'ta tavan (src/economy.js)
+const weeklyIncome = () =>
+  A() ? late.passiveCap(Math.round(A().kids.length * (1 + Math.min(60, A().prestige) / 25) * 3 * (PM[S.stage] || 1)), 0.4) : 0;
 Bus.on("week:start", () => {
   const a = S && A();
   if (!a) return;

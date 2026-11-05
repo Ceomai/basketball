@@ -22,7 +22,7 @@ export const PROGRAMS = [
 export const program = () => (S && late.unlocked("program") && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
 /** Antrenman kazancı çarpanı */
 export function programMul(stat) {
-  const pg = program();
+  const pg = S && S.programWk === `${S.season}-${S.week}` ? "denge" : program(); // yeni program gelecek hafta oturur
   if (pg === "denge") return 1;
   if (pg === "toparlanma") return 0.8;
   return pg === stat ? 1.3 : 0.9;
@@ -39,6 +39,7 @@ export function bindProgram(re) {
   $$("[data-pg]").forEach(
     b =>
       (b.onclick = () => {
+        if (S.program !== b.dataset.pg) S.programWk = `${S.season}-${S.week}`;
         S.program = b.dataset.pg;
         save();
         re();

@@ -1,0 +1,2125 @@
+{
+ "generated": "2026-11-05T16:42:03.587Z",
+ "consts": {
+  "roulEven": 2.1,
+  "roulGreen": 36,
+  "slotW8": [
+   30,
+   30,
+   20,
+   12,
+   8
+  ],
+  "slotPay": [
+   6,
+   4,
+   10,
+   15,
+   25
+  ],
+  "slotPair": 1.8,
+  "bjBlackjack": 2.5,
+  "raceMargin": 0.85,
+  "raceMinOdds": 1.3,
+  "raceBet": 5,
+  "horseCost": 1500,
+  "horsePrize": 40,
+  "horseS": [
+   0.95,
+   1.25
+  ],
+  "otherS": [
+   0.7,
+   1.3
+  ],
+  "stockFee": 0.01,
+  "stocks": [
+   {
+    "id": "tek",
+    "vol": 0.09,
+    "base": 50
+   },
+   {
+    "id": "enr",
+    "vol": 0.06,
+    "base": 30
+   },
+   {
+    "id": "spr",
+    "vol": 0.07,
+    "base": 40
+   },
+   {
+    "id": "gda",
+    "vol": 0.04,
+    "base": 25
+   }
+  ],
+  "div": {
+   "tek": 0,
+   "enr": 0.012,
+   "spr": 0.006,
+   "gda": 0.015
+  },
+  "pressMul": 1.04,
+  "charityMul": 1.06,
+  "photoK": 0.12,
+  "photoPhone": 1.5,
+  "studioK": 0.035,
+  "vipMul": 1.08,
+  "campMul": 1.06,
+  "reflexP": 0.4,
+  "reflexK": 0.2,
+  "arcadeCost": 1
+ },
+ "locations": {
+  "roul": "src/casino.js:230",
+  "bj": "src/casino.js:332",
+  "slots": "src/casino.js:369",
+  "chipRate": "src/social.js:90",
+  "chipSell": "src/social.js:113",
+  "chipFloor": "src/extras.js:414",
+  "raceOdds": "src/harbor.js:236",
+  "horsePrize": "src/harbor.js:310",
+  "horseBuy": "src/harbor.js:249",
+  "stockDrift": "src/harbor.js:160",
+  "div": "src/venues.js:492",
+  "inv": "src/lifestyle.js:141",
+  "avmFx": "src/shops.js:267",
+  "avmBuy": "src/shops.js:668",
+  "market": "src/shops.js:822",
+  "mktCap": "src/lifestyle.js:23",
+  "choco": "src/shops.js:399",
+  "press": "src/places.js:1024",
+  "charity": "src/places.js:1152",
+  "photo": "src/places.js:1174",
+  "interview": "src/places.js:1270",
+  "studio": "src/studio.js:107",
+  "chanInc": "src/studio.js:37",
+  "chanLvl": "src/studio.js:26",
+  "collab": "src/venues.js:59",
+  "acadInc": "src/academy.js:103",
+  "acadCost": "src/academy.js:19",
+  "acadEnroll": "src/academy.js:70",
+  "arcPrize": "src/extras.js:97",
+  "arcFol": "src/extras.js:105",
+  "arcRun": "src/shops.js:1306",
+  "arcMoral": "src/shops.js:1328",
+  "arcReflex": "src/shops.js:1333",
+  "arcChem": "src/social.js:51",
+  "vip": "src/shops.js:1251",
+  "camp": "src/agent.js:227",
+  "gift": "src/places.js:1295",
+  "giftAct": "src/places.js:1445",
+  "program": "src/coach.js:24",
+  "programBind": "src/coach.js:42",
+  "adEnergy": "src/ads.js:332",
+  "adEnergyCap": "src/remote.js:15",
+  "adDouble": "src/ads.js:301",
+  "rest": "src/places.js:325",
+  "team": "src/places.js:529",
+  "drill": "src/places.js:621",
+  "trainGain": "src/logic/rules.js:64",
+  "levelMul": "src/core.js:81",
+  "street": "src/street.js:37",
+  "sponsor": "src/places.js:941",
+  "fame": "src/core.js:71",
+  "housing": "src/places.js:110",
+  "endWeek": "src/match.js:584",
+  "box": "src/adplaces.js:239"
+ },
+ "game": {
+  "stages": {
+   "lise": {
+    "prof": {
+     "age": 16,
+     "stat": 35,
+     "fol": 300,
+     "moral": 55
+    },
+    "wage": 4,
+    "netWeek": 4,
+    "pm": 1,
+    "chipRate": 0.01,
+    "acadCost": 900,
+    "fame": 12,
+    "sponsor": 173,
+    "levelMul": 0.862,
+    "ageGainMul": 1.25,
+    "drill": {
+     "0.33": 0.09,
+     "0.67": 0.52,
+     "1.00": 1.44
+    },
+    "drillMax": 1.01,
+    "programMulFocus": 1,
+    "team": 0.647,
+    "ikili": 0.345,
+    "izle": 0.108,
+    "reflexPerPlay": 0.069,
+    "streetWin": 0.259,
+    "season": [
+     {
+      "drills": 14,
+      "stat": 41.5,
+      "gained": 6.54
+     },
+     {
+      "drills": 28,
+      "stat": 46.8,
+      "gained": 11.8
+     },
+     {
+      "drills": 42,
+      "stat": 51.1,
+      "gained": 16.11
+     }
+    ],
+    "reflexSeason": {
+     "plays": 300,
+     "gained": 15.708,
+     "stat": 50.7
+    },
+    "market": [
+     {
+      "id": "enerji",
+      "price": 3
+     },
+     {
+      "id": "izotonik",
+      "price": 4
+     },
+     {
+      "id": "su",
+      "price": 1
+     },
+     {
+      "id": "kahve",
+      "price": 3
+     },
+     {
+      "id": "muz",
+      "price": 1
+     },
+     {
+      "id": "kuruyemis",
+      "price": 3
+     },
+     {
+      "id": "cikolata",
+      "price": 2
+     },
+     {
+      "id": "sandvic",
+      "price": 4
+     },
+     {
+      "id": "pizza",
+      "price": 9
+     },
+     {
+      "id": "protein",
+      "price": 35
+     },
+     {
+      "id": "jel",
+      "price": 6
+     },
+     {
+      "id": "vitamin",
+      "price": 7
+     },
+     {
+      "id": "yulaf",
+      "price": 5
+     },
+     {
+      "id": "saglik",
+      "price": 12
+     },
+     {
+      "id": "meyve",
+      "price": 6
+     },
+     {
+      "id": "buz",
+      "price": 5
+     },
+     {
+      "id": "macayak",
+      "price": 25
+     },
+     {
+      "id": "bilekset",
+      "price": 15
+     },
+     {
+      "id": "kafjel",
+      "price": 8
+     }
+    ],
+    "channel": {
+     "2": 8,
+     "5": 50,
+     "10": 200
+    },
+    "channelXpFor10": 1620,
+    "acad": {
+     "10": 25,
+     "50": 54,
+     "100": 90
+    },
+    "arcade": {
+     "weekly": 125,
+     "monthly": 600,
+     "folMulWeek": 1.104
+    },
+    "housing": [
+     {
+      "id": "oda",
+      "rent": 0,
+      "en": 0,
+      "mo": 0,
+      "comfort": 0,
+      "moraleBase": 42,
+      "cEnergy": 0
+     },
+     {
+      "id": "yurt",
+      "rent": 6,
+      "en": 0,
+      "mo": 0,
+      "comfort": 5,
+      "moraleBase": 43,
+      "cEnergy": 0
+     },
+     {
+      "id": "daire",
+      "rent": 70,
+      "en": 4,
+      "mo": 0,
+      "comfort": 15,
+      "moraleBase": 46,
+      "cEnergy": 1
+     },
+     {
+      "id": "lux",
+      "rent": 475,
+      "en": 8,
+      "mo": 2,
+      "comfort": 35,
+      "moraleBase": 52,
+      "cEnergy": 1
+     },
+     {
+      "id": "villa",
+      "rent": 2100,
+      "en": 12,
+      "mo": 4,
+      "comfort": 55,
+      "moraleBase": 57,
+      "cEnergy": 2
+     },
+     {
+      "id": "malikane",
+      "rent": 7500,
+      "en": 15,
+      "mo": 6,
+      "comfort": 70,
+      "moraleBase": 62,
+      "cEnergy": 3
+     }
+    ],
+    "dietSporcu": 6,
+    "giftCost": 50,
+    "campCost": 60,
+    "charityCost": 30,
+    "vipCost": 120,
+    "partyCost": 15,
+    "matchBonusWin7": 4
+   },
+   "t3": {
+    "prof": {
+     "age": 20,
+     "stat": 50,
+     "fol": 5000,
+     "moral": 55
+    },
+    "wage": 150,
+    "netWeek": 93,
+    "pm": 5,
+    "chipRate": 0.15,
+    "acadCost": 4500,
+    "fame": 31,
+    "sponsor": 1153,
+    "levelMul": 0.51,
+    "ageGainMul": 1.25,
+    "drill": {
+     "0.33": 0.05,
+     "0.67": 0.29,
+     "1.00": 0.81
+    },
+    "drillMax": 0.74,
+    "programMulFocus": 1.3,
+    "team": 0.383,
+    "ikili": 0.204,
+    "izle": 0.064,
+    "reflexPerPlay": 0.041,
+    "streetWin": 0.153,
+    "season": [
+     {
+      "drills": 14,
+      "stat": 53.8,
+      "gained": 3.77
+     },
+     {
+      "drills": 28,
+      "stat": 57,
+      "gained": 6.97
+     },
+     {
+      "drills": 42,
+      "stat": 59.7,
+      "gained": 9.73
+     }
+    ],
+    "reflexSeason": {
+     "plays": 300,
+     "gained": 9.842,
+     "stat": 59.8
+    },
+    "market": [
+     {
+      "id": "enerji",
+      "price": 15
+     },
+     {
+      "id": "izotonik",
+      "price": 20
+     },
+     {
+      "id": "su",
+      "price": 5
+     },
+     {
+      "id": "kahve",
+      "price": 15
+     },
+     {
+      "id": "muz",
+      "price": 5
+     },
+     {
+      "id": "kuruyemis",
+      "price": 15
+     },
+     {
+      "id": "cikolata",
+      "price": 10
+     },
+     {
+      "id": "sandvic",
+      "price": 20
+     },
+     {
+      "id": "pizza",
+      "price": 45
+     },
+     {
+      "id": "protein",
+      "price": 175
+     },
+     {
+      "id": "jel",
+      "price": 30
+     },
+     {
+      "id": "vitamin",
+      "price": 35
+     },
+     {
+      "id": "yulaf",
+      "price": 25
+     },
+     {
+      "id": "saglik",
+      "price": 60
+     },
+     {
+      "id": "meyve",
+      "price": 30
+     },
+     {
+      "id": "buz",
+      "price": 25
+     },
+     {
+      "id": "macayak",
+      "price": 125
+     },
+     {
+      "id": "bilekset",
+      "price": 75
+     },
+     {
+      "id": "kafjel",
+      "price": 40
+     }
+    ],
+    "channel": {
+     "2": 40,
+     "5": 250,
+     "10": 1000
+    },
+    "channelXpFor10": 1620,
+    "acad": {
+     "10": 126,
+     "50": 270,
+     "100": 450
+    },
+    "arcade": {
+     "weekly": 375,
+     "monthly": 1800,
+     "folMulWeek": 1.104
+    },
+    "housing": [
+     {
+      "id": "oda",
+      "rent": 0,
+      "en": 0,
+      "mo": 0,
+      "comfort": 0,
+      "moraleBase": 42,
+      "cEnergy": 0
+     },
+     {
+      "id": "yurt",
+      "rent": 6,
+      "en": 0,
+      "mo": 0,
+      "comfort": 5,
+      "moraleBase": 43,
+      "cEnergy": 0
+     },
+     {
+      "id": "daire",
+      "rent": 70,
+      "en": 4,
+      "mo": 0,
+      "comfort": 15,
+      "moraleBase": 46,
+      "cEnergy": 1
+     },
+     {
+      "id": "lux",
+      "rent": 475,
+      "en": 8,
+      "mo": 2,
+      "comfort": 35,
+      "moraleBase": 52,
+      "cEnergy": 1
+     },
+     {
+      "id": "villa",
+      "rent": 2100,
+      "en": 12,
+      "mo": 4,
+      "comfort": 55,
+      "moraleBase": 57,
+      "cEnergy": 2
+     },
+     {
+      "id": "malikane",
+      "rent": 7500,
+      "en": 15,
+      "mo": 6,
+      "comfort": 70,
+      "moraleBase": 62,
+      "cEnergy": 3
+     }
+    ],
+    "dietSporcu": 30,
+    "giftCost": 75,
+    "campCost": 120,
+    "charityCost": 150,
+    "vipCost": 600,
+    "partyCost": 45,
+    "matchBonusWin7": 32
+   },
+   "t1": {
+    "prof": {
+     "age": 24,
+     "stat": 62,
+     "fol": 60000,
+     "moral": 55
+    },
+    "wage": 1500,
+    "netWeek": 755,
+    "pm": 35,
+    "chipRate": 1.2,
+    "acadCost": 31500,
+    "fame": 48,
+    "sponsor": 4608,
+    "levelMul": 0.295,
+    "ageGainMul": 1.1,
+    "drill": {
+     "0.33": 0.02,
+     "0.67": 0.14,
+     "1.00": 0.38
+    },
+    "drillMax": 0.35,
+    "programMulFocus": 1.3,
+    "team": 0.194,
+    "ikili": 0.118,
+    "izle": 0.037,
+    "reflexPerPlay": 0.024,
+    "streetWin": 0.088,
+    "season": [
+     {
+      "drills": 14,
+      "stat": 63.8,
+      "gained": 1.84
+     },
+     {
+      "drills": 28,
+      "stat": 65.5,
+      "gained": 3.48
+     },
+     {
+      "drills": 42,
+      "stat": 67,
+      "gained": 4.97
+     }
+    ],
+    "reflexSeason": {
+     "plays": 300,
+     "gained": 5.966,
+     "stat": 68
+    },
+    "market": [
+     {
+      "id": "enerji",
+      "price": 105
+     },
+     {
+      "id": "izotonik",
+      "price": 140
+     },
+     {
+      "id": "su",
+      "price": 35
+     },
+     {
+      "id": "kahve",
+      "price": 105
+     },
+     {
+      "id": "muz",
+      "price": 35
+     },
+     {
+      "id": "kuruyemis",
+      "price": 105
+     },
+     {
+      "id": "cikolata",
+      "price": 70
+     },
+     {
+      "id": "sandvic",
+      "price": 140
+     },
+     {
+      "id": "pizza",
+      "price": 315
+     },
+     {
+      "id": "protein",
+      "price": 1225
+     },
+     {
+      "id": "jel",
+      "price": 210
+     },
+     {
+      "id": "vitamin",
+      "price": 245
+     },
+     {
+      "id": "yulaf",
+      "price": 175
+     },
+     {
+      "id": "saglik",
+      "price": 420
+     },
+     {
+      "id": "meyve",
+      "price": 210
+     },
+     {
+      "id": "buz",
+      "price": 175
+     },
+     {
+      "id": "macayak",
+      "price": 875
+     },
+     {
+      "id": "bilekset",
+      "price": 525
+     },
+     {
+      "id": "kafjel",
+      "price": 280
+     }
+    ],
+    "channel": {
+     "2": 280,
+     "5": 1750,
+     "10": 7000
+    },
+    "channelXpFor10": 1620,
+    "acad": {
+     "10": 882,
+     "50": 1890,
+     "100": 3150
+    },
+    "arcade": {
+     "weekly": 625,
+     "monthly": 3000,
+     "folMulWeek": 1.104
+    },
+    "housing": [
+     {
+      "id": "oda",
+      "rent": 0,
+      "en": 0,
+      "mo": 0,
+      "comfort": 0,
+      "moraleBase": 42,
+      "cEnergy": 0
+     },
+     {
+      "id": "yurt",
+      "rent": 6,
+      "en": 0,
+      "mo": 0,
+      "comfort": 5,
+      "moraleBase": 43,
+      "cEnergy": 0
+     },
+     {
+      "id": "daire",
+      "rent": 70,
+      "en": 4,
+      "mo": 0,
+      "comfort": 15,
+      "moraleBase": 46,
+      "cEnergy": 1
+     },
+     {
+      "id": "lux",
+      "rent": 475,
+      "en": 8,
+      "mo": 2,
+      "comfort": 35,
+      "moraleBase": 52,
+      "cEnergy": 1
+     },
+     {
+      "id": "villa",
+      "rent": 2100,
+      "en": 12,
+      "mo": 4,
+      "comfort": 55,
+      "moraleBase": 57,
+      "cEnergy": 2
+     },
+     {
+      "id": "malikane",
+      "rent": 7500,
+      "en": 15,
+      "mo": 6,
+      "comfort": 70,
+      "moraleBase": 62,
+      "cEnergy": 3
+     }
+    ],
+    "dietSporcu": 210,
+    "giftCost": 750,
+    "campCost": 1200,
+    "charityCost": 270,
+    "vipCost": 1080,
+    "partyCost": 75,
+    "matchBonusWin7": 315
+   },
+   "nba": {
+    "prof": {
+     "age": 27,
+     "stat": 76,
+     "fol": 1500000,
+     "moral": 55
+    },
+    "wage": 22500,
+    "netWeek": 10800,
+    "pm": 350,
+    "chipRate": 15,
+    "acadCost": 315000,
+    "fame": 71,
+    "sponsor": 45369,
+    "levelMul": 0.118,
+    "ageGainMul": 1,
+    "drill": {
+     "0.33": 0.01,
+     "0.67": 0.04,
+     "1.00": 0.12
+    },
+    "drillMax": 0.11,
+    "programMulFocus": 1.3,
+    "team": 0.071,
+    "ikili": 0.047,
+    "izle": 0.015,
+    "reflexPerPlay": 0.009,
+    "streetWin": 0.035,
+    "season": [
+     {
+      "drills": 14,
+      "stat": 76.6,
+      "gained": 0.56
+     },
+     {
+      "drills": 28,
+      "stat": 77.1,
+      "gained": 1.12
+     },
+     {
+      "drills": 42,
+      "stat": 77.7,
+      "gained": 1.68
+     }
+    ],
+    "reflexSeason": {
+     "plays": 300,
+     "gained": 2.527,
+     "stat": 78.5
+    },
+    "market": [
+     {
+      "id": "enerji",
+      "price": 1050
+     },
+     {
+      "id": "izotonik",
+      "price": 1400
+     },
+     {
+      "id": "su",
+      "price": 350
+     },
+     {
+      "id": "kahve",
+      "price": 1050
+     },
+     {
+      "id": "muz",
+      "price": 350
+     },
+     {
+      "id": "kuruyemis",
+      "price": 1050
+     },
+     {
+      "id": "cikolata",
+      "price": 700
+     },
+     {
+      "id": "sandvic",
+      "price": 1400
+     },
+     {
+      "id": "pizza",
+      "price": 3150
+     },
+     {
+      "id": "protein",
+      "price": 12250
+     },
+     {
+      "id": "jel",
+      "price": 2100
+     },
+     {
+      "id": "vitamin",
+      "price": 2450
+     },
+     {
+      "id": "yulaf",
+      "price": 1750
+     },
+     {
+      "id": "saglik",
+      "price": 4200
+     },
+     {
+      "id": "meyve",
+      "price": 2100
+     },
+     {
+      "id": "buz",
+      "price": 1750
+     },
+     {
+      "id": "macayak",
+      "price": 8750
+     },
+     {
+      "id": "bilekset",
+      "price": 5250
+     },
+     {
+      "id": "kafjel",
+      "price": 2800
+     }
+    ],
+    "channel": {
+     "2": 2800,
+     "5": 17500,
+     "10": 70000
+    },
+    "channelXpFor10": 1620,
+    "acad": {
+     "10": 8820,
+     "50": 18900,
+     "100": 31500
+    },
+    "arcade": {
+     "weekly": 875,
+     "monthly": 4200,
+     "folMulWeek": 1.104
+    },
+    "housing": [
+     {
+      "id": "oda",
+      "rent": 0,
+      "en": 0,
+      "mo": 0,
+      "comfort": 0,
+      "moraleBase": 42,
+      "cEnergy": 0
+     },
+     {
+      "id": "yurt",
+      "rent": 6,
+      "en": 0,
+      "mo": 0,
+      "comfort": 5,
+      "moraleBase": 43,
+      "cEnergy": 0
+     },
+     {
+      "id": "daire",
+      "rent": 70,
+      "en": 4,
+      "mo": 0,
+      "comfort": 15,
+      "moraleBase": 46,
+      "cEnergy": 1
+     },
+     {
+      "id": "lux",
+      "rent": 475,
+      "en": 8,
+      "mo": 2,
+      "comfort": 35,
+      "moraleBase": 52,
+      "cEnergy": 1
+     },
+     {
+      "id": "villa",
+      "rent": 2100,
+      "en": 12,
+      "mo": 4,
+      "comfort": 55,
+      "moraleBase": 57,
+      "cEnergy": 2
+     },
+     {
+      "id": "malikane",
+      "rent": 7500,
+      "en": 15,
+      "mo": 6,
+      "comfort": 70,
+      "moraleBase": 62,
+      "cEnergy": 3
+     }
+    ],
+    "dietSporcu": 2100,
+    "giftCost": 11250,
+    "campCost": 18000,
+    "charityCost": 390,
+    "vipCost": 1560,
+    "partyCost": 105,
+    "matchBonusWin7": 4725
+   }
+  },
+  "consts": {
+   "WAGE": {
+    "lise": 4,
+    "uni": 10,
+    "t3": 150,
+    "t2": 450,
+    "t1": 1500,
+    "euro": 6000,
+    "nba": 22500
+   },
+   "BAL": {
+    "train": 1.3,
+    "play": 0.035,
+    "grow": [
+     [
+      18,
+      0,
+      2
+     ],
+     [
+      21,
+      0,
+      1
+     ],
+     [
+      25,
+      0,
+      1
+     ],
+     [
+      29,
+      0,
+      0
+     ],
+     [
+      31,
+      -1,
+      0
+     ],
+     [
+      33,
+      -2,
+      -1
+     ],
+     [
+      99,
+      -3,
+      -1
+     ]
+    ],
+    "need": {
+     "t3": 0,
+     "t2": 50,
+     "t1": 61,
+     "euro": 72,
+     "nba": 81
+    },
+    "tax": {
+     "lise": 0,
+     "uni": 0,
+     "t3": 0.2,
+     "t2": 0.3,
+     "t1": 0.33,
+     "euro": 0.35,
+     "nba": 0.37
+    },
+    "agent": 0.05,
+    "living": {
+     "lise": 0,
+     "uni": 0,
+     "t3": 20,
+     "t2": 55,
+     "t1": 175,
+     "euro": 650,
+     "nba": 2250
+    }
+   },
+   "HOUSING": {
+    "oda": {
+     "n": "Ailenin evindeki odan",
+     "rent": 0,
+     "en": 0
+    },
+    "yurt": {
+     "n": "Öğrenci yurdu",
+     "rent": 6,
+     "en": 0
+    },
+    "daire": {
+     "n": "Kiralık daire",
+     "rent": 70,
+     "en": 4
+    },
+    "lux": {
+     "n": "Rezidans dairesi",
+     "rent": 475,
+     "en": 8,
+     "mo": 2
+    },
+    "villa": {
+     "n": "Villa",
+     "rent": 2100,
+     "en": 12,
+     "mo": 4
+    },
+    "malikane": {
+     "n": "Malikâne",
+     "rent": 7500,
+     "en": 15,
+     "mo": 6
+    }
+   },
+   "TRAIN_ITEMS": [
+    [
+     "top",
+     "sut",
+     0.1
+    ],
+    [
+     "bileklik",
+     "sut",
+     0.05
+    ],
+    [
+     "dizlik",
+     "sav",
+     0.1
+    ],
+    [
+     "agirlik",
+     "guc",
+     0.15
+    ],
+    [
+     "tablet",
+     "pas",
+     0.1
+    ],
+    [
+     "ayak1",
+     "hiz",
+     0.05
+    ],
+    [
+     "ayak2",
+     "hiz",
+     0.08
+    ],
+    [
+     "ayak3",
+     "hiz",
+     0.1
+    ],
+    [
+     "ayak4",
+     "hiz",
+     0.12
+    ],
+    [
+     "swatch",
+     "*",
+     0.05
+    ],
+    [
+     "vr",
+     "*",
+     0.04
+    ],
+    [
+     "fizyo",
+     "*",
+     0.05
+    ]
+   ],
+   "WEAR": {
+    "ayak1": 30,
+    "ayak2": 30,
+    "ayak3": 30,
+    "ayak4": 30,
+    "top": 40,
+    "bileklik": 40,
+    "dizlik": 40
+   },
+   "MKT_EN_CAP": 30,
+   "SHOP": [
+    {
+     "id": "ayak1",
+     "n": "Antrenman ayakkabısı",
+     "st": "sneaker",
+     "p": 60,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "ayak2",
+     "n": "İmza serisi ayakkabı",
+     "st": "sneaker",
+     "p": 260,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "ayak3",
+     "n": "Retro koleksiyon",
+     "st": "sneaker",
+     "p": 900,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "ayak4",
+     "n": "Altın sınırlı seri",
+     "st": "sneaker",
+     "p": 6000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "top",
+     "n": "Maç topu",
+     "st": "spor",
+     "p": 140,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "bileklik",
+     "n": "Şutör bilekliği",
+     "st": "spor",
+     "p": 40,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "dizlik",
+     "n": "Profesyonel dizlik",
+     "st": "spor",
+     "p": 90,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "agirlik",
+     "n": "Ev ağırlık seti",
+     "st": "spor",
+     "p": 400,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "forma",
+     "n": "Takım forması",
+     "st": "spor",
+     "p": 120,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "kulaklik",
+     "n": "Stüdyo kulaklık",
+     "st": "spor",
+     "p": 180,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "telefon",
+     "n": "Yeni nesil telefon",
+     "st": "tekno",
+     "p": 380,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "konsol",
+     "n": "Oyun konsolu",
+     "st": "tekno",
+     "p": 220,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "tablet",
+     "n": "Maç analizi tableti",
+     "st": "tekno",
+     "p": 300,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "laptop",
+     "n": "Dizüstü bilgisayar",
+     "st": "tekno",
+     "p": 700,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "swatch",
+     "n": "Akıllı saat",
+     "st": "tekno",
+     "p": 250,
+     "en": 3,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "vr",
+     "n": "VR seti",
+     "st": "tekno",
+     "p": 900,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "kiyafet",
+     "n": "Sokak giyimi seti",
+     "st": "moda",
+     "p": 420,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "gozluk",
+     "n": "Güneş gözlüğü",
+     "st": "moda",
+     "p": 300,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "parfum",
+     "n": "İmza parfüm",
+     "st": "moda",
+     "p": 250,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "ceket",
+     "n": "Deri ceket",
+     "st": "moda",
+     "p": 1200,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "zincir",
+     "n": "Altın zincir",
+     "st": "moda",
+     "p": 3000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "saat",
+     "n": "İsviçre saati",
+     "st": "moda",
+     "p": 4500,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "scooter",
+     "n": "Elektrikli scooter",
+     "st": "galeri",
+     "p": 900,
+     "en": 2,
+     "mo": 0,
+     "up": 2,
+     "inc": 0
+    },
+    {
+     "id": "araba1",
+     "n": "Hatchback",
+     "st": "galeri",
+     "p": 5200,
+     "en": 4,
+     "mo": 0,
+     "up": 8,
+     "inc": 0
+    },
+    {
+     "id": "moto",
+     "n": "Motosiklet",
+     "st": "galeri",
+     "p": 14000,
+     "en": 5,
+     "mo": 0,
+     "up": 15,
+     "inc": 0
+    },
+    {
+     "id": "araba2",
+     "n": "Elektrikli SUV",
+     "st": "galeri",
+     "p": 42000,
+     "en": 7,
+     "mo": 0,
+     "up": 30,
+     "inc": 0
+    },
+    {
+     "id": "araba3",
+     "n": "İtalyan süper otomobil",
+     "st": "galeri",
+     "p": 260000,
+     "en": 10,
+     "mo": 0,
+     "up": 120,
+     "inc": 0
+    },
+    {
+     "id": "yatak",
+     "n": "Ortopedik yatak",
+     "st": "ev",
+     "p": 300,
+     "en": 4,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "koltuk",
+     "n": "Rahat koltuk takımı",
+     "st": "ev",
+     "p": 500,
+     "en": 0,
+     "mo": 1,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "oyunkoltugu",
+     "n": "Oyuncu koltuğu",
+     "st": "ev",
+     "p": 350,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "robot",
+     "n": "Robot süpürge",
+     "st": "ev",
+     "p": 400,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "sinema",
+     "n": "Ev sineması",
+     "st": "ev",
+     "p": 1500,
+     "en": 0,
+     "mo": 2,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "fizyo",
+     "n": "Kişisel fizyoterapist",
+     "st": "ev",
+     "p": 9000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "kryo",
+     "n": "Buz banyosu küveti",
+     "st": "ev",
+     "p": 2500,
+     "en": 5,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "kiradaire",
+     "n": "Kiralık daire yatırımı",
+     "st": "yatirim",
+     "p": 60000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 1100
+    },
+    {
+     "id": "dukkan",
+     "n": "Dükkân yatırımı",
+     "st": "yatirim",
+     "p": 250000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 4500
+    },
+    {
+     "id": "plaza",
+     "n": "Plazada ofis katı",
+     "st": "yatirim",
+     "p": 400000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 7400
+    },
+    {
+     "id": "salon",
+     "n": "Memlekete spor salonu",
+     "st": "yatirim",
+     "p": 300000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "yat",
+     "n": "Yat",
+     "st": "yatirim",
+     "p": 400000,
+     "en": 0,
+     "mo": 3,
+     "up": 500,
+     "inc": 0
+    },
+    {
+     "id": "akademi",
+     "n": "Basketbol akademisi",
+     "st": "yatirim",
+     "p": 600000,
+     "en": 0,
+     "mo": 0,
+     "up": 0,
+     "inc": 0
+    },
+    {
+     "id": "jet",
+     "n": "Özel jet",
+     "st": "yatirim",
+     "p": 900000,
+     "en": 8,
+     "mo": 0,
+     "up": 1200,
+     "inc": 0
+    }
+   ],
+   "SHOPFX": {
+    "ayak1": {
+     "hiz": 2
+    },
+    "ayak2": {
+     "sut": 1,
+     "hiz": 3
+    },
+    "ayak3": {
+     "hiz": 1,
+     "rel.taraf": 6
+    },
+    "ayak4": {
+     "hiz": 2,
+     "rel.taraf": 12
+    },
+    "top": {
+     "sut": 2
+    },
+    "bileklik": {
+     "sut": 1
+    },
+    "dizlik": {
+     "sav": 2
+    },
+    "agirlik": {
+     "guc": 2
+    },
+    "forma": {
+     "rel.taraf": 4
+    },
+    "kulaklik": {
+     "moral": 8
+    },
+    "konsol": {
+     "moral": 15
+    },
+    "tablet": {
+     "pas": 2
+    },
+    "laptop": {},
+    "vr": {
+     "hiz": 1,
+     "moral": 10
+    },
+    "kiyafet": {
+     "rel.taraf": 6,
+     "moral": 5
+    },
+    "gozluk": {
+     "rel.taraf": 4
+    },
+    "parfum": {
+     "rel.partner": 5,
+     "moral": 6
+    },
+    "ceket": {
+     "rel.taraf": 8
+    },
+    "zincir": {
+     "rel.koc": -3,
+     "rel.taraf": 10
+    },
+    "saat": {
+     "rel.taraf": 10
+    },
+    "moto": {
+     "rel.taraf": 6
+    },
+    "araba2": {
+     "rel.taraf": 8
+    },
+    "araba3": {
+     "rel.taraf": 15,
+     "moral": 12
+    },
+    "oyunkoltugu": {
+     "moral": 5
+    },
+    "robot": {
+     "moral": 3
+    },
+    "salon": {
+     "rel.taraf": 15,
+     "rel.aile": 20,
+     "folMul": 1.1
+    },
+    "yat": {
+     "rel.taraf": 15
+    },
+    "akademi": {
+     "folMul": 1.2
+    },
+    "jet": {
+     "rel.taraf": 20
+    }
+   },
+   "MARKET": [
+    {
+     "id": "enerji",
+     "p": 3,
+     "en": 15,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "izotonik",
+     "p": 4,
+     "en": 6,
+     "mo": 2,
+     "train": 0
+    },
+    {
+     "id": "su",
+     "p": 1,
+     "en": 3,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "kahve",
+     "p": 3,
+     "en": 7,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "muz",
+     "p": 1,
+     "en": 4,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "kuruyemis",
+     "p": 3,
+     "en": 4,
+     "mo": 1,
+     "train": 0
+    },
+    {
+     "id": "cikolata",
+     "p": 2,
+     "en": -1,
+     "mo": 5,
+     "train": 0
+    },
+    {
+     "id": "sandvic",
+     "p": 4,
+     "en": 6,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "pizza",
+     "p": 9,
+     "en": -4,
+     "mo": 8,
+     "train": 0
+    },
+    {
+     "id": "protein",
+     "p": 35,
+     "en": 0,
+     "mo": 0,
+     "train": 3
+    },
+    {
+     "id": "jel",
+     "p": 6,
+     "en": 12,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "vitamin",
+     "p": 7,
+     "en": 10,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "yulaf",
+     "p": 5,
+     "en": 6,
+     "mo": 2,
+     "train": 0
+    },
+    {
+     "id": "saglik",
+     "p": 12,
+     "en": 8,
+     "mo": 4,
+     "train": 0
+    },
+    {
+     "id": "meyve",
+     "p": 6,
+     "en": 5,
+     "mo": 3,
+     "train": 0
+    },
+    {
+     "id": "buz",
+     "p": 5,
+     "en": 8,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "macayak",
+     "p": 25,
+     "en": 0,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "bilekset",
+     "p": 15,
+     "en": 0,
+     "mo": 0,
+     "train": 0
+    },
+    {
+     "id": "kafjel",
+     "p": 8,
+     "en": 0,
+     "mo": 0,
+     "train": 0
+    }
+   ]
+  },
+  "pageErrs": []
+ },
+ "casino": {
+  "roulette": {
+   "evenEV": 1.0216216216216216,
+   "greenEV": 0.972972972972973
+  },
+  "slotsEV": 1.3421439999999993,
+  "blackjackEV": 0.998085
+ },
+ "race": {
+  "betPM": 5,
+  "horseCostPM": 1500,
+  "horsePrizePM": 40,
+  "noHorseFavEV": 0.8480006666666666,
+  "withHorse": {
+   "netPerRacePM": 6.5459,
+   "horseWinRate": 0.18181333333333333
+  },
+  "racesToPayback": 229.1510716631785
+ },
+ "stocks": {
+  "weeks": 56,
+  "hold": {
+   "tek": {
+    "mean": 1.30144000277227,
+    "p10": 0.43148316831683176,
+    "p50": 1.0423425742574257,
+    "p90": 2.442849504950495
+   },
+   "enr": {
+    "mean": 1.4964738270297013,
+    "p10": 0.6161801980198018,
+    "p50": 1.2691386138613858,
+    "p90": 2.6273683168316824
+   },
+   "spr": {
+    "mean": 1.4077942748019783,
+    "p10": 0.538311386138614,
+    "p50": 1.168410891089109,
+    "p90": 2.521872772277228
+   },
+   "gda": {
+    "mean": 1.5422206609900972,
+    "p10": 0.6791108910891088,
+    "p50": 1.3324871287128712,
+    "p90": 2.6572455445544554
+   }
+  },
+  "momentum": {
+   "mean": 1.5406827447783187,
+   "p10": 0.719729156665288,
+   "p50": 1.3340549082509168,
+   "p90": 2.5918786752939496
+  }
+ },
+ "followers": {
+  "lise": {
+   "press": {
+    "end": 1558,
+    "x": 5.19,
+    "fame0": 12,
+    "fame1": 23
+   },
+   "charity": {
+    "end": 3467,
+    "x": 11.56,
+    "fame0": 12,
+    "fame1": 29
+   },
+   "photo70": {
+    "end": 14666,
+    "x": 48.89,
+    "fame0": 12,
+    "fame1": 39
+   },
+   "photo70phone": {
+    "end": 63401,
+    "x": 211.34,
+    "fame0": 12,
+    "fame1": 49
+   },
+   "studio70": {
+    "end": 3125,
+    "x": 10.42,
+    "fame0": 12,
+    "fame1": 28
+   },
+   "studioTrend90": {
+    "end": 29767,
+    "x": 99.22,
+    "fame0": 12,
+    "fame1": 44
+   },
+   "collabWeekly": {
+    "end": 900,
+    "x": 3,
+    "fame0": 12,
+    "fame1": 19
+   },
+   "signDay": {
+    "end": 1338,
+    "x": 4.46,
+    "fame0": 12,
+    "fame1": 22
+   },
+   "vip": {
+    "end": 7602,
+    "x": 25.34,
+    "fame0": 12,
+    "fame1": 34
+   },
+   "campaign": {
+    "end": 3467,
+    "x": 11.56,
+    "fame0": 12,
+    "fame1": 29
+   },
+   "arcadeTop3Only": {
+    "end": 1200,
+    "x": 4,
+    "fame0": 12,
+    "fame1": 21
+   }
+  },
+  "t3": {
+   "press": {
+    "end": 25964,
+    "x": 5.19,
+    "fame0": 31,
+    "fame1": 43
+   },
+   "charity": {
+    "end": 57785,
+    "x": 11.56,
+    "fame0": 31,
+    "fame1": 48
+   },
+   "photo70": {
+    "end": 153766,
+    "x": 30.75,
+    "fame0": 31,
+    "fame1": 55
+   },
+   "photo70phone": {
+    "end": 750012,
+    "x": 150,
+    "fame0": 31,
+    "fame1": 66
+   },
+   "studio70": {
+    "end": 23058,
+    "x": 4.61,
+    "fame0": 31,
+    "fame1": 42
+   },
+   "studioTrend90": {
+    "end": 193398,
+    "x": 38.68,
+    "fame0": 31,
+    "fame1": 57
+   },
+   "collabWeekly": {
+    "end": 8254,
+    "x": 1.65,
+    "fame0": 31,
+    "fame1": 35
+   },
+   "signDay": {
+    "end": 12135,
+    "x": 2.43,
+    "fame0": 31,
+    "fame1": 37
+   },
+   "vip": {
+    "end": 126697,
+    "x": 25.34,
+    "fame0": 31,
+    "fame1": 54
+   },
+   "campaign": {
+    "end": 57785,
+    "x": 11.56,
+    "fame0": 31,
+    "fame1": 48
+   },
+   "arcadeTop3Only": {
+    "end": 19998,
+    "x": 4,
+    "fame0": 31,
+    "fame1": 41
+   }
+  },
+  "t1": {
+   "press": {
+    "end": 311567,
+    "x": 5.19,
+    "fame0": 48,
+    "fame1": 60
+   },
+   "charity": {
+    "end": 693422,
+    "x": 11.56,
+    "fame0": 48,
+    "fame1": 65
+   },
+   "photo70": {
+    "end": 1781534,
+    "x": 29.69,
+    "fame0": 48,
+    "fame1": 72
+   },
+   "photo70phone": {
+    "end": 8784812,
+    "x": 146.41,
+    "fame0": 48,
+    "fame1": 83
+   },
+   "studio70": {
+    "end": 256328,
+    "x": 4.27,
+    "fame0": 48,
+    "fame1": 59
+   },
+   "studioTrend90": {
+    "end": 2108222,
+    "x": 35.14,
+    "fame0": 48,
+    "fame1": 73
+   },
+   "collabWeekly": {
+    "end": 84589,
+    "x": 1.41,
+    "fame0": 48,
+    "fame1": 51
+   },
+   "signDay": {
+    "end": 138483,
+    "x": 2.31,
+    "fame0": 48,
+    "fame1": 54
+   },
+   "vip": {
+    "end": 1520369,
+    "x": 25.34,
+    "fame0": 48,
+    "fame1": 71
+   },
+   "campaign": {
+    "end": 693422,
+    "x": 11.56,
+    "fame0": 48,
+    "fame1": 65
+   },
+   "arcadeTop3Only": {
+    "end": 239973,
+    "x": 4,
+    "fame0": 48,
+    "fame1": 58
+   }
+  },
+  "nba": {
+   "press": {
+    "end": 7789176,
+    "x": 5.19,
+    "fame0": 71,
+    "fame1": 82
+   },
+   "charity": {
+    "end": 17335549,
+    "x": 11.56,
+    "fame0": 71,
+    "fame1": 88
+   },
+   "photo70": {
+    "end": 44399464,
+    "x": 29.6,
+    "fame0": 71,
+    "fame1": 94
+   },
+   "photo70phone": {
+    "end": 219150495,
+    "x": 146.1,
+    "fame0": 71,
+    "fame1": 100
+   },
+   "studio70": {
+    "end": 6363739,
+    "x": 4.24,
+    "fame0": 71,
+    "fame1": 81
+   },
+   "studioTrend90": {
+    "end": 52241812,
+    "x": 34.83,
+    "fame0": 71,
+    "fame1": 95
+   },
+   "collabWeekly": {
+    "end": 1810981,
+    "x": 1.21,
+    "fame0": 71,
+    "fame1": 72
+   },
+   "signDay": {
+    "end": 3446515,
+    "x": 2.3,
+    "fame0": 71,
+    "fame1": 77
+   },
+   "vip": {
+    "end": 38009223,
+    "x": 25.34,
+    "fame0": 71,
+    "fame1": 93
+   },
+   "campaign": {
+    "end": 17335549,
+    "x": 11.56,
+    "fame0": 71,
+    "fame1": 88
+   },
+   "arcadeTop3Only": {
+    "end": 5999337,
+    "x": 4,
+    "fame0": 71,
+    "fame1": 80
+   }
+  }
+ }
+}

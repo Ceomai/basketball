@@ -34,7 +34,9 @@ const deal = () => (S.sponsorDeal && S.season <= S.sponsorDeal.until ? S.sponsor
 Bus.on("week:start", () => {
   if (!S || !S.channel) return;
   const L = chLevel();
-  if (L >= 2) tx($t("sd.adIncome"), Math.round(L * L * 2 * (PM[S.stage] || 1)));
+  // reklam geliri yalnızca kanal aktifken (son 4 haftada paylaşım) ve maaşın yarısını geçmez (src/economy.js)
+  const active = late.ecoWeek() - (ch().last || 0) <= 4;
+  if (L >= 2 && active) tx($t("sd.adIncome"), late.passiveCap(Math.round(L * L * 2 * (PM[S.stage] || 1)), 0.5));
   if (ch().gear.kurgu) tx($t("sd.editorFee"), -gearCost("kurgu"));
   save();
 });
@@ -95,6 +97,7 @@ async function content(type) {
     c.posts = 0;
   }
   c.posts++;
+  c.last = late.ecoWeek();
   save();
   closeSheet();
   arenaFor(null);
@@ -104,8 +107,7 @@ async function content(type) {
   const last = (S.results || []).slice(-1)[0],
     form = clamp((last ? last.rating : 6.5) / 6.5, 0.7, 1.35);
   const e = (0.3 + q) * MUL[type] * (type === trend() ? 1.5 : 1) * form * gearMul();
-  const add = Math.round(S.followers * 0.035 * e + 20 * e);
-  S.followers += add;
+  const add = late.mediaGain(0.035 * e, 20 * e); // medya yorgunluğu (src/economy.js)
   c.xp += Math.round(12 * e);
   c.n++;
   const fx = [[$t("sd.fxFollow", { v: late.kfmt(add) }), "p"]];
