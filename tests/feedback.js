@@ -1054,6 +1054,51 @@ test("QA düzeltmeleri: maç bonusu maç dışına taşmaz, ortak video bileşik
   return p;
 });
 
+test("maç 3: tam saha (iki pota), hücum geçiş-set-şut akışı, mini oyun sahadaki duruma uyar, kaçan şutta ribaund ve ikinci şans", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("#crt-p g", { timeout: 8000 });
+  const r = await p.evaluate(async () => {
+    const G = window.Game;
+    const vb = document.querySelector("#crt").getAttribute("viewBox");
+    const hoops = document.querySelectorAll('#crt circle[stroke="#ff6b2b"]').length;
+    const before = document.querySelector("#o-PG").style.transform;
+    G.courtPlay({ us: true, scored: true }, true, 0);
+    const right = document.querySelector("#o-PG").style.transform;
+    G.courtPlay({ us: false, scored: false }, true, 0);
+    const left = document.querySelector("#o-PG").style.transform;
+    const x = t => +t.match(/translate\(([\d.]+)px/)[1];
+    const open = G.mgContext({ us: true, zone: "wing", guard: "open", help: false, mate: true });
+    const tight = G.mgContext({ us: true, zone: "wing", guard: "tight", help: true, mate: false });
+    const def = G.mgContext({ us: false, drive: true });
+    return { vb, hoops, rx: x(right), lx: x(left), changed: before !== right, open, tight, def, shot: G.isShotKey("corner"), pass: G.isShotKey("kick") };
+  });
+  assert(r.vb === "0 0 360 196" && r.hoops === 2, "tam saha: " + JSON.stringify(r));
+  assert(r.changed && r.rx > 180 && r.lx < 180, "hücumda sağ yarıya, savunmada sol yarıya: " + JSON.stringify(r));
+  assert(r.open.press === 0 && r.tight.press > 0.5 && r.tight.help && r.def === null, "mini oyun bağlamı: " + JSON.stringify(r));
+  assert(r.shot && !r.pass, "şut anahtarları");
+  // ribaund: mücadeleye gir → kazanınca ikinci şans seçenekleri
+  await p.evaluate(() => {
+    const G = window.Game;
+    const el = document.querySelector("#mview");
+    G.M.reb = 0;
+    const R = Math.random;
+    Math.random = () => 0.01;
+    window.__rb = G.reboundPhase(el, "Test");
+    Math.random = R;
+  });
+  await p.waitForSelector('[data-rb="crash"]', { timeout: 3000 });
+  assert(await p.isVisible('[data-rb="back"]'), "savunmaya dön seçeneği");
+  await p.click('[data-rb="back"]');
+  const back = await p.evaluate(async () => await window.__rb);
+  assert(back && back.good === false && /savunmaya/.test(back.txt), "savunmaya dönüş: " + JSON.stringify(back));
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);

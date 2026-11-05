@@ -276,6 +276,22 @@ export const oppKit = () => ({ jersey: ARENA.away, trim: ARENA.away2 });
 export const me = () => ({ ...late.jersey() });
 // Mini oyun türü (test kaydı için): her mg* fonksiyonu başında ayarlanır
 export let MG_KIND = "";
+/* Sahadaki durum (src/court.js → mgContext): mini oyun sahada gördüğün pozisyona uyar.
+   { press: 0..1 savunma baskısı (0 = boş, savunmacı yok), gap: savunmacı uzaklığı, help: pota altı yardım,
+     crowd: [{ x, opp }] arka planda görünen diğer oyuncular } */
+export let MG_CTX = null;
+export function setMgCtx(c) {
+  MG_CTX = c || null;
+}
+// arka plandaki oyuncular (soluk, küçük): sahadaki diğer 8-9 oyuncunun bir kısmı
+function drawCrowd(c) {
+  if (!MG_CTX || !MG_CTX.crowd) return;
+  c.save();
+  c.globalAlpha = 0.5;
+  for (const p of MG_CTX.crowd)
+    drawKid(c, p.x, GROUND - 22, 0.56, p.opp ? OPP_LOOK() : late.S.look, p.opp ? { ...oppKit(), flip: true } : { ...me() });
+  c.restore();
+}
 // Mini oyun zorluğu (Ayarlar → Erişilebilirlik): oyunun beceri değerine eklenir. Arcade sıralama oyunları etkilenmez.
 export const DIFF_SHIFT = { kolay: 15, normal: 0, zor: -12 };
 export const dEff = e =>
@@ -294,6 +310,8 @@ export function finish(stop, res, val) {
 
 /* ---- Şut (çek-bırak) ---- */
 export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null, def = true }) {
+  const X = MG_CTX;
+  if (X && X.press != null) def = X.press > 0.05; // boşsan savunmacı yok
   eff = dEff(eff);
   setMgKind("shoot");
   mkStage(el, title);
@@ -312,10 +330,10 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         ph: "aim",
         drag: null,
         t: 0,
-        pr: def ? Math.random() : 0,
+        pr: def ? (X && X.press != null ? clamp(X.press + rnd(-0.08, 0.08), 0, 1) : Math.random()) : 0,
         msg: "",
         sw: 0,
-        defX: sx + rnd(36, 52)
+        defX: sx + (X && X.gap ? X.gap : rnd(36, 52))
       };
     };
     next();
@@ -397,6 +415,8 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
           if (!st.ball.in) st.msg = $t("arcade.7");
         }
       }
+      drawCrowd(c);
+      if (X && X.help) drawKid(c, HOOP.x - 40, GROUND + 4, 0.86, ol, { ...oppKit(), armsUp: true, flip: true, mood: "kizgin" }); // pota altında pivot
       if (def) drawKid(c, st.defX, GROUND + 6, 0.8, ol, { ...oppKit(), armsUp: true, flip: true, mood: "kizgin", look: -2 });
       drawKid(c, st.sx, GROUND, 0.84, late.S.look, {
         ...me(),
@@ -452,6 +472,12 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         c.textAlign = "right";
         c.fillStyle = "#fff";
         c.fillText(st.three ? $t("games.5") : $t("games.6"), W - 14, 72);
+        if (!def && X && X.press === 0) {
+          c.font = '800 16px "Barlow Condensed"';
+          c.textAlign = "left";
+          c.fillStyle = "#36d38e";
+          c.fillText($t("ct.open").toLocaleUpperCase(), 14, 72); // sahada boştaydın: savunmacı yok
+        }
       }
       if (st.ph === "done") {
         bigText(c, st.msg, 140, st.ball.in ? "#ffc54d" : "#ffffff");
@@ -937,7 +963,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       sw = null;
     const ol = OPP_LOOK();
     const next = () => {
-      const len = 4 + (lvl() >= 3 ? 1 : 0);
+      const len = 4 + (lvl() >= 3 ? 1 : 0) + (MG_CTX && MG_CTX.help ? 1 : 0);
       st = {
         seq: Array.from({ length: len }, () => pick("LRUD")),
         i: 0,
@@ -1026,6 +1052,8 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       }
       drawKid(c, 220 - st.sway * 0.6, GROUND, 0.84, ol, { ...oppKit(), flip: true, mood: fell ? "saskin" : "kizgin" });
       c.restore();
+      drawCrowd(c);
+      if (MG_CTX && MG_CTX.help) drawKid(c, 300, GROUND + 4, 0.9, ol, { ...oppKit(), armsUp: true, flip: true, mood: "kizgin" }); // pivot önüne çıktı
       const px = fell ? 120 + Math.min(1, st.t) * 130 : 120 + st.sway * 0.4;
       drawKid(c, px, GROUND, 0.84, late.S.look, {
         ...me(),
