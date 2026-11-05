@@ -122,23 +122,24 @@ export function courtScenario(us) {
 /** Seçeneklere senaryo etkisi ve etiketleri */
 export function applyScenario(opts, s) {
   return opts.map(o => {
+    const base = o.e;
     let e = o.e,
       tags = [];
     if (s.us) {
       const sh = THREE.includes(o.k) || TWO.includes(o.k);
-      if (sh && s.guard === "open") ((e += 5), tags.push($t("ct.open")));
-      if (sh && s.guard === "tight") ((e -= 7), tags.push($t("ct.tight")));
-      if (FIN.includes(o.k) && s.guard === "tight") e += 2;
-      if (FIN.includes(o.k) && s.help) ((e -= 9), tags.push($t("ct.crowd")));
+      if (sh && s.guard === "open") ((e += 7), tags.push($t("ct.open")));
+      if (sh && s.guard === "tight") ((e -= 5), tags.push($t("ct.tight")));
+      if (FIN.includes(o.k) && s.guard === "tight") e += 3;
+      if (FIN.includes(o.k) && s.help) ((e -= 7), tags.push($t("ct.crowd")));
       if (o.k === "float" && s.help) e += 5;
-      if (PASSK.includes(o.k) && s.mate) ((e += 4), tags.push($t("ct.mate")));
-      if ((FAV[s.zone] || []).includes(o.k)) (o = { ...o, fav: true });
+      if (PASSK.includes(o.k) && s.mate) ((e += 6), tags.push($t("ct.mate")));
+      if ((FAV[s.zone] || []).includes(o.k)) ((e += 2), (o = { ...o, fav: true }));
     } else {
-      if (s.drive && ["block", "charge", "rim", "safe"].includes(o.k)) ((e += 3), tags.push($t("ct.driving")));
-      if (!s.drive && ["steal", "safe"].includes(o.k)) ((e += 2), tags.push($t("ct.shooter")));
-      if (!s.drive && o.k === "block") e -= 4;
+      if (s.drive && ["block", "charge", "rim", "safe"].includes(o.k)) ((e += 4), tags.push($t("ct.driving")));
+      if (!s.drive && ["steal", "safe"].includes(o.k)) ((e += 3), tags.push($t("ct.shooter")));
+      if (!s.drive && o.k === "block") e -= 3;
     }
-    return { ...o, e, sm: e - o.e, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
+    return { ...o, e, sm: e - base, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
   });
 }
 /** Saha: karar anında dur, durumu çiz */

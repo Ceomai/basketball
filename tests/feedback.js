@@ -1022,6 +1022,38 @@ test("cila: Stil alt sekmeleri (görünüm+tasarım), Vitrin'den Başarımlar, a
   return p;
 });
 
+test("QA düzeltmeleri: maç bonusu maç dışına taşmaz, ortak video bileşik büyümez, borsa komisyonu, basket faul serbest atışı sayılır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, feed: [], live: 1, effMod: 12, home: true, hypeOn: 2 });
+    document.body.insertAdjacentHTML("beforeend", '<div id="mstat"></div>');
+    const inMatch = G.eff("sut");
+    G.renderMain(); // maç ekranından çıkış
+    const after = G.eff("sut");
+    // ortak video: büyük takipçide bile küçük, sabit artış
+    G.S.followers = 1000000;
+    G.S.slot = 3;
+    G.S.energy = 90;
+    G.locStudio({ n: "Stüdyo" });
+    document.querySelector("#vn-col").click();
+    const gain = G.S.followers - 1000000;
+    // borsa: al-sat aynı fiyatta zarar (komisyon)
+    G.S.money = 100000;
+    G.locBorsa({ n: "Borsa" });
+    const m0 = G.S.money;
+    document.querySelector('[data-sb="gda"]').click();
+    document.querySelector('[data-ss="gda"]').click();
+    const fee = m0 - G.S.money;
+    return { inMatch, after, gain, fee, live: G.M.live };
+  });
+  assert(r.after < r.inMatch && r.live === 0, "maç bonusu sıfırlanmalı: " + JSON.stringify(r));
+  assert(r.gain > 0 && r.gain < 20000, "ortak video artışı: " + r.gain);
+  assert(r.fee > 0, "komisyon: " + r.fee);
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
