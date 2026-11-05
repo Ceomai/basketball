@@ -2035,7 +2035,7 @@ test("paket 2: mola kartı seriyi keser, son dakika faul ve zaman tüketme", asy
     const holdMod = G.possMod(true);
     const none = await G.lateCall(true, 10, el, 20);
     let ft = 0;
-    for (let i = 0; i < 50; i++) ft += G.oppFreeThrows();
+    for (let i = 0; i < 50; i++) ft += G.oppFreeThrows().made;
     el.remove();
     G.setM(null);
     return { left0, run, pulse: /pulse/.test(btn), after, call, call2, holdMod, none, ft };
@@ -2043,7 +2043,7 @@ test("paket 2: mola kartı seriyi keser, son dakika faul ve zaman tüketme", asy
   assert(r.left0 === 2 && r.run === 3 && r.pulse, "mola başlangıcı: " + JSON.stringify(r));
   assert(r.after.left === 1 && r.after.mod < 1, "mola etkisi: " + JSON.stringify(r));
   assert(r.call === "foul" && r.call2 === "hold" && r.holdMod < 1 && r.none === null, "son dakika: " + JSON.stringify(r));
-  assert(r.ft > 50 && r.ft < 100, "serbest atış: " + r.ft);
+  assert(r.ft > 35 && r.ft < 85, "serbest atış: " + r.ft);
   return p;
 });
 
@@ -2108,7 +2108,7 @@ test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağac
     S.family = [{ n: "Baba Test", y: 1990, tr: 3, t: "", pos: "C" }];
     out.tree = G.familyTreeHTML().includes("Baba Test");
     out.next = G.familyNext().length === 2;
-    out.sfx = ["swish", "squeak", "chant"].every(k => typeof G.SFX[k] === "function");
+    out.sfx = ["netSwish", "squeak", "chant"].every(k => typeof G.SFX[k] === "function");
     return out;
   });
   assert(r.fallen.age === 27 && r.fallen.stage === "t2" && r.fallen.scn === "fallen" && r.fallen.html, "düşen yıldız: " + JSON.stringify(r.fallen));

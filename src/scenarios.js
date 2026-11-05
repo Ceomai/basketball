@@ -119,7 +119,7 @@ export function familyTreeHTML() {
 }
 
 /* ---- Ses: file, gıcırtı, tezahürat ---- */
-SFX.swish = () => {
+SFX.netSwish = () => {
   noise(0.22, { freq: 6000, sweep: -3000, vol: 0.09, q: 0.6 });
   tone(1800, 0.06, { type: "triangle", vol: 0.03, delay: 0.05 });
 };

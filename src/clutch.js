@@ -7,6 +7,7 @@
 import { t as $t } from "./i18n/index.js";
 import { $, $$ } from "./data.js";
 import { M } from "./match.js";
+import { S } from "./core.js";
 import { late } from "./late.js";
 
 export function timeoutInit() {
@@ -51,7 +52,10 @@ export function timeoutCard(el) {
           if (k === "stop") {
             M.runStop = 6;
             M.oppRun = 0;
-          } else M.tac = k;
+          } else {
+            M.tac = k;
+            if (k === "ball") S.rel.koc -= 1; // çeyrek arasındaki "topu bana verin" ile aynı bedel
+          }
           el.innerHTML = "";
           res();
           if (M.feed && late.addFeed) late.addFeed(`<b>${$t("cl.toFeed")}</b> ${$t(`cl.toFx.${k}`)}`);
@@ -79,7 +83,8 @@ export function runTrack(us, scored) {
 export function lateCall(ourBall, diff, el, secLeft) {
   if (!M) return Promise.resolve(null);
   let kind = null;
-  if (!ourBall && diff < 0 && diff >= -6) kind = "trail";
+  if (secLeft < 8) return Promise.resolve(null); // birkaç saniye kala karar anlamsız
+  if (!ourBall && diff <= -3 && diff >= -6) kind = "trail"; // 1-2 sayı gerideyken savunma açıkça doğru
   else if (ourBall && diff >= 1 && diff <= 3 && secLeft <= 35) kind = "lead";
   if (!kind) return Promise.resolve(null);
   late.buzz && late.buzz(25);
@@ -108,7 +113,8 @@ export function lateCall(ourBall, diff, el, secLeft) {
 }
 /** Faul sonrası rakibin iki serbest atışı */
 export function oppFreeThrows() {
-  const made = (Math.random() < 0.74 ? 1 : 0) + (Math.random() < 0.74 ? 1 : 0);
-  if (late.addFoul) late.addFoul();
-  return made;
+  // baskı altında serbest atış: %58 (taktik faul gerideyken gerçek bir seçenek olsun)
+  const made = (Math.random() < 0.58 ? 1 : 0) + (Math.random() < 0.58 ? 1 : 0);
+  const note = late.addFoul ? late.addFoul() || "" : "";
+  return { made, note };
 }

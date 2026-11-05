@@ -205,7 +205,9 @@ export async function playMatch(ctx) {
   while (t < end) {
     // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
     if (!AUTO && !$("#mstat")) return;
-    const dur = ri(12, 22);
+    // önde olan rakip son dakikada saati sonuna kadar kullanır (kendin oynarken: faul kararını anlamlı kılar)
+    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : ri(12, 22);
+    const t0 = t;
     t = Math.min(end, t + dur);
     setClock();
     // çeyrek arası
@@ -275,13 +277,15 @@ export async function playMatch(ctx) {
       renderSpd();
     }
     // son dakika kararı: faul yap / zamanı tüket
-    if (!AUTO && on && t > TOTAL - 50 && t < TOTAL) {
-      const call = await late.lateCall(ourBall, M.us - M.them, $("#mview"), TOTAL - t);
+    if (!AUTO && on && t > end - 50 && t < end) {
+      const call = await late.lateCall(ourBall, M.us - M.them, $("#mview"), end - t);
       if (call === "foul") {
-        const made = late.oppFreeThrows();
+        const { made, note } = late.oppFreeThrows();
         M.them += made;
         M.plus -= made;
-        addFeed(`<b>${$t("cl.foulFeed")}</b> ${$t("cl.ftRes", { n: made })}`);
+        t = Math.min(end, t0 + ri(2, 4)); // faul saati hemen durdurur
+        setClock();
+        addFeed(`<b>${$t("cl.foulFeed")}</b> ${$t("cl.ftRes", { n: made })}${note}`);
         ourBall = true; // top size geçer
         updBug();
         statLine();
@@ -319,11 +323,19 @@ export async function playMatch(ctx) {
     ourBall = !ourBall;
     updBug();
     if (on) statLine();
+    // mola düğmesi durumu (kalan hak, rakip serisi) değişince yeniden çiz
+    if (!AUTO) {
+      const k = `${M.toLeft}|${M.toReq ? 1 : 0}|${M.oppRun >= 3}`;
+      if (k !== M._toKey) {
+        M._toKey = k;
+        renderSpd();
+      }
+    }
     if (t >= end && end >= TOTAL && M.us === M.them) {
       end += 300;
       addFeed(`<b>${$t("engine.27")}</b> ${$t("engine.28")}`);
       if (!AUTO) late.commentLine("ot");
-      M.toLeft = (M.toLeft || 0) + 1; // uzatmada bir mola
+      M.toLeft = 1; // uzatmada bir mola
       if (t === TOTAL) {
         M.qs.push([M.us, M.them]);
         await quarterBreak(4, on, true);
@@ -704,6 +716,7 @@ export async function playMatch(ctx) {
       );
       if (half) {
         M.toLeft = 3; // ikinci yarı mola hakları (src/clutch.js)
+        M.toReq = 0;
         S.energy = Math.min(100, S.energy + 4);
         late.bindAdHalf();
         late.bindMascot(); // maskot düellosu (src/tales.js)

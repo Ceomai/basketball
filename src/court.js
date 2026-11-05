@@ -159,7 +159,7 @@ export function courtPlay(r, on, dur) {
     mv("ball", h.x, h.y, t2 * 0.6);
     later(t2 * 0.6, () => {
       if (r.scored) {
-        if (on) late.sfx && late.sfx("swish");
+        if (on) late.sfx && late.sfx("netSwish");
         const n = right ? $("#net-r") : null;
         if (n) {
           n.style.transition = "opacity .3s";
@@ -312,7 +312,7 @@ export function courtShot(good) {
   mv("ball", HR.x, HR.y, 380);
   return new Promise(r =>
     later(400, () => {
-      if (good) late.sfx && late.sfx("swish");
+      if (good) late.sfx && late.sfx("netSwish");
       if (good && n) {
         n.style.transition = "opacity .3s";
         n.style.opacity = 0.75;
