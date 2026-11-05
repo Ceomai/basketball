@@ -2100,7 +2100,8 @@ test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağac
     // son dans: kupa kazanınca başarı
     S.scn.tr0 = (S.career.trophies || []).length;
     S.career.trophies = [...(S.career.trophies || []), { type: "cup", y: S.year }];
-    G.Bus.emit("season:end");
+    G.Bus.emit("season:end", {});
+    G.Bus.emit("week:start");
     out.done = S.scn.done;
     G.closeSheet();
     out.sheet = G.Bus.first ? true : true;

@@ -16,8 +16,8 @@ import { late } from "./late.js";
 
 /* ---- Senaryolar ---- */
 export const SCENARIOS = {
-  fallen: { age: 27, stage: "t2", base: 54, role: "star", years: 2 },
-  smallclub: { age: 22, stage: "t3", base: 44, role: "star", years: 3, weakest: true },
+  fallen: { age: 27, stage: "t2", base: 50, role: "star", years: 2 },
+  smallclub: { age: 22, stage: "t3", base: 46, role: "star", years: 3, weakest: true },
   lastdance: { age: 34, stage: "euro", base: 68, role: "rot", years: 2 }
 };
 export function scenarioPickerHTML(cur) {
@@ -33,7 +33,7 @@ export function scenarioSetup(id) {
   S.age = sc.age;
   for (const k of Object.keys(S.st)) S.st[k] = Math.min(90, sc.base + (S.st[k] - 20));
   const pool = late.leaguePool(sc.stage, "TR");
-  const t = sc.weakest ? pool.slice().sort((a, b) => a.str - b.str)[0] : pick(pool);
+  const t = sc.weakest ? pick(pool.slice().sort((a, b) => a.str - b.str).slice(0, 3)) : pick(pool);
   S.stage = sc.stage;
   S.stageSeason = 1;
   S.team = t;
@@ -45,30 +45,35 @@ export function scenarioSetup(id) {
   S.contract = sc.years;
   S.money = Math.round(WAGE[sc.stage] * 6);
   S.followers = sc.stage === "euro" ? 60000 : 3000;
+  S.housing = sc.stage === "euro" ? "lux" : "daire"; // yeni şehirde kendi evi (aile odası değil)
   S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1, plan: 1, basarim: 1, tasarim: 1, hikaye: 1 };
-  S.scn = { id, until: S.season + sc.years - 1, done: 0 };
+  S.scn = { id, until: S.season + sc.years - 1, done: 0, team: t.key };
   if (id === "fallen") S.reinj = { p: 0.2, until: (late.weekIndex ? late.weekIndex() : 0) + 20 }; // eski sakatlık: tekrar riski
   newSeasonLeague();
   norm();
   news($t(`sc.news.${id}`, { v: fullName(), t: t.name }));
   return true;
 }
-const scGoal = () => {
-  const s = S.scn,
-    tr = S.career.trophies || [];
-  if (s.id === "fallen") return ["t1", "euro", "nba"].includes(S.stage);
-  if (s.id === "smallclub") return tr.some(x => x.type === "champ");
-  if (s.id === "lastdance") return tr.length > (s.tr0 || 0);
-  return false;
-};
-Bus.on("week:start", () => {
-  if (S && S.scn && S.scn.tr0 == null) S.scn.tr0 = (S.career.trophies || []).length;
-});
-Bus.on("season:end", () => {
+// takım kupaları (All-Star, ödül, arcade, mağaza ürünü sayılmaz)
+const CUPS = ["champ", "cup", "super", "el", "ec"],
+  UP = ["t1", "euro", "nba"];
+// sezon sonu: başarı payload'dan işaretlenir (kupa ve terfi sonradan yazıldığı için karar sonraki haftanın başında)
+Bus.on("season:end", ({ champ } = {}) => {
   const s = S && S.scn;
   if (!s || s.done) return;
-  if (scGoal()) s.done = 1;
-  else if (S.season >= s.until) s.done = -1;
+  if (s.id === "smallclub" && champ && (!s.team || S.team.key === s.team)) s.hit = 1;
+  if (s.id === "lastdance" && champ) s.hit = 1;
+});
+Bus.on("week:start", () => {
+  const s = S && S.scn;
+  if (!s) return;
+  if (s.tr0 == null) s.tr0 = (S.career.trophies || []).length;
+  if (s.done) return;
+  const tr = (S.career.trophies || []).slice(s.tr0);
+  if (s.id === "lastdance" && tr.some(x => CUPS.includes(x.type))) s.hit = 1;
+  if (s.id === "smallclub" && s.team && S.team.key !== s.team && !s.hit) s.done = -1; // küçük kulüpten ayrıldın
+  else if (s.hit || (s.id === "fallen" && UP.includes(S.stage) && S.role !== "bench")) s.done = 1;
+  else if (S.season > s.until) s.done = -1;
   if (s.done) s.show = 1;
 });
 function scenarioSheet() {
@@ -99,7 +104,7 @@ export function scenarioHTML() {
 /** varis kariyerine aktarılacak aile (src/legacy.js startHeir) */
 export function familyNext() {
   const tier = late.hofTier ? late.hofTier(late.legacyScore ? late.legacyScore() : 0)[1] : "";
-  return [...(S.family || []), { n: fullName(), y: S.year, tr: (S.career.trophies || []).length, t: tier, pos: S.pos }].slice(-8);
+  return [...(S.family || []), { n: fullName(), y: S.season, tr: (S.career.trophies || []).length, t: tier, pos: S.pos }].slice(-8);
 }
 export function familyTreeHTML() {
   const f = (S && S.family) || [];

@@ -360,6 +360,7 @@ export const mateTraitHTML = n => ` <span class="pill" title="${$t(`tl.tr2.${mat
 const fullMates = () => (late.roster ? late.roster().map(p => p.n) : []);
 // kaptanlık: kıdemli, takımla arası iyi bir yıldız
 Bus.on("week:start", () => {
+  if (S && S.captain && S.role === "bench") S.captain = null; // yedek kulübesinde kaptanlık olmaz
   if (!S || !S.team || !isPro(S.stage) || S.captain === S.team.key) return;
   if (S.age >= 26 && S.rel.takim >= 70 && S.role === "star") {
     S.captain = S.team.key;
@@ -370,8 +371,11 @@ Bus.on("week:start", () => {
 export const isCaptain = () => !!(S && S.team && S.captain === S.team.key);
 async function feudTale() {
   const ms = fullMates();
-  const a = ms.find(n => ["diva", "hungry"].includes(mateTrait(n))) || ms[0],
-    b = ms.find(n => n !== a && ["hungry", "leader", "joker"].includes(mateTrait(n))) || ms[1];
+  tl().feudAt = widx();
+  const pa = ms.filter(n => ["diva", "hungry"].includes(mateTrait(n))),
+    a = pa.length ? pick(pa) : ms[0],
+    pb = ms.filter(n => n !== a && ["hungry", "leader", "joker"].includes(mateTrait(n))),
+    b = pb.length ? pick(pb) : ms.find(n => n !== a);
   if (!a || !b) return false;
   const opts = [
     ["stay", $t("tl.fd.stay"), $t("tl.fd.stayD")],
@@ -390,6 +394,7 @@ async function feudTale() {
   return done($t("tl.fd.sideR", { w: esc(k === "a" ? a : b), l: esc(k === "a" ? b : a) }), [[$t("tl.fx.team", { v: 1 }), "p"]]);
 }
 async function captainTale() {
+  tl().capAt = widx();
   const k = await choose($t("tl.cp.t"), $t("tl.cp.s"), $t("tl.cp.b", { c: esc(S.npc.coach) }), [
     ["quiet", $t("tl.cp.quiet"), $t("tl.cp.quietD")],
     ["coach", $t("tl.cp.coach"), $t("tl.cp.coachD")],
@@ -408,6 +413,10 @@ async function captainTale() {
 }
 async function mentorTale() {
   const M2 = S.mentee;
+  if (M2 && M2.team !== S.team.name) {
+    S.mentee = null; // takım değişti: mentorluk biter
+    return false;
+  }
   if (!M2) {
     const young = late.roster ? late.roster().slice().sort((x, y) => x.age - y.age)[0] : null;
     if (!young) return false;
@@ -451,8 +460,8 @@ function eligible() {
   if (pro && T.pivot < 2) out.push(pivotTale);
   if (T.coffee < 2) out.push(coffeeTale);
   if (S.rival && T.trash < 2 && pro) out.push(trashTale);
-  if (pro && fullMates().length > 3) out.push(feudTale);
-  if (isCaptain()) out.push(captainTale);
+  if (pro && fullMates().length > 3 && widx() - (T.feudAt ?? -99) >= 12) out.push(feudTale);
+  if (isCaptain() && widx() - (T.capAt ?? -99) >= 10) out.push(captainTale);
   if (pro && S.age >= 29 && (!S.mentee || (S.mentee.step < 3 && widx() - S.mentee.at >= 8))) out.push(mentorTale);
   return out;
 }
