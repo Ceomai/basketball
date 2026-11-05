@@ -147,7 +147,8 @@ export function extraOffOpts(opts, clutch, auto) {
   return out;
 }
 export const duoMod = () => Math.round(chemVal() / 8);
-const ROUTES = { corner: ["corner", [272, 40]], top: ["top3", [150, 176]], paint: ["lay", [150, 48]], pop: ["mid", [196, 110]] };
+// koşu yolları: tam sahadaki bölge noktaları (src/court.js courtZone)
+const ROUTES = { corner: ["corner", "corner"], top: ["top3", "top"], paint: ["lay", "paint"], pop: ["mid", "mid"] };
 const BIG = ["C", "PF"];
 /** Oyun kur ekranı: perdeci + koşu yolu; sahada oklar. {pk, mod} döner */
 export function setPlay(el) {
@@ -166,14 +167,14 @@ export function setPlay(el) {
     late.courtMove("ball", me[0] + 7, me[1] - 6);
     let h = "";
     if (scr) {
-      const sp = [me[0] + (me[0] < 150 ? 20 : -20), me[1] - 16];
+      const sp = [me[0] + 14, me[1] + (me[1] < 98 ? 14 : -14)];
       late.courtMove(`o-${scr}`, sp[0], sp[1]); // perdeci yanına gelir
       const o = late.courtSlot(scr);
       h += `<line x1="${o[0]}" y1="${o[1]}" x2="${sp[0]}" y2="${sp[1]}" stroke="#ffc54d" stroke-width="2.5" stroke-dasharray="5 3"/><rect x="${sp[0] - 7}" y="${sp[1] - 13}" width="14" height="4" fill="#ffc54d" stroke="#141414"/>`;
     }
     if (rt) {
-      const [, [x, y]] = ROUTES[rt];
-      h += `<path d="M${me[0]} ${me[1]} Q${(me[0] + x) / 2 + 20} ${(me[1] + y) / 2} ${x} ${y}" fill="none" stroke="#fff" stroke-width="3" marker-end="url(#ah)"/><circle cx="${x}" cy="${y}" r="5" fill="#fff"/>`;
+      const [x, y] = late.courtZone(ROUTES[rt][1]);
+      h += `<path d="M${me[0]} ${me[1]} Q${(me[0] + x) / 2} ${(me[1] + y) / 2 + (y < 98 ? 18 : -18)} ${x} ${y}" fill="none" stroke="#fff" stroke-width="2.4" marker-end="url(#ah)"/><circle cx="${x}" cy="${y}" r="4" fill="#fff"/>`;
     }
     a.innerHTML = `<defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#fff"/></marker></defs>${h}`;
   };

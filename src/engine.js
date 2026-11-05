@@ -10,7 +10,9 @@ import { LK, M, PEN, addFeed, finishMatch, odds, resolvePlay, setM, updBug } fro
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
    Çeyrek aralarında duraklama, skor özeti ve koçla taktik konuşması var. */
-export const PACE = { 1: 420, 2: 200, 4: 90 };
+// hücum başına süre: sahada geçiş → set → sonuç izlenir (src/court.js courtPlay)
+export const PACE = { 1: 1500, 2: 750, 4: 320 };
+const KEY_ON = 450; // "önemli anlar"da sahadayken
 export const TR_CALLS = [$t("engine.1"), $t("engine.2"), $t("engine.3"), $t("engine.4"), $t("engine.5")];
 export function rosterNames(city, n) {
   const c = cOf(city),
@@ -189,9 +191,9 @@ export async function playMatch(ctx) {
     const left = Math.max(0, len - inQ);
     M.clock = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
   };
+  const paceMs = () => (AUTO ? 0 : mode === "key" && !on ? 0 : mode === "key" ? KEY_ON : PACE[M.speed]);
   const pace = async () => {
-    if (AUTO) return;
-    const ms = mode === "key" && !on ? 0 : mode === "key" ? PACE[4] : PACE[M.speed];
+    const ms = paceMs();
     if (ms) await wait(ms);
   };
   let end = TOTAL;
@@ -267,11 +269,20 @@ export async function playMatch(ctx) {
     // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
     const involve = (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
     const before = [M.us, M.them];
-    if (!AUTO) late.courtTick(ourBall, on);
+    const ap0 = M.autoPts || 0;
     if (on && Math.random() < involve) {
       if (ourBall) M.touches = (M.touches || 0) + 1;
       await moment(ourBall, clutch);
-    } else simPossession(ourBall);
+    } else {
+      simPossession(ourBall);
+      // sahada hücumu izle: geçiş → set → şut (src/court.js)
+      if (!AUTO)
+        late.courtPlay(
+          { us: ourBall, scored: ourBall ? M.us > before[0] : M.them > before[1], mine: (M.autoPts || 0) > ap0 },
+          on,
+          paceMs()
+        );
+    }
     if (on) M.plus += M.us - before[0] - (M.them - before[1]);
     M.low = Math.min(M.low || 0, M.us - M.them); // en büyük geri düşülen fark (geri dönüş başarımı)
     ourBall = !ourBall;
@@ -437,7 +448,7 @@ export async function playMatch(ctx) {
     if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
     opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));
     const render = () => {
-      if (scn) late.courtFreeze(scn);
+      late.courtFreeze(scn || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
         `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
@@ -483,6 +494,8 @@ export async function playMatch(ctx) {
       const pickd = opts.find(o => o.k === k);
       M.effMod = ((fu && fu.mod) || 0) + dm + Math.round(((pickd && pickd.sm) || 0) * 0.6); // durum (boş/sıkı/kalabalık) sonucu da etkiler
       if (fu && fu.foulChance && Math.random() < fu.foulChance) pk = "free"; // turnikeyi zorladı, faul aldı
+      if (!AUTO) late.setMgCtx(late.mgContext(scn)); // mini oyun sahadaki pozisyona uyar (src/games.js)
+      M.lastPk = pk;
       res =
         fu && fu.resolve
           ? fu.resolve()
@@ -492,12 +505,27 @@ export async function playMatch(ctx) {
               ? late.autoResolve(pk, sur)
               : await resolvePlay(pk, $("#mview"), sur, dn);
       M.effMod = 0;
+      late.setMgCtx(null);
       const tk = fu && fu.resolve ? "kick" : pk; // ikinci kararda pas: şut denemesi değil
       late.trackPlay(tk, b0.pts, res);
       late.afterMoment(fu && fu.resolve ? "pass" : k, tk, res);
       M.mmod = 0;
       if (res.good || !snap || M.adRetry || !(await late.offerRetry($("#mview")))) break;
       late.momentRestore(snap);
+    }
+    // sahada sonuç: top potaya; kaçarsa ribaund mücadelesi ve ikinci şans (kendin oynarken)
+    let rbTxt = "";
+    if (!AUTO && ty === "off" && late.isShotKey(M.lastPk)) {
+      const scored = M.pts > b0.pts;
+      await late.courtShot(scored);
+      if (!scored && !res.good) {
+        const rb = await late.reboundPhase($("#mview"), sur);
+        if (rb) {
+          rbTxt = " " + rb.txt;
+          M.wsum = (M.wsum || 0) + 0.5;
+          if (rb.good) M.wgood = (M.wgood || 0) + 0.5;
+        }
+      }
     }
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
     if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) {
@@ -511,7 +539,7 @@ export async function playMatch(ctx) {
     late.sfx(res.good ? "cheer" : "ooh");
     if (!AUTO && res.good && M.pts > b0.pts) late.celebrate(); // kutlama hareketi (src/custom.js)
     late.crowdSwell(res.good ? 1.4 : 0.6);
-    let txt = res.txt + late.afterSignature(k, res.good) + (ty === "def" ? late.foulAfterMoment(k, res.good) : "");
+    let txt = res.txt + rbTxt + late.afterSignature(k, res.good) + (ty === "def" ? late.foulAfterMoment(k, res.good) : "");
     if (res.good) {
       // başarılı an niteliğe ondalık katkı (maç sonunda toplamı gösterilir); seviye yükseldikçe azalır ama sıfırlanmaz
       const g = BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul() * (0.25 + 0.75 * late.levelMul(res.st));

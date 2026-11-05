@@ -267,6 +267,8 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       // ikinci karar (src/court.js) ve oyunu kur ekranı (src/matchday.js)
       const fu = $("#mview [data-fu]");
       if (fu) return (fu.click(), "fu");
+      const rb = $("#mview [data-rb]"); // ribaund ve ikinci şans
+      if (rb) return (rb.click(), "rb");
       const sg = $("#sp-go");
       if (sg) {
         if (sg.disabled) {
