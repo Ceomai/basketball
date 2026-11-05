@@ -169,7 +169,7 @@ function newJersey() {
   sheet(
     $t("cu.newJ"),
     $t("cu.newJSub", { team: S.team.name }),
-    `<div class="card" style="align-items:center;text-align:center"><div>${jerseyBackSVG(150)}</div><p>${$t("cu.newJTxt", { team: esc(S.team.name), num: S.num, name: esc(jName()) })}</p><div class="fx"><span class="p">${$t("cu.newJFx")}</span></div></div><button class="btn pri" id="jy-ok">${$t("cu.newJOk")}</button>`
+    `${late.transferNight ? late.transferNight() : ""}<div class="card" style="align-items:center;text-align:center"><div>${jerseyBackSVG(150)}</div><p>${$t("cu.newJTxt", { team: esc(S.team.name), num: S.num, name: esc(jName()) })}</p><div class="fx"><span class="p">${$t("cu.newJFx")}</span></div></div><button class="btn pri" id="jy-ok">${$t("cu.newJOk")}</button>`
   );
   $("#jy-ok").onclick = () => closeSheet();
   return true;

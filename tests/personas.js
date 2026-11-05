@@ -269,6 +269,8 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       if (fu) return (fu.click(), "fu");
       const rb = $("#mview [data-rb]"); // ribaund ve ikinci şans
       if (rb) return (rb.click(), "rb");
+      const rf = $("#mview [data-rf]"); // hakemle tartışma (src/tales.js)
+      if (rf) return (rf.click(), "rf");
       const sg = $("#sp-go");
       if (sg) {
         if (sg.disabled) {

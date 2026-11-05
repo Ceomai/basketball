@@ -291,6 +291,7 @@ export async function playMatch(ctx) {
     if (t >= end && end >= TOTAL && M.us === M.them) {
       end += 300;
       addFeed(`<b>${$t("engine.27")}</b> ${$t("engine.28")}`);
+      if (!AUTO) late.commentLine("ot");
       if (t === TOTAL) {
         M.qs.push([M.us, M.them]);
         await quarterBreak(4, on, true);
@@ -320,6 +321,10 @@ export async function playMatch(ctx) {
     10
   );
   addFeed(`<b>${$t("engine.29")}</b> ${M.us}-${M.them}.`);
+  if (!AUTO) {
+    const df = M.us - M.them;
+    late.commentLine(Math.abs(df) <= 3 ? "close" : df <= -18 ? "blowout" : df >= 18 ? "rout" : df > 0 ? "win" : "loss"); // spiker (src/tales.js)
+  }
   if (!AUTO) await wait(500);
   M.auto = !!ctx.auto;
   if (ctx.onEnd) ctx.onEnd(win);
@@ -539,7 +544,9 @@ export async function playMatch(ctx) {
     late.sfx(res.good ? "cheer" : "ooh");
     if (!AUTO && res.good && M.pts > b0.pts) late.celebrate(); // kutlama hareketi (src/custom.js)
     late.crowdSwell(res.good ? 1.4 : 0.6);
-    let txt = res.txt + rbTxt + late.afterSignature(k, res.good) + (ty === "def" ? late.foulAfterMoment(k, res.good) : "");
+    const foulTxt = ty === "def" ? late.foulAfterMoment(k, res.good) : "";
+    let txt = res.txt + rbTxt + late.afterSignature(k, res.good) + foulTxt;
+    if (!AUTO && foulTxt) txt += await late.refArgue($("#mview")); // haksız düdük: sakin kal ya da itiraz et (src/tales.js)
     if (res.good) {
       // başarılı an niteliğe ondalık katkı (maç sonunda toplamı gösterilir); seviye yükseldikçe azalır ama sıfırlanmaz
       const g = BAL.play * (AUTO ? 0.5 : 1) * late.modePlayMul() * (0.25 + 0.75 * late.levelMul(res.st));
@@ -640,7 +647,7 @@ export async function playMatch(ctx) {
                .map(([k, n]) => `<button class="btn ${M.tac === k ? "team" : "ghost"} sm" data-tac="${k}">${n}</button>`)
                .join("")}</div>`
        }
-       ${half ? late.adHalfHTML() : ""}<button class="btn pri" id="qgo">${
+       ${half ? late.adHalfHTML() : ""}${half ? late.mascotHTML() : ""}<button class="btn pri" id="qgo">${
          ot
            ? $t("engine.70")
            : last
@@ -663,6 +670,8 @@ export async function playMatch(ctx) {
       if (half) {
         S.energy = Math.min(100, S.energy + 4);
         late.bindAdHalf();
+        late.bindMascot(); // maskot düellosu (src/tales.js)
+        late.commentLine("half");
       }
       try {
         $("#mview").scrollIntoView({ block: "start", behavior: "smooth" });
