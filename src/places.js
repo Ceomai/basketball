@@ -526,7 +526,7 @@ export function locStad(I, tab = "mac") {
       // iyi oynanan bir mini oyunlu antrenmandan azdır ama boşa gitmez
       const pg = late.program(),
         k = STATS.some(x => x[0] === pg) ? pg : pick(STATS)[0],
-        g = Math.round(0.48 * levelMul(k) * ageGainMul() * late.modeTrainMul() * 100) / 100;
+        g = Math.round(0.55 * levelMul(k) * ageGainMul() * late.modeTrainMul() * 100) / 100;
       gainStat(k, g);
       norm();
       save();
