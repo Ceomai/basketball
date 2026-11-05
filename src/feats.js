@@ -174,7 +174,8 @@ function flush() {
   // art arda denetimlerde açılanları biriktir, tek bildirim göster
   shown.push(...q);
   clearTimeout(timer);
-  timer = setTimeout(() => {
+  const show = () => {
+    if (document.querySelector(".sheet") && !document.getElementById("shx")) return (timer = setTimeout(show, 1500)); // zorunlu panel açıkken bekle
     const list = shown;
     shown = [];
     if (!list.length) return;
@@ -188,7 +189,8 @@ function flush() {
             .join(", ")}${list.length > 2 ? "…" : ""}${cos ? ` · ${$t("ft.newCos")}` : ""}`
     );
     late.sfx && late.sfx("cheer");
-  }, 900);
+  };
+  timer = setTimeout(show, 900);
 }
 /** Kariyer/hayat başarımlarını denetle */
 export function checkFeats() {

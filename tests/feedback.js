@@ -1007,6 +1007,7 @@ test("cila: Stil alt sekmeleri (görünüm+tasarım), Vitrin'den Başarımlar, a
     G.S.partner = "Eş";
     G.S.pstage = 4;
     G.S.week = 5;
+    G.S.pPrev = 3; // doğum bu hafta oldu (eski kayıt değil)
     if (G.S.goals) G.S.goals.shown = true;
     G.Bus.emit("week:start");
     G.closeSheet();

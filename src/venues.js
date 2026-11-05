@@ -7,7 +7,7 @@
    - Sokak sahası: gece sokak ligi (6 mahalle takımı, 10 hafta, puan tablosu, "Sokak Efsanesi" unvanı, yerel rakipler).
    - Borsa: sektör haberleri (fiyatı haber oynatır; oyuncunun performansı değil), temettü, piyasa endeksi, risk profili.
    Hepsi tembel başlar (S alanları ilk kullanımda oluşur). */
-import { t as $t } from "./i18n/index.js";
+import { LANG, t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, esc, fmt, pick, ri, shuffle } from "./data.js";
 import { S, app, closeSheet, eff, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
 import { save } from "./save.js";
@@ -141,7 +141,7 @@ export function gradMeet(foes, mates) {
   g.ovr = g.ovr || ri(44, 52);
   if (vs) {
     foes[1] = g.n;
-    g.club = M_().opp.name;
+    g.club = g.club || M_().opp.name;
   } else {
     mates[1] = g.n;
     g.club = S.team.name;
@@ -168,9 +168,17 @@ export function gradsHTML() {
 const kidAge = () => (S.kid ? S.season - S.kid.born : -1);
 Bus.on("week:start", () => {
   if (!S || !S.partner) return;
-  if ((S.pstage || 0) >= 3 && !S.wed) S.wed = { s: S.season, w: S.week };
-  if ((S.pstage || 0) >= 4 && !S.kid)
-    S.kid = { n: pick((late.NAME_FIRST || ["Can"]).filter(n => n !== S.first)), born: S.season, seen: {} };
+  const st = S.pstage || 0,
+    known = S.pPrev != null; // bu sürümden önceki kayıtlarda aşama geçişi izlenmemiş
+  if (st >= 3 && !S.wed) S.wed = { s: known && S.pPrev < 3 ? S.season : S.season - 1, w: S.week };
+  if (st >= 4 && !S.kid)
+    S.kid = {
+      n: pick((late.NAME_FIRST || ["Can"]).filter(n => n !== S.first)),
+      born: known && S.pPrev < 4 ? S.season : S.season - 1,
+      seen: {},
+      named: known && S.pPrev < 4 ? 0 : 1 // eski kayıtta "bebeğiniz oldu" ekranı çıkmasın
+    };
+  S.pPrev = st;
 });
 const KID_AT = [1, 3, 6, 10, 14];
 const kidNames = g =>
@@ -356,10 +364,11 @@ function quizNight() {
     if (i >= qs.length) return end();
     const [k, ok, wr] = qs[i];
     const ans = shuffle([ok, ...wr]);
+    const show = a => (LANG === "en" ? a.replace(/(\d),(\d)/g, "$1.$2") : a);
     sheet(
       $t("vn.quiz"),
       $t("vn.quizN", { i: i + 1, n: qs.length, r: right }),
-      `<h3>${$t(`vn.${k}`)}</h3><div class="choices">${ans.map(a => `<button class="choice" data-qa="${esc(a)}"><span class="ct">${esc(a)}</span></button>`).join("")}</div>`,
+      `<h3>${$t(`vn.${k}`)}</h3><div class="choices">${ans.map(a => `<button class="choice" data-qa="${esc(a)}"><span class="ct">${esc(show(a))}</span></button>`).join("")}</div>`,
       { noClose: true }
     );
     $$("[data-qa]").forEach(
@@ -474,7 +483,7 @@ async function nightGame() {
   norm();
   save();
   $("#stg").innerHTML = "";
-  $("#res").innerHTML = `<div class="card"><h2 class="${win ? "good" : ""}">${win ? $t("st.won") : $t("st.lost")}</h2><p>${$t("vn.slRes", { m: r.made })}${extra}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  $("#res").innerHTML = `<div class="card"><h2 class="${win ? "good" : ""}">${win ? $t("vn.slWon") : $t("vn.slLost")}</h2><p>${$t(`vn.slRes.${kind}`, { m: r.made })}${extra}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 

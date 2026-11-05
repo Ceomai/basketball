@@ -1148,7 +1148,7 @@ export default {
   "ct.start": "Başlangıç",
   "ct.end": "Son",
   "ft.title": "Başarımlar",
-  "ft.sub": "Her başarım bir unvan açar; çoğu ayrıca küçük bir kozmetik verir (Ev → Tasarım, Vitrin). Açılanlar yeni kariyerlerde de kalır.",
+  "ft.sub": "Her başarım bir unvan açar; çoğu ayrıca küçük bir kozmetik verir (Ev → Stil, Vitrin). Açılanlar yeni kariyerlerde de kalır.",
   "ft.got": "Başarım",
   "ft.newCos": "yeni kozmetik",
   "ft.reward": "Ödül",
@@ -1617,5 +1617,11 @@ export default {
   "vn.q51": "3x3 basketbolda kaç sayıya ulaşan maçı erken kazanır?",
   "vn.q52": "3x3 basketbolda maç süresi kaç dakikadır?",
   "vn.q53": "NBA'de uzatma kaç dakikadır?",
-  "vn.q54": "NBA'de devre arası kaç dakikadır?"
+  "vn.q54": "NBA'de devre arası kaç dakikadır?",
+  "vn.slWon": "Gece maçını kazandın!",
+  "vn.slLost": "Bu gece maçı kaybettin.",
+  "vn.slRes.shoot": "{m}/3 şut girdi.",
+  "vn.slRes.dribble": "{m}/3 hareket başarılı.",
+  "vn.slRes.free": "{m}/3 serbest atış girdi.",
+  "legacy.64f": "{v}, efsane {parent}'nin kızı olarak {name}'nde kariyerine başladı."
 };

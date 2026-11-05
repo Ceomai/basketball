@@ -1149,7 +1149,7 @@ export default {
   "ct.start": "Start",
   "ct.end": "End",
   "ft.title": "Achievements",
-  "ft.sub": "Every achievement unlocks a title; most also give a small cosmetic (Home → Design, Showcase). Unlocks carry over to new careers.",
+  "ft.sub": "Every achievement unlocks a title; most also give a small cosmetic (Home → Style, Showcase). Unlocks carry over to new careers.",
   "ft.got": "Achievement",
   "ft.newCos": "new cosmetic",
   "ft.reward": "Reward",
@@ -1618,5 +1618,11 @@ export default {
   "vn.q51": "In 3x3, how many points ends the game early?",
   "vn.q52": "How many minutes is a 3x3 game?",
   "vn.q53": "How many minutes is NBA overtime?",
-  "vn.q54": "How long is NBA halftime (minutes)?"
+  "vn.q54": "How long is NBA halftime (minutes)?",
+  "vn.slWon": "You won the night game!",
+  "vn.slLost": "You lost tonight's game.",
+  "vn.slRes.shoot": "{m}/3 shots went in.",
+  "vn.slRes.dribble": "{m}/3 moves worked.",
+  "vn.slRes.free": "{m}/3 free throws went in.",
+  "legacy.64f": "{v}, daughter of legend {parent}, started her career at {name}."
 };
