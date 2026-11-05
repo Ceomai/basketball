@@ -124,11 +124,14 @@ export async function playMatch(ctx) {
   updBug();
   if (!AUTO) late.courtStart(opp); // saha görünümü (src/court.js)
   late.matchdayStart(ctx, foes, mates); // hakem, seyirci, rakip yıldız, kimya (src/matchday.js)
+  late.timeoutInit(); // mola hakları (src/clutch.js)
+  if (!AUTO) late.arenaLights(); // büyük maçta ışık gösterisi (src/scenarios.js)
   let mode = AUTO ? "key" : await modeChoice();
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px">${$t("engine.16")}</button>`;
+      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
+    late.bindTimeout(renderSpd);
     $$("#spd [data-s]").forEach(
       b =>
         (b.onclick = () => {
@@ -266,6 +269,32 @@ export async function playMatch(ctx) {
       M.mins += dur;
       M.stint += dur;
     } else M.stint = Math.max(0, M.stint - dur * 2);
+    // mola (src/clutch.js): istenen mola sıradaki hücumdan önce
+    if (!AUTO && M.toReq) {
+      await late.timeoutCard($("#mview"));
+      renderSpd();
+    }
+    // son dakika kararı: faul yap / zamanı tüket
+    if (!AUTO && on && t > TOTAL - 50 && t < TOTAL) {
+      const call = await late.lateCall(ourBall, M.us - M.them, $("#mview"), TOTAL - t);
+      if (call === "foul") {
+        const made = late.oppFreeThrows();
+        M.them += made;
+        M.plus -= made;
+        addFeed(`<b>${$t("cl.foulFeed")}</b> ${$t("cl.ftRes", { n: made })}`);
+        ourBall = true; // top size geçer
+        updBug();
+        statLine();
+        await pace();
+        continue;
+      }
+      if (call === "hold") {
+        t = Math.min(end, t + 10);
+        setClock();
+        M.hold = 1;
+        addFeed($t("cl.holdFeed"));
+      }
+    }
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
     // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
@@ -294,6 +323,7 @@ export async function playMatch(ctx) {
       end += 300;
       addFeed(`<b>${$t("engine.27")}</b> ${$t("engine.28")}`);
       if (!AUTO) late.commentLine("ot");
+      M.toLeft = (M.toLeft || 0) + 1; // uzatmada bir mola
       if (t === TOTAL) {
         M.qs.push([M.us, M.them]);
         await quarterBreak(4, on, true);
@@ -335,7 +365,7 @@ export async function playMatch(ctx) {
   function simPossession(us) {
     const tacU = M.tac === "tempo" ? 1.06 : M.tac === "def" ? 0.97 : 1,
       tacT = M.tac === "def" ? 0.93 : M.tac === "tempo" ? 1.03 : 1;
-    const p = clamp(ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT), 0.15, 0.85);
+    const p = clamp(ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) * late.possMod(us), 0.15, 0.85);
     const starTurn = !us && Math.random() < 0.3, // rakip yıldızın payı: akışta da onun adı geçer
       who = us ? pick(mates) : starTurn ? foes[0] : pick(foes.slice(1)),
       team = us ? S.team.short : opp.short;
@@ -343,7 +373,10 @@ export async function playMatch(ctx) {
       const f = late.backgroundFoul();
       if (f) addFeed(`${S.team.short} · <b>${sur}</b>${f}`);
     }
-    if (Math.random() < p) {
+    const sc = Math.random() < p;
+    late.runTrack(us, sc); // rakip serisi (mola düğmesi)
+    M.hold = 0;
+    if (sc) {
       const three = Math.random() < 0.32,
         pts = three ? 3 : 2;
       if (us) M.us += pts;
@@ -670,6 +703,7 @@ export async function playMatch(ctx) {
           })
       );
       if (half) {
+        M.toLeft = 3; // ikinci yarı mola hakları (src/clutch.js)
         S.energy = Math.min(100, S.energy + 4);
         late.bindAdHalf();
         late.bindMascot(); // maskot düellosu (src/tales.js)

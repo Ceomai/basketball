@@ -314,6 +314,8 @@ html[data-theme=minimal] .card{box-shadow:none}
 @keyframes cbTilt{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @keyframes cbJump{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.1)}}
 #mstat:empty{display:none}
+.pulse{animation:pulse 1s ease-in-out infinite alternate;border-color:var(--bad)!important}
+@keyframes pulse{from{box-shadow:0 0 0 0 rgba(255,84,104,.6)}to{box-shadow:0 0 0 5px rgba(255,84,104,0)}}
 .cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .cbb{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px 4px;color:var(--text);cursor:pointer;min-width:0}
 .cbb b{font-family:var(--display);font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;text-align:center}
@@ -348,6 +350,7 @@ const SUBS = ["look", "shoe", "jersey", "celeb", "theme"];
 const subsHTML = sub =>
   `<div class="opts" id="cu-sub">${SUBS.map(k => `<button class="opt ${k === sub ? "on" : ""}" data-v="${k}">${$t(`cu.t.${k}`)}</button>`).join("")}</div>`;
 export function stilTab(c, re) {
+  if (!late.unlocked("tasarim")) return late.styleTab(c, re); // tasarım alt sekmeleri sonra açılır
   if (!SUBS.includes(S.cuTab) || S.cuTab === "look") {
     S.cuTab = "look";
     late.styleTab(c, re);

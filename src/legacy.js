@@ -312,6 +312,7 @@ function startHeir() {
     money: Math.min(S.epilogue === "tv" || S.epilogue === "baskan" ? 8000 : 4000, Math.round(S.money * 0.05)),
     fame: S.epilogue === "tv" || S.epilogue === "baskan" ? 2000 : 0,
     tier: hofTier(score)[1],
+    family: late.familyNext ? late.familyNext() : [], // soy ağacı (src/scenarios.js)
     g: kid && kid.baller ? kid.g || "m" : "m"
   };
   late.save();
@@ -324,6 +325,7 @@ export function applyHeir(h) {
   S.followers += h.fame || 0;
   S.npc.dad = h.parentFirst;
   S.heir = h;
+  S.family = h.family || [];
   news(
     $t(h.g === "f" ? "legacy.64f" : "legacy.64", {
       v: fullName(),

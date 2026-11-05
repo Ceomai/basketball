@@ -24,7 +24,7 @@ const ACTS = [
 ];
 const actOf = k => ACTS.find(a => a[0] === k);
 export const planRowHTML = () =>
-  S && !S.brk
+  S && !S.brk && late.unlocked("plan")
     ? `<div class="grid2" style="margin-top:6px"><button class="btn ghost sm" id="wplan">${$t("pl2.plan")}</button><button class="btn ghost sm" id="wrep" ${S.lastPlan && S.slot > 0 ? "" : "disabled"}>${$t("pl2.repeat")}</button></div>`
     : "";
 export function bindPlanRow() {
@@ -110,7 +110,7 @@ Bus.on("week:start", () => {
 });
 export function weekSummaryHTML() {
   const w = S && S.lastWeek;
-  if (!w || S.brk) return "";
+  if (!w || S.brk || !late.unlocked("plan")) return "";
   const sg = v => (v > 0 ? `<b class="good">+${v}</b>` : v < 0 ? `<b class="bad">${v}</b>` : `<b class="muted">0</b>`);
   return `<details class="card" id="wsum"><summary class="row between" style="cursor:pointer"><span class="eyebrow">${$t("pl2.sum")}</span><span class="small">${w.money > 0 ? `<b class="good">+${fmt(w.money)}</b>` : w.money < 0 ? `<b class="bad">−${fmt(-w.money)}</b>` : "<b>0</b>"} · ${sg(w.ovr)} ${$t("pl2.ovr")}</span></summary>
    <div class="kv"><span>${$t("pl2.money")}</span>${w.money ? (w.money > 0 ? `<b class="good">+${fmt(w.money)}</b>` : `<b class="bad">−${fmt(-w.money)}</b>`) : "<b>0</b>"}<span>${$t("pl2.moral")}</span>${sg(w.moral)}<span>${$t("pl2.fol")}</span>${sg(w.fol)}<span>${$t("pl2.ovr")}</span>${sg(w.ovr)}${w.rel.map(([k, v]) => `<span>${$t(`pl2.r.${k}`)}</span>${sg(v)}`).join("")}</div>

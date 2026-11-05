@@ -419,7 +419,7 @@ const table = () =>
     .map(([k, v]) => ({ k, ...v }))
     .sort((a, b) => b.w - a.w || a.l - b.l);
 export function nightLeagueHTML() {
-  if (S.age < 15) return "";
+  if (S.age < 15 || !late.unlocked("geceligi")) return "";
   const L = sl(),
     over = L.round >= ROUNDS,
     done = L.wk === wk();

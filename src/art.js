@@ -238,6 +238,26 @@ export function drawKid(c, x, y, s, L, o = {}) {
     rr(c, -26, hY - 62, 52, 34, 14, "#fff");
     rr(c, -34, hY - 30, 68, 12, 4, "#f1f1f1");
   }
+  // yaşlanma: 31'den sonra şakaklarda kır, 34'ten sonra alında çizgiler (o.age; src/core.js jersey)
+  if (o.age >= 31) {
+    c.save();
+    c.globalAlpha = Math.min(0.9, (o.age - 30) * 0.14);
+    ell(c, -33, hY + 2, 5, 10, "#d5d9dc", 0, false);
+    ell(c, 33, hY + 2, 5, 10, "#d5d9dc", 0, false);
+    c.restore();
+  }
+  if (o.age >= 34) {
+    c.save();
+    c.strokeStyle = shade(sk, -40);
+    c.lineWidth = 1.3;
+    for (const dy of [-17, -12]) {
+      c.beginPath();
+      c.moveTo(-12, hY + dy);
+      c.quadraticCurveTo(0, hY + dy - 3, 12, hY + dy);
+      c.stroke();
+    }
+    c.restore();
+  }
   const ey = hY - 3;
   ell(c, -9, ey, 10, 12, "#fff", -0.18);
   ell(c, 9, ey, 10, 12, "#fff", 0.18);

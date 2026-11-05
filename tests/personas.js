@@ -271,6 +271,8 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       if (rb) return (rb.click(), "rb");
       const rf = $("#mview [data-rf]"); // hakemle tartışma (src/tales.js)
       if (rf) return (rf.click(), "rf");
+      const to = $("#mview [data-to]") || $("#mview [data-lt]"); // mola, son dakika (src/clutch.js)
+      if (to) return (to.click(), "to");
       const sg = $("#sp-go");
       if (sg) {
         if (sg.disabled) {
