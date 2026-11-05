@@ -1086,7 +1086,7 @@ export default {
   "hp.locked": "Hipodrom (18+)",
   "hp.sub": "At yarışları",
   "hp.young": "Hipodroma 18 yaşından küçükler giremez.",
-  "hp.note": "Bir ata {v} yatır. Oran ne kadar yüksekse kazanma şansı o kadar düşük. Buraya gelmek koçla ilişkini düşürür.",
+  "hp.note": "Bahis birimi {v}. Kazanan: atın birinci gelmeli. İlk 3: daha düşük oran, daha güvenli. Buraya gelmek koçla ilişkini haftada bir düşürür.",
   "hp.odds": "oran {v}",
   "hp.mine": "senin atın",
   "hp.own": "Atın {n}: {w} galibiyet.",
@@ -1647,5 +1647,17 @@ export default {
   "ct.rb.resetOk": "Hücum yeniden kuruldu, takım sayıyı buldu.",
   "ct.rb.resetNo": "Hücum yeniden kuruldu ama sayı gelmedi.",
   "eco.arcTired": "Bu hafta yeterince oynadın; artık sadece eğlence (moral ve gelişim yok).",
-  "hp.upkeep": "At bakımı"
+  "hp.upkeep": "At bakımı",
+  "hp.card": "Yarış bülteni",
+  "hp.k.win": "Kazanan",
+  "hp.k.place": "İlk 3",
+  "hp.line": "Jokey {j} · son 5: {f}",
+  "hp.live": "Yarış başladı!",
+  "hp.c.start": "Kapılar açıldı, atlar fırladı!",
+  "hp.c.lead": "{n} öne geçti!",
+  "hp.c.final": "Son düzlüğe girdiler, tribünler ayakta!",
+  "hp.c.photo": "Fotofiniş! Kazanan {n}!",
+  "hp.c.win": "{n} çizgiyi ilk geçti!",
+  "hp.result": "Sonuç",
+  "hp.wonPlace": "{n} ilk üçte! +{v}"
 };

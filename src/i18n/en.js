@@ -1087,7 +1087,7 @@ export default {
   "hp.locked": "Racecourse (18+)",
   "hp.sub": "Horse racing",
   "hp.young": "You must be 18 to enter the racecourse.",
-  "hp.note": "Bet {v} on a horse. The higher the odds, the lower the chance. Coming here lowers your coach relationship.",
+  "hp.note": "Bet unit {v}. Win: your horse must finish first. Top 3: lower odds, safer. Coming here lowers your coach relationship once a week.",
   "hp.odds": "odds {v}",
   "hp.mine": "your horse",
   "hp.own": "Your horse {n}: {w} wins.",
@@ -1648,5 +1648,17 @@ export default {
   "ct.rb.resetOk": "Offense reset and the team scored.",
   "ct.rb.resetNo": "Offense reset but no basket.",
   "eco.arcTired": "You've played enough this week; now it's just for fun (no morale or gains).",
-  "hp.upkeep": "Horse upkeep"
+  "hp.upkeep": "Horse upkeep",
+  "hp.card": "Racecard",
+  "hp.k.win": "Win",
+  "hp.k.place": "Top 3",
+  "hp.line": "Jockey {j} · last 5: {f}",
+  "hp.live": "They're off!",
+  "hp.c.start": "The gates open and they're away!",
+  "hp.c.lead": "{n} takes the lead!",
+  "hp.c.final": "Into the home straight, the crowd is on its feet!",
+  "hp.c.photo": "Photo finish! The winner is {n}!",
+  "hp.c.win": "{n} crosses the line first!",
+  "hp.result": "Result",
+  "hp.wonPlace": "{n} finished in the top 3! +{v}"
 };
