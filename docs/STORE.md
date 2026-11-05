@@ -75,8 +75,10 @@ Olay katmanı hazır (`src/analytics.js`): `active_day` (kurulumdan bu yana gün
 
 ## 5. Mağaza sayfası
 
-- Kısa açıklama (80 karakter) ve uzun açıklama: Türkçe ve İngilizce.
-- En az 2 telefon ekran görüntüsü (önerilen 6-8), 512×512 ikon (`public/icons/icon-512.png`), 1024×500 tanıtım görseli.
+- Kısa ve uzun açıklama (Türkçe ve İngilizce): hazır metinler `docs/STORE_LISTING.md`.
+- Ekran görüntüleri: `npm run build:single && npm run screenshots` → `store/screens/tr` ve `store/screens/en` (1080×2338, 8'er adet). 512×512 ikon (`public/icons/icon-512.png`), 1024×500 tanıtım görseli.
+- Düşük donanım ve kayıt boyutu: `npm run perf` (CPU 4x yavaş; hafta süresi, ana ekran çizimi, kayıt boyutu) → `reports/perf-check.md`.
+- Bulut kayıt: Google girişi + Firebase (bkz. 8. bölüm); çakışma kararı birim testinde (`tests/unit/remote.test.mjs`, "bulut kayıt çakışma kararı").
 - Kategori: Spor. Etiketler: basketbol, kariyer, menajer.
 
 ## 6. Yayın öncesi kontrol listesi

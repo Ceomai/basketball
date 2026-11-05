@@ -34,6 +34,7 @@ export function timeoutCard(el) {
   if (!M.toLeft) return Promise.resolve();
   M.toLeft--;
   late.sfx && late.sfx("whistle");
+  late.buzz && late.buzz(40); // titreşim (ayarlardan kapatılabilir)
   return new Promise(res => {
     el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("cl.toT", { q: M.q, c: M.clock })}</div><h2>${$t("cl.toH")}</h2><p class="muted">${M.oppRun >= 3 ? $t("cl.toRun", { n: M.oppRun }) : $t("cl.toCalm")}</p><div class="choices">${[
       ["stop", $t("cl.stop"), $t("cl.stopD")],
@@ -81,6 +82,7 @@ export function lateCall(ourBall, diff, el, secLeft) {
   if (!ourBall && diff < 0 && diff >= -6) kind = "trail";
   else if (ourBall && diff >= 1 && diff <= 3 && secLeft <= 35) kind = "lead";
   if (!kind) return Promise.resolve(null);
+  late.buzz && late.buzz(25);
   const opts =
     kind === "trail"
       ? [
