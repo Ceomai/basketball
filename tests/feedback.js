@@ -462,14 +462,18 @@ test("reklam: güvenlik tavanı dolunca düğme yerine not; normalde kalan hak g
   await career(p);
   const r = await p.evaluate(() => {
     const G = window.Game;
-    G.ADS.today = 0;
+    G.adsDayTick();
+    G.ADS.today = G.ADS_CFG.dailyRewardCap - 3; // kalan hak yalnız az kalınca (≤5) yazılır
     const a = G.adBtn("x", "A", "", "energy");
+    G.ADS.today = 0;
+    const a0 = G.adBtn("x", "A", "", "energy");
     G.ADS.today = G.ADS_CFG.dailyRewardCap;
     const b = G.adBtn("x", "A", "", "energy");
     G.ADS.today = 0;
-    return { a, b, cap: G.ADS_CFG.dailyRewardCap, epw: G.ADS_CFG.energyPerWeek };
+    return { a, a0, b, cap: G.ADS_CFG.dailyRewardCap, epw: G.ADS_CFG.energyPerWeek };
   });
   assert(/hak/.test(r.a) && /<button/.test(r.a), "kalan hak yok");
+  assert(/<button/.test(r.a0) && !/hak/.test(r.a0), "bol hakta sayı gösterilmemeli");
   assert(!/<button/.test(r.b) && /yarın/.test(r.b), "tavan notu yok");
   assert(r.cap >= 100 && r.epw >= 20, "sınırlar: " + JSON.stringify(r));
   return p;
@@ -907,6 +911,7 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     G.S.kid.born = G.S.season - 14;
     G.S.kid.named = 1;
     G.S.week = 5;
+    if (G.S.goals) G.S.goals.shown = true; // sezon hedefleri paneli öne geçmesin
     G.Bus.first("week:sheet");
   });
   await p.waitForSelector('[data-kd="1"]', { timeout: 3000 });
