@@ -224,7 +224,7 @@ export function bindAgentExtras() {
       useSlot();
       tx($t("ag.camp"), -camp);
       S.rel.taraf += 5;
-      S.followers = Math.round(S.followers * 1.06);
+      late.mediaGain(0.04, 5);
       norm();
       save();
       resultView($t("ag.camp"), $t("ag.campRes"), [[$t("ag.campFx"), "p"]]);

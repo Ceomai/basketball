@@ -56,8 +56,7 @@ export function bindStudioExtra(re) {
       r.collabWk = wk();
       useSlot();
       S.energy -= 5;
-      const add = Math.round(40 * pm() + S.followers * 0.005); // bileşik büyümesin: seviyeye göre sabit + küçük pay
-      S.followers += add;
+      const add = late.mediaGain(0.005, 40); // seviyeye göre sabit + küçük pay, medya yorgunluğu
       S.rel.takim += 2;
       if (late.chemAdd) late.chemAdd(5);
       chn().xp += 10;
@@ -108,8 +107,7 @@ function liveStream(re) {
     );
   };
   const finish = () => {
-    const add = Math.round(viewers * 0.2 * (mul / 3 + 0.4));
-    S.followers += add;
+    const add = late.mediaGain(0, (viewers * 0.2 * (mul / 3 + 0.4)) / pm());
     S.rel.taraf += fans;
     S.rel.koc += coach;
     if (viewers > r.live) r.live = viewers;

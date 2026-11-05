@@ -186,7 +186,17 @@ Object.assign(ICON, {
 
 /* ================= EŞYA ETKİLERİ ================= */
 // en: haftalık enerji, mo: haftalık moral, up: haftalık masraf
-export const itemWeekly = k => SHOP.reduce((a, it) => a + (S.items[it.id] && it[k] ? it[k] : 0), 0);
+// arabalar (galeri) üst üste binmez: yalnızca en iyisinin etkisi, masrafların hepsi
+export const itemWeekly = k => {
+  let car = 0,
+    sum = 0;
+  for (const it of SHOP)
+    if (S.items[it.id] && it[k]) {
+      if (it.st === "galeri" && k !== "up") car = Math.max(car, it[k]);
+      else sum += it[k];
+    }
+  return sum + car;
+};
 export const carUpkeep = () => itemWeekly("up");
 
 /* ================= AVM: MAĞAZALAR ================= */
@@ -270,7 +280,7 @@ export const SHOP = [
     d: $t("shops.61"),
     p: 60,
     ic: () => icon("sneaker", "#cfd8dc", "#1e88e5"),
-    fx: () => (S.st.hiz += 2)
+    fx: () => (late.statItem("hiz", 2))
   },
   {
     id: "ayak2",
@@ -280,8 +290,8 @@ export const SHOP = [
     p: 260,
     ic: () => icon("sneaker", S.team.c1, "#141414"),
     fx: () => {
-      S.st.hiz += 3;
-      S.st.sut += 1;
+      late.statItem("hiz", 3);
+      late.statItem("sut", 1);
     }
   },
   {
@@ -292,7 +302,7 @@ export const SHOP = [
     p: 900,
     ic: () => icon("sneaker", "#fafafa", "#c8102e"),
     fx: () => {
-      S.st.hiz += 1;
+      late.statItem("hiz", 1);
       S.rel.taraf += 6;
     }
   },
@@ -304,12 +314,12 @@ export const SHOP = [
     p: 6000,
     ic: () => icon("sneaker", "#d8b25a", "#141414"),
     fx: () => {
-      S.st.hiz += 2;
+      late.statItem("hiz", 2);
       S.rel.taraf += 12;
     }
   },
-  { id: "top", st: "spor", n: $t("shops.68"), d: $t("shops.69"), p: 140, ic: () => icon("ball"), fx: () => (S.st.sut += 2) },
-  { id: "bileklik", st: "spor", n: $t("shops.70"), d: $t("shops.71"), p: 40, ic: () => icon("wrist"), fx: () => (S.st.sut += 1) },
+  { id: "top", st: "spor", n: $t("shops.68"), d: $t("shops.69"), p: 140, ic: () => icon("ball"), fx: () => (late.statItem("sut", 2)) },
+  { id: "bileklik", st: "spor", n: $t("shops.70"), d: $t("shops.71"), p: 40, ic: () => icon("wrist"), fx: () => (late.statItem("sut", 1)) },
   {
     id: "dizlik",
     st: "spor",
@@ -317,7 +327,7 @@ export const SHOP = [
     d: $t("shops.73"),
     p: 90,
     ic: () => icon("knee"),
-    fx: () => (S.st.sav += 2)
+    fx: () => (late.statItem("sav", 2))
   },
   {
     id: "agirlik",
@@ -326,7 +336,7 @@ export const SHOP = [
     d: $t("shops.75"),
     p: 400,
     ic: () => icon("weights"),
-    fx: () => (S.st.guc += 2)
+    fx: () => (late.statItem("guc", 2))
   },
   {
     id: "forma",
@@ -363,7 +373,7 @@ export const SHOP = [
     d: $t("shops.84"),
     p: 300,
     ic: () => icon("tablet"),
-    fx: () => (S.st.pas += 2)
+    fx: () => (late.statItem("pas", 2))
   },
   {
     id: "laptop",
@@ -384,7 +394,7 @@ export const SHOP = [
     ic: () => icon("vr"),
     fx: () => {
       S.moral += 10;
-      S.st.hiz += 1;
+      late.statItem("hiz", 1);
     }
   },
   {
@@ -1086,7 +1096,7 @@ export function locEglence(I, tab = "arcade") {
       $t("shops.10"),
       $t("shops.11", {
         length: ARCADE.length,
-        v: fmt(1)
+        v: fmt(late.arcadeCost())
       }),
       "arcade",
       tab === "arcade"
@@ -1111,9 +1121,9 @@ export function locEglence(I, tab = "arcade") {
             d: g.d,
             v: S.rec[g.rec]
           }),
-          price: 1,
+          price: late.arcadeCost(),
           fx: [[$t("shops.15"), "p"]],
-          btn: $t("shops.16") + fmt(1)
+          btn: $t("shops.16") + fmt(late.arcadeCost())
         })
       ).join("")}</div>`
     );
@@ -1248,7 +1258,7 @@ export function locEglence(I, tab = "arcade") {
         if (S.money < vp) return;
         useSlot();
         tx($t("shops.178"), -vp);
-        S.followers *= 1.08;
+        late.mediaGain(0.05, 6);
         S.moral += 12;
         S.rel.koc -= 4;
         norm();
@@ -1305,9 +1315,11 @@ export function locEglence(I, tab = "arcade") {
 }
 export async function arcadeRun(kind, paid) {
   if (!paid) {
-    if (S.money < 1) return;
-    tx($t("shops.192"), -1);
+    const cost = late.arcadeCost();
+    if (S.money < cost) return;
+    tx($t("shops.192"), -cost);
   }
+  const counts = late.arcadeCounts(); // haftada ilk 2 oyun moral/gelişim verir (src/economy.js)
   closeSheet();
   arenaFor(null);
   Bus.emit("arcade:start", kind);
@@ -1325,17 +1337,18 @@ export async function arcadeRun(kind, paid) {
   if (kind !== "karaoke") late.arcSubmit(key, r.score);
   if (rec && kind !== "karaoke") S.rec[key] = r.score;
   let extra = "";
-  S.moral += Math.min(12, 3 + Math.floor(r.score / 4));
+  if (counts) S.moral += Math.min(12, 3 + Math.floor(r.score / 4));
+  else extra = $t("eco.arcTired");
   if (kind === "hockey" && r.win) {
     S.moral += 4;
     extra = $t("shops.40");
   }
-  if (kind === "ref" && r.score >= 18 && Math.random() < 0.4) {
+  if (counts && kind === "ref" && r.score >= 18 && Math.random() < 0.4) {
     const g = late.gainStat("hiz", Math.round(0.2 * late.levelMul("hiz") * 100) / 100);
     extra = $t("prog.reflex", { v: g.toFixed(2) });
   }
   if (kind === "karaoke" && r.score >= 20) {
-    S.followers *= 1.05;
+    late.mediaGain(0.02, 3);
     extra = $t("shops.42");
   }
   if (kind !== "karaoke") extra += late.arcMateResult(r.score);

@@ -224,6 +224,10 @@ export function locBorsa(I) {
 }
 
 /* ---- Hipodrom ---- */
+// kendi atının haftalık bakımı (ahır, jokey)
+Bus.on("week:start", () => {
+  if (S && S.horse) tx($t("hp.upkeep"), -Math.round(3 * pm()));
+});
 const HORSES = ["Rüzgar", "Kara Şimşek", "Yıldız", "Bora", "Gülbahar", "Fırtına", "Poyraz", "Altın Toz"];
 const raceField = () => {
   const own = S.horse ? [{ n: S.horse.n, s: S.horse.s, mine: true }] : [];
@@ -307,7 +311,11 @@ function race(I, field, pickI, bet) {
       if (pay) tx($t("hp.winTx"), pay);
       if (field[win].mine && S.horse) {
         S.horse.wins = (S.horse.wins || 0) + 1;
-        tx($t("hp.prizeTx"), Math.round(40 * pm()));
+        // atın kazandığı yarış ödülü haftada bir (sınırsız para musluğu olmasın)
+        if (S.horse.prizeWk !== wk()) {
+          S.horse.prizeWk = wk();
+          tx($t("hp.prizeTx"), Math.round(40 * pm()));
+        }
       }
       S.field = null;
       save();

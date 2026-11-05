@@ -69,6 +69,7 @@ import * as feats from "./feats.js";
 import * as custom from "./custom.js";
 import * as matchday from "./matchday.js";
 import * as venues from "./venues.js";
+import * as economy from "./economy.js";
 
 const MODULES = [
   data,
@@ -138,7 +139,8 @@ const MODULES = [
   feats,
   custom,
   matchday,
-  venues
+  venues,
+  economy
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

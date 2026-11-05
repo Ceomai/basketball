@@ -1646,5 +1646,7 @@ export default {
   "ct.rb.kickOk": "{sur} kicked it out: three is good, assist!",
   "ct.rb.kickNo": "{sur} kicked it out but the three missed.",
   "ct.rb.resetOk": "Offense reset and the team scored.",
-  "ct.rb.resetNo": "Offense reset but no basket."
+  "ct.rb.resetNo": "Offense reset but no basket.",
+  "eco.arcTired": "You've played enough this week; now it's just for fun (no morale or gains).",
+  "hp.upkeep": "Horse upkeep"
 };

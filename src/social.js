@@ -8,7 +8,7 @@
       Kumarhaneye ya da gece kulübüne gitmek koçla ilişkiyi düşürür (haftada bir kez -3) ama moral ve
       soğukkanlılık (Clutch özelliğine ilerleme) kazandırır. Oyunlar bir tık daha cömert (rulet renk ×2,1, slot çift ×1,8). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, clamp, fmt, toast } from "./data.js";
+import { $, $$, Bus, clamp, fmt, toast } from "./data.js";
 import { S, closeSheet, norm, renderMain, resultView, tx, useSlot } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
@@ -48,8 +48,8 @@ export function arcMateResult(score) {
     S.mateWk = wk();
     S.mateN = 0;
   }
-  m.chem = Math.min(100, m.chem + 6);
   if (S.mateN < 2) {
+    m.chem = Math.min(100, m.chem + 6); // haftada ilk 2 oyun kimya verir
     S.mateN++;
     S.rel.takim += 2 + (score >= 15 ? 1 : 0);
     norm();
@@ -89,11 +89,22 @@ export function bindHouseParty() {
 /* ---- Kumarhane: fiş kuru, bozdurma, ziyaret etkisi ---- */
 const RATE = { lise: 0.01, uni: 0.02, t3: 0.15, t2: 0.4, t1: 1.2, euro: 4, nba: 15 };
 export const chipRate = () => RATE[S.stage] || 0.01;
+// terfide fişin para değeri korunur (kur artınca fiş sayısı aynı oranda azalır)
+Bus.on("week:start", () => {
+  if (!S || S.chips == null) return;
+  if (S.chipStage && S.chipStage !== S.stage && RATE[S.chipStage]) {
+    const k = RATE[S.chipStage] / chipRate();
+    S.chips = Math.round(S.chips * k);
+    S.freeChips = Math.round((S.freeChips || 0) * k);
+  }
+  S.chipStage = S.stage;
+});
+const sellable = () => Math.max(0, (S.chips || 0) - Math.min(S.chips || 0, S.freeChips || 0)); // teselli fişleri bozdurulamaz
 export const BUY_PACK = 1000;
 export function cashierHTML() {
   const r = chipRate(),
     cost = Math.max(1, Math.round(BUY_PACK * r)),
-    out = Math.floor((S.chips || 0) * r * 0.97);
+    out = Math.floor(sellable() * r * 0.97);
   return `<div class="card"><div class="eyebrow">${$t("soc.cashier")}</div><p class="small muted">${$t("soc.rate", { v: fmt(Math.max(1, Math.round(100 * r))) })}</p><div class="grid2"><button class="btn sm" id="cbuy" ${S.money < cost ? "disabled" : ""}>${$t("soc.buy", { n: BUY_PACK, v: fmt(cost) })}</button><button class="btn ghost sm" id="csell" ${out < 1 ? "disabled" : ""}>${$t("soc.sell", { v: fmt(out) })}</button></div></div>`;
 }
 export function bindCashier(re) {
@@ -110,10 +121,11 @@ export function bindCashier(re) {
     };
   if (s)
     s.onclick = () => {
-      const out = Math.floor((S.chips || 0) * chipRate() * 0.97);
+      const out = Math.floor(sellable() * chipRate() * 0.97);
       if (out < 1) return;
       tx($t("soc.chipSell"), out);
-      S.chips = 0;
+      S.chips = Math.min(S.chips || 0, S.freeChips || 0);
+      S.freeChips = S.chips;
       save();
       toast($t("soc.sold", { v: fmt(out) }));
       re();

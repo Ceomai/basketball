@@ -1645,5 +1645,7 @@ export default {
   "ct.rb.kickOk": "{sur} ribaundu dışarı açtı: üçlük girdi, asist!",
   "ct.rb.kickNo": "{sur} dışarı açtı ama üçlük kaçtı.",
   "ct.rb.resetOk": "Hücum yeniden kuruldu, takım sayıyı buldu.",
-  "ct.rb.resetNo": "Hücum yeniden kuruldu ama sayı gelmedi."
+  "ct.rb.resetNo": "Hücum yeniden kuruldu ama sayı gelmedi.",
+  "eco.arcTired": "Bu hafta yeterince oynadın; artık sadece eğlence (moral ve gelişim yok).",
+  "hp.upkeep": "At bakımı"
 };
