@@ -64,7 +64,7 @@ async function career(p) {
     G.startCareer();
     G.S.tut = 1;
     G.S.tipMoment = 1;
-    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 }; // kademeli açılış panelleri testleri bölmesin
+    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1, plan: 1, basarim: 1, tasarim: 1, hikaye: 1, geceligi: 1 }; // kademeli açılış panelleri testleri bölmesin
     G.closeSheet();
     G.renderMain();
   });
