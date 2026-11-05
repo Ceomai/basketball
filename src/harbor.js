@@ -200,7 +200,7 @@ export function locBorsa(I) {
       (b.onclick = () => {
         const s = STOCKS.find(x => x.id === b.dataset.sb),
           n = lot(s),
-          c = Math.round(n * m.p[s.id] * (1 + FEE)); // %1 komisyon
+          c = Math.ceil(n * m.p[s.id] * (1 + FEE)); // %1 komisyon (yukarı yuvarlanır)
         if (S.money < c) return;
         tx($t("bs.buyTx", { v: $t(`bs.s.${s.id}`) }), -c);
         m.own[s.id] = (m.own[s.id] || 0) + n;
@@ -213,7 +213,7 @@ export function locBorsa(I) {
     b =>
       (b.onclick = () => {
         const id = b.dataset.ss,
-          v = Math.round((m.own[id] || 0) * m.p[id] * (1 - FEE)); // %1 komisyon
+          v = Math.floor((m.own[id] || 0) * m.p[id] * (1 - FEE)); // %1 komisyon (aşağı yuvarlanır)
         tx($t("bs.sellTx", { v: $t(`bs.s.${id}`) }), v);
         m.own[id] = 0;
         m.cost[id] = 0;

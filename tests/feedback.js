@@ -569,7 +569,7 @@ test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etk
   await career(p);
   const r = await p.evaluate(async () => {
     const G = window.Game;
-    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, qs: [[20, 18], [41, 40]] });
+    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, live: 1, qs: [[20, 18], [41, 40]] });
     const el = document.createElement("div");
     document.body.appendChild(el);
     const R0 = Math.random;
