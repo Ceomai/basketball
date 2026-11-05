@@ -15,13 +15,13 @@ export const ecoPm = () => ECO_PM[S && S.stage] || 1;
 const wkKey = () => `${S.season}-${S.week}`;
 export const ecoWeek = () => (S ? S.season * 40 + S.week : 0);
 
-/** Takipçi kazancı: pct takipçi yüzdesi (en fazla %6), flat seviyeye göre sabit taban; haftalık yorgunluk */
+/** Takipçi kazancı: pct takipçi yüzdesi (en fazla %4), flat seviyeye göre sabit taban; haftalık yorgunluk */
 export function mediaGain(pct, flat = 0) {
   if (!S) return 0;
   if (!S.media || S.media.w !== wkKey()) S.media = { w: wkKey(), n: 0 };
   const f = Math.pow(0.6, S.media.n);
   S.media.n++;
-  const add = Math.max(0, Math.round((S.followers * Math.min(0.06, Math.max(0, pct)) + flat * ecoPm()) * f));
+  const add = Math.max(0, Math.round((S.followers * Math.min(0.04, Math.max(0, pct)) + flat * ecoPm()) * f));
   S.followers += add;
   return add;
 }

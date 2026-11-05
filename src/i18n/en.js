@@ -1546,7 +1546,7 @@ export default {
   "vn.noNews": "Quiet period.",
   "vn.allMkt": "whole market",
   "vn.divTx": "Dividend",
-  "vn.divNote": "Prices move on news and cyclical trends. Energy, Sprint Sports and Food pay dividends every 4 weeks.",
+  "vn.divNote": "Prices move on news and cyclical trends. All stocks pay dividends every 4 weeks (Food and Energy the most). Trades carry a 1% fee.",
   "vn.risk.hi": "High risk",
   "vn.risk.mid": "Medium risk",
   "vn.risk.lo": "Low risk",

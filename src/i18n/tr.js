@@ -1545,7 +1545,7 @@ export default {
   "vn.noNews": "Bu dönem sakin.",
   "vn.allMkt": "tüm piyasa",
   "vn.divTx": "Temettü",
-  "vn.divNote": "Fiyatları haberler ve dönemsel eğilimler oynatır. Enerji, Sprint Spor ve Gıda 4 haftada bir temettü öder.",
+  "vn.divNote": "Fiyatları haberler ve dönemsel eğilimler oynatır. Bütün hisseler 4 haftada bir temettü öder (en çok Gıda ve Enerji). Alım-satımda %1 komisyon var.",
   "vn.risk.hi": "Yüksek risk",
   "vn.risk.mid": "Orta risk",
   "vn.risk.lo": "Düşük risk",

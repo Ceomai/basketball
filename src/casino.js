@@ -311,7 +311,7 @@ export function blackjack(I) {
     over = false;
     if (val(ph) === 21) {
       over = true;
-      const p = Math.round(stake * 2.5);
+      const p = Math.round(stake * 2.3);
       chipTx(p);
       save();
       render(`<span class="good">${$t("casino.34")}${fis(p)}</span>`);

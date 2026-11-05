@@ -29,23 +29,28 @@ function loc(file, re) {
   const i = lines.findIndex(l => re.test(l));
   return i >= 0 ? `src/${file}:${i + 1}` : `src/${file}:?`;
 }
-function num(file, re, g = 1) {
+function num(file, re, g = 1, dflt) {
   const m = SRC(file).match(re);
-  if (!m) throw new Error(`Sabit bulunamadı: ${file} ${re}`);
+  if (!m) {
+    if (dflt !== undefined) return dflt;
+    throw new Error(`Sabit bulunamadı: ${file} ${re}`);
+  }
   return +m[g];
 }
+// medya yorgunluğu modeli (src/economy.js mediaGain): ilk işin takipçi çarpanı ≈ 1 + yüzde
+const media = (file, re) => 1 + num(file, re, 1, 0);
 const C = {
-  roulEven: num("casino.js", /Math\.round\(BET \* ([\d.]+)\)\) : 0/),
+  roulEven: num("casino.js", /: BET \* ([\d.]+)\) : 0/),
   roulGreen: num("casino.js", /bet === "g" \? BET \* (\d+)/),
   slotW8: JSON.parse(SRC("casino.js").match(/const W8 = (\[[^\]]+\])/)[1]),
   slotPay: [...SRC("casino.js").matchAll(/\["\w+", \(\) => icon\([^)]*\), (\d+)\]/g)].map(m => +m[1]),
-  slotPair: num("casino.js", /pay = Math\.round\(BET \* ([\d.]+)\)/),
+  slotPair: num("casino.js", /res\[0\] === res\[2\]\) pay = Math\.round\(BET \* ([\d.]+)\)/, 1, 1), // "pay = BET" → 1
   bjBlackjack: num("casino.js", /const p = Math\.round\(stake \* ([\d.]+)\)/),
   raceMargin: num("harbor.js", /\(tot \/ h\.s\) \* ([\d.]+) \* 10/),
   raceMinOdds: num("harbor.js", /odds: Math\.max\(([\d.]+),/),
   raceBet: num("harbor.js", /bet = Math\.max\(5, Math\.round\((\d+) \* pm\(\)\)\)/),
   horseCost: num("harbor.js", /horseCost = Math\.round\((\d+) \* pm\(\)\)/),
-  horsePrize: num("harbor.js", /Math\.round\((\d+) \* pm\(\)\)\);\s*\n\s*}\s*\n\s*S\.field = null/),
+  horsePrize: num("harbor.js", /tx\(\$t\("hp\.prizeTx"\), Math\.round\((\d+) \* pm\(\)\)\)/),
   horseS: SRC("harbor.js")
     .match(/s: rnd\(([\d.]+), ([\d.]+)\),\s*\n\s*wins: 0/)
     .slice(1, 3)
@@ -57,16 +62,16 @@ const C = {
   stockFee: num("harbor.js", /const FEE = ([\d.]+)/),
   stocks: [...SRC("harbor.js").matchAll(/\{ id: "(\w+)", vol: ([\d.]+), base: (\d+) \}/g)].map(m => ({ id: m[1], vol: +m[2], base: +m[3] })),
   div: Function(`return ${SRC("venues.js").match(/const DIV = (\{[^}]+\})/)[1]}`)(),
-  pressMul: num("places.js", /S\.followers \*= ([\d.]+);\s*\n\s*norm\(\);\s*\n\s*save\(\);\s*\n\s*resultView\(\s*\n\s*\$t\("ads\.13"\)/),
-  charityMul: num("places.js", /S\.followers \*= ([\d.]+);\s*\n\s*norm\(\);\s*\n\s*save\(\);\s*\n\s*resultView\(\$t\("places\.179"\)/),
+  pressMul: media("places.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 4\)/),
+  charityMul: media("places.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 5\)/),
   photoK: num("places.js", /\(q \/ 100\) \* ([\d.]+) \* \(S\.items\.telefon/),
   photoPhone: num("places.js", /S\.items\.telefon \? ([\d.]+) : 1/),
-  studioK: num("studio.js", /S\.followers \* ([\d.]+) \* e \+ 20 \* e/),
-  vipMul: num("shops.js", /S\.followers \*= ([\d.]+);\s*\n\s*S\.moral \+= 12/),
-  campMul: num("agent.js", /S\.followers = Math\.round\(S\.followers \* ([\d.]+)\);\s*\n\s*norm\(\);\s*\n\s*save\(\);\s*\n\s*resultView\(\$t\("ag\.camp"\)/),
+  studioK: num("studio.js", /mediaGain\(([\d.]+) \* e, 20 \* e\)/),
+  vipMul: media("shops.js", /late\.mediaGain\(([\d.]+), 6\);\s*\n\s*S\.moral \+= 12/),
+  campMul: media("agent.js", /S\.rel\.taraf \+= 5;\s*\n\s*late\.mediaGain\(([\d.]+), 5\)/),
   reflexP: num("shops.js", /r\.score >= 18 && Math\.random\(\) < ([\d.]+)/),
   reflexK: num("shops.js", /gainStat\("hiz", Math\.round\(([\d.]+) \* late\.levelMul\("hiz"\)/),
-  arcadeCost: num("shops.js", /if \(S\.money < (\d+)\) return;\s*\n\s*tx\(\$t\("shops\.192"\)/)
+  arcadeCost: num("shops.js", /if \(S\.money < (\d+)\) return;\s*\n\s*tx\(\$t\("shops\.192"\)/, 1, 1) // artık seviyeye göre (src/economy.js arcadeCost)
 };
 const L = {
   roul: loc("casino.js", /BET \* 2\.1/),

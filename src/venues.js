@@ -487,7 +487,7 @@ async function nightGame() {
 
 /* ================= BORSA: HABER, TEMETTÜ, ENDEKS ================= */
 // temettü verimi (4 haftada bir, tutulan değer üzerinden) ve risk profili
-const DIV = { tek: 0, enr: 0.012, spr: 0.006, gda: 0.015 };
+const DIV = { tek: 0.004, enr: 0.018, spr: 0.012, gda: 0.02 }; // risk primi: AVM yatırımına göre ölü seçenek kalmasın
 const RISK = { tek: "hi", enr: "mid", spr: "mid", gda: "lo" };
 const NEWS = [
   ["tek", 1, "chip"],
