@@ -127,10 +127,9 @@ export function locEv(I, tab = "vitrin") {
     ["kariyer", $t("places.4")],
     ...(late.unlocked("miras") ? [["miras", $t("places.350")]] : []),
     ["ev", $t("places.5")],
-    ["stil", $t("sty.title")],
-    ["tasarim", $t("cu.title")],
-    ["rozet", $t("ft.title")]
+    ["stil", $t("sty.title")]
   ];
+  if (tab === "tasarim") tab = "stil"; // eski bağlantılar: Tasarım artık Stil'in alt sekmesi
   sheet(
     I.n,
     $t("places.6", {
@@ -165,11 +164,13 @@ export function locEv(I, tab = "vitrin") {
       }
     });
     bindActs({ rest: restAct });
+    c.insertAdjacentHTML("afterbegin", late.featsCardHTML()); // başarımlar özeti (src/feats.js)
+    const fo = $("#ft-open");
+    if (fo) fo.onclick = () => locEv(I, "rozet");
     c.insertAdjacentHTML("beforeend", late.decorHTML()); // ev dekoru (src/custom.js)
     late.bindDecor(() => locEv(I, "vitrin"));
   }
-  if (tab === "stil") late.styleTab(c, () => locEv(I, "stil"));
-  if (tab === "tasarim") late.designTab(c, () => locEv(I, "tasarim"));
+  if (tab === "stil") late.stilTab(c, () => locEv(I, "stil")); // görünüm + ayakkabı/forma/kutlama/tema (src/custom.js)
   if (tab === "rozet") late.featsTab(c, () => locEv(I, "rozet"));
   if (tab === "genel") {
     const rs = late.rated();

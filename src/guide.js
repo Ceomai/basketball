@@ -10,7 +10,7 @@ import { S, norm, sheet, tabsHTML, tx } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
-const SECTIONS = ["start", "places", "stats", "meters", "match", "career", "money", "daily", "end"];
+const SECTIONS = ["start", "places", "stats", "meters", "match", "career", "style", "money", "daily", "end"];
 export function fullGuide(i = 0) {
   const k = SECTIONS[Math.max(0, Math.min(SECTIONS.length - 1, i))];
   sheet(
@@ -68,7 +68,7 @@ Bus.on("train:done", d => !(d && d.auto) && mark("train"));
 Bus.on("match:end", () => mark("match"));
 
 /* ---- Mekan ipuçları (ilk ziyaret) ---- */
-const TIPS = ["ev", "stad", "okul", "medya", "aile", "kafe", "eglence", "avm", "market", "sans", "sokak"];
+const TIPS = ["ev", "stad", "okul", "medya", "aile", "kafe", "eglence", "avm", "market", "sans", "sokak", "studyo", "akademi", "liman", "borsa"];
 export function placeTip(id) {
   if (!S || window.__SIM) return;
   if (id === "aile") mark("aile");

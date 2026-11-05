@@ -12,7 +12,7 @@ import { $, $$, Bus, clamp, esc, fmt, pick, ri, shuffle } from "./data.js";
 import { S, app, closeSheet, eff, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
-import { mgShoot } from "./games.js";
+import { mgDribble, mgShoot, mgTiming } from "./games.js";
 import { late } from "./late.js";
 
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
@@ -173,17 +173,50 @@ Bus.on("week:start", () => {
     S.kid = { n: pick((late.NAME_FIRST || ["Can"]).filter(n => n !== S.first)), born: S.season, seen: {} };
 });
 const KID_AT = [1, 3, 6, 10, 14];
+const kidNames = g =>
+  shuffle(((g === "f" ? late.cOf && late.cOf(S.home || S.city).fem : late.NAME_FIRST) || ["Deniz"]).filter(n => n !== S.first && n !== S.partner)).slice(0, 4);
+function nameSheet() {
+  const k = S.kid;
+  k.g = k.g || "m";
+  const opts = (k.opts = k.opts && k.opts.g === k.g ? k.opts : { g: k.g, list: kidNames(k.g) });
+  sheet(
+    $t("vn.birth"),
+    $t("vn.birthSub", { p: esc(S.partner) }),
+    `<p>${$t("vn.birthTxt", { p: esc(S.partner) })}</p><div class="opts" id="kn-g">${["m", "f"].map(g => `<button class="opt ${k.g === g ? "on" : ""}" data-v="${g}">${$t(`vn.g.${g}`)}</button>`).join("")}</div>
+     <div class="choices">${opts.list.map(n => `<button class="choice" data-kn="${esc(n)}"><span class="ct">${esc(n)}</span></button>`).join("")}</div><button class="btn ghost sm" id="kn-re">${$t("vn.reroll")}</button>`,
+    { noClose: true }
+  );
+  $$("#kn-g [data-v]").forEach(b => (b.onclick = () => ((k.g = b.dataset.v), nameSheet())));
+  $("#kn-re").onclick = () => ((k.opts = null), nameSheet());
+  $$("[data-kn]").forEach(
+    b =>
+      (b.onclick = () => {
+        k.n = b.dataset.kn;
+        k.named = 1;
+        k.opts = null;
+        news($t("vn.birthNews", { v: fullName(), n: k.n }));
+        save();
+        closeSheet();
+      })
+  );
+}
 function familySheet() {
   if (!S || !S.partner) return false;
+  // doğum: adını ve cinsiyetini sen seç
+  if (S.kid && !S.kid.named) {
+    if (window.__SIM) return (S.kid.named = 1), false;
+    nameSheet();
+    return true;
+  }
   // yıldönümü
   if (S.wed && S.season > S.wed.s && S.week === S.wed.w && S.annWk !== wk()) {
     S.annWk = wk();
     if (window.__SIM) return false;
     const yrs = S.season - S.wed.s,
       gifts = [
+        ["home", 0, 4, 1], // ücretsiz seçenek önce (her zaman seçilebilir)
         ["dinner", Math.round(20 * pm()), 8, 3],
-        ["trip", Math.round(80 * pm()), 15, 6],
-        ["home", 0, 4, 1]
+        ["trip", Math.round(80 * pm()), 15, 6]
       ];
     sheet(
       $t("vn.ann"),
@@ -238,7 +271,7 @@ function familySheet() {
 }
 Bus.offer("week:sheet", familySheet, 40);
 /** Varis kariyeri: çocuğun adı ve isteği (src/legacy.js → startHeir) */
-export const heirKid = () => (S && S.kid ? { n: S.kid.n, baller: !!S.kid.baller } : null);
+export const heirKid = () => (S && S.kid ? { n: S.kid.n, baller: !!S.kid.baller, g: S.kid.g || "m" } : null);
 export function kidHTML() {
   if (!S || !S.kid) return "";
   return `<div class="card"><div class="row between"><div class="eyebrow">${$t("vn.kidCard")}</div><b>${esc(S.kid.n)} · ${$t("vn.kidAge", { a: Math.max(0, kidAge()) })}</b></div><p class="small muted">${S.kid.baller ? $t("vn.kidBaller") : $t("vn.kidNote")}</p></div>`;
@@ -262,8 +295,47 @@ const QUIZ = [
   ["q13", "5", ["3", "10"]],
   ["q14", "6,75 m", ["6,25 m", "7,24 m"]],
   ["q15", "2", ["3", "1"]],
-  ["q16", "1", ["2", "0"]]
+  ["q16", "1", ["2", "0"]],
+  ["q17", "4", ["2", "3"]],
+  ["q18", "24", ["30", "35"]],
+  ["q19", "15", ["10", "20"]],
+  ["q20", "2", ["1", "5"]],
+  ["q21", "2", ["3", "1"]],
+  ["q22", "28 m", ["26 m", "30 m"]],
+  ["q23", "15 m", ["14 m", "17 m"]],
+  ["q24", "5", ["4", "6"]],
+  ["q25", "94", ["90", "100"]],
+  ["q26", "7,24 m", ["6,75 m", "7,50 m"]],
+  ["q27", "6,60 m", ["6,75 m", "6,25 m"]],
+  ["q28", "5", ["4", "6"]],
+  ["q29", "2", ["3", "1"]],
+  ["q30", "3", ["2", "4"]],
+  ["q31", "1", ["2", "0"]],
+  ["q32", "0", ["1", "2"]],
+  ["q33", "14", ["24", "10"]],
+  ["q34", "2", ["1", "3"]],
+  ["q35", "5", ["3", "8"]],
+  ["q36", "5", ["10", "3"]],
+  ["q37", "1", ["3", "5"]],
+  ["q38", "5", ["4", "1"]],
+  ["q39", "3", ["2", "4"]],
+  ["q40", "7", ["6", "5"]],
+  ["q41", "6", ["7", "5"]],
+  ["q42", "45 cm", ["40 cm", "50 cm"]],
+  ["q43", "1,80 m", ["1,50 m", "2,00 m"]],
+  ["q44", "1,05 m", ["0,90 m", "1,20 m"]],
+  ["q45", "1,80 m", ["1,50 m", "2,00 m"]],
+  ["q46", "4,90 m", ["3,60 m", "5,80 m"]],
+  ["q47", "5,80 m", ["4,60 m", "6,25 m"]],
+  ["q48", "1", ["2", "3"]],
+  ["q49", "2", ["3", "1"]],
+  ["q50", "12", ["14", "24"]],
+  ["q51", "21", ["11", "15"]],
+  ["q52", "10", ["12", "8"]],
+  ["q53", "5", ["3", "6"]],
+  ["q54", "15", ["10", "20"]]
 ];
+export const quizSize = () => QUIZ.length;
 export function quizHTML() {
   const done = S.quizWk === wk();
   return `<div class="act"><div><h3>${$t("vn.quiz")}</h3><p>${$t("vn.quizD")}</p></div><button class="btn team sm" id="vn-quiz" ${done || S.slot <= 0 || S.money < 4 ? "disabled" : ""}>${done ? $t("st.done") : fmt(4)}</button></div>`;
@@ -367,7 +439,16 @@ async function nightGame() {
   closeSheet();
   arenaFor(null);
   app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("vn.sl")}</div><h2>${$t("vn.slVs", { t: $t(`vn.sl.${opp}`) })}</h2></div><div id="stg"></div><div id="res"></div>`;
-  const r = await mgShoot($("#stg"), { eff: clamp(eff("sut") + 6 - L.t[opp].s * 10, 5, 100), shots: 3, title: $t("vn.slShoot"), dist: "mid", def: true });
+  // her hafta farklı bir sokak düellosu: şut, top sürme, serbest atış yarışı
+  const kind = ["shoot", "dribble", "free"][L.round % 3],
+    hard = L.t[opp].s * 10;
+  let made;
+  if (kind === "shoot")
+    made = (await mgShoot($("#stg"), { eff: clamp(eff("sut") + 6 - hard, 5, 100), shots: 3, title: $t("vn.slShoot"), dist: "mid", def: true })).made;
+  else if (kind === "dribble")
+    made = (await mgDribble($("#stg"), { eff: clamp(eff("hiz") + 6 - hard, 5, 100), reps: 3, title: $t("vn.slDribble") })).ok;
+  else made = (await mgTiming($("#stg"), { eff: clamp(eff("sut") + 6 - hard, 5, 100), title: $t("vn.slFree"), tries: 3, kind: "free" })).ok;
+  const r = { made };
   const win = r.made >= 2 || (r.made === 1 && Math.random() < 0.3);
   L.t.me[win ? "w" : "l"]++;
   L.t[opp][win ? "l" : "w"]++;

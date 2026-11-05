@@ -30,7 +30,7 @@ export function matchdayStart(ctx, foes, mates) {
   M.loud = !ctx.home && (ctx.comp !== "lig" || (opp && opp.str >= S.team.str + 0.04));
   M.star = {
     n: (foes && foes[0]) || "?",
-    o: clamp(Math.round(ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)), 30, 99),
+    o: clamp(Math.round((ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)) * 10) / 10, 30, 99),
     pts: 0
   };
   M.starPts = 0;
@@ -98,8 +98,8 @@ export function preMatchHTML() {
     st = M.star;
   const bar = (v, c) => `<div class="bar"><i style="width:${v}%;background:${c}"></i></div>`;
   return `<div class="card fm"><div class="eyebrow">${$t("md.pre")}</div>
-   <div class="grid2" style="gap:10px"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:1.6rem">${me}</b></div>
-   <div style="text-align:right"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:1.6rem">${st.o}</b></div></div>
+   <div class="grid2" style="gap:10px"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:1.6rem">${(+me).toFixed(1)}</b></div>
+   <div style="text-align:right"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:1.6rem">${(+st.o).toFixed(1)}</b></div></div>
    <div class="kv"><span>${$t("md.ref")}</span><b>${$t(`md.ref.${M.ref}`)}</b><span class="small muted" style="grid-column:1/-1;margin-top:-4px">${$t(`md.ref.${M.ref}.d`)}</span>
    <span>${$t("md.atm")}</span><b class="${M.home ? "good" : M.loud ? "warn" : ""}">${M.home ? $t("md.atmHome") : M.loud ? $t("md.atmLoud") : $t("md.atmAway")}</b>
    ${S.chem && S.chem.n ? `<span>${$t("md.chem", { n: esc(S.chem.n) })}</span><b>${Math.round(S.chem.v)}/100</b>` : ""}</div></div>`;

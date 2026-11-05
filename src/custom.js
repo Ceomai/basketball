@@ -226,7 +226,12 @@ const POSE = {
 };
 const poseSVG = (k, w = 44) => {
   const [[lx, ly], [rx, ry]] = POSE[k] || POSE.fist;
-  return `<svg viewBox="-20 -42 40 54" width="${w}" height="${Math.round(w * 1.35)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="0" cy="-32" r="6" fill="${S && S.look ? S.look.skin || "#d9a477" : "#d9a477"}" stroke="#141414" stroke-width="1.6"/><path d="M0 -4 L-7 10 M0 -4 L7 10" stroke="#cfd8dc" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M0 -18 L${lx} ${ly} M0 -18 L${rx} ${ry}" stroke="${S && S.look ? S.look.skin || "#d9a477" : "#d9a477"}" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M0 -24 L0 -5" stroke="${S && S.team ? S.team.c1 : "#c8102e"}" stroke-width="9" stroke-linecap="round"/></svg>`;
+  const sk = S && S.look ? S.look.skin || "#d9a477" : "#d9a477",
+    hair = S && S.look ? S.look.hair || "#2b1b12" : "#2b1b12",
+    c1 = S && S.team ? S.team.c1 : "#c8102e",
+    c2 = S && S.team ? S.team.c2 : "#ffffff",
+    sh = S && S.shoe ? S.shoe.c1 : "#ffffff";
+  return `<svg viewBox="-20 -42 40 56" width="${w}" height="${Math.round(w * 1.4)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-3 -2 L-7 11 M3 -2 L7 11" stroke="${sk}" stroke-width="3.6" stroke-linecap="round"/><rect x="-10" y="10" width="6" height="3" rx="1.5" fill="${sh}" stroke="#141414" stroke-width=".8"/><rect x="4" y="10" width="6" height="3" rx="1.5" fill="${sh}" stroke="#141414" stroke-width=".8"/><path d="M-6 -6 L6 -6 L7 1 L-7 1 Z" fill="${c2}" stroke="#141414" stroke-width="1.2"/><path d="M-5 -20 L${lx} ${ly} M5 -20 L${rx} ${ry}" stroke="${sk}" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M-6 -22 L6 -22 L6 -6 L-6 -6 Z" fill="${c1}" stroke="#141414" stroke-width="1.3" stroke-linejoin="round"/><text x="0" y="-10" text-anchor="middle" font-size="7" font-weight="900" font-family="Barlow Condensed" fill="${c2}">${S ? S.num : ""}</text><circle cx="0" cy="-30" r="6.5" fill="${sk}" stroke="#141414" stroke-width="1.4"/><path d="M-6.5 -31 Q0 -40 6.5 -31 Q0 -35 -6.5 -31 Z" fill="${hair}" stroke="#141414" stroke-width=".8"/></svg>`;
 };
 export const celebOpen = k => k in CELEBS && open(CELEBS[k]);
 /** Sayıdan sonra kutlama (kendin oynarken) */
@@ -327,11 +332,30 @@ export function applyTheme() {
 }
 setTimeout(applyTheme, 0); // başarımlar yüklendikten sonra
 
-/* ---- Ev → Tasarım sekmesi ---- */
+/* ---- Ev → Stil sekmesi: görünüm + tasarım alt sekmeleri ---- */
 const fee = () => (late.styleFee ? late.styleFee() : 10);
+const SUBS = ["look", "shoe", "jersey", "celeb", "theme"];
+const subsHTML = sub =>
+  `<div class="opts" id="cu-sub">${SUBS.map(k => `<button class="opt ${k === sub ? "on" : ""}" data-v="${k}">${$t(`cu.t.${k}`)}</button>`).join("")}</div>`;
+export function stilTab(c, re) {
+  if (!SUBS.includes(S.cuTab) || S.cuTab === "look") {
+    S.cuTab = "look";
+    late.styleTab(c, re);
+    c.insertAdjacentHTML("afterbegin", subsHTML("look"));
+    $$("#cu-sub [data-v]").forEach(
+      b =>
+        (b.onclick = () => {
+          S.cuTab = b.dataset.v;
+          re();
+        })
+    );
+    return;
+  }
+  designTab(c, re);
+}
 export function designTab(c, re) {
   const sub = (S.cuTab = ["shoe", "jersey", "celeb", "theme"].includes(S.cuTab) ? S.cuTab : "shoe");
-  const subs = `<div class="opts" id="cu-sub">${["shoe", "jersey", "celeb", "theme"].map(k => `<button class="opt ${k === sub ? "on" : ""}" data-v="${k}">${$t(`cu.t.${k}`)}</button>`).join("")}</div>`;
+  const subs = subsHTML(sub);
   const lockN = n => (n ? `<p class="small muted">${$t("cu.lockedN", { n })}</p>` : "");
   let body = "";
   if (sub === "shoe") {

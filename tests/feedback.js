@@ -572,6 +572,8 @@ test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etk
     G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, qs: [[20, 18], [41, 40]] });
     const el = document.createElement("div");
     document.body.appendChild(el);
+    const R0 = Math.random;
+    Math.random = () => 0.01; // ikinci karar olasılıklı: testte hep tetiklensin
     const pr = G.followUp("lay", el, { help: true, guard: "normal" }, "Test");
     const keys = [...el.querySelectorAll("[data-fu]")].map(b => b.dataset.fu);
     el.querySelector('[data-fu="pull"]').click();
@@ -584,6 +586,7 @@ test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etk
     const pass = await pr3;
     const pres = pass.resolve();
     const none = await G.followUp("corner", el, { guard: "open" }, "Test");
+    Math.random = R0;
     // istatistik: üçlük isabet, ikilik kaçış, serbest atış
     const M = G.M;
     let p0 = M.pts;
@@ -897,6 +900,7 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     const G = window.Game;
     G.closeSheet();
     G.S.kid.born = G.S.season - 14;
+    G.S.kid.named = 1;
     G.S.week = 5;
     G.Bus.first("week:sheet");
   });
@@ -969,6 +973,51 @@ test("borsa: sektör haberleri fiyatı oynatır, 4 haftada temettü, endeks; oyu
   assert(/Piyasa endeksi/.test(r.html) && /risk/.test(r.html), "borsa ekranı");
   const src = require("fs").readFileSync(require("path").join(ROOT, "src/venues.js"), "utf8");
   assert(!/rating|M\.pts/.test(src.slice(src.indexOf("BORSA"))), "borsa performansa bağlı olmamalı");
+  return p;
+});
+
+test("cila: Stil alt sekmeleri (görünüm+tasarım), Vitrin'den Başarımlar, aynı soyadlı takım arkadaşı yok, 50+ quiz sorusu, doğumda ad seçimi", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    window.Game.S.cuTab = null;
+    window.Game.locEv({ n: "Ev" }, "stil");
+  });
+  assert(await p.isVisible('#cu-sub [data-v="shoe"]'), "Stil alt sekmeleri");
+  assert(await p.isVisible('#st-hat [data-v="afro"]'), "görünüm alt sekmesi");
+  const tabs = await p.evaluate(() => document.querySelectorAll(".tabs button").length);
+  assert(tabs <= 8, "Ev sekme sayısı: " + tabs);
+  await p.click('#cu-sub [data-v="shoe"]');
+  assert(await p.isVisible("#cu-make"), "ayakkabı alt sekmesi");
+  await p.evaluate(() => window.Game.locEv({ n: "Ev" }, "vitrin"));
+  await p.click("#ft-open");
+  assert((await p.$$(".ft")).length > 5, "Vitrin'den Başarımlar");
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const ln = G.S.last;
+    const roster = G.roster();
+    roster[0].n = "Zeki " + ln;
+    return { mates: G.mateNames(4), ln, q: G.quizSize() };
+  });
+  assert(!r.mates.some(m => m.endsWith(" " + r.ln)), "aynı soyadı: " + r.mates);
+  assert(r.q >= 50, "quiz soru sayısı: " + r.q);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.S.partner = "Eş";
+    G.S.pstage = 4;
+    G.S.week = 5;
+    if (G.S.goals) G.S.goals.shown = true;
+    G.Bus.emit("week:start");
+    G.closeSheet();
+    G.Bus.first("week:sheet");
+  });
+  await p.waitForSelector("[data-kn]", { timeout: 3000 });
+  await p.click('#kn-g [data-v="f"]');
+  const nm = await p.getAttribute("[data-kn]", "data-kn");
+  await p.click("[data-kn]");
+  const k = await p.evaluate(() => window.Game.S.kid);
+  assert(k.named && k.g === "f" && k.n === nm, "ad seçimi: " + JSON.stringify(k));
   return p;
 });
 
@@ -1180,12 +1229,12 @@ test("reklamla teklifleri yenile: kalma teklifi yerinde, diğerleri yeni kulüpl
   return p;
 });
 
-test("kılavuz: ana ekrandan açılır, 9 bölüm, ileri/geri; yuvalar ekranından açılıp kapatılınca hata yok", async () => {
+test("kılavuz: ana ekrandan açılır, 10 bölüm, ileri/geri; yuvalar ekranından açılıp kapatılınca hata yok", async () => {
   const p = await page();
   await career(p);
   await p.click("#gdb");
   const n = await p.evaluate(() => document.querySelectorAll("[data-gd]").length);
-  assert(n === 9, "bölüm sayısı: " + n);
+  assert(n === 10, "bölüm sayısı: " + n);
   await p.click("#gd-next");
   assert(/Mekanlar/.test(await p.textContent("#ovl")), "ileri gitmedi");
   await p.click('[data-gd="2"]');
@@ -1593,7 +1642,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [

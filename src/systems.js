@@ -587,6 +587,7 @@ export function roster() {
 }
 export const mateNames = n =>
   roster()
+    .filter(p => p.n.split(" ").slice(1).join(" ") !== (S && S.last)) // oyuncuyla aynı soyadı karışıklık yaratır
     .slice(0, n)
     .map(p => `${p.n.split(" ")[0][0]}. ${p.n.split(" ").slice(1).join(" ")}`);
 export const chemAvg = () => {

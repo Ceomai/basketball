@@ -188,7 +188,12 @@ const FIN2 = ["drive", "lay", "dunk", "post"];
 export function followUp(pk, el, s, sur) {
   const fin = FIN2.includes(pk),
     shot = THREE.includes(pk) || TWO.includes(pk);
-  const fire = fin ? (s && s.help) || Math.random() < 0.3 : shot ? Math.random() < 0.25 && (!s || s.guard !== "open") : false;
+  // maç akışı uzamasın: pota altı yardım varsa çoğunlukla, yoksa seyrek
+  const fire = fin
+    ? Math.random() < (s && s.help ? 0.7 : 0.15)
+    : shot
+      ? Math.random() < 0.15 && (!s || s.guard !== "open")
+      : false;
   if (!fire) return Promise.resolve(null);
   const mate = $t("ct.teammate");
   const opts = fin

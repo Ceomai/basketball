@@ -162,6 +162,8 @@ function grant(f) {
   queue.push(f);
   return true;
 }
+let shown = [],
+  timer = 0;
 function flush() {
   if (!queue.length) return;
   store();
@@ -169,11 +171,24 @@ function flush() {
   queue = [];
   Bus.emit("feat", { ids: q.map(f => f.id) });
   if (window.__SIM) return;
-  const f = q[0];
-  toast(
-    `${$t("ft.got")}: ${featName(f)}${q.length > 1 ? ` (+${q.length - 1})` : ""}${f.reward ? ` · ${$t("ft.newCos")}` : ""}`
-  );
-  late.sfx && late.sfx("cheer");
+  // art arda denetimlerde açılanları biriktir, tek bildirim göster
+  shown.push(...q);
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    const list = shown;
+    shown = [];
+    if (!list.length) return;
+    const cos = list.some(f => f.reward);
+    toast(
+      list.length === 1
+        ? `${$t("ft.got")}: ${featName(list[0])}${cos ? ` · ${$t("ft.newCos")}` : ""}`
+        : `${$t("ft.gotN", { n: list.length })}: ${list
+            .slice(0, 2)
+            .map(featName)
+            .join(", ")}${list.length > 2 ? "…" : ""}${cos ? ` · ${$t("ft.newCos")}` : ""}`
+    );
+    late.sfx && late.sfx("cheer");
+  }, 900);
 }
 /** Kariyer/hayat başarımlarını denetle */
 export function checkFeats() {
@@ -243,7 +258,7 @@ export function featsTab(c, re) {
   const cat = (S.featCat = CATS.includes(S.featCat) ? S.featCat : "fam");
   const list = FEATS.filter(f => f.cat === cat);
   const cosName = cos => (late.cosLabel ? late.cosLabel(cos) : cos);
-  c.innerHTML = `<div class="card"><div class="row between"><div class="eyebrow">${$t("ft.title")}</div><b class="gold">${featDone()}/${featTotal()}</b></div><div class="bar"><i style="width:${Math.round((featDone() / featTotal()) * 100)}%"></i></div><p class="small muted">${$t("ft.sub")}</p>
+  c.innerHTML = `<button class="btn ghost sm" id="ft-back">${$t("ft.back")}</button><div class="card"><div class="row between"><div class="eyebrow">${$t("ft.title")}</div><b class="gold">${featDone()}/${featTotal()}</b></div><div class="bar"><i style="width:${Math.round((featDone() / featTotal()) * 100)}%"></i></div><p class="small muted">${$t("ft.sub")}</p>
     <div class="row" style="gap:6px;align-items:center"><span class="small muted">${$t("ft.titleNow")}</span><select id="ft-title" class="opt">${[
       `<option value="">${$t("ft.noTitle")}</option>`,
       ...FEATS.filter(f => FEATS_ST.got[f.id]).map(
@@ -264,6 +279,8 @@ export function featsTab(c, re) {
         re();
       })
   );
+  const bk = $("#ft-back");
+  if (bk) bk.onclick = () => late.openLoc("ev", "vitrin");
   const sel = $("#ft-title");
   if (sel)
     sel.onchange = () => {
@@ -271,6 +288,9 @@ export function featsTab(c, re) {
       late.save && late.save();
     };
 }
+/** Vitrin sekmesindeki başarımlar özeti */
+export const featsCardHTML = () =>
+  `<div class="act"><div><h3>${$t("ft.title")} · <span class="gold">${featDone()}/${featTotal()}</span></h3><p>${titleText() ? `${$t("ft.titleNow")} <b>${esc(titleText())}</b>` : $t("ft.cardD")}</p></div><button class="btn team sm" id="ft-open">${$t("ft.open")}</button></div>`;
 /** Seçili unvan (kart ve profil için) */
 export const titleText = () => {
   const f = S && S.title && FEATS_ST.got[S.title] ? FEATS.find(x => x.id === S.title) : null;
