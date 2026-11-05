@@ -8,17 +8,29 @@ import { t as $t } from "./i18n/index.js";
 import { $, Bus, isPro } from "./data.js";
 import { S, closeSheet, sheet } from "./core.js";
 
+// yeni oyuncuyu bunaltmamak için: ilk haftalar sade, sistemler sırayla tanıtılır
+const early = w => S.season >= 2 || S.week >= w;
 const RULES = {
   program: () => isPro(S.stage),
   sistem: () => isPro(S.stage),
   gorev: () => S.season >= 2,
-  miras: () => S.age >= 28 || !!S.retired
+  miras: () => S.age >= 28 || !!S.retired,
+  plan: () => early(3), // hafta planı ve özet (src/plan.js)
+  basarim: () => early(3), // başarımlar (src/feats.js)
+  tasarim: () => early(3), // ayakkabı, forma, kutlama, tema (src/custom.js)
+  hikaye: () => early(5), // hikâye olayları (src/tales.js)
+  geceligi: () => S.season >= 2 // gece sokak ligi (src/venues.js)
 };
 export const FEATURES = Object.keys(RULES);
-/** Özellik açık mı (S yoksa açık sayılır) */
-export const unlocked = k => !S || !RULES[k] || RULES[k]();
+/** Özellik açık mı (S yoksa açık sayılır). S.unlocks[k] === 2: zorla açık (testler, eski kayıtlar) */
+export const unlocked = k => !S || !RULES[k] || RULES[k]() || (S.unlocks && S.unlocks[k] === 2);
 
 const TXT = {
+  plan: ["unl.plan", "unl.planD"],
+  basarim: ["unl.basarim", "unl.basarimD"],
+  tasarim: ["unl.tasarim", "unl.tasarimD"],
+  hikaye: ["unl.hikaye", "unl.hikayeD"],
+  geceligi: ["unl.geceligi", "unl.geceligiD"],
   program: ["unl.program", "unl.programD"],
   sistem: ["unl.sistem", "unl.sistemD"],
   gorev: ["unl.gorev", "unl.gorevD"],
@@ -29,6 +41,8 @@ function unlockSheet() {
   if (!S) return false;
   S.unlocks = S.unlocks || {};
   const fresh = FEATURES.filter(k => RULES[k]() && !S.unlocks[k]);
+  // bu sürümden önce başlamış kariyerler: yeni sistemler ayrıca tanıtılmaz ("Yenilikler" kartı anlatır)
+  if (S.season >= 2) for (const k of ["plan", "basarim", "tasarim", "hikaye", "geceligi"]) if (fresh.includes(k) && S.unlocks.program !== undefined) fresh.splice(fresh.indexOf(k), 1), (S.unlocks[k] = 1);
   if (!fresh.length) return false;
   for (const k of fresh) S.unlocks[k] = 1;
   if (window.__SIM) return false;
@@ -42,3 +56,39 @@ function unlockSheet() {
   return true;
 }
 Bus.offer("week:sheet", unlockSheet, 6);
+
+/* ---- Yenilikler: güncellemeden sonra bir kez, neyin değiştiğini kısaca anlatır ---- */
+export const WHATSNEW = "2026.11b";
+const WN_ITEMS = ["match", "life", "camp", "plan", "story"];
+// yeni başlayan oyuncu için "yenilik" yoktur: kartı yalnızca eski kariyeri olanlar görür
+Bus.on("career:start", () => {
+  try {
+    localStorage.setItem("pota-whatsnew", WHATSNEW);
+  } catch (e) {
+    /* depolama kapalı */
+  }
+});
+Bus.on("screen:main", () => {
+  if (!S || window.__SIM || (S.season < 2 && S.week <= 3)) return;
+  let seen = "";
+  try {
+    seen = localStorage.getItem("pota-whatsnew") || "";
+  } catch (e) {
+    /* depolama kapalı */
+  }
+  if (seen === WHATSNEW) return;
+  setTimeout(() => {
+    if (document.querySelector(".sheet")) return; // başka bir panel açıksa sonraki ana ekranda
+    try {
+      localStorage.setItem("pota-whatsnew", WHATSNEW);
+    } catch (e) {
+      /* depolama kapalı */
+    }
+    sheet(
+      $t("wn.title"),
+      $t("wn.sub"),
+      `${WN_ITEMS.map(k => `<div class="card"><b>${$t(`wn.${k}`)}</b><p class="small">${$t(`wn.${k}D`)}</p></div>`).join("")}<button class="btn pri" id="wn-ok">${$t("goal.ok")}</button>`
+    );
+    $("#wn-ok").onclick = () => closeSheet();
+  }, 300);
+});

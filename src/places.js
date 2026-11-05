@@ -188,6 +188,7 @@ export function locEv(I, tab = "vitrin") {
            })}</b>`
          : ""
      }<span>${$t("places.22")}</span><b>${avg}</b><span>${$t("places.23")}</span><b>${fame()}/100</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${S.studying ? `<span>${$t("places.15")}</span><b>${S.aka}</b>` : ""}${S.graduated ? `<span>${$t("places.16")}</span><b>${$t("places.17")}</b>` : ""}</div></div>
+     ${late.scenarioHTML()}
      <div class="card"><div class="eyebrow">${$t("places.24")}</div>${sparkHTML()}</div>
      <div class="card"><div class="eyebrow">${$t("places.25")}</div>${RELS.map(([k, n]) => {
        const v = k === "partner" && !S.partner ? 0 : S.rel[k];
@@ -233,7 +234,7 @@ export function locEv(I, tab = "vitrin") {
   }
   if (tab === "kariyer") {
     late.statsTab(c);
-    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>`);
+    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}`);
     late.bindAlbumButton(() => locEv(I, "kariyer"));
   }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));

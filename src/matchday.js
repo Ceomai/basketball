@@ -61,6 +61,7 @@ function hypeAdd(v) {
   if (M.hype >= 100) {
     M.hypeOn = 3;
     M.hype = 0;
+    late.sfx && late.sfx("chant");
     late.addFeed && late.addFeed(`<b class="gold">${$t("md.hypeOn")}</b>`);
     late.crowdSwell && late.crowdSwell(2.5);
   }

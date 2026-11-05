@@ -119,16 +119,25 @@ export function matchBonus({ stage, wage, rating, win }) {
 /**
  * Haftalık gelir-gider kalemleri.
  * @param {{stage:Stage, wage:number, rent?:number, rentLabel?:string, upkeep?:number, income?:number}} p
- * @returns {{label:string, amount:number}[]}
+ * @returns {{label:string, key?:string, v?:Object<string, string|number>, amount:number}[]}
  */
 export function weeklyLedger({ stage, wage, rent = 0, rentLabel = "", upkeep = 0, income = 0 }) {
-  const out = [{ label: stage === "lise" ? "Harçlık" : stage === "uni" ? "Burs" : "Maaş", amount: wage }];
+  // key/v: arayüz dili için çeviri anahtarı (label: Türkçe yedek)
+  const k0 = stage === "lise" ? "allow" : stage === "uni" ? "schol" : "wage";
+  /** @type {{label:string, key?:string, v?:Object<string, string|number>, amount:number}[]} */
+  const out = [{ label: stage === "lise" ? "Harçlık" : stage === "uni" ? "Burs" : "Maaş", key: `led.${k0}`, amount: wage }];
   const cut = (BAL.tax[stage] || 0) + (isProStage(stage) ? BAL.agent : 0);
-  if (cut > 0) out.push({ label: `Vergi ve menajer payı (%${Math.round(cut * 100)})`, amount: -wage * cut });
-  if (BAL.living[stage]) out.push({ label: "Yaşam giderleri", amount: -BAL.living[stage] });
-  if (income) out.push({ label: "Yatırım geliri", amount: income });
-  if (rent) out.push({ label: `Kira · ${rentLabel}`, amount: -rent });
-  if (upkeep) out.push({ label: "Araç masrafları", amount: -upkeep });
+  if (cut > 0)
+    out.push({
+      label: `Vergi ve menajer payı (%${Math.round(cut * 100)})`,
+      key: "led.tax",
+      v: { p: Math.round(cut * 100) },
+      amount: -wage * cut
+    });
+  if (BAL.living[stage]) out.push({ label: "Yaşam giderleri", key: "led.living", amount: -BAL.living[stage] });
+  if (income) out.push({ label: "Yatırım geliri", key: "led.inc", amount: income });
+  if (rent) out.push({ label: `Kira · ${rentLabel}`, key: "led.rent", v: { n: rentLabel }, amount: -rent });
+  if (upkeep) out.push({ label: "Araç masrafları", key: "led.car", amount: -upkeep });
   return out;
 }
 

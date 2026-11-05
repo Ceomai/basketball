@@ -426,13 +426,13 @@ export function repOf(team) {
   const h = hashOf(String(team.key || team.name)),
     c = late.cOf(team.city);
   const first = c.first[h % c.first.length],
-    last = c.last[(h >> 5) % c.last.length];
+    last = c.last[(h >>> 5) % c.last.length];
   return {
     n: `${first} ${last}`,
     look: {
       skin: REP_SKINS[h % REP_SKINS.length],
       hatStyle: "yok",
-      hair: ["#111111", "#5a3a22", "#9e9e9e", "#2a1a10"][(h >> 3) % 4]
+      hair: ["#111111", "#5a3a22", "#9e9e9e", "#2a1a10"][(h >>> 3) % 4]
     },
     glasses: h % 3 === 0,
     mustache: h % 4 === 1

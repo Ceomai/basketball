@@ -1,29 +1,29 @@
 {
- "date": "2026-11-05T20:03:02.241Z",
+ "date": "2026-11-05T21:50:39.554Z",
  "summary": {
   "geçti": 46
  },
  "perf": {
   "startup": {
-   "coldMs": 366,
-   "warmMs": 116,
+   "coldMs": 369,
+   "warmMs": 107,
    "runs": 4
   },
   "renderMain": {
-   "avgMs": 5.8,
-   "p95Ms": 7.6
+   "avgMs": 6.38,
+   "p95Ms": 8.5
   },
   "week": {
-   "avgMs": 475,
+   "avgMs": 477,
    "note": "otomasyonun ekran geçişleri dahil"
   },
   "longCareer": {
-   "load": 3.1,
-   "save": 2.8,
+   "load": 2.6,
+   "save": 2.5,
    "kb": 74,
-   "league": 2.1,
-   "card": 30.1,
-   "career": 4.4
+   "league": 1.7,
+   "card": 21.2,
+   "career": 4.5
   },
   "heapMB": [
    3,
@@ -34,29 +34,29 @@
    6
   ],
   "minigame": {
-   "fps": 61,
-   "worstMs": 17
+   "fps": 60,
+   "worstMs": 33
   },
   "bundle": [
-   "game.js: 663 KB",
-   "index.js: 193 KB",
+   "game.js: 675 KB",
    "index.js: 0 KB",
-   "pack.en.js: 221 KB",
-   "web.js: 3 KB",
+   "index.js: 199 KB",
+   "pack.en.js: 227 KB",
    "web.js: 1 KB",
-   "web.js: 2 KB",
+   "web.js: 3 KB",
    "web.js: 0 KB",
    "web.js: 9 KB",
+   "web.js: 2 KB",
    "web.js: 1 KB",
    "index.html: 25 KB"
   ],
   "stress": {
-   "navMs": 522,
-   "perOpenMs": 1.74,
-   "weekMs": 202,
+   "navMs": 470,
+   "perOpenMs": 1.57,
+   "weekMs": 191,
    "heapMB": [
     3,
-    3,
+    4,
     5
    ]
   }
@@ -68,7 +68,7 @@
    "name": "Oluşturma ekranının bütün kontrolleri görünür",
    "status": "geçti",
    "detail": "",
-   "ms": 1278
+   "ms": 882
   },
   {
    "id": "F02",
@@ -76,7 +76,7 @@
    "name": "Ad boş ya da yalnızca boşluksa kariyer başlamaz ve uyarı çıkar",
    "status": "geçti",
    "detail": "",
-   "ms": 6605
+   "ms": 6523
   },
   {
    "id": "F03",
@@ -84,7 +84,7 @@
    "name": "Ad alanı uzunluk sınırı (14/16) uygulanır",
    "status": "geçti",
    "detail": "",
-   "ms": 867
+   "ms": 857
   },
   {
    "id": "F04",
@@ -92,7 +92,7 @@
    "name": "Türkçe karakter ve emoji içeren ad kaydedilir ve geri yüklenir",
    "status": "geçti",
    "detail": "",
-   "ms": 1460
+   "ms": 1497
   },
   {
    "id": "F05",
@@ -100,7 +100,7 @@
    "name": "Oluşturma ekranında HTML içeren ad işaretleme olarak yorumlanmaz",
    "status": "geçti",
    "detail": "",
-   "ms": 1937
+   "ms": 1853
   },
   {
    "id": "F06",
@@ -108,15 +108,15 @@
    "name": "Bütün mekanlar ve sekmeleri hatasız açılır",
    "status": "geçti",
    "detail": "22 sekme",
-   "ms": 1056
+   "ms": 950
   },
   {
    "id": "F07",
    "cat": "işlevsel",
    "name": "Kalıcılık: 3 hafta sonra sayfa yeniden açılınca kariyer aynı yerden devam eder",
    "status": "geçti",
-   "detail": "[4,40,3]",
-   "ms": 1929
+   "detail": "[4,35,2]",
+   "ms": 1736
   },
   {
    "id": "F08",
@@ -124,7 +124,7 @@
    "name": "Hızlı hafta düğmesine art arda 5 dokunuş haftayı yalnızca bir kez ilerletir",
    "status": "geçti",
    "detail": "hafta 1→2, maç 2",
-   "ms": 1362
+   "ms": 1346
   },
   {
    "id": "F09",
@@ -132,7 +132,7 @@
    "name": "Ayarlar yeniden açılışta korunur (ses, yazı boyutu, zorluk)",
    "status": "geçti",
    "detail": "",
-   "ms": 1415
+   "ms": 1347
   },
   {
    "id": "F10",
@@ -140,7 +140,7 @@
    "name": "Dil değişimi: İngilizceye geçip kariyer aynı yuvadan devam eder",
    "status": "geçti",
    "detail": "",
-   "ms": 2706
+   "ms": 2501
   },
   {
    "id": "F11",
@@ -148,7 +148,7 @@
    "name": "Yuva silme: vazgeçince kalır, onaylayınca silinir",
    "status": "geçti",
    "detail": "",
-   "ms": 1713
+   "ms": 1622
   },
   {
    "id": "F12",
@@ -156,7 +156,7 @@
    "name": "Beş yuva doluyken kayıt kodu içe aktarma mevcut kariyerlerin üzerine yazmaz",
    "status": "geçti",
    "detail": "",
-   "ms": 949
+   "ms": 888
   },
   {
    "id": "F13",
@@ -164,7 +164,7 @@
    "name": "Kayıt kodu dışa aktarılıp başka bir cihazda (yeni tarayıcı bağlamı) içe aktarılır",
    "status": "geçti",
    "detail": "",
-   "ms": 1944
+   "ms": 2020
   },
   {
    "id": "F14",
@@ -172,15 +172,15 @@
    "name": "Geçersiz kayıt kodu reddedilir, yuvalar değişmez",
    "status": "geçti",
    "detail": "",
-   "ms": 905
+   "ms": 829
   },
   {
    "id": "F15",
    "cat": "uç",
    "name": "2 MB'lık çöp kayıt kodu donma ve hata olmadan reddedilir",
    "status": "geçti",
-   "detail": "32 ms",
-   "ms": 870
+   "detail": "34 ms",
+   "ms": 960
   },
   {
    "id": "F16",
@@ -188,7 +188,7 @@
    "name": "Bozuk ana kayıt yedekten (-bak) açılır",
    "status": "geçti",
    "detail": "",
-   "ms": 1052
+   "ms": 999
   },
   {
    "id": "F17",
@@ -196,7 +196,7 @@
    "name": "Reklam: süre dolmadan kapatılan ödüllü reklam ödül vermez; günlük sınır dolunca reklam açılmaz",
    "status": "geçti",
    "detail": "",
-   "ms": 1238
+   "ms": 1161
   },
   {
    "id": "F18",
@@ -204,7 +204,7 @@
    "name": "Oyun Kulübü 18 yaş altına kapalı",
    "status": "geçti",
    "detail": "",
-   "ms": 914
+   "ms": 875
   },
   {
    "id": "F19",
@@ -212,7 +212,7 @@
    "name": "Mağaza: para yetmezse satın alma kapalı; satın alınca para düşer, eşya kalıcıdır",
    "status": "geçti",
    "detail": "{\"enabledWhenBroke\":0,\"spent\":60,\"owned\":1}",
-   "ms": 1610
+   "ms": 1471
   },
   {
    "id": "F20",
@@ -220,15 +220,15 @@
    "name": "Sezon sonu → teklif → yeni sezon: hafta 1, yeni lig, yeni hedefler",
    "status": "geçti",
    "detail": "",
-   "ms": 2007
+   "ms": 999
   },
   {
    "id": "F21",
    "cat": "işlevsel",
    "name": "Hiç dokunmayan oyuncu hiçbir maç mini oyununda sonsuza dek takılmaz",
    "status": "geçti",
-   "detail": "shoot 10 sn, timing 12 sn, pass 6 sn, block 4 sn, dribble 5 sn, post 15 sn, rebound 3 sn",
-   "ms": 55231
+   "detail": "shoot 9 sn, timing 12 sn, pass 6 sn, block 3 sn, dribble 5 sn, post 15 sn, rebound 3 sn",
+   "ms": 54659
   },
   {
    "id": "E01",
@@ -236,7 +236,7 @@
    "name": "Tarayıcı depolaması kapalıyken oyun açılır ve oynanır",
    "status": "geçti",
    "detail": "",
-   "ms": 1252
+   "ms": 1255
   },
   {
    "id": "E02",
@@ -244,7 +244,7 @@
    "name": "IndexedDB yokken oyun açılır ve kaydeder",
    "status": "geçti",
    "detail": "",
-   "ms": 1067
+   "ms": 1071
   },
   {
    "id": "E03",
@@ -252,7 +252,7 @@
    "name": "Depolama dolu (QuotaExceeded) olunca oyun çökmez, uyarı verir",
    "status": "geçti",
    "detail": "",
-   "ms": 927
+   "ms": 1040
   },
   {
    "id": "E04",
@@ -260,7 +260,7 @@
    "name": "Aşırı değerler (1e15 para, eksi para, NaN) arayüzde NaN/Infinity göstermez",
    "status": "geçti",
    "detail": "",
-   "ms": 900
+   "ms": 976
   },
   {
    "id": "E05",
@@ -268,7 +268,7 @@
    "name": "Zararlı kayıt kodu (ad, takım, haber içinde HTML/JS) çalıştırılmaz",
    "status": "geçti",
    "detail": "",
-   "ms": 1463
+   "ms": 1545
   },
   {
    "id": "E06",
@@ -276,7 +276,7 @@
    "name": "Yalnızca zorunlu alanları olan (eksik) kayıt açılır ve bir hafta oynanır",
    "status": "geçti",
    "detail": "",
-   "ms": 949
+   "ms": 995
   },
   {
    "id": "E07",
@@ -284,7 +284,7 @@
    "name": "İki sekme aynı yuvada aynı anda oynayınca kayıt bozulmaz",
    "status": "geçti",
    "detail": "son yazan kazanır (bilinen davranış)",
-   "ms": 1583
+   "ms": 1691
   },
   {
    "id": "E08",
@@ -292,7 +292,7 @@
    "name": "Saat dilimleri (Kiritimati UTC+14, Los Angeles): görevler üretilir, hata yok",
    "status": "geçti",
    "detail": "",
-   "ms": 2632
+   "ms": 2684
   },
   {
    "id": "E09",
@@ -300,7 +300,7 @@
    "name": "Yaz saati geçişi ve gece yarısı: günlük görevler tam bir kez yenilenir",
    "status": "geçti",
    "detail": "",
-   "ms": 1470
+   "ms": 1488
   },
   {
    "id": "E10",
@@ -308,7 +308,7 @@
    "name": "Cihaz saati geri alınınca görevler ve reklam sınırı yenilenmez, ileri gün yenilenir",
    "status": "geçti",
    "detail": "2026-06-10 → (saat geri) 2026-06-10, sınır 0 → (ileri gün) 2026-06-11, sınır 100",
-   "ms": 1458
+   "ms": 1541
   },
   {
    "id": "E11",
@@ -316,7 +316,7 @@
    "name": "Boşluk ve satır sonu içeren kayıt kodu içe aktarılır",
    "status": "geçti",
    "detail": "",
-   "ms": 869
+   "ms": 1017
   },
   {
    "id": "V01",
@@ -324,7 +324,7 @@
    "name": "Dört ekran boyutunda (dikey/yatay, telefon/tablet) bütün ana ekranlarda yatay taşma yok",
    "status": "geçti",
    "detail": "60 ekran × boyut denetlendi",
-   "ms": 4808
+   "ms": 4536
   },
   {
    "id": "S01",
@@ -332,7 +332,7 @@
    "name": "Normal oyunda dış ağ isteği yok (telemetri, Sentry, bulut kapalı)",
    "status": "geçti",
    "detail": "yalnızca yazı tipi: fonts.gstatic.com",
-   "ms": 1337
+   "ms": 1278
   },
   {
    "id": "S02",
@@ -340,15 +340,15 @@
    "name": "Paketlenmiş kodda eval / new Function yok",
    "status": "geçti",
    "detail": "",
-   "ms": 7
+   "ms": 14
   },
   {
    "id": "S03",
    "cat": "güvenlik",
    "name": "Yerel depoda kişisel veri ve belirteç yok (yalnızca oyun verisi)",
    "status": "geçti",
-   "detail": "pota-slot-1, pota-ads, pota-slot-1-bak, pota-an",
-   "ms": 1076
+   "detail": "pota-slot-1, pota-ads, pota-slot-1-bak, pota-whatsnew, pota-an",
+   "ms": 996
   },
   {
    "id": "S04",
@@ -356,7 +356,7 @@
    "name": "Pages derlemesinde CSP var ve oyun sırasında CSP ihlali yok",
    "status": "geçti",
    "detail": "",
-   "ms": 1214
+   "ms": 1187
   },
   {
    "id": "S05",
@@ -364,31 +364,31 @@
    "name": "Savunma katmanı: temizlik atlatılsa bile CSP satır içi betiği engeller",
    "status": "geçti",
    "detail": "",
-   "ms": 1109
+   "ms": 1168
   },
   {
    "id": "P01",
    "cat": "performans",
    "name": "Açılış süresi (Pages derlemesi, soğuk ve sıcak)",
    "status": "geçti",
-   "detail": "soğuk 366 ms, sıcak 116 ms (medyan, 4 ölçüm)",
-   "ms": 2097
+   "detail": "soğuk 369 ms, sıcak 107 ms (medyan, 4 ölçüm)",
+   "ms": 2259
   },
   {
    "id": "P02",
    "cat": "performans",
    "name": "Ana ekran çizimi ve hafta ilerletme süresi",
    "status": "geçti",
-   "detail": "renderMain ort 5.8 ms (p95 7.6); hafta ort 475 ms",
-   "ms": 5080
+   "detail": "renderMain ort 6.38 ms (p95 8.5); hafta ort 477 ms",
+   "ms": 5039
   },
   {
    "id": "P03",
    "cat": "performans",
    "name": "Uzun kariyer kaydı (18 sezon): yükleme, kaydetme, boyut, Lig merkezi, kariyer kartı",
    "status": "geçti",
-   "detail": "{\"load\":3.1,\"save\":2.8,\"kb\":74,\"league\":2.1,\"card\":30.1,\"career\":4.4}",
-   "ms": 963
+   "detail": "{\"load\":2.6,\"save\":2.5,\"kb\":74,\"league\":1.7,\"card\":21.2,\"career\":4.5}",
+   "ms": 905
   },
   {
    "id": "P04",
@@ -396,23 +396,23 @@
    "name": "Bellek: 5 tam kariyerlik simülasyonda yığın büyümesi (sızıntı kontrolü)",
    "status": "geçti",
    "detail": "3 → 6 → 6 → 6 → 6 → 6 MB",
-   "ms": 77595
+   "ms": 65579
   },
   {
    "id": "P05",
    "cat": "performans",
    "name": "Mini oyun kare hızı (şut mini oyunu, 3 sn)",
    "status": "geçti",
-   "detail": "61 FPS, en yavaş kare 17 ms (başsız Chromium)",
-   "ms": 4221
+   "detail": "60 FPS, en yavaş kare 33 ms (başsız Chromium)",
+   "ms": 4120
   },
   {
    "id": "P06",
    "cat": "performans",
    "name": "Paket boyutları",
    "status": "geçti",
-   "detail": "game.js: 663 KB, index.js: 193 KB, index.js: 0 KB, pack.en.js: 221 KB, web.js: 3 KB, web.js: 1 KB, web.js: 2 KB, web.js: 0 KB, web.js: 9 KB, web.js: 1 KB, index.html: 25 KB",
-   "ms": 2
+   "detail": "game.js: 675 KB, index.js: 0 KB, index.js: 199 KB, pack.en.js: 227 KB, web.js: 1 KB, web.js: 3 KB, web.js: 0 KB, web.js: 9 KB, web.js: 2 KB, web.js: 1 KB, index.html: 25 KB",
+   "ms": 1
   },
   {
    "id": "P07",
@@ -420,15 +420,15 @@
    "name": "Çevrimdışı: servis çalışanı önbelleğinden açılır",
    "status": "geçti",
    "detail": "",
-   "ms": 1382
+   "ms": 1286
   },
   {
    "id": "P08",
    "cat": "performans",
    "name": "Stres: 300 mekan aç-kapat ve 30 hafta; bellek ve süre",
    "status": "geçti",
-   "detail": "{\"navMs\":522,\"perOpenMs\":1.74,\"weekMs\":202,\"heapMB\":[3,3,5]}",
-   "ms": 7703
+   "detail": "{\"navMs\":470,\"perOpenMs\":1.57,\"weekMs\":191,\"heapMB\":[3,4,5]}",
+   "ms": 7233
   }
  ]
 }

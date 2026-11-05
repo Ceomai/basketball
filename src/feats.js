@@ -170,7 +170,7 @@ function flush() {
   const q = queue;
   queue = [];
   Bus.emit("feat", { ids: q.map(f => f.id) });
-  if (window.__SIM) return;
+  if (window.__SIM || !late.unlocked("basarim")) return; // açılmadan önce sessizce birikir
   // art arda denetimlerde açılanları biriktir, tek bildirim göster
   shown.push(...q);
   clearTimeout(timer);
@@ -292,6 +292,7 @@ export function featsTab(c, re) {
 }
 /** Vitrin sekmesindeki başarımlar özeti */
 export const featsCardHTML = () =>
+  !late.unlocked("basarim") ? "" :
   `<div class="act"><div><h3>${$t("ft.title")} · <span class="gold">${featDone()}/${featTotal()}</span></h3><p>${titleText() ? `${$t("ft.titleNow")} <b>${esc(titleText())}</b>` : $t("ft.cardD")}</p></div><button class="btn team sm" id="ft-open">${$t("ft.open")}</button></div>`;
 /** Seçili unvan (kart ve profil için) */
 export const titleText = () => {

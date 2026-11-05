@@ -60,8 +60,9 @@ export const Bus = {
     (this.p[e] = this.p[e] || []).push({ f, prio });
     this.p[e].sort((a, b) => a.prio - b.prio);
   },
-  first(e, ...a) {
-    for (const { f } of this.p[e] || []) {
+  first(e, maxPrio = 999, ...a) {
+    for (const { f, prio } of this.p[e] || []) {
+      if (prio >= maxPrio) break;
       try {
         if (f(...a)) return true;
       } catch (err) {

@@ -352,6 +352,95 @@ async function trashTale() {
   return done($t("tl.tt.2", { r: esc(rv) }), [[$t("tl.fx.money"), "p"]]);
 }
 
+/* ---------- Takım arkadaşı kişilikleri, kavgalar, kaptanlık, mentorluk ---------- */
+const TRAITS = ["leader", "joker", "hungry", "quiet", "diva"];
+const hashN = s => [...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+export const mateTrait = n => TRAITS[hashN(n) % TRAITS.length];
+export const mateTraitHTML = n => ` <span class="pill" title="${$t(`tl.tr2.${mateTrait(n)}D`)}">${$t(`tl.tr2.${mateTrait(n)}`)}</span>`;
+const fullMates = () => (late.roster ? late.roster().map(p => p.n) : []);
+// kaptanlık: kıdemli, takımla arası iyi bir yıldız
+Bus.on("week:start", () => {
+  if (S && S.captain && S.role === "bench") S.captain = null; // yedek kulübesinde kaptanlık olmaz
+  if (!S || !S.team || !isPro(S.stage) || S.captain === S.team.key) return;
+  if (S.age >= 26 && S.rel.takim >= 70 && S.role === "star") {
+    S.captain = S.team.key;
+    S.rel.takim += 3;
+    news($t("tl.cap.news", { v: fullName(), t: S.team.name }));
+  }
+});
+export const isCaptain = () => !!(S && S.team && S.captain === S.team.key);
+async function feudTale() {
+  const ms = fullMates();
+  tl().feudAt = widx();
+  const pa = ms.filter(n => ["diva", "hungry"].includes(mateTrait(n))),
+    a = pa.length ? pick(pa) : ms[0],
+    pb = ms.filter(n => n !== a && ["hungry", "leader", "joker"].includes(mateTrait(n))),
+    b = pb.length ? pick(pb) : ms.find(n => n !== a);
+  if (!a || !b) return false;
+  const opts = [
+    ["stay", $t("tl.fd.stay"), $t("tl.fd.stayD")],
+    ["a", $t("tl.fd.side", { n: esc(a) }), $t(`tl.tr2.${mateTrait(a)}`)],
+    ["b", $t("tl.fd.side", { n: esc(b) }), $t(`tl.tr2.${mateTrait(b)}`)]
+  ];
+  if (isCaptain()) opts.push(["mediate", $t("tl.fd.mediate"), $t("tl.fd.mediateD")]);
+  const k = await choose($t("tl.fd.t"), $t("tl.fd.s"), $t("tl.fd.b", { a: esc(a), b: esc(b) }), opts);
+  if (k === "stay") return done($t("tl.fd.stayR"), []);
+  if (k === "mediate") {
+    S.rel.takim += 5;
+    if (late.chemAdd) late.chemAdd(3);
+    return done($t("tl.fd.mediateR", { a: esc(a), b: esc(b) }), [[$t("tl.fx.team", { v: 5 }), "p"]]);
+  }
+  S.rel.takim += 1;
+  return done($t("tl.fd.sideR", { w: esc(k === "a" ? a : b), l: esc(k === "a" ? b : a) }), [[$t("tl.fx.team", { v: 1 }), "p"]]);
+}
+async function captainTale() {
+  tl().capAt = widx();
+  const k = await choose($t("tl.cp.t"), $t("tl.cp.s"), $t("tl.cp.b", { c: esc(S.npc.coach) }), [
+    ["quiet", $t("tl.cp.quiet"), $t("tl.cp.quietD")],
+    ["coach", $t("tl.cp.coach"), $t("tl.cp.coachD")],
+    ["team", $t("tl.cp.team"), $t("tl.cp.teamD")]
+  ]);
+  if (k === "quiet") return done($t("tl.cp.quietR"), []);
+  if (k === "coach") {
+    S.rel.koc += 2;
+    S.rel.takim += 3;
+    S.energy += 6;
+    return done($t("tl.cp.coachR", { c: esc(S.npc.coach) }), [[$t("tl.fx.team", { v: 3 }), "p"], [$t("tl.fx.en", { v: 6 }), "p"]]);
+  }
+  S.rel.koc += 4;
+  S.rel.takim -= 1;
+  return done($t("tl.cp.teamR"), [[$t("tl.fx.coach", { v: 4 }), "p"]]);
+}
+async function mentorTale() {
+  const M2 = S.mentee;
+  if (M2 && M2.team !== S.team.name) {
+    S.mentee = null; // takım değişti: mentorluk biter
+    return false;
+  }
+  if (!M2) {
+    const young = late.roster ? late.roster().slice().sort((x, y) => x.age - y.age)[0] : null;
+    if (!young) return false;
+    const k = await choose($t("tl.mt.t"), $t("tl.mt.s"), $t("tl.mt.b", { n: esc(young.n), a: young.age }), [
+      ["no", $t("tl.mt.no"), ""],
+      ["yes", $t("tl.mt.yes"), $t("tl.mt.yesD")]
+    ]);
+    if (k === "no") return done($t("tl.mt.noR", { n: esc(young.n) }), []);
+    S.mentee = { n: young.n, step: 1, at: widx(), team: S.team.name };
+    S.rel.takim += 2;
+    return done($t("tl.mt.yesR", { n: esc(young.n) }), [[$t("tl.fx.team", { v: 2 }), "p"]]);
+  }
+  M2.step++;
+  M2.at = widx();
+  if (M2.step === 2) {
+    S.moral += 3;
+    return done($t("tl.mt.2", { n: esc(M2.n) }), [[$t("tl.fx.moral", { v: 3 }), "p"]]);
+  }
+  S.legacy = S.legacy || { found: {}, club: 0 };
+  S.legacy.kids = (S.legacy.kids || 0) + 2;
+  news($t("tl.mt.news", { n: M2.n, v: fullName() }));
+  return done($t("tl.mt.3", { n: esc(M2.n) }), [[$t("sl.fxLegacy"), "p"]]);
+}
+
 /* ---------- Haftalık seçici ---------- */
 function eligible() {
   const T = tl(),
@@ -371,10 +460,13 @@ function eligible() {
   if (pro && T.pivot < 2) out.push(pivotTale);
   if (T.coffee < 2) out.push(coffeeTale);
   if (S.rival && T.trash < 2 && pro) out.push(trashTale);
+  if (pro && fullMates().length > 3 && widx() - (T.feudAt ?? -99) >= 12) out.push(feudTale);
+  if (isCaptain() && widx() - (T.capAt ?? -99) >= 10) out.push(captainTale);
+  if (pro && S.age >= 29 && (!S.mentee || (S.mentee.step < 3 && widx() - S.mentee.at >= 8))) out.push(mentorTale);
   return out;
 }
 function taleSheet() {
-  if (!S || window.__SIM || S.retired) return false;
+  if (!S || window.__SIM || S.retired || !late.unlocked("hikaye")) return false;
   const T = tl();
   if (widx() - T.last < 3 || Math.random() > 0.55) return false;
   const list = eligible();
@@ -494,7 +586,7 @@ Bus.on("week:start", () => {
   if (!S || window.__SIM || S.week % 3 !== 0) return;
   const last = (S.results || []).slice(-1)[0];
   const pool = last ? (last.win ? "w" : "l") : "n";
-  news(`<i>${$t("tl.hd.tag")}</i> ${$t(`tl.hd.${pool}.${ri(1, 5)}`, { v: esc(nm()), c: esc(S.npc.coach), t: esc(S.team.short) })}`);
+  news(`${$t("tl.hd.tag")} ${$t(`tl.hd.${pool}.${ri(1, 5)}`, { v: esc(nm()), c: esc(S.npc.coach), t: esc(S.team.short) })}`);
 });
 
 /* ---------- Transfer gecesi: ailenin tepkileri (custom.js yeni forma anı) ---------- */

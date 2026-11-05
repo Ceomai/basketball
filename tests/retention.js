@@ -64,7 +64,7 @@ async function career(p) {
     G.startCareer();
     G.S.tut = 1;
     G.S.tipMoment = 1;
-    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 }; // kademeli açılış panelleri testleri bölmesin
+    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1, plan: 1, basarim: 1, tasarim: 1, hikaye: 1, geceligi: 1 }; // kademeli açılış panelleri testleri bölmesin
     G.closeSheet();
     G.renderMain();
   });
@@ -106,7 +106,7 @@ async function week(p) {
       const a = $("#adx");
       if (a) return a.disabled ? "wait" : (a.click(), "c");
       const c = document.querySelector(
-        "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok"
+        "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok"
       );
       if (c) return (c.click(), "c");
       for (const s of [

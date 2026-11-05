@@ -89,7 +89,7 @@ export function goalsHTML(withFx) {
 }
 // sezon başı paneli (haftalık panel sırasında en önce)
 function goalsSheet() {
-  if (!S || !S.goals || S.goals.shown || S.week > 2) return false;
+  if (!S || !S.goals || S.goals.shown || S.week > 5) return false; // kamp/forma paneli öne geçse de birkaç hafta içinde gelir
   S.goals.shown = true;
   if (window.__SIM) return false;
   sheet($t("goal.title"), $t("goal.sub"), `${goalsHTML(true)}<button class="btn pri" id="gl-ok">${$t("goal.ok")}</button>`, {

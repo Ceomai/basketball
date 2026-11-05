@@ -102,6 +102,8 @@ async function toMain(p, limit = 400) {
         "[data-tl]",
         "[data-sl]",
         "#cp-ok",
+        "#wn-ok",
+        "#sc-ok",
         "#hk-a",
         "#nt-sim",
         "#nt-done",

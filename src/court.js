@@ -16,6 +16,7 @@ import { mgRebound, mgShoot, setMgCtx } from "./games.js";
 import { S, eff } from "./core.js";
 import { M } from "./match.js";
 import { courtShoe } from "./custom.js";
+import { late } from "./late.js";
 
 // Yatay tam saha (28 × 15 m): biz sağdaki potaya, rakip soldakine hücum eder.
 const W = 360,
@@ -134,6 +135,7 @@ export function courtPlay(r, on, dur) {
   if (a) a.innerHTML = "";
   // 2) set: oyuncular düzenli kayar, top pasla dolaşır
   const step = () => {
+    if (on && dur && Math.random() < 0.35) late.sfx && late.sfx("squeak");
     for (const [p, xy] of Object.entries(set.step)) {
       pos[p] = side(xy, right);
       mv(`${att}-${p}`, pos[p][0], pos[p][1], t1);
@@ -157,6 +159,7 @@ export function courtPlay(r, on, dur) {
     mv("ball", h.x, h.y, t2 * 0.6);
     later(t2 * 0.6, () => {
       if (r.scored) {
+        if (on) late.sfx && late.sfx("netSwish");
         const n = right ? $("#net-r") : null;
         if (n) {
           n.style.transition = "opacity .3s";
@@ -309,6 +312,7 @@ export function courtShot(good) {
   mv("ball", HR.x, HR.y, 380);
   return new Promise(r =>
     later(400, () => {
+      if (good) late.sfx && late.sfx("netSwish");
       if (good && n) {
         n.style.transition = "opacity .3s";
         n.style.opacity = 0.75;

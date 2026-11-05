@@ -71,7 +71,7 @@ export async function careerCardCanvas() {
   for (let i = 0; i < 9; i++) c.fillRect(-200 + i * 160, 0, 60, H);
   c.globalAlpha = 1;
   // portre
-  const pc = portrait(S.look, { jersey: c1, trim: c2, number: S.num, mood: "mutlu" }, 380, 380, c1);
+  const pc = portrait(S.look, { jersey: c1, trim: c2, number: S.num, mood: "mutlu", age: S.age }, 380, 380, c1);
   c.save();
   c.beginPath();
   c.arc(W - 250, 270, 190, 0, Math.PI * 2);

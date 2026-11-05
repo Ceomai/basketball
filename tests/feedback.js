@@ -63,7 +63,12 @@ async function career(p) {
     G.startCareer();
     G.S.tut = 1;
     G.S.tipMoment = 1;
-    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 };
+    G.S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1, plan: 2, basarim: 2, tasarim: 2, hikaye: 2, geceligi: 2 };
+    try {
+      localStorage.setItem("pota-whatsnew", G.WHATSNEW);
+    } catch (e) {
+      /* yok */
+    }
     G.closeSheet();
     G.renderMain();
   });
@@ -1958,6 +1963,161 @@ test("borsa: lot al, fiyat haftalık değişir, sat; hipodrom: bahis, yarış bi
   return p;
 });
 
+test("paket 2: kademeli açılış ve yenilikler kartı", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game,
+      S = G.S;
+    S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 };
+    S.season = 1;
+    S.week = 1;
+    const early = { plan: G.unlocked("plan"), tales: G.unlocked("hikaye"), gece: G.unlocked("geceligi") };
+    S.week = 6;
+    const later = { plan: G.unlocked("plan"), tales: G.unlocked("hikaye"), gece: G.unlocked("geceligi") };
+    S.unlocks.geceligi = 2;
+    const forced = G.unlocked("geceligi");
+    try {
+      localStorage.removeItem("pota-whatsnew");
+    } catch (e) {
+      /* yok */
+    }
+    G.closeSheet();
+    G.Bus.emit("screen:main");
+    await new Promise(r => setTimeout(r, 900));
+    const wn = !!document.querySelector("#wn-ok");
+    if (wn) document.querySelector("#wn-ok").click();
+    let seen = null;
+    try {
+      seen = localStorage.getItem("pota-whatsnew");
+    } catch (e) {
+      /* yok */
+    }
+    return { early, later, forced, wn, seen, ver: G.WHATSNEW };
+  });
+  assert(!r.early.plan && !r.early.tales && !r.early.gece, "erken açık: " + JSON.stringify(r));
+  assert(r.later.plan && r.later.tales && !r.later.gece && r.forced, "açılış: " + JSON.stringify(r));
+  assert(r.wn && r.seen === r.ver, "yenilikler: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 2: mola kartı seriyi keser, son dakika faul ve zaman tüketme", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game;
+    G.setM({ q: 4, clock: "1:20", us: 70, them: 72, plus: 0, live: 1, feed: [] });
+    G.timeoutInit();
+    const left0 = G.M.toLeft;
+    G.runTrack(false, true);
+    G.runTrack(false, true);
+    G.runTrack(false, true);
+    const run = G.M.oppRun;
+    const btn = G.timeoutBtnHTML();
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const pr = G.timeoutCard(el);
+    const b = el.querySelector('[data-to="stop"]');
+    b && b.click();
+    await pr;
+    const after = { left: G.M.toLeft, runStop: G.M.runStop, mod: G.possMod(false) };
+    // geride, top rakipte → faul seçeneği
+    const lc = G.lateCall(false, -3, el, 30);
+    const f = el.querySelector('[data-lt="foul"]');
+    f && f.click();
+    const call = await lc;
+    // önde, top bizde, ≤35 sn → zaman tüket
+    const lc2 = G.lateCall(true, 2, el, 20);
+    const h = el.querySelector('[data-lt="hold"]');
+    h && h.click();
+    const call2 = await lc2;
+    G.M.hold = 1;
+    const holdMod = G.possMod(true);
+    const none = await G.lateCall(true, 10, el, 20);
+    let ft = 0;
+    for (let i = 0; i < 50; i++) ft += G.oppFreeThrows().made;
+    el.remove();
+    G.setM(null);
+    return { left0, run, pulse: /pulse/.test(btn), after, call, call2, holdMod, none, ft };
+  });
+  assert(r.left0 === 2 && r.run === 3 && r.pulse, "mola başlangıcı: " + JSON.stringify(r));
+  assert(r.after.left === 1 && r.after.mod < 1, "mola etkisi: " + JSON.stringify(r));
+  assert(r.call === "foul" && r.call2 === "hold" && r.holdMod < 1 && r.none === null, "son dakika: " + JSON.stringify(r));
+  assert(r.ft > 35 && r.ft < 85, "serbest atış: " + r.ft);
+  return p;
+});
+
+test("paket 2: kişilikler, kaptanlık, kavga, mentorluk, yaşlanan portre", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const tr = ["Ali Kaya", "Can Demir", "Efe Şahin", "Mert Yıldız", "Ozan Koç", "Kerem Ak"].map(G.mateTrait);
+    S.age = 28;
+    S.role = "star";
+    S.rel.takim = 80;
+    G.Bus.emit("week:start");
+    const cap = G.isCaptain();
+    G.openLoc && G.renderMain();
+    // yaşlı portre çizimi hata vermeden
+    const c = document.createElement("canvas");
+    let portrait = true;
+    try {
+      const j = G.jersey();
+      j.age = 36;
+      G.drawKid(c.getContext("2d"), 60, 60, 1, S.look, j);
+    } catch (e) {
+      portrait = String(e);
+    }
+    return { tr, cap, pill: G.mateTraitHTML("Ali Kaya").includes("pill") , portrait };
+  });
+  assert(r.tr.every(Boolean) && new Set(r.tr).size >= 2, "kişilikler: " + JSON.stringify(r.tr));
+  assert(r.cap && r.pill && r.portrait === true, "kaptan/portre: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağacı; salon ışıkları; sesler", async () => {
+  const p = await page();
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      out = {};
+    for (const id of Object.keys(G.SCENARIOS)) {
+      G.ADS.consent = true;
+      G.F.first = "Deniz";
+      G.F.last = "Test";
+      G.F.pos = "PG";
+      G.F.slot = 1;
+      G.F.mode = "normal";
+      G.F.scenario = id;
+      G.startCareer();
+      const S = G.S;
+      out[id] = { age: S.age, stage: S.stage, team: !!S.team, scn: S.scn && S.scn.id, until: S.scn && S.scn.until, html: G.scenarioHTML().length > 0 };
+      G.closeSheet();
+    }
+    const S = G.S;
+    // son dans: kupa kazanınca başarı
+    S.scn.tr0 = (S.career.trophies || []).length;
+    S.career.trophies = [...(S.career.trophies || []), { type: "cup", y: S.year }];
+    G.Bus.emit("season:end", {});
+    G.Bus.emit("week:start");
+    out.done = S.scn.done;
+    G.closeSheet();
+    out.sheet = G.Bus.first ? true : true;
+    S.family = [{ n: "Baba Test", y: 1990, tr: 3, t: "", pos: "C" }];
+    out.tree = G.familyTreeHTML().includes("Baba Test");
+    out.next = G.familyNext().length === 2;
+    out.sfx = ["netSwish", "squeak", "chant"].every(k => typeof G.SFX[k] === "function");
+    return out;
+  });
+  assert(r.fallen.age === 27 && r.fallen.stage === "t2" && r.fallen.scn === "fallen" && r.fallen.html, "düşen yıldız: " + JSON.stringify(r.fallen));
+  assert(r.smallclub.stage === "t3" && r.smallclub.age === 22, "küçük kulüp: " + JSON.stringify(r.smallclub));
+  assert(r.lastdance.stage === "euro" && r.lastdance.age === 34, "son dans: " + JSON.stringify(r.lastdance));
+  assert(r.done === 1 && r.tree && r.next && r.sfx, "hedef/soy/ses: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);
@@ -1977,7 +2137,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [
@@ -2014,7 +2174,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   await serveDist();
   browser = await chromium.launch();
   let fail = 0;
-  for (const t of T) {
+  for (const t of T.filter(x => !process.env.ONLY || x.name.includes(process.env.ONLY))) {
     let p;
     try {
       p = await t.fn();

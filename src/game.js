@@ -73,6 +73,8 @@ import * as economy from "./economy.js";
 import * as tales from "./tales.js";
 import * as plan from "./plan.js";
 import * as seasonlife from "./seasonlife.js";
+import * as clutch from "./clutch.js";
+import * as scenarios from "./scenarios.js";
 
 const MODULES = [
   data,
@@ -146,7 +148,9 @@ const MODULES = [
   economy,
   tales,
   plan,
-  seasonlife
+  seasonlife,
+  clutch,
+  scenarios
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

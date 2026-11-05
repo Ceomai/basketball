@@ -25,7 +25,9 @@
     "test:retention": "npm run build && npm run build:single && node tests/retention.js",
     "test:feedback": "npm run build && npm run build:single && node tests/feedback.js",
     "test:personas": "npm run build && npm run build:single && node tests/personas.js",
-    "fixture": "npm run build:single && node tests/make-fixture.js"
+    "fixture": "npm run build:single && node tests/make-fixture.js",
+    "screenshots": "node tools/screenshots.js",
+    "perf": "node tools/perf-check.js"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",

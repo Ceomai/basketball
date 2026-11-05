@@ -34,7 +34,7 @@ import { mapSVG } from "./map.js";
 /* ================= DURUM ================= */
 export let S = null;
 export const fullName = () => `${S.first} ${S.last}`;
-export const jersey = () => ({ jersey: S.team.c1, trim: S.team.c2, number: S.num });
+export const jersey = () => ({ jersey: S.team.c1, trim: S.team.c2, number: S.num, age: S.age }); // age: yaşlanan portre
 export const TD = () => tdOf(S.stage, S.team.cc);
 export function ovr() {
   const w = {
@@ -377,6 +377,7 @@ export function renderCreate() {
     <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
     ${late.modePickerHTML(F.mode || "normal")}
     ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
+    ${F.heir ? "" : late.scenarioPickerHTML(F.scenario || "")}
   </div>
   <button class="btn pri big" id="go">${$t("core.33")}</button>`;
   // adlar ekrana basılır: işaretleme karakterleri alınmaz
@@ -403,6 +404,7 @@ export function renderCreate() {
   $("#bkS").onclick = late.renderSlots;
   bind("mode", v => (F.mode = v));
   bind("origin", v => (F.origin = v));
+  bind("scn", v => (F.scenario = v || null)); // kariyer senaryosu (src/scenarios.js)
   $("#fn").onkeydown = e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -590,6 +592,16 @@ export function startCareer() {
       name: S.team.name
     })
   );
+  // senaryo: hazır başlangıç, lise bölümü atlanır (src/scenarios.js)
+  if (F.scenario && !S.heir) {
+    late.scenarioSetup(F.scenario);
+    F.scenario = null;
+    late.save();
+    setTeamVars();
+    renderMain();
+    if (!S.tut) late.startTour();
+    return;
+  }
   late.save();
   setTeamVars();
   chapter("lise1", () => {
