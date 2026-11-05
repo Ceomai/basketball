@@ -1111,11 +1111,11 @@ test("ekonomi: medya yorgunluğu, pasif gelir sınırı, fiş değeri korunur, t
       a2 = G.mediaGain(0.04, 0);
     // pasif gelir: maaşın oranını geçmez
     S.stage = "nba";
-    S.wage = 1000;
+    S.wage = 20000;
     const cap = G.passiveCap(70000, 0.5);
     // fiş: terfide para değeri korunur
     S.stage = "uni";
-    S.chips = 1000;
+    S.chips = 200000;
     S.freeChips = 0;
     G.Bus.emit("week:start");
     const v0 = S.chips * G.chipRate();
@@ -1136,7 +1136,7 @@ test("ekonomi: medya yorgunluğu, pasif gelir sınırı, fiş değeri korunur, t
     return { a1, a2, cap, v0, v1, chips: S.chips, free: S.freeChips, en, maxCar, c, cost: G.arcadeCost() };
   });
   assert(r.a2 < r.a1 && r.a1 <= 400, "medya yorgunluğu: " + JSON.stringify(r));
-  assert(r.cap === 500, "pasif gelir sınırı: " + r.cap);
+  assert(r.cap === 10000, "pasif gelir sınırı: " + r.cap);
   assert(Math.abs(r.v1 - r.v0) / r.v0 < 0.05, "fiş değeri korunmalı: " + r.v0 + " → " + r.v1);
   assert(r.chips === 100 && r.free === 80, "teselli fişi: " + JSON.stringify(r));
   assert(r.en === r.maxCar, "araba enerjisi: " + r.en + " / " + r.maxCar);
