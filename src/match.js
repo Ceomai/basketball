@@ -580,7 +580,7 @@ export function endWeek() {
     upkeep: carUpkeep(),
     income: itemWeekly("inc")
   }))
-    tx(it.label, it.amount);
+    tx(it.key ? $t(it.key, it.v) : it.label, it.amount);
   S.energy += 26 + h.en + itemWeekly("en") + Math.round((S.moral - 50) / 10) + late.comfortEnergy();
   S.moral += (h.mo || 0) + itemWeekly("mo");
   if (S.partner) {
@@ -700,13 +700,14 @@ export function eventSheet(ev, after) {
   );
 }
 export function randomEvent(after) {
+  S.evRecent = 1; // maç sonrası olay çıktı: bu hafta hikâye paneli gelmez (src/extras.js)
   // olaylar veri paketlerinden gelir: src/content/events.tr.js (motor: src/content/events.js)
   S.evSeen = S.evSeen || {};
   const now = weekIndex(),
     fresh = late.eventPool().filter(x => !(S.evSeen[x.title] && now - S.evSeen[x.title] < 60));
   if (!fresh.length) return after();
   // zorlu olaylar (events.hard.tr.js): olay haftalarının ~%30'unda (haftaların ~%10'u) bunlardan biri seçilir
-  const hard = fresh.filter(x => x.hard);
+  const hard = S.season >= 2 ? fresh.filter(x => x.hard) : []; // ilk sezon ağır olaysız (yeni oyuncu)
   const e =
     hard.length && Math.random() < 0.3
       ? pick(hard)

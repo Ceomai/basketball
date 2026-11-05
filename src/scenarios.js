@@ -46,7 +46,7 @@ export function scenarioSetup(id) {
   S.money = Math.round(WAGE[sc.stage] * 6);
   S.followers = sc.stage === "euro" ? 60000 : 3000;
   S.housing = sc.stage === "euro" ? "lux" : "daire"; // yeni şehirde kendi evi (aile odası değil)
-  S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1, plan: 1, basarim: 1, tasarim: 1, hikaye: 1 };
+  S.unlocks = { program: 2, sistem: 2, gorev: 2, miras: 2, plan: 2, basarim: 2, tasarim: 2, hikaye: 2, geceligi: 2 }; // deneyimli oyuncu: her şey açık
   S.scn = { id, until: S.season + sc.years - 1, done: 0, team: t.key };
   if (id === "fallen") S.reinj = { p: 0.2, until: (late.weekIndex ? late.weekIndex() : 0) + 20 }; // eski sakatlık: tekrar riski
   newSeasonLeague();

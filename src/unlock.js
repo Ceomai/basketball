@@ -17,7 +17,7 @@ const RULES = {
   miras: () => S.age >= 28 || !!S.retired,
   plan: () => early(3), // hafta planı ve özet (src/plan.js)
   basarim: () => early(3), // başarımlar (src/feats.js)
-  tasarim: () => early(4), // ayakkabı, forma, kutlama, tema (src/custom.js)
+  tasarim: () => early(3), // ayakkabı, forma, kutlama, tema (src/custom.js)
   hikaye: () => early(5), // hikâye olayları (src/tales.js)
   geceligi: () => S.season >= 2 // gece sokak ligi (src/venues.js)
 };
@@ -42,7 +42,7 @@ function unlockSheet() {
   S.unlocks = S.unlocks || {};
   const fresh = FEATURES.filter(k => RULES[k]() && !S.unlocks[k]);
   // bu sürümden önce başlamış kariyerler: yeni sistemler ayrıca tanıtılmaz ("Yenilikler" kartı anlatır)
-  if (S.season >= 2) for (const k of ["plan", "basarim", "tasarim", "hikaye"]) if (fresh.includes(k) && S.unlocks.program !== undefined) fresh.splice(fresh.indexOf(k), 1), (S.unlocks[k] = 1);
+  if (S.season >= 2) for (const k of ["plan", "basarim", "tasarim", "hikaye", "geceligi"]) if (fresh.includes(k) && S.unlocks.program !== undefined) fresh.splice(fresh.indexOf(k), 1), (S.unlocks[k] = 1);
   if (!fresh.length) return false;
   for (const k of fresh) S.unlocks[k] = 1;
   if (window.__SIM) return false;

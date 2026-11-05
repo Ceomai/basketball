@@ -52,7 +52,7 @@ export const inStint = (plan, m) => plan.some(([a, b]) => m >= a && m < b);
 export function modeChoice() {
   if (window.__SIM) return Promise.resolve("key");
   return new Promise(r => {
-    const cur = S.matchMode || "full";
+    const cur = S.matchMode || ""; // ilk maçta "son seçimin" rozeti yok
     $("#mview").innerHTML = `${late.preMatchHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>

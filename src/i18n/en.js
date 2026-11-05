@@ -492,7 +492,7 @@ export default {
   "hk.family": "Your family is coming to see you tomorrow.",
   "hk.national": "The national team's preliminary roster is announced tomorrow.",
   "hk.rumor": "Word is a club will make a statement about you tomorrow.",
-  "hk.news": "Tomorrow: {t}",
+  "hk.news": "{t}",
   "hk.title": "From yesterday",
   "hk.sub": "What you were waiting for happened",
   "hk.dueTitle": "News from yesterday arrived",
@@ -2263,5 +2263,13 @@ export default {
   "sc.family": "Family tree",
   "sc.trophies": "trophies: {n}",
   "sc.now": "now",
-  "sc.bigNight": "Big night! The arena is full of lights."
+  "sc.bigNight": "Big night! The arena is full of lights.",
+  "led.allow": "Allowance",
+  "led.schol": "Scholarship",
+  "led.wage": "Salary",
+  "led.tax": "Tax and agent fee ({p}%)",
+  "led.living": "Living costs",
+  "led.inc": "Investment income",
+  "led.rent": "Rent · {n}",
+  "led.car": "Car costs"
 };

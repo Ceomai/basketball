@@ -586,7 +586,7 @@ Bus.on("week:start", () => {
   if (!S || window.__SIM || S.week % 3 !== 0) return;
   const last = (S.results || []).slice(-1)[0];
   const pool = last ? (last.win ? "w" : "l") : "n";
-  news(`<i>${$t("tl.hd.tag")}</i> ${$t(`tl.hd.${pool}.${ri(1, 5)}`, { v: esc(nm()), c: esc(S.npc.coach), t: esc(S.team.short) })}`);
+  news(`${$t("tl.hd.tag")} ${$t(`tl.hd.${pool}.${ri(1, 5)}`, { v: esc(nm()), c: esc(S.npc.coach), t: esc(S.team.short) })}`);
 });
 
 /* ---------- Transfer gecesi: ailenin tepkileri (custom.js yeni forma anı) ---------- */

@@ -274,7 +274,7 @@ export const adBtn = (id, label, sub, place) => {
   return adBtnRaw(id, label, sub);
 };
 const adBtnRaw = (id, label, sub) =>
-  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}`}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : rewardLeft() <= 5 ? `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}` : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
 export function adDoubleHTML(bonus) {

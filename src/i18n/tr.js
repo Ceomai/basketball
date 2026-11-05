@@ -491,7 +491,7 @@ export default {
   "hk.family": "Ailen yarın seni görmeye geliyor.",
   "hk.national": "Milli takımın geniş kadrosu yarın açıklanacak.",
   "hk.rumor": "Yarın bir kulübün seninle ilgili açıklama yapacağı konuşuluyor.",
-  "hk.news": "Yarın: {t}",
+  "hk.news": "{t}",
   "hk.title": "Dünden kalan",
   "hk.sub": "Dün beklenen oldu",
   "hk.dueTitle": "Dünden kalan haber geldi",
@@ -2262,5 +2262,13 @@ export default {
   "sc.family": "Soy ağacı",
   "sc.trophies": "kupa: {n}",
   "sc.now": "şimdi",
-  "sc.bigNight": "Büyük gece! Salon ışıklarla dolu."
+  "sc.bigNight": "Büyük gece! Salon ışıklarla dolu.",
+  "led.allow": "Harçlık",
+  "led.schol": "Burs",
+  "led.wage": "Maaş",
+  "led.tax": "Vergi ve menajer payı (%{p})",
+  "led.living": "Yaşam giderleri",
+  "led.inc": "Yatırım geliri",
+  "led.rent": "Kira · {n}",
+  "led.car": "Araç masrafları"
 };

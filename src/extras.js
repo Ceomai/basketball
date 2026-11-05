@@ -417,7 +417,11 @@ export function weeklyHooks() {
   }
   Bus.emit("week:start");
   save(); // hafta başı işleyicilerinin değişiklikleri (ücretler, gelirler, ilişkiler) yeniden açılışta kaybolmasın
-  Bus.first("week:sheet"); // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur
+  // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur. Maç sonrası olay çıktıysa yalnız önemli
+  // paneller (öncelik < 20: hedefler, açılış, kamp, senaryo...) gelir; hikâye panelleri bir sonraki haftaya kalır
+  const quiet = S.evRecent;
+  S.evRecent = 0;
+  Bus.first("week:sheet", quiet ? 20 : 999);
 }
 // sezon ortası (normalde 8., hızlı kariyerde 5. hafta): All-Star seçilen üst lig oyuncusu All-Star'a, diğer herkes
 // Yıldızlar Hafta Sonu beceri yarışmalarına (src/peaks.js); ardından milli takım penceresi
