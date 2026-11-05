@@ -1389,7 +1389,7 @@ export default {
   "md.hypeOn": "Tribünler ayağa kalktı! Birkaç an boyunca her şey daha kolay.",
   "md.crowd": "Seyirci",
   "md.loud": "Gürültülü deplasman: mini oyunlar biraz zor",
-  "md.pre": "Maç öncesi",
+  "md.pre": "Rakip ve koşullar",
   "md.you": "Sen",
   "md.star": "{t} yıldızı",
   "md.ref": "Hakem",

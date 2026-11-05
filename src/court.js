@@ -41,7 +41,7 @@ function floor() {
   <path d="M100 ${H - 2} A50 50 0 0 1 200 ${H - 2}" fill="none" stroke="${line}" stroke-width="2"/>`;
 }
 const dot = (id, x, y, fill, ring, label) =>
-  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="#141414" stroke-width="1.5"/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
+  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="${id[0] === "d" ? "#ffffff" : "#141414"}" stroke-width="${id[0] === "d" ? 2 : 1.5}" ${id[0] === "d" ? 'stroke-dasharray="3 2"' : ""}/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
 /** Maç başında: oyuncuları yerleştir */
 export function courtStart(opp) {
   C = { c1: S.team.c1, c2: opp ? opp.c1 : "#4a5568", flow: [] };
@@ -253,8 +253,7 @@ export function trackPlay(pk, pts0, res) {
     if (d >= 3) ((M.tpm = (M.tpm || 0) + 1), (M.fgm = (M.fgm || 0) + 1));
   } else if (TWO.includes(pk) || FIN.includes(pk)) {
     M.fga = (M.fga || 0) + 1;
-    if (d >= 2) M.fgm = (M.fgm || 0) + 1;
-    if (d === 3) ((M.fta = (M.fta || 0) + 1), (M.ftm = (M.ftm || 0) + 1)); // basket faul
+    if (d >= 2) M.fgm = (M.fgm || 0) + 1; // basket faul serbest atışı andOne içinde sayılır (src/match.js)
   }
   void res;
 }
@@ -275,6 +274,6 @@ export function reportHTML() {
   const q = (M.qs || []).map((s, i, a) => [s[0] - (i ? a[i - 1][0] : 0), s[1] - (i ? a[i - 1][1] : 0)]);
   return `<div class="card fm"><div class="eyebrow">${$t("ct.report")}</div>
   <div class="kv"><span>${$t("ct.fg")}</span><b>${pct(M.fgm || 0, M.fga || 0)}</b><span>${$t("ct.tp")}</span><b>${pct(M.tpm || 0, M.tpa || 0)}</b><span>${$t("ct.ft")}</span><b>${pct(M.ftm || 0, M.fta || 0)}</b><span>${$t("ct.bench2")}</span><b>${M.autoPts || 0}</b></div>
-  ${q.length ? `<div class="tbl"><table><tr><th></th>${q.map((_, i) => `<th>${i < 4 ? `Ç${i + 1}` : $t("ct.ot")}</th>`).join("")}</tr><tr><td>${esc(S.team.short)}</td>${q.map(x => `<td>${x[0]}</td>`).join("")}</tr><tr><td>${$t("ct.opp")}</td>${q.map(x => `<td>${x[1]}</td>`).join("")}</tr></table></div>` : ""}
+  ${q.length ? `<div class="tbl"><table><tr><th></th>${q.map((_, i) => `<th>${i < 4 ? $t("common.q", { n: i + 1 }) : $t("ct.ot")}</th>`).join("")}</tr><tr><td>${esc(S.team.short)}</td>${q.map(x => `<td>${x[0]}</td>`).join("")}</tr><tr><td>${$t("ct.opp")}</td>${q.map(x => `<td>${x[1]}</td>`).join("")}</tr></table></div>` : ""}
   ${path ? `<div class="eyebrow">${$t("ct.flow")}</div><svg viewBox="0 0 300 80" style="width:100%;height:60px"><line x1="10" y1="40" x2="290" y2="40" stroke="#5d6b82" stroke-dasharray="3 3"/><path d="${path}" fill="none" stroke="#ffc54d" stroke-width="2"/></svg><div class="row between small muted"><span>${$t("ct.start")}</span><span>${$t("ct.end")}</span></div>` : ""}</div>`;
 }

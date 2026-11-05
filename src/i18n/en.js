@@ -1390,7 +1390,7 @@ export default {
   "md.hypeOn": "The crowd is on its feet! Everything is easier for a few moments.",
   "md.crowd": "Crowd",
   "md.loud": "Hostile arena: minigames a bit harder",
-  "md.pre": "Pre-game",
+  "md.pre": "Opponent & conditions",
   "md.you": "You",
   "md.star": "{t} star",
   "md.ref": "Referee",

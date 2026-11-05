@@ -313,6 +313,7 @@ html[data-theme=minimal] .card{box-shadow:none}
 @keyframes cbShake{from{transform:translateX(-5px)}to{transform:translateX(5px)}}
 @keyframes cbTilt{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @keyframes cbJump{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.1)}}
+#mstat:empty{display:none}
 .cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .cbb{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px 4px;color:var(--text);cursor:pointer;min-width:0}
 .cbb b{font-family:var(--display);font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;text-align:center}

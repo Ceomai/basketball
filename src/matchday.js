@@ -30,7 +30,7 @@ export function matchdayStart(ctx, foes, mates) {
   M.loud = !ctx.home && (ctx.comp !== "lig" || (opp && opp.str >= S.team.str + 0.04));
   M.star = {
     n: (foes && foes[0]) || "?",
-    o: clamp(Math.round((ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)) * 10) / 10, 30, 99),
+    o: clamp(Math.round((ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)) * 10) / 10, 15, 99),
     pts: 0
   };
   M.starPts = 0;
@@ -144,6 +144,8 @@ const BIG = ["C", "PF"];
 /** Oyun kur ekranı: perdeci + koşu yolu; sahada oklar. {pk, mod} döner */
 export function setPlay(el) {
   M.setUsed = 1;
+  const cap = $("#crt-cap");
+  if (cap) cap.textContent = "";
   const pos = ["PG", "SG", "SF", "PF", "C"].filter(p => p !== S.pos),
     names = M.mates.length ? M.mates : pos;
   let scr = null,
@@ -156,7 +158,7 @@ export function setPlay(el) {
     late.courtMove("ball", me[0] + 7, me[1] - 6);
     let h = "";
     if (scr) {
-      const sp = [me[0] + (me[0] < 150 ? 12 : -12), me[1] - 10];
+      const sp = [me[0] + (me[0] < 150 ? 20 : -20), me[1] - 16];
       late.courtMove(`o-${scr}`, sp[0], sp[1]); // perdeci yanına gelir
       const o = late.courtSlot(scr);
       h += `<line x1="${o[0]}" y1="${o[1]}" x2="${sp[0]}" y2="${sp[1]}" stroke="#ffc54d" stroke-width="2.5" stroke-dasharray="5 3"/><rect x="${sp[0] - 7}" y="${sp[1] - 13}" width="14" height="4" fill="#ffc54d" stroke="#141414"/>`;

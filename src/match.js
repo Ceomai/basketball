@@ -105,8 +105,10 @@ export const PEN = {
 async function andOne(el, sur, dn, st, w) {
   addFeed($t("match.11", { sur, dn }));
   M.and1 = (M.and1 || 0) + 1;
+  M.fta = (M.fta || 0) + 1; // basket faul serbest atışı (src/court.js trackPlay sayının kendisini sayar)
   const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("match.98"), tries: 1, label: $t("games.8") });
   M.pts += f.ok;
+  M.ftm = (M.ftm || 0) + f.ok;
   return { good: true, w, st, txt: f.ok ? $t("match.12") : $t("match.13") };
 }
 export async function resolvePlay(k, el, sur, dn) {

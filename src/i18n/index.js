@@ -2,7 +2,7 @@
    t("anahtar", { ad: değer }) seçili dildeki metni döndürür; çeviri yoksa Türkçeye, o da yoksa anahtara düşer.
    Yeni dil eklemek: src/i18n/<kod>.js sözlüğü + LANGS listesi. Olay metinleri ayrıca src/content/events.<kod>.js'tedir.
    Not: Arayüz metinlerinin taşınması kademelidir; henüz taşınmamış metinler Türkçe görünür. */
-import { loadPack } from "./pack-load.js";
+import { loadPack, syncPack } from "./pack-load.js";
 import trManual from "./tr.js";
 import trAuto from "./tr.auto.js";
 // elle yazılmış anahtarlar (ekran.öğe) ve araçla çıkarılmış anahtarlar (dosya.no) birlikte.
@@ -33,6 +33,10 @@ export let LANG = (() => {
   }
 })();
 document.documentElement.lang = LANG;
+if (syncPack && LANG === "en") {
+  Object.assign(DICT.en, syncPack.dict);
+  PACKS.events = syncPack.events;
+}
 /** Tarih/büyük harf dönüşümleri için yerel ayar (Türkçede i → İ). */
 export let LOCALE = LANG === "tr" ? "tr-TR" : "en-US";
 export function setLang(l) {
