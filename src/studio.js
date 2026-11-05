@@ -78,14 +78,16 @@ export function locStudio(I) {
   );
   const sh = $("#sd-shoot");
   if (sh)
-    sh.onclick = () => {
+    sh.onclick = async () => {
       useSlot();
       S.energy -= 8;
-      d.rel = clamp((d.rel ?? 60) + 25, 0, 100);
+      // çekimde replik: doğruysa tam memnuniyet, blooper olursa daha az ama viral (src/tales.js)
+      const ad = late.adShoot ? await late.adShoot() : { ok: true, txt: "" };
+      d.rel = clamp((d.rel ?? 60) + (ad.ok ? 25 : 15), 0, 100);
       if (d.wk) tx($t("sd.shootTx"), Math.round(d.wk * 0.5));
       norm();
       save();
-      resultView($t("sd.shoot"), $t("sd.shootRes", { v: $t(`ag.b.${d.b}`) }), [[$t("sd.fxSponsor"), "p"]]);
+      resultView($t("sd.shoot"), `${ad.txt} ${$t("sd.shootRes", { v: $t(`ag.b.${d.b}`) })}`, [[$t("sd.fxSponsor"), "p"]]);
     };
 }
 async function content(type) {

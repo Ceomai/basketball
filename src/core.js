@@ -63,7 +63,8 @@ export function eff(k) {
       (S.buffs.scoutK === k ? 4 : 0) +
       (late.boostOf ? late.boostOf(k) : 0) + // maç günü güçlendiricileri (src/gear.js)
       (late.effMod ? late.effMod() : 0) +
-      (late.crowdBoost ? late.crowdBoost() : 0), // seyirci (src/matchday.js); karar anı durumu / ikinci karar (src/court.js)
+      (late.crowdBoost ? late.crowdBoost() : 0) +
+      (k === "sut" && late.sockMod ? late.sockMod() : 0), // şanslı çorap kayıp (src/tales.js); seyirci (src/matchday.js); karar anı durumu / ikinci karar (src/court.js)
     3,
     100
   );

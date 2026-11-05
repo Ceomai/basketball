@@ -175,7 +175,7 @@ export function locEv(I, tab = "vitrin") {
   if (tab === "genel") {
     const rs = late.rated();
     const avg = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(2) : "–";
-    c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start"><div id="pp"></div><div style="flex:1;min-width:0"><div class="eyebrow">${POS[S.pos].n} · #${S.num}</div><h2>${esc(fullName())}</h2>${late.titleText() ? `<div class="small gold">${esc(late.titleText())}</div>` : ""}<div class="small muted">${$t(
+    c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start"><div id="pp"></div><div style="flex:1;min-width:0"><div class="eyebrow">${POS[S.pos].n} · #${S.num}</div><h2>${esc(fullName())}</h2>${late.titleText() ? `<div class="small gold">${esc(late.titleText())}</div>` : ""}${late.nickName() ? `<div class="small muted">${$t("tl.nick.label")}: <b>"${esc(late.nickName())}"</b></div>` : ""}<div class="small muted">${$t(
       "places.19",
       {
         age: S.age

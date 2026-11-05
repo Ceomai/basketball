@@ -1146,6 +1146,68 @@ test("ekonomi: medya yorgunluğu, pasif gelir sınırı, fiş değeri korunur, t
   return p;
 });
 
+test("hikâye: haftalık hikâye olayı (güvenli seçenek), şanslı çorap şutu etkiler, lakap, spiker, transfer gecesi, maskot, hakem tartışması", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.tales = { last: -9, done: {}, sock: 0, pivot: 0, coffee: 0, trash: 0 };
+    G.S.week = 5;
+    G.S.followers = 2000;
+    if (G.S.goals) G.S.goals.shown = true;
+    const R = Math.random;
+    Math.random = () => 0.3;
+    G.Bus.first("week:sheet");
+    Math.random = R;
+  });
+  await p.waitForSelector("[data-tl]", { timeout: 3000 });
+  const title = await p.textContent(".sheet h2");
+  // ilk seçenek her zaman mini oyunsuz: sonuç ekranı gelir, takılmaz
+  await p.click("[data-tl]");
+  await p.waitForTimeout(300);
+  const after = await p.evaluate(() => ({ sheet: !!document.querySelector(".sheet"), tl: !!document.querySelector("[data-tl]") }));
+  assert(title && !after.tl, "hikâye olayı: " + title + " " + JSON.stringify(after));
+  const r = await p.evaluate(async () => {
+    const G = window.Game,
+      S = G.S;
+    G.closeSheet();
+    // şanslı çorap: kayıpken maçta şut −2
+    G.setM({ live: 1, feed: [], pts: 0, opp: { short: "OPP", key: "x" } });
+    document.body.insertAdjacentHTML("beforeend", '<div id="mstat"></div>');
+    const e0 = G.eff("sut");
+    S.tales.sock = 1;
+    const e1 = G.eff("sut");
+    // lakap
+    S.career.games = 12;
+    S.career.pts = 300;
+    G.Bus.emit("match:end", { win: true });
+    // spiker ve transfer gecesi
+    G.commentLine("close");
+    const feed = G.M.feed.map(f => f.x).join(" ");
+    const tn = G.transferNight();
+    G.M.home = true;
+    const ms = G.mascotHTML();
+    return { d: e0 - e1, nick: G.nickName(), feed, tn: /telefonda/.test(tn), ms: /maskot/i.test(ms) };
+  });
+  assert(r.d === 2, "çorap şutu etkilemeli: " + r.d);
+  assert(r.nick === "Sayı Makinesi", "lakap: " + r.nick);
+  assert(/Spiker/.test(r.feed), "spiker satırı: " + r.feed.slice(0, 120));
+  assert(r.tn && r.ms, "transfer gecesi ve maskot");
+  // hakem tartışması: sessizce yürü
+  await p.evaluate(() => {
+    const R = Math.random;
+    Math.random = () => 0.1;
+    if (!document.querySelector("#mview")) document.body.insertAdjacentHTML("beforeend", '<div id="mview"></div>');
+    window.__rf = window.Game.refArgue(document.querySelector("#mview"));
+    Math.random = R;
+  });
+  await p.waitForSelector('[data-rf="walk"]', { timeout: 3000 });
+  await p.click('[data-rf="walk"]');
+  assert(/savunmaya/.test(await p.evaluate(async () => await window.__rf)), "hakem tartışması");
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
@@ -1535,7 +1597,7 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
   const p = await page();
   await career(p);
   await pro(p);
-  const r = await p.evaluate(() => {
+  const r0 = await p.evaluate(() => {
     const G = window.Game,
       S = G.S;
     S.sponsorDeal = { b: "spor", wk: 0, perf: 0, until: S.season, rel: 60 };
@@ -1544,7 +1606,22 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
     S.slot = 3;
     S.energy = 100;
     G.locStudio({ n: "Stüdyo" });
-    document.querySelector("#sd-shoot").click();
+    return { a };
+  });
+  // reklam çekimi: replik ekranı (src/tales.js adShoot) → doğru kelimeyi seç
+  await p.click("#sd-shoot");
+  await p.waitForSelector("[data-tl]", { timeout: 5000 });
+  await p.evaluate(() => {
+    const t = document.querySelector(".sheet").textContent;
+    const btn = [...document.querySelectorAll("[data-tl]")].find(b => !/muz|çorap|uzaylı|anneanne|ezan|kuzu/.test(b.dataset.tl)) || document.querySelector("[data-tl]");
+    void t;
+    btn.click();
+  });
+  await p.waitForSelector("#rb", { timeout: 3000 });
+  const r = await p.evaluate(a0 => {
+    const G = window.Game,
+      S = G.S;
+    const a = a0.a;
     const b = S.sponsorDeal.rel;
     S.sponsorDeal.rel = 22;
     G.sponsorWeekly();
@@ -1554,7 +1631,7 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
     G.Bus.emit("week:start");
     const t = S.tx.find(x => /Kanal|reklam/i.test(x.d)); // kanal reklam geliri (diğer haftalık giderlerden bağımsız)
     return { a, b, lost, lvl: G.chLevel(), inc: t ? t.a : 0 };
-  });
+  }, r0);
   assert(r.a === 55 && r.b === 80 && r.lost, "sponsor ilişkisi: " + JSON.stringify(r));
   assert(r.lvl >= 3 && r.inc > 0, "kanal geliri: " + JSON.stringify(r));
   return p;
@@ -1768,7 +1845,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [
@@ -1781,6 +1858,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
           "#nx",
           "#qgo",
           "#rok",
+          "#rb",
           "#pok",
           "#aok",
           "#bn-later",
