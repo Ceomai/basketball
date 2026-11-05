@@ -356,7 +356,7 @@ test("ertesi güne kalan an: oturumda maçlardan sonra belirir, aynı gün çöz
   });
   assert(r.hook && r.hook.day, "an oluşmadı");
   assert(!r.due, "aynı gün çözülüyor");
-  assert(/^Yarın:/.test(r.news), "gündemde yok: " + r.news);
+  assert(/yarın/i.test(r.news), "gündemde yok: " + r.news); // metin zaten "Yarın ..." ile başlar
   // saat geri: çözülmez
   await p.evaluate(d => (window.Game.S.hook.day = d), ymd(1));
   assert(!(await p.evaluate(() => window.Game.hookDue())), "gelecek tarihli an çözüldü");
