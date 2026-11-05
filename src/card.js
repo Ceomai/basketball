@@ -117,7 +117,7 @@ export async function careerCardCanvas() {
   if (ttl) {
     c.fillStyle = "rgba(255,255,255,.9)";
     fit(c, "« " + up(ttl) + " »", 560, 30, DISP);
-    c.fillText("« " + up(ttl) + " »", 70, 154);
+    c.fillText("« " + up(ttl) + " »", 70, ids.length ? 496 : 450);
   }
   if (S.shoe && S.shoe.made && late.shoeSVG) {
     const im = await svgImage(late.shoeSVG(S.shoe, 260));

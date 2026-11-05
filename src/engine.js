@@ -73,6 +73,7 @@ export async function playMatch(ctx) {
     const fx = fixture();
     ctx = { opp: teamByKey(fx.opp), home: fx.home, comp: "lig", label: `${lgName()} · ${phaseName()}` };
   }
+  if (!ctx.label) ctx.label = `${lgName()} · ${phaseName()}`;
   const opp = ctx.opp,
     AUTO = !!ctx.auto || !!window.__SIM;
   arenaFor(opp);
@@ -264,7 +265,7 @@ export async function playMatch(ctx) {
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
     // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
-    const involve = 0.08 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0);
+    const involve = (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
     const before = [M.us, M.them];
     if (!AUTO) late.courtTick(ourBall, on);
     if (on && Math.random() < involve) {
@@ -288,6 +289,7 @@ export async function playMatch(ctx) {
   }
   M.qs.push([M.us, M.them]);
   late.matchdayEnd();
+  statLine(); // seyirci çubuğu ve canlı satır son haliyle
   M.q = 4;
   M.clock = "00:00";
   updBug();
@@ -316,7 +318,8 @@ export async function playMatch(ctx) {
     const tacU = M.tac === "tempo" ? 1.06 : M.tac === "def" ? 0.97 : 1,
       tacT = M.tac === "def" ? 0.93 : M.tac === "tempo" ? 1.03 : 1;
     const p = clamp(ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT), 0.15, 0.85);
-    const who = us ? pick(mates) : pick(foes),
+    const starTurn = !us && Math.random() < 0.3, // rakip yıldızın payı: akışta da onun adı geçer
+      who = us ? pick(mates) : starTurn ? foes[0] : pick(foes.slice(1)),
       team = us ? S.team.short : opp.short;
     if (!us && on) {
       const f = late.backgroundFoul();
@@ -327,7 +330,7 @@ export async function playMatch(ctx) {
         pts = three ? 3 : 2;
       if (us) M.us += pts;
       else M.them += pts;
-      if (!us && Math.random() < 0.3) late.starScore(pts); // rakip yıldızın payı
+      if (starTurn) late.starScore(pts);
       late.crowdTick(us);
       if (us && on) {
         const sk = (eff("sut") + eff("hiz") + eff("guc")) / 3,
@@ -477,7 +480,8 @@ export async function playMatch(ctx) {
           ? await late.followUp(pk, $("#mview"), scn, sur)
           : null;
       if (fu && fu.pk) pk = fu.pk;
-      M.effMod = ((fu && fu.mod) || 0) + dm;
+      const pickd = opts.find(o => o.k === k);
+      M.effMod = ((fu && fu.mod) || 0) + dm + Math.round(((pickd && pickd.sm) || 0) * 0.6); // durum (boş/sıkı/kalabalık) sonucu da etkiler
       if (fu && fu.foulChance && Math.random() < fu.foulChance) pk = "free"; // turnikeyi zorladı, faul aldı
       res =
         fu && fu.resolve
@@ -488,14 +492,19 @@ export async function playMatch(ctx) {
               ? late.autoResolve(pk, sur)
               : await resolvePlay(pk, $("#mview"), sur, dn);
       M.effMod = 0;
-      late.trackPlay(pk, b0.pts, res);
-      late.afterMoment(k, pk, res);
+      const tk = fu && fu.resolve ? "kick" : pk; // ikinci kararda pas: şut denemesi değil
+      late.trackPlay(tk, b0.pts, res);
+      late.afterMoment(fu && fu.resolve ? "pass" : k, tk, res);
       M.mmod = 0;
       if (res.good || !snap || M.adRetry || !(await late.offerRetry($("#mview")))) break;
       late.momentRestore(snap);
     }
     M.us += M.pts - b0.pts + (M.ast - b0.ast) * 2 + (M.stl - b0.stl) * 2;
-    if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) M.them += Math.random() < 0.3 ? 3 : 2;
+    if (ty === "def" && M.stops === b0.stops && M.stl === b0.stl) {
+      const p2 = Math.random() < 0.3 ? 3 : 2;
+      M.them += p2;
+      if (late.isStar(dn)) late.starScore(p2);
+    }
     Bus.emit("match:moment", { id: (sp && sp.id) || ty, k, good: !!res.good, clutch: !!clutch, auto: !!AUTO });
     M.wsum = (M.wsum || 0) + res.w;
     if (res.good) M.wgood = (M.wgood || 0) + res.w;

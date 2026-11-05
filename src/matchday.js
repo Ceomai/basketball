@@ -8,7 +8,7 @@
    - Oyun kur: kilit anda kendi setini kur (perdeyi kim koyar, sen nereye koşarsın); sahada oklarla çizilir.
    Kendin oynarken gelen seçenekler (ikili kombinasyon, oyun kur) otomatik/simüle maçlarda yoktur (denge). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, clamp, esc, pick, ri } from "./data.js";
+import { $, $$, Bus, clamp, esc, pick, ri } from "./data.js";
 import { S, eff, ovr } from "./core.js";
 import { M } from "./match.js";
 import { late } from "./late.js";
@@ -30,7 +30,7 @@ export function matchdayStart(ctx, foes, mates) {
   M.loud = !ctx.home && (ctx.comp !== "lig" || (opp && opp.str >= S.team.str + 0.04));
   M.star = {
     n: (foes && foes[0]) || "?",
-    o: clamp(Math.round(ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)), 30, 99),
+    o: clamp(Math.round((ovr() + ((opp ? opp.str : 1) - S.team.str) * 60 + ri(-3, 6)) * 10) / 10, 15, 99),
     pts: 0
   };
   M.starPts = 0;
@@ -38,7 +38,15 @@ export function matchdayStart(ctx, foes, mates) {
   if (late.gradMeet) late.gradMeet(foes || [], M.mates); // akademi mezunu sahada (src/venues.js)
   chemFor(M.mates);
 }
-export const matchdayEnd = () => M && (M.live = 0);
+export function matchdayEnd() {
+  if (!M) return;
+  M.live = 0;
+  M.effMod = 0;
+  M.mmod = 0;
+  M.hypeOn = 0;
+}
+// maç ekranından çıkılırsa (ana ekran) maç bonusu antrenmana taşınmasın
+Bus.on("screen:main", () => matchdayEnd());
 export const refMul = () => (M && M.live && REFS[M.ref] ? REFS[M.ref].foul : 1);
 export const refAnd1 = () => (M && M.live && REFS[M.ref] ? REFS[M.ref].and1 : 1);
 
@@ -98,8 +106,8 @@ export function preMatchHTML() {
     st = M.star;
   const bar = (v, c) => `<div class="bar"><i style="width:${v}%;background:${c}"></i></div>`;
   return `<div class="card fm"><div class="eyebrow">${$t("md.pre")}</div>
-   <div class="grid2" style="gap:10px"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:1.6rem">${me}</b></div>
-   <div style="text-align:right"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:1.6rem">${st.o}</b></div></div>
+   <div class="grid2" style="gap:10px"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:1.6rem">${(+me).toFixed(1)}</b></div>
+   <div style="text-align:right"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:1.6rem">${(+st.o).toFixed(1)}</b></div></div>
    <div class="kv"><span>${$t("md.ref")}</span><b>${$t(`md.ref.${M.ref}`)}</b><span class="small muted" style="grid-column:1/-1;margin-top:-4px">${$t(`md.ref.${M.ref}.d`)}</span>
    <span>${$t("md.atm")}</span><b class="${M.home ? "good" : M.loud ? "warn" : ""}">${M.home ? $t("md.atmHome") : M.loud ? $t("md.atmLoud") : $t("md.atmAway")}</b>
    ${S.chem && S.chem.n ? `<span>${$t("md.chem", { n: esc(S.chem.n) })}</span><b>${Math.round(S.chem.v)}/100</b>` : ""}</div></div>`;
@@ -118,7 +126,7 @@ export function duelSettle() {
   M.duelDone = 1;
   M.duelWon = M.pts > M.star.pts;
   if (M.duelWon && !M.auto) {
-    S.followers = Math.round(S.followers * 1.02);
+    S.followers += Math.round(15 * (M.star.o / 10)); // küçük ve sabit: bileşik büyümesin
     S.rel.taraf += 1;
   }
 }
@@ -132,7 +140,7 @@ export function extraOffOpts(opts, clutch, auto) {
       k: "duo",
       t: $t("md.duo", { n: esc(S.chem.n) }),
       d: `${$t("md.duoD")} · ${$t("md.chemShort")} ${Math.round(S.chem.v)}`,
-      e: eff("pas") + S.chem.v / 4 - 2
+      e: eff("pas") + duoMod()
     });
   if (clutch && !M.setUsed)
     out.push({ k: "set", t: $t("md.set"), d: $t("md.setD"), e: (eff("sut") + eff("hiz")) / 2 + 4 });
@@ -144,6 +152,8 @@ const BIG = ["C", "PF"];
 /** Oyun kur ekranı: perdeci + koşu yolu; sahada oklar. {pk, mod} döner */
 export function setPlay(el) {
   M.setUsed = 1;
+  const cap = $("#crt-cap");
+  if (cap) cap.textContent = "";
   const pos = ["PG", "SG", "SF", "PF", "C"].filter(p => p !== S.pos),
     names = M.mates.length ? M.mates : pos;
   let scr = null,
@@ -156,7 +166,7 @@ export function setPlay(el) {
     late.courtMove("ball", me[0] + 7, me[1] - 6);
     let h = "";
     if (scr) {
-      const sp = [me[0] + (me[0] < 150 ? 12 : -12), me[1] - 10];
+      const sp = [me[0] + (me[0] < 150 ? 20 : -20), me[1] - 16];
       late.courtMove(`o-${scr}`, sp[0], sp[1]); // perdeci yanına gelir
       const o = late.courtSlot(scr);
       h += `<line x1="${o[0]}" y1="${o[1]}" x2="${sp[0]}" y2="${sp[1]}" stroke="#ffc54d" stroke-width="2.5" stroke-dasharray="5 3"/><rect x="${sp[0] - 7}" y="${sp[1] - 13}" width="14" height="4" fill="#ffc54d" stroke="#141414"/>`;

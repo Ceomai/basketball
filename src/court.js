@@ -41,7 +41,7 @@ function floor() {
   <path d="M100 ${H - 2} A50 50 0 0 1 200 ${H - 2}" fill="none" stroke="${line}" stroke-width="2"/>`;
 }
 const dot = (id, x, y, fill, ring, label) =>
-  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="#141414" stroke-width="1.5"/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
+  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="13" fill="none" stroke="#ffc54d" stroke-width="3"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="${id[0] === "d" ? "#ffffff" : "#141414"}" stroke-width="${id[0] === "d" ? 2 : 1.5}" ${id[0] === "d" ? 'stroke-dasharray="3 2"' : ""}/><text y="3.5" text-anchor="middle" font-size="8" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
 /** Maç başında: oyuncuları yerleştir */
 export function courtStart(opp) {
   C = { c1: S.team.c1, c2: opp ? opp.c1 : "#4a5568", flow: [] };
@@ -122,23 +122,24 @@ export function courtScenario(us) {
 /** Seçeneklere senaryo etkisi ve etiketleri */
 export function applyScenario(opts, s) {
   return opts.map(o => {
+    const base = o.e;
     let e = o.e,
       tags = [];
     if (s.us) {
       const sh = THREE.includes(o.k) || TWO.includes(o.k);
-      if (sh && s.guard === "open") ((e += 5), tags.push($t("ct.open")));
-      if (sh && s.guard === "tight") ((e -= 7), tags.push($t("ct.tight")));
-      if (FIN.includes(o.k) && s.guard === "tight") e += 2;
-      if (FIN.includes(o.k) && s.help) ((e -= 9), tags.push($t("ct.crowd")));
+      if (sh && s.guard === "open") ((e += 7), tags.push($t("ct.open")));
+      if (sh && s.guard === "tight") ((e -= 5), tags.push($t("ct.tight")));
+      if (FIN.includes(o.k) && s.guard === "tight") e += 3;
+      if (FIN.includes(o.k) && s.help) ((e -= 7), tags.push($t("ct.crowd")));
       if (o.k === "float" && s.help) e += 5;
-      if (PASSK.includes(o.k) && s.mate) ((e += 4), tags.push($t("ct.mate")));
-      if ((FAV[s.zone] || []).includes(o.k)) (o = { ...o, fav: true });
+      if (PASSK.includes(o.k) && s.mate) ((e += 6), tags.push($t("ct.mate")));
+      if ((FAV[s.zone] || []).includes(o.k)) ((e += 2), (o = { ...o, fav: true }));
     } else {
-      if (s.drive && ["block", "charge", "rim", "safe"].includes(o.k)) ((e += 3), tags.push($t("ct.driving")));
-      if (!s.drive && ["steal", "safe"].includes(o.k)) ((e += 2), tags.push($t("ct.shooter")));
-      if (!s.drive && o.k === "block") e -= 4;
+      if (s.drive && ["block", "charge", "rim", "safe"].includes(o.k)) ((e += 4), tags.push($t("ct.driving")));
+      if (!s.drive && ["steal", "safe"].includes(o.k)) ((e += 3), tags.push($t("ct.shooter")));
+      if (!s.drive && o.k === "block") e -= 3;
     }
-    return { ...o, e, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
+    return { ...o, e, sm: e - base, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
   });
 }
 /** Saha: karar anında dur, durumu çiz */
@@ -188,7 +189,12 @@ const FIN2 = ["drive", "lay", "dunk", "post"];
 export function followUp(pk, el, s, sur) {
   const fin = FIN2.includes(pk),
     shot = THREE.includes(pk) || TWO.includes(pk);
-  const fire = fin ? (s && s.help) || Math.random() < 0.3 : shot ? Math.random() < 0.25 && (!s || s.guard !== "open") : false;
+  // maç akışı uzamasın: pota altı yardım varsa çoğunlukla, yoksa seyrek
+  const fire = fin
+    ? Math.random() < (s && s.help ? 0.7 : 0.15)
+    : shot
+      ? Math.random() < 0.15 && (!s || s.guard !== "open")
+      : false;
   if (!fire) return Promise.resolve(null);
   const mate = $t("ct.teammate");
   const opts = fin
@@ -231,7 +237,7 @@ export function followUp(pk, el, s, sur) {
     )
   );
 }
-export const effMod = () => (M && M.effMod) || 0;
+export const effMod = () => (M && M.live && M.effMod) || 0;
 
 /* ---- İstatistik takibi ---- */
 export function trackPlay(pk, pts0, res) {
@@ -248,8 +254,7 @@ export function trackPlay(pk, pts0, res) {
     if (d >= 3) ((M.tpm = (M.tpm || 0) + 1), (M.fgm = (M.fgm || 0) + 1));
   } else if (TWO.includes(pk) || FIN.includes(pk)) {
     M.fga = (M.fga || 0) + 1;
-    if (d >= 2) M.fgm = (M.fgm || 0) + 1;
-    if (d === 3) ((M.fta = (M.fta || 0) + 1), (M.ftm = (M.ftm || 0) + 1)); // basket faul
+    if (d >= 2) M.fgm = (M.fgm || 0) + 1; // basket faul serbest atışı andOne içinde sayılır (src/match.js)
   }
   void res;
 }
@@ -270,6 +275,6 @@ export function reportHTML() {
   const q = (M.qs || []).map((s, i, a) => [s[0] - (i ? a[i - 1][0] : 0), s[1] - (i ? a[i - 1][1] : 0)]);
   return `<div class="card fm"><div class="eyebrow">${$t("ct.report")}</div>
   <div class="kv"><span>${$t("ct.fg")}</span><b>${pct(M.fgm || 0, M.fga || 0)}</b><span>${$t("ct.tp")}</span><b>${pct(M.tpm || 0, M.tpa || 0)}</b><span>${$t("ct.ft")}</span><b>${pct(M.ftm || 0, M.fta || 0)}</b><span>${$t("ct.bench2")}</span><b>${M.autoPts || 0}</b></div>
-  ${q.length ? `<div class="tbl"><table><tr><th></th>${q.map((_, i) => `<th>${i < 4 ? `Ç${i + 1}` : $t("ct.ot")}</th>`).join("")}</tr><tr><td>${esc(S.team.short)}</td>${q.map(x => `<td>${x[0]}</td>`).join("")}</tr><tr><td>${$t("ct.opp")}</td>${q.map(x => `<td>${x[1]}</td>`).join("")}</tr></table></div>` : ""}
+  ${q.length ? `<div class="tbl"><table><tr><th></th>${q.map((_, i) => `<th>${i < 4 ? $t("common.q", { n: i + 1 }) : $t("ct.ot")}</th>`).join("")}</tr><tr><td>${esc(S.team.short)}</td>${q.map(x => `<td>${x[0]}</td>`).join("")}</tr><tr><td>${$t("ct.opp")}</td>${q.map(x => `<td>${x[1]}</td>`).join("")}</tr></table></div>` : ""}
   ${path ? `<div class="eyebrow">${$t("ct.flow")}</div><svg viewBox="0 0 300 80" style="width:100%;height:60px"><line x1="10" y1="40" x2="290" y2="40" stroke="#5d6b82" stroke-dasharray="3 3"/><path d="${path}" fill="none" stroke="#ffc54d" stroke-width="2"/></svg><div class="row between small muted"><span>${$t("ct.start")}</span><span>${$t("ct.end")}</span></div>` : ""}</div>`;
 }

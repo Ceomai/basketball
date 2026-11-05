@@ -311,7 +311,8 @@ function startHeir() {
     bonus: heirBonus(score) + (S.epilogue === "koc" || S.epilogue === "baskan" ? 1 : 0) + (kid && kid.baller ? 1 : 0),
     money: Math.min(S.epilogue === "tv" || S.epilogue === "baskan" ? 8000 : 4000, Math.round(S.money * 0.05)),
     fame: S.epilogue === "tv" || S.epilogue === "baskan" ? 2000 : 0,
-    tier: hofTier(score)[1]
+    tier: hofTier(score)[1],
+    g: kid && kid.baller ? kid.g || "m" : "m"
   };
   late.save();
   late.renderCreate();
@@ -324,7 +325,7 @@ export function applyHeir(h) {
   S.npc.dad = h.parentFirst;
   S.heir = h;
   news(
-    $t("legacy.64", {
+    $t(h.g === "f" ? "legacy.64f" : "legacy.64", {
       v: fullName(),
       parent: h.parent,
       name: S.team.name

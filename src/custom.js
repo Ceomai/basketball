@@ -106,14 +106,22 @@ export function shoeSVG(sh = S && S.shoe ? shoe() : { c1: "#fff", c2: "#c8102e",
     grad: `<rect x="0" y="0" width="60" height="30" fill="url(#${id}g)"/>`
   }[sh.pat || "solid"];
   const sp = deal();
+  // logo rengi gövdeyle aynıysa görünmez: zıt renge geç
+  const lum = h => {
+    const n = parseInt(String(h).slice(1), 16);
+    return ((n >> 16) & 255) * 0.299 + ((n >> 8) & 255) * 0.587 + (n & 255) * 0.114;
+  };
+  const base = sh.pat === "split" ? sh.c2 : sh.c1,
+    want = sh.pat === "split" ? sh.c1 : sh.c2,
+    lc = want.toLowerCase() === base.toLowerCase() ? (lum(base) > 140 ? "#141414" : "#ffffff") : want;
   const logo =
     sh.logo === "none"
       ? ""
       : sh.logo === "sponsor" && sp
-        ? `<text x="33" y="20" text-anchor="middle" font-size="8" font-weight="900" font-family="Barlow Condensed" fill="${sh.c2 === sh.c1 ? "#141414" : sh.c2}" stroke="#141414" stroke-width=".4">${esc($t(`ag.b.${sp.b}`).slice(0, 4).toUpperCase())}</text>`
+        ? `<text x="33" y="20" text-anchor="middle" font-size="8" font-weight="900" font-family="Barlow Condensed" fill="${lc}" stroke="#141414" stroke-width=".4">${esc($t(`ag.b.${sp.b}`).slice(0, 4).toUpperCase())}</text>`
         : LOGO_P[sh.logo]
-          ? `<path d="${LOGO_P[sh.logo]}" fill="${sh.pat === "split" ? sh.c1 : sh.c2}" stroke="#141414" stroke-width=".6"/>`
-          : `<text x="31" y="20" text-anchor="middle" font-size="7.5" font-weight="900" font-family="Barlow Condensed" fill="${sh.pat === "split" ? sh.c1 : sh.c2}" stroke="#141414" stroke-width=".35">PK</text>`;
+          ? `<path d="${LOGO_P[sh.logo]}" fill="${lc}" stroke="#141414" stroke-width=".6"/>`
+          : `<text x="31" y="20" text-anchor="middle" font-size="7.5" font-weight="900" font-family="Barlow Condensed" fill="${lc}" stroke="#141414" stroke-width=".35">PK</text>`;
   return `<svg viewBox="0 0 61 31" width="${w}" height="${Math.round((w * 31) / 61)}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${id}"><path d="${UPPER}"/></clipPath><linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="${sh.c1}"/><stop offset="1" stop-color="${sh.c2}"/></linearGradient></defs><path d="${UPPER}" fill="${sh.c1}"/><g clip-path="url(#${id})">${p}</g>${logo}<path d="${UPPER}" fill="none" stroke="#141414" stroke-width="1.4" stroke-linejoin="round"/><path d="M3 25 L58 25 Q58 29.5 54 29.5 L6 29.5 Q3 29.5 3 25 Z" fill="#f4f4f4" stroke="#141414" stroke-width="1.2"/><path d="M15 9 L19 14 M19 8.6 L23 13.5 M23 8.8 L26.5 13" stroke="#141414" stroke-width=".9"/></svg>`;
 }
 /** Sahadaki küçük ayakkabı izi (oyuncu noktasının altına) */
@@ -226,7 +234,12 @@ const POSE = {
 };
 const poseSVG = (k, w = 44) => {
   const [[lx, ly], [rx, ry]] = POSE[k] || POSE.fist;
-  return `<svg viewBox="-20 -42 40 54" width="${w}" height="${Math.round(w * 1.35)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="0" cy="-32" r="6" fill="${S && S.look ? S.look.skin || "#d9a477" : "#d9a477"}" stroke="#141414" stroke-width="1.6"/><path d="M0 -4 L-7 10 M0 -4 L7 10" stroke="#cfd8dc" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M0 -18 L${lx} ${ly} M0 -18 L${rx} ${ry}" stroke="${S && S.look ? S.look.skin || "#d9a477" : "#d9a477"}" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M0 -24 L0 -5" stroke="${S && S.team ? S.team.c1 : "#c8102e"}" stroke-width="9" stroke-linecap="round"/></svg>`;
+  const sk = S && S.look ? S.look.skin || "#d9a477" : "#d9a477",
+    hair = S && S.look ? S.look.hair || "#2b1b12" : "#2b1b12",
+    c1 = S && S.team ? S.team.c1 : "#c8102e",
+    c2 = S && S.team ? S.team.c2 : "#ffffff",
+    sh = S && S.shoe ? S.shoe.c1 : "#ffffff";
+  return `<svg viewBox="-20 -42 40 56" width="${w}" height="${Math.round(w * 1.4)}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-3 -2 L-7 11 M3 -2 L7 11" stroke="${sk}" stroke-width="3.6" stroke-linecap="round"/><rect x="-10" y="10" width="6" height="3" rx="1.5" fill="${sh}" stroke="#141414" stroke-width=".8"/><rect x="4" y="10" width="6" height="3" rx="1.5" fill="${sh}" stroke="#141414" stroke-width=".8"/><path d="M-6 -6 L6 -6 L7 1 L-7 1 Z" fill="${c2}" stroke="#141414" stroke-width="1.2"/><path d="M-5 -20 L${lx} ${ly} M5 -20 L${rx} ${ry}" stroke="${sk}" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M-6 -22 L6 -22 L6 -6 L-6 -6 Z" fill="${c1}" stroke="#141414" stroke-width="1.3" stroke-linejoin="round"/><text x="0" y="-10" text-anchor="middle" font-size="7" font-weight="900" font-family="Barlow Condensed" fill="${c2}">${S ? S.num : ""}</text><circle cx="0" cy="-30" r="6.5" fill="${sk}" stroke="#141414" stroke-width="1.4"/><path d="M-6.5 -31 Q0 -40 6.5 -31 Q0 -35 -6.5 -31 Z" fill="${hair}" stroke="#141414" stroke-width=".8"/></svg>`;
 };
 export const celebOpen = k => k in CELEBS && open(CELEBS[k]);
 /** Sayıdan sonra kutlama (kendin oynarken) */
@@ -262,7 +275,7 @@ export function decorHTML() {
   const d = decor();
   const opt = (slot, list, cur) =>
     `<div class="opts" data-slot="${slot}"><button class="opt ${!cur ? "on" : ""}" data-v="">${$t("cu.none")}</button>${list
-      .filter(k => open(k))
+      .filter(k => open(k) && !(slot === "p1" && k === decor().p2) && !(slot === "p2" && k === decor().p1)) // aynı poster iki kez asılmaz
       .map(k => `<button class="opt ${cur === k ? "on" : ""}" data-v="${k}">${(slot === "rug" ? $t(`cu.rg.${k}`) : $t(`cu.ps.${k}`))}</button>`)
       .join("")}</div>`;
   const locked = [...Object.keys(POSTERS), ...Object.keys(RUGS)].filter(k => !open(k)).length;
@@ -287,8 +300,9 @@ export function bindDecor(re) {
 /* ---- Tema ---- */
 const THEME_CSS = `
 html[data-theme=night]{--bg:#04050a;--bg2:#090b14;--card:#0e1120;--card2:#141a2e;--line:#1d2340;--line2:#2a3258;--gold:#a493ff;--hot:#7c5cff;--info:#6ea8ff}
-html[data-theme=retro]{--bg:#140a24;--bg2:#1c0f33;--card:#241445;--card2:#2e1a58;--line:#3d2470;--line2:#5a34a0;--gold:#ffd23f;--hot:#ff3fa4;--good:#3fffb0;--info:#3fd0ff;--display:"Courier New",ui-monospace,monospace}
-html[data-theme=minimal]{--bg:#101010;--bg2:#131313;--card:#161616;--card2:#1c1c1c;--line:#242424;--line2:#303030;--gold:#e8e8e8;--hot:#fafafa;--info:#c4c4c4;--muted:#9a9a9a}
+html[data-theme=retro]{--bg:#140a24;--bg2:#1c0f33;--card:#241445;--card2:#2e1a58;--line:#3d2470;--line2:#5a34a0;--gold:#ffd23f;--hot:#ff3fa4;--good:#3fffb0;--info:#3fd0ff;--team:#ff3fa4;--team-ink:#140a24}
+html[data-theme=minimal]{--bg:#101010;--bg2:#131313;--card:#161616;--card2:#1c1c1c;--line:#242424;--line2:#303030;--gold:#e8e8e8;--hot:#fafafa;--info:#c4c4c4;--muted:#9a9a9a;--team:#e8e8e8;--team-ink:#111}
+html[data-theme=minimal] .btn.pri{background:#e8e8e8;border-color:#e8e8e8;color:#111}
 html[data-theme=minimal] .card{box-shadow:none}
 .celeb{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;animation:cbIn 1.5s ease forwards;z-index:3}
 .celeb b{font-family:var(--display);font-size:.9rem;letter-spacing:.8px;text-transform:uppercase;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 7px}
@@ -299,6 +313,7 @@ html[data-theme=minimal] .card{box-shadow:none}
 @keyframes cbShake{from{transform:translateX(-5px)}to{transform:translateX(5px)}}
 @keyframes cbTilt{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @keyframes cbJump{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.1)}}
+#mstat:empty{display:none}
 .cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .cbb{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px 4px;color:var(--text);cursor:pointer;min-width:0}
 .cbb b{font-family:var(--display);font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;text-align:center}
@@ -327,11 +342,30 @@ export function applyTheme() {
 }
 setTimeout(applyTheme, 0); // başarımlar yüklendikten sonra
 
-/* ---- Ev → Tasarım sekmesi ---- */
+/* ---- Ev → Stil sekmesi: görünüm + tasarım alt sekmeleri ---- */
 const fee = () => (late.styleFee ? late.styleFee() : 10);
+const SUBS = ["look", "shoe", "jersey", "celeb", "theme"];
+const subsHTML = sub =>
+  `<div class="opts" id="cu-sub">${SUBS.map(k => `<button class="opt ${k === sub ? "on" : ""}" data-v="${k}">${$t(`cu.t.${k}`)}</button>`).join("")}</div>`;
+export function stilTab(c, re) {
+  if (!SUBS.includes(S.cuTab) || S.cuTab === "look") {
+    S.cuTab = "look";
+    late.styleTab(c, re);
+    c.insertAdjacentHTML("afterbegin", subsHTML("look"));
+    $$("#cu-sub [data-v]").forEach(
+      b =>
+        (b.onclick = () => {
+          S.cuTab = b.dataset.v;
+          re();
+        })
+    );
+    return;
+  }
+  designTab(c, re);
+}
 export function designTab(c, re) {
   const sub = (S.cuTab = ["shoe", "jersey", "celeb", "theme"].includes(S.cuTab) ? S.cuTab : "shoe");
-  const subs = `<div class="opts" id="cu-sub">${["shoe", "jersey", "celeb", "theme"].map(k => `<button class="opt ${k === sub ? "on" : ""}" data-v="${k}">${$t(`cu.t.${k}`)}</button>`).join("")}</div>`;
+  const subs = subsHTML(sub);
   const lockN = n => (n ? `<p class="small muted">${$t("cu.lockedN", { n })}</p>` : "");
   let body = "";
   if (sub === "shoe") {

@@ -176,6 +176,7 @@ const spark = h => {
     .join(" ");
   return `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}"><polyline points="${pts}" fill="none" stroke="${h[h.length - 1] >= h[0] ? "#36d38e" : "#ff5468"}" stroke-width="1.5"/></svg>`;
 };
+const FEE = 0.01; // alım ve satımda komisyon
 const lot = s => Math.max(1, Math.round((15 * pm()) / mk().p[s.id])); // bir lot ≈ 15 × seviye
 export function locBorsa(I) {
   const m = mk();
@@ -190,7 +191,7 @@ export function locBorsa(I) {
           ch = ((m.p[s.id] - prev) / prev) * 100,
           own = m.own[s.id] || 0,
           pl = own ? Math.round(own * m.p[s.id] - (m.cost[s.id] || 0)) : 0;
-        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: m.p[s.id].toFixed(2), n: own })}${late.stockInfo(s.id)}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2" style="grid-column:1/-1"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
+        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: fmt(m.p[s.id]), n: own })}${late.stockInfo(s.id)}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2" style="grid-column:1/-1"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] * (1 + FEE) ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
       }
     ).join("")}`
   );
@@ -199,7 +200,7 @@ export function locBorsa(I) {
       (b.onclick = () => {
         const s = STOCKS.find(x => x.id === b.dataset.sb),
           n = lot(s),
-          c = Math.round(n * m.p[s.id]);
+          c = Math.ceil(n * m.p[s.id] * (1 + FEE)); // %1 komisyon (yukarı yuvarlanır)
         if (S.money < c) return;
         tx($t("bs.buyTx", { v: $t(`bs.s.${s.id}`) }), -c);
         m.own[s.id] = (m.own[s.id] || 0) + n;
@@ -212,7 +213,7 @@ export function locBorsa(I) {
     b =>
       (b.onclick = () => {
         const id = b.dataset.ss,
-          v = Math.round((m.own[id] || 0) * m.p[id]);
+          v = Math.floor((m.own[id] || 0) * m.p[id] * (1 - FEE)); // %1 komisyon (aşağı yuvarlanır)
         tx($t("bs.sellTx", { v: $t(`bs.s.${id}`) }), v);
         m.own[id] = 0;
         m.cost[id] = 0;
