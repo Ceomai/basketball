@@ -2178,7 +2178,6 @@ export default {
   "cl.toFx.tempo": "The team speeds up.",
   "cl.toFx.def": "Defense tightens.",
   "cl.toFx.ball": "The ball is yours.",
-  "cl.lateT": "Last {s} seconds · margin {d}",
   "cl.trailH": "We're behind and they have the ball.",
   "cl.leadH": "We're ahead; the clock is on our side.",
   "cl.defend": "Play defense",
@@ -2271,5 +2270,7 @@ export default {
   "led.living": "Living costs",
   "led.inc": "Investment income",
   "led.rent": "Rent · {n}",
-  "led.car": "Car costs"
+  "led.car": "Car costs",
+  "cl.lateUp": "Last {s} seconds · up by {n}",
+  "cl.lateDown": "Last {s} seconds · down by {n}"
 };

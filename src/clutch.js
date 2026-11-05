@@ -50,7 +50,7 @@ export function timeoutCard(el) {
         (b.onclick = () => {
           const k = b.dataset.to;
           if (k === "stop") {
-            M.runStop = 6;
+            M.runStop = 5;
             M.oppRun = 0;
           } else {
             M.tac = k;
@@ -70,7 +70,7 @@ export function possMod(us) {
   if (us && M.hold) m *= 0.88; // zaman tüketmek: isabet biraz düşer
   if (!us && M.runStop > 0) {
     M.runStop--;
-    m *= 0.9; // mola sonrası rakip ritmini kaybeder
+    m *= 0.85; // mola sonrası rakip ritmini kaybeder
   }
   return m;
 }
@@ -99,7 +99,7 @@ export function lateCall(ourBall, diff, el, secLeft) {
           ["hold", $t("cl.hold"), $t("cl.holdD")]
         ];
   return new Promise(res => {
-    el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("cl.lateT", { s: secLeft, d: diff > 0 ? `+${diff}` : diff })}</div><h2>${$t(kind === "trail" ? "cl.trailH" : "cl.leadH")}</h2><div class="choices">${opts
+    el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t(diff > 0 ? "cl.lateUp" : "cl.lateDown", { s: secLeft, n: Math.abs(diff) })}</div><h2>${$t(kind === "trail" ? "cl.trailH" : "cl.leadH")}</h2><div class="choices">${opts
       .map(([k, t, d]) => `<button class="choice" data-lt="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`)
       .join("")}</div></div>`;
     $$("[data-lt]").forEach(

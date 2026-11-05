@@ -2177,7 +2177,6 @@ export default {
   "cl.toFx.tempo": "Takım hızlandı.",
   "cl.toFx.def": "Savunma sıkılaştı.",
   "cl.toFx.ball": "Top sende.",
-  "cl.lateT": "Son {s} saniye · fark {d}",
   "cl.trailH": "Gerideyiz ve top rakipte.",
   "cl.leadH": "Öndeyiz, saat bizden yana.",
   "cl.defend": "Savunma yap",
@@ -2270,5 +2269,7 @@ export default {
   "led.living": "Yaşam giderleri",
   "led.inc": "Yatırım geliri",
   "led.rent": "Kira · {n}",
-  "led.car": "Araç masrafları"
+  "led.car": "Araç masrafları",
+  "cl.lateUp": "Son {s} saniye · {n} sayı öndeyiz",
+  "cl.lateDown": "Son {s} saniye · {n} sayı gerideyiz"
 };
