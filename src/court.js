@@ -138,7 +138,7 @@ export function applyScenario(opts, s) {
       if (!s.drive && ["steal", "safe"].includes(o.k)) ((e += 2), tags.push($t("ct.shooter")));
       if (!s.drive && o.k === "block") e -= 4;
     }
-    return { ...o, e, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
+    return { ...o, e, sm: e - o.e, d: tags.length ? `${o.d} · <b>${tags.join(" · ")}</b>` : o.d };
   });
 }
 /** Saha: karar anında dur, durumu çiz */
@@ -236,7 +236,7 @@ export function followUp(pk, el, s, sur) {
     )
   );
 }
-export const effMod = () => (M && M.effMod) || 0;
+export const effMod = () => (M && M.live && M.effMod) || 0;
 
 /* ---- İstatistik takibi ---- */
 export function trackPlay(pk, pts0, res) {

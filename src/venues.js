@@ -56,7 +56,7 @@ export function bindStudioExtra(re) {
       r.collabWk = wk();
       useSlot();
       S.energy -= 5;
-      const add = Math.round(S.followers * 0.03 + 40);
+      const add = Math.round(40 * pm() + S.followers * 0.005); // bileşik büyümesin: seviyeye göre sabit + küçük pay
       S.followers += add;
       S.rel.takim += 2;
       if (late.chemAdd) late.chemAdd(5);
@@ -81,7 +81,7 @@ function liveStream(re) {
     mul = 0,
     fans = 0,
     coach = 0,
-    viewers = Math.round(S.followers * 0.04 + 30);
+    viewers = Math.round(40 * pm() + S.followers * 0.012);
   const step = () => {
     if (i >= qs.length) return finish();
     const q = qs[i];
@@ -108,7 +108,7 @@ function liveStream(re) {
     );
   };
   const finish = () => {
-    const add = Math.round(viewers * 0.25 * (mul / 3 + 0.4));
+    const add = Math.round(viewers * 0.2 * (mul / 3 + 0.4));
     S.followers += add;
     S.rel.taraf += fans;
     S.rel.koc += coach;
@@ -384,7 +384,7 @@ function quizNight() {
     const win = right >= 4;
     S.moral += win ? 6 : right >= 3 ? 3 : 1;
     if (win) {
-      S.followers = Math.round(S.followers * 1.03) + 15;
+      S.followers += Math.round(20 * pm());
       S.rel.ark += 3;
       fxc("quizWin");
     }
@@ -476,7 +476,7 @@ async function nightGame() {
   if (L.round >= ROUNDS && table()[0].k === "me") {
     L.legend = 1;
     L.titles++;
-    S.followers = Math.round(S.followers * 1.05) + 30;
+    S.followers = Math.round(S.followers * 1.02) + Math.round(30 * pm());
     news($t("vn.slChampNews", { v: fullName() }));
     extra = ` <b class="gold">${$t("vn.slChamp")}</b>`;
   }

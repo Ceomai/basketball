@@ -265,7 +265,7 @@ export async function playMatch(ctx) {
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
     // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
-    const involve = 0.1 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0);
+    const involve = (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
     const before = [M.us, M.them];
     if (!AUTO) late.courtTick(ourBall, on);
     if (on && Math.random() < involve) {
@@ -480,7 +480,8 @@ export async function playMatch(ctx) {
           ? await late.followUp(pk, $("#mview"), scn, sur)
           : null;
       if (fu && fu.pk) pk = fu.pk;
-      M.effMod = ((fu && fu.mod) || 0) + dm;
+      const pickd = opts.find(o => o.k === k);
+      M.effMod = ((fu && fu.mod) || 0) + dm + Math.round(((pickd && pickd.sm) || 0) * 0.6); // durum (boş/sıkı/kalabalık) sonucu da etkiler
       if (fu && fu.foulChance && Math.random() < fu.foulChance) pk = "free"; // turnikeyi zorladı, faul aldı
       res =
         fu && fu.resolve

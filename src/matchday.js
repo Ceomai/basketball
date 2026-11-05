@@ -8,7 +8,7 @@
    - Oyun kur: kilit anda kendi setini kur (perdeyi kim koyar, sen nereye koşarsın); sahada oklarla çizilir.
    Kendin oynarken gelen seçenekler (ikili kombinasyon, oyun kur) otomatik/simüle maçlarda yoktur (denge). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, clamp, esc, pick, ri } from "./data.js";
+import { $, $$, Bus, clamp, esc, pick, ri } from "./data.js";
 import { S, eff, ovr } from "./core.js";
 import { M } from "./match.js";
 import { late } from "./late.js";
@@ -38,7 +38,15 @@ export function matchdayStart(ctx, foes, mates) {
   if (late.gradMeet) late.gradMeet(foes || [], M.mates); // akademi mezunu sahada (src/venues.js)
   chemFor(M.mates);
 }
-export const matchdayEnd = () => M && (M.live = 0);
+export function matchdayEnd() {
+  if (!M) return;
+  M.live = 0;
+  M.effMod = 0;
+  M.mmod = 0;
+  M.hypeOn = 0;
+}
+// maç ekranından çıkılırsa (ana ekran) maç bonusu antrenmana taşınmasın
+Bus.on("screen:main", () => matchdayEnd());
 export const refMul = () => (M && M.live && REFS[M.ref] ? REFS[M.ref].foul : 1);
 export const refAnd1 = () => (M && M.live && REFS[M.ref] ? REFS[M.ref].and1 : 1);
 
@@ -118,7 +126,7 @@ export function duelSettle() {
   M.duelDone = 1;
   M.duelWon = M.pts > M.star.pts;
   if (M.duelWon && !M.auto) {
-    S.followers = Math.round(S.followers * 1.02);
+    S.followers += Math.round(15 * (M.star.o / 10)); // küçük ve sabit: bileşik büyümesin
     S.rel.taraf += 1;
   }
 }
@@ -132,7 +140,7 @@ export function extraOffOpts(opts, clutch, auto) {
       k: "duo",
       t: $t("md.duo", { n: esc(S.chem.n) }),
       d: `${$t("md.duoD")} · ${$t("md.chemShort")} ${Math.round(S.chem.v)}`,
-      e: eff("pas") + S.chem.v / 4 - 2
+      e: eff("pas") + duoMod()
     });
   if (clutch && !M.setUsed)
     out.push({ k: "set", t: $t("md.set"), d: $t("md.setD"), e: (eff("sut") + eff("hiz")) / 2 + 4 });
