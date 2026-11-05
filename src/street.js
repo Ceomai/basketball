@@ -40,9 +40,10 @@ export function locSokak(I) {
     $t("st.sub"),
     `<div class="card"><div class="row between"><div class="eyebrow">${$t("st.rep")}</div><b class="gold">${s.rep}</b></div><p class="small muted">${$t("st.record", { w: s.wins, p: s.played })}</p></div>
     <div class="act"><div><h3>${$t("st.tour")}</h3><p>${$t("st.tourD", { v: fmt(prize) })}</p></div><button class="btn team sm" id="st-tour" ${done || S.slot <= 0 || S.energy < 15 || S.injury ? "disabled" : ""}>${done ? $t("st.done") : $t("st.play")}</button></div>
-    <div class="act"><div><h3>${$t("st.kids")}</h3><p>${$t("st.kidsD")}</p></div><button class="btn team sm" id="st-kids" ${S.slot <= 0 || S.energy < 6 ? "disabled" : ""}>${$t("st.kidsBtn")}</button></div>${late.nightLeagueHTML()}`
+    <div class="act"><div><h3>${$t("st.kids")}</h3><p>${$t("st.kidsD")}</p></div><button class="btn team sm" id="st-kids" ${S.slot <= 0 || S.energy < 6 ? "disabled" : ""}>${$t("st.kidsBtn")}</button></div>${late.nightLeagueHTML()}${late.streetExtraHTML()}`
   );
   late.bindNightLeague(); // gece sokak ligi (src/venues.js)
+  late.bindStreetExtra(() => locSokak(I)); // kendi turnuvan, saha yenileme (src/seasonlife.js)
   $("#st-tour").onclick = () => tournament(prize);
   $("#st-kids").onclick = () => {
     useSlot();

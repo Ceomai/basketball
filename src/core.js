@@ -747,11 +747,11 @@ export function renderMain() {
       v2: tods[S.slot]
     }
   )}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
-  <div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
+  ${S.brk ? late.breakCardHTML() : `<div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.rivalName()) })}</div>` : ""}
-   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.dayRowHTML(late.missionsButtonHTML())}</div>${late.onboardHTML()}
+   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div>`}${late.weekSummaryHTML()}${late.onboardHTML()}
   <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
   <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
@@ -770,9 +770,13 @@ export function renderMain() {
       }
     };
   });
-  $("#gostad").onclick = () => late.openLoc("stad", "mac");
+  const gs = $("#gostad");
+  if (gs) gs.onclick = () => late.openLoc("stad", "mac");
   late.bindDistrict && late.bindDistrict(renderMain);
-  $("#quickw").onclick = late.quickWeek;
+  const qw = $("#quickw");
+  if (qw) qw.onclick = late.quickWeek;
+  late.bindPlanRow(); // hafta planı (src/plan.js)
+  late.bindBreak(); // milli takım arası (src/plan.js)
   const msb = $("#msb");
   if (msb) msb.onclick = () => late.missionsSheet();
   $("#lgc").onclick = () => late.leagueSheet();

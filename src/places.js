@@ -324,9 +324,13 @@ export function restAct() {
   useSlot();
   S.energy += 35;
   S.moral += 2;
+  late.restInjury(); // dinlenmiş vücut: bu hafta sakatlık riski azalır (src/lifestyle.js)
   norm();
   save();
-  resultView($t("places.52"), pick([$t("places.53"), $t("places.54"), $t("places.55")]), [[$t("places.8"), "p"]]);
+  resultView($t("places.52"), pick([$t("places.53"), $t("places.54"), $t("places.55")]), [
+    [$t("places.8"), "p"],
+    [$t("life.restInj"), "p"]
+  ]);
 }
 export function sparkHTML() {
   const rs = late.rated().slice(-10);
@@ -356,6 +360,7 @@ export const DRILL_IC = {
   gym: "dumbbell"
 };
 export function locStad(I, tab = "mac") {
+  if (S.brk && tab === "mac") tab = "idman"; // milli takım arasında lig maçı oynanmaz (src/plan.js)
   const tabs = [
     ["mac", $t("match.88")],
     ["idman", $t("places.57")],
@@ -1139,6 +1144,8 @@ export function locMedya(I) {
      .join("")}</div>`
   );
   addScene(b, "medya", $t("places.340"));
+  b.insertAdjacentHTML("beforeend", late.mediaExtraHTML()); // podcast, belgesel (src/seasonlife.js)
+  late.bindMediaExtra();
   bindActs({
     shoot: () => photoSession("arena"),
     vlog: () => photoSession("city"),
@@ -1598,6 +1605,10 @@ export function locKafe(I) {
           const g = gainStat("pas", Math.round(0.25 * levelMul("pas") * 100) / 100);
           t += ` ${$t("prog.watch", { v: g.toFixed(2) })}`;
         }
+        // sonraki rakibin maçını izledin: o maç için pozisyonuna göre nitelik +4 (keşif)
+        const sk = { PG: "pas", SG: "sut", SF: "sut", PF: "guc", C: "guc" }[S.pos] || "sut";
+        S.buffs.scoutK = sk;
+        t += ` ${$t("life.scout", { k: statName(sk) })}`;
         norm();
         save();
         resultView($t("places.256"), t, [[$t("places.143"), "p"]]);
