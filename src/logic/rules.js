@@ -15,7 +15,7 @@ export const STAGES = ["lise", "uni", "t3", "t2", "t1", "euro", "nba"];
 export const TDB = { lise: -15, uni: -7, t3: -5, t2: 5, t1: 15, euro: 25, nba: 35 };
 /** Denge ayarları (denge simülasyonuyla belirlendi). */
 export const BAL = {
-  train: 1.3, // antrenman kazanç katsayısı (ondalık; maçtan gelen gelişim arttığı için 1.45ten düşürüldü)
+  train: 1.36, // antrenman kazanç katsayısı (ekonomi düzeltmesinde takım antrenmanı ve AVM eşyaları azaldı: 1.3 → 1.36) (ondalık; maçtan gelen gelişim arttığı için 1.45ten düşürüldü)
   play: 0.035, // başarılı maç anında niteliğe eklenen kesir
   /** @type {[number, number, number][]} [yaşa kadar, min, maks] yaz gelişimi */
   grow: [

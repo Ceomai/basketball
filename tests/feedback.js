@@ -1549,10 +1549,11 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
     S.sponsorDeal.rel = 22;
     G.sponsorWeekly();
     const lost = S.sponsorDeal === null;
-    S.channel = { xp: 200, posts: 0, wk: "", n: 0, gear: {} };
-    const m0 = S.money;
+    S.channel = { xp: 200, posts: 0, wk: "", n: 0, gear: {}, last: G.ecoWeek() }; // aktif kanal: son 4 haftada paylaşım
+    S.tx = [];
     G.Bus.emit("week:start");
-    return { a, b, lost, lvl: G.chLevel(), inc: S.money - m0 };
+    const t = S.tx.find(x => /Kanal|reklam/i.test(x.d)); // kanal reklam geliri (diğer haftalık giderlerden bağımsız)
+    return { a, b, lost, lvl: G.chLevel(), inc: t ? t.a : 0 };
   });
   assert(r.a === 55 && r.b === 80 && r.lost, "sponsor ilişkisi: " + JSON.stringify(r));
   assert(r.lvl >= 3 && r.inc > 0, "kanal geliri: " + JSON.stringify(r));
