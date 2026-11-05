@@ -35,6 +35,8 @@ function injury(mul) {
   }
 }
 export const marketEnergyLeft = () => Math.max(0, MKT_EN_CAP - mk().en);
+/** dinlenmek bu haftaki sakatlık riskini azaltır (src/places.js restAct) */
+export const restInjury = () => injury(0.8);
 /** Satın alma: fiyat, haftalık enerji sınırı ve ürün özel etkileri. Mesaj döner (ya da null: alınamadı). */
 export function marketBuy(it) {
   const price = marketPrice(it);
@@ -59,6 +61,22 @@ export function marketBuy(it) {
       injury(1.2);
       note = $t("life.drinkRisk");
     }
+  }
+  // dengeli beslenme: haftada 3 farklı ürün (enerji sınırı dışında küçük bonus)
+  m.kinds = m.kinds || [];
+  if (!m.kinds.includes(it.id)) m.kinds.push(it.id);
+  if (m.kinds.length >= 3 && !m.bal) {
+    m.bal = true;
+    S.moral += 5;
+    S.energy += 4;
+    note = $t("life.balanced");
+  }
+  // pizza takımla paylaşılır: takım ilişkisi ve kimya
+  if (it.id === "pizza" && !m.pizza) {
+    m.pizza = true;
+    S.rel.takim += 2;
+    if (late.chemAdd) late.chemAdd(1);
+    note = note || $t("life.pizzaShare");
   }
   if (it.id === "buz" && !m.ice) {
     m.ice = true;

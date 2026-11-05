@@ -88,7 +88,7 @@ export function arcRank(g, period) {
 export function arcResolve(period) {
   const a = arcState(),
     best = period === "w" ? a.wb : a.mb,
-    mult = 1 + ORDER.indexOf(S.stage),
+    mult = Math.max(0.1, (late.ecoPm ? late.ecoPm() : 1) * 0.15), // kariyer seviyesine göre (src/economy.js); lisede harçlığı ezmez
     out = [];
   for (const g of Object.keys(best)) {
     if (!best[g]) continue;
@@ -99,10 +99,10 @@ export function arcResolve(period) {
       `${ARC_GAMES[g].n} ${period === "w" ? $t("extras.74") : $t("extras.75")} ${$t("extras.76", {
         r: r
       })}`,
-      base * mult
+      Math.max(1, Math.round(base * mult))
     );
     S.moral += period === "w" ? 3 : 6;
-    S.followers *= period === "w" ? 1.02 : 1.05;
+    if (late.mediaGain) late.mediaGain(period === "w" ? 0.01 : 0.03, 2);
     if (period === "m" && r === 1)
       S.career.trophies.push({
         type: "arcade",

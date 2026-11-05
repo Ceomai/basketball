@@ -95,8 +95,12 @@ export const hash = s => {
 };
 export const wait = ms => new Promise(r => setTimeout(r, ms));
 export const INK = "#141414";
+// son bildirimler (hafta özeti için; src/plan.js)
+export const TOAST_LOG = [];
 export function toast(t) {
   if (SIM()) return;
+  TOAST_LOG.push(String(t));
+  if (TOAST_LOG.length > 60) TOAST_LOG.splice(0, 20);
   if (typeof late.sfx === "function") late.sfx("notify");
   $$(".toast").forEach(x => x.remove());
   const d = document.createElement("div");

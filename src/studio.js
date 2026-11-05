@@ -164,8 +164,9 @@ export function locFans(I) {
     $t("fz.sub"),
     `<div class="card"><div class="row between"><div class="eyebrow">${$t("fz.rel")}</div><b class="gold">${S.rel.taraf}/100</b></div><div class="bar"><i style="width:${S.rel.taraf}%"></i></div></div>
     <div class="act"><div><h3>${$t("fz.sign")}</h3><p>${$t("fz.signD")}</p></div><button class="btn team sm" id="fz-sign" ${S.slot <= 0 ? "disabled" : ""}>${$t("fz.go")}</button></div>
-    <div class="act"><div><h3>${$t("fz.ultras")}</h3><p>${$t("fz.ultrasD")}</p></div><button class="btn team sm" id="fz-ultra" ${S.slot <= 0 || done ? "disabled" : ""}>${done ? $t("fz.done") : $t("fz.go")}</button></div>`
+    <div class="act"><div><h3>${$t("fz.ultras")}</h3><p>${$t("fz.ultrasD")}</p></div><button class="btn team sm" id="fz-ultra" ${S.slot <= 0 || done ? "disabled" : ""}>${done ? $t("fz.done") : $t("fz.go")}</button></div>${late.fanExtraHTML()}`
   );
+  late.bindFanExtra(() => locFans(I)); // tezahürat, koreografi, taraftar otobüsü (src/seasonlife.js)
   $("#fz-sign").onclick = () => {
     useSlot();
     S.energy -= 4;

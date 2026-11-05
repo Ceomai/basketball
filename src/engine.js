@@ -57,6 +57,7 @@ export function modeChoice() {
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
       <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
+      <button class="choice" data-m="only"><span class="ct">${$t("pl2.only")}</span><span class="cd">${$t("pl2.onlyD")}</span><span class="od ${cur === "only" ? "e" : "i"}">${cur === "only" ? $t("engine.6") : $t("pl2.fastest")}</span></button>
      </div></div>`;
     $$("[data-m]").forEach(
       b =>
@@ -191,7 +192,8 @@ export async function playMatch(ctx) {
     const left = Math.max(0, len - inQ);
     M.clock = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
   };
-  const paceMs = () => (AUTO ? 0 : mode === "key" && !on ? 0 : mode === "key" ? KEY_ON : PACE[M.speed]);
+  // "sadece anlarım": akış hiç beklemez, yalnızca karar anlarında durur
+  const paceMs = () => (AUTO || mode === "only" ? 0 : mode === "key" && !on ? 0 : mode === "key" ? KEY_ON : PACE[M.speed]);
   const pace = async () => {
     const ms = paceMs();
     if (ms) await wait(ms);

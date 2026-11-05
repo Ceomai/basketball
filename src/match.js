@@ -815,6 +815,7 @@ export function seasonEnd(playoff, champ, final) {
     w: w,
     v: res.length - w
   })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}<div id="seasonad">${late.seasonAdHTML()}</div>${late.rivalCard(avg)}`;
+  S.offArgs = { avg, champ, head }; // turnuva arasında oyun kapanırsa sezon geçişi buradan sürer (src/natcup.js)
   late.summerTournament(avg, () => transition(avg, champ, head));
 }
 export function potential(avg, champ) {

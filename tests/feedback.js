@@ -1208,6 +1208,138 @@ test("hikâye: haftalık hikâye olayı (güvenli seçenek), şanslı çorap şu
   return p;
 });
 
+test("hafta planı (uygula, tekrarla), hafta özeti, milli takım arası serbest zaman (mola modu), sadece anlarım modu", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.slot = 3;
+    G.S.money = 500;
+    G.renderMain();
+  });
+  await p.click("#wplan");
+  await p.click('[data-ps="0"] [data-v="team"]');
+  await p.click('[data-ps="1"] [data-v="rest"]');
+  await p.click('[data-ps="2"] [data-v="cafe"]');
+  await p.click("#pl-go");
+  await p.waitForSelector("#pl-ok", { timeout: 3000 });
+  const r1 = await p.evaluate(() => ({ slot: window.Game.S.slot, plan: window.Game.S.lastPlan, n: document.querySelectorAll(".sheet .small").length }));
+  assert(r1.slot === 0 && r1.plan.join() === "team,rest,cafe" && r1.n >= 3, "plan: " + JSON.stringify(r1));
+  const r2 = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    G.Bus.emit("week:start");
+    S.money += 50;
+    S.followers += 20;
+    G.toast("deneme bildirimi");
+    G.Bus.emit("week:start");
+    const sum = G.weekSummaryHTML();
+    // mola modu
+    let called = 0;
+    S.slot = 1;
+    G.startBreak({ label: "EuroBasket: Sırbistan", sub: "Grup" }, () => (called = 1));
+    const brk = { go: !!document.querySelector("#brk-go"), stad: !!document.querySelector("#gostad"), slot: S.slot };
+    G.openLoc("stad", "mac");
+    const tab = document.querySelector('.tabs button.on, .tabs button[aria-selected="true"]');
+    G.closeSheet();
+    document.querySelector("#brk-go").click();
+    return { sum, brk, tab: tab ? tab.dataset.t : "", called, slotBack: S.slot, brkOff: !S.brk };
+  });
+  assert(/Geçen hafta/.test(r2.sum) && /deneme bildirimi/.test(r2.sum), "hafta özeti");
+  assert(r2.brk.go && !r2.brk.stad && r2.brk.slot === 3, "mola modu: " + JSON.stringify(r2.brk));
+  assert(r2.tab !== "mac" && r2.called === 1 && r2.slotBack === 1 && r2.brkOff, "mola: " + JSON.stringify(r2));
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector('[data-m="only"]', { timeout: 5000 });
+  return p;
+});
+
+test("ölü seçenekler: dengeli beslenme, pizza paylaşımı, dinlenme sakatlık riskini düşürür, kafede rakip keşfi; taraftar koreografisi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.money = 9999;
+    const items = G.MARKET || [];
+    const pick = id => items.find(i => i.id === id);
+    const notes = ["su", "muz", "pizza"].map(id => (pick(id) ? G.marketBuy(pick(id)) : "yok"));
+    S.slot = 3;
+    S.buffs.injWk = 0;
+    G.openLoc("ev");
+    G.restAct();
+    const inj = S.buffs.injMul;
+    G.closeSheet();
+    G.openLoc("kafe");
+    const b = document.querySelector('[data-act="izle"]');
+    if (b) b.click();
+    const scout = S.buffs.scoutK;
+    G.closeSheet();
+    S.buffs.choreo = 1;
+    G.setM({ live: 1, home: true, auto: false, hype: 0, feed: [] });
+    G.fanMatchStart();
+    return { notes, inj, scout, hype: G.M.hype, n: items.length };
+  });
+  assert(r.notes.some(n => /Dengeli/.test(n || "")) || r.n === 0, "dengeli beslenme: " + JSON.stringify(r));
+  assert(r.inj < 1, "dinlenme sakatlık riski: " + r.inj);
+  assert(!!r.scout, "kafede keşif");
+  assert(r.hype === 60, "koreografi");
+  return p;
+});
+
+test("yaz kampı (hızlı geç), ödül gecesi (3 adım), rehabilitasyon, rakiple karşılaşma geçmişi", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.season = 3;
+    S.week = 1;
+    S.campSeason = 0;
+    if (S.goals) S.goals.shown = true;
+    G.Bus.first("week:sheet");
+  });
+  await p.waitForSelector('[data-sl="skip"]', { timeout: 3000 });
+  await p.click('[data-sl="skip"]');
+  await p.waitForSelector("#rb", { timeout: 3000 });
+  assert(await p.evaluate(() => window.Game.S.campSeason === 3), "kamp bu sezon yapıldı");
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.S.galaDue = 1;
+    G.Bus.first("week:sheet");
+  });
+  for (let i = 0; i < 3; i++) {
+    await p.waitForSelector("[data-sl]", { timeout: 3000 });
+    await p.click("[data-sl]");
+  }
+  await p.waitForSelector("#rb", { timeout: 3000 });
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    G.closeSheet();
+    S.injury = { n: "Ayak bileği", w: 3, total: 3 };
+    S.week = 5;
+    S.rehabWk = "";
+    G.Bus.first("week:sheet");
+    const rh = !!document.querySelector('[data-sl="go"]');
+    G.closeSheet();
+    S.injury = null;
+    // rakiple karşılaşma
+    S.rival = S.rival || { first: "Ali", last: "Rakip", team: { key: "rv" }, ppg: 14 };
+    S.rival.team = S.rival.team || { key: "rv" };
+    G.setM({ opp: { key: S.rival.team.key }, pts: 18 });
+    G.Bus.emit("match:end", { win: true });
+    return { rh, h2h: G.h2hHTML() };
+  });
+  assert(r.rh, "rehabilitasyon paneli");
+  assert(/1-0/.test(r.h2h), "karşılaşma geçmişi: " + r.h2h.slice(0, 120));
+  return p;
+});
+
 test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı turnuva (6 grup maçı)", async () => {
   const p = await page();
   await career(p);
@@ -1845,7 +1977,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [

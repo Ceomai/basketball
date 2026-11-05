@@ -6,7 +6,7 @@
    - Sekmeler: puan durumu, fikstür, istatistiklerim (maç başı sayı/asist/ribaund, not ortalaması).
    - Madalyalar kupalara ve miras puanına eklenir. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, EU_CC, esc, rnd, shuffle, statName } from "./data.js";
+import { $, $$, Bus, EU_CC, esc, rnd, shuffle, statName } from "./data.js";
 import { S, closeSheet, fullName, gainStat, levelMul, news, norm, sheet, tabsHTML } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
@@ -65,6 +65,9 @@ function hub() {
   if (!g) return finish();
   // denge simülasyonu: maçlar otomatik
   if (window.__SIM) return late.natMatch(T.cat, nat(g.cc), label(g), win => result(g, win), true);
+  // oyun kapanıp açılırsa kaldığı yerden sürsün diye turnuva kayda yazılır
+  S.natT = { ...T, done: null };
+  save();
   const tabs = [
     ["hub", $t("nt.next")],
     ["tablo", $t("lc.table")],
@@ -84,6 +87,7 @@ function hub() {
          ? `<p class="small good">${$t("nt.prepped")}</p>`
          : `<div class="eyebrow">${$t("nt.prep")}</div><div class="grid3"><button class="btn sm" data-np="rest">${$t("nt.rest")}</button><button class="btn sm" data-np="shoot">${$t("nt.shoot", { k: statName("sut") })}</button><button class="btn sm" data-np="team">${$t("nt.team")}</button></div>`
      }
+     ${T.freeAt === T.at ? "" : `<div class="act"><div><h3>${$t("pl2.free")}</h3><p>${$t("pl2.freeD")}</p></div><button class="btn team sm" id="nt-free">${$t("pl2.freeGo")}</button></div>`}
      <div class="grid2"><button class="btn pri" id="nt-play">${$t("quick.self")}</button><button class="btn" id="nt-sim">${$t("quick.sim")}</button></div>`;
   sheet(
     T.name,
@@ -111,9 +115,27 @@ function hub() {
   };
   const p = $("#nt-play");
   if (p) p.onclick = () => play(false);
+  // maçlar arası serbest zaman: ana ekrana dön, 3 zaman dilimi kullan (src/plan.js)
+  const fr = $("#nt-free");
+  if (fr)
+    fr.onclick = () => {
+      T.freeAt = T.at;
+      late.startBreak({ label: `${T.name}: ${flag(g.cc)}`, sub: label(g) }, () => hub());
+    };
   const sm = $("#nt-sim");
   if (sm) sm.onclick = () => play(true);
 }
+/** Yeniden açılışta (ya da serbest zamandan sonra bağlam kaybolduysa) turnuvaya kaldığı yerden dön */
+export function natResume() {
+  if (!S || !S.natT || T) return false;
+  const a = S.offArgs;
+  T = { ...S.natT, done: () => (a ? late.transition(a.avg, a.champ, a.head) : late.renderMain()) };
+  hub();
+  return true;
+}
+Bus.on("screen:main", () => {
+  if (S && S.natT && !T && !S.brk && !window.__SIM) setTimeout(natResume, 0);
+});
 function simPair(a, b) {
   const A = nat(a.cc).str,
     B = nat(b.cc).str,
@@ -181,6 +203,7 @@ function medal(type, lab) {
   save();
 }
 function finish() {
+  S.natT = null;
   const done = T.done;
   if (window.__SIM) {
     T = null;
