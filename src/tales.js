@@ -93,7 +93,7 @@ const pmul = () => (late.ecoPm ? late.ecoPm() : 1);
 const ORDERS = ["simit", "espresso", "ayran", "tost", "lahmacun", "smoothie", "kumpir", "sushi"];
 async function rookieErrand() {
   const vets = (late.mateNames ? late.mateNames(5) : ["A. Kaptan", "B. Pivot", "C. Şutör"]).slice(0, 3),
-    ord = shuffle(ORDERS.slice()).slice(0, 3);
+    ord = shuffle((late.cuOrders ? late.cuOrders(ORDERS) : ORDERS).slice()).slice(0, 3); // bölgenin yemekleri (src/culture.js)
   const k = await choose(
     $t("tl.rk.t"),
     $t("tl.rk.s"),
@@ -453,7 +453,7 @@ function eligible() {
   }
   out.push(lateBus);
   if (S.followers > 300) out.push(signQueue);
-  out.push(grandma);
+  if (!(late.cuForeign && late.cuForeign())) out.push(grandma); // yurtdışındayken anneannede pazar yemeği olmaz
   if (pro) out.push(busCards);
   if (S.followers > 500) out.push(troll);
   if (T.sock === 0 && S.season >= 2) out.push(sockTale);

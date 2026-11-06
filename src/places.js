@@ -110,10 +110,37 @@ export function openLoc(id, tab) {
 export const HOUSING = {
   oda: { n: $t("places.265"), rent: 0, en: 0 },
   yurt: { n: $t("map.15"), rent: 6, en: 0 },
-  daire: { n: $t("map.16"), rent: 70, en: 4 },
-  lux: { n: $t("places.266"), rent: 475, en: 8, mo: 2 },
-  villa: { n: $t("map.18"), rent: 2100, en: 12, mo: 4 },
-  malikane: { n: $t("map.19"), rent: 7500, en: 15, mo: 6 }
+  daire: {
+    get n() {
+      return $t("map.16");
+    },
+    rent: 70,
+    en: 4
+  },
+  lux: {
+    get n() {
+      return $t("places.266");
+    },
+    rent: 475,
+    en: 8,
+    mo: 2
+  },
+  villa: {
+    get n() {
+      return $t("map.18");
+    },
+    rent: 2100,
+    en: 12,
+    mo: 4
+  },
+  malikane: {
+    get n() {
+      return $t("map.19");
+    },
+    rent: 7500,
+    en: 15,
+    mo: 6
+  }
 };
 export const addScene = (el, kind, bubble, opts) => el.prepend(sceneEl(kind, bubble, opts));
 
@@ -235,7 +262,10 @@ export function locEv(I, tab = "vitrin") {
   }
   if (tab === "kariyer") {
     late.statsTab(c);
-    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}`);
+    c.insertAdjacentHTML(
+      "afterbegin",
+      `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}`
+    );
     late.bindAlbumButton(() => locEv(I, "kariyer"));
   }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
