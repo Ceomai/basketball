@@ -51,7 +51,7 @@ Hızlı kontrol: `npm run test:unit` (marka testi dahil) ve yayın kapısı `ADM
 
 - **Gradle derlemesi doğrulanmadı.** API 36 + AGP 8.9.1 + Capacitor 7 birleşimi yerelde derlenemedi (Android SDK yok). İlk CI çalıştırması başarısızsa hata günlüğüyle Capacitor 8'e geçiş en temiz yol.
 - **Android 16 büyük ekran:** API 36 hedefleyen uygulamalarda tabletlerde (en kısa kenar ≥ 600 dp) `screenOrientation="portrait"` yok sayılır. Arayüz en fazla 560 px genişlikte ortalanıyor; yatay tablette çalışır ama boş kenarlar olur.
-- **Google Fonts:** yazı tipleri `fonts.googleapis.com`'dan yükleniyor (IP adresi Google'a ulaşır; politikada yazıyor). İnternetsiz açılışta sistem yazı tipine düşer. İstenirse yazı tipleri pakete gömülebilir.
+- **Yazı tipleri:** uygulamaya gömülü (`src/fonts.css`, @fontsource paketleri, Latin + Latin-ext); dışarıya istek yok, internetsiz de doğru görünür.
 - **Test APK'sı herkese açık:** `apk-latest` sürümündeki hata ayıklama APK'sı Play sürümüyle aynı kimliği taşır ama farklı imzalıdır; testçiler Play sürümünü kurmadan önce onu kaldırmalı.
 - **Mağaza metni:** "Oynamak için internet gerekmez (reklamlar için bağlantı gerekir)". Bulut yedek vaadi metinden çıkarıldı (özellik henüz açık değil).
 - **Eski oyuncu kayıtları:** gerçek adlı haber/geçmiş metinleri açılışta çevrilir; semt ile aynı adlı kulüplerin (Beşiktaş, Karşıyaka, Göztepe...) eski serbest metinleri semt adı olarak kalır (takım adları ise anahtardan kurulduğu için doğru).
