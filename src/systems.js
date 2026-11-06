@@ -69,6 +69,8 @@ export const SETTINGS = (() => {
         errorReports: true,
         fs: "m",
         cb: false,
+        hc: false,
+        autoPlan: false,
         theme: "default",
         diff: "normal"
       },
@@ -84,6 +86,8 @@ export function applyA11y() {
   h.toggle("fs-l", SETTINGS.fs === "l");
   h.toggle("fs-xl", SETTINGS.fs === "xl");
   h.toggle("cb", !!SETTINGS.cb);
+  h.toggle("fs-s", SETTINGS.fs === "s");
+  h.toggle("hc", !!SETTINGS.hc);
 }
 applyA11y();
 export const saveSettings = () => {
@@ -93,7 +97,7 @@ export const saveSettings = () => {
 };
 export function settingsSheet() {
   const tog = (k, label, desc) =>
-    `<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k] ? "team" : "ghost"} sm" data-tg="${k}">${SETTINGS[k] ? t("btn.on") : t("btn.off")}</button></div>`;
+    `<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k] ? "team" : "ghost"} sm" data-tg="${k}" aria-pressed="${!!SETTINGS[k]}">${SETTINGS[k] ? t("btn.on") : t("btn.off")}</button></div>`;
   sheet(
     t("settings.title"),
     t("settings.sub"),
@@ -101,6 +105,7 @@ export function settingsSheet() {
    ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag", "notify", "errorReports"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
    <div class="eyebrow" style="margin-top:4px">${t("settings.a11y")}</div>
    <div class="act"><div><h3>${t("settings.fs")}</h3><p>${t("settings.fsDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+     ["s", t("settings.fsS")],
      ["m", t("settings.fsM")],
      ["l", t("settings.fsL")],
      ["xl", t("settings.fsXL")]
@@ -108,6 +113,7 @@ export function settingsSheet() {
      .map(([v, n]) => `<button class="opt ${SETTINGS.fs === v ? "on" : ""}" data-fs="${v}">${n}</button>`)
      .join("")}</div></div>
    ${tog("cb", t("settings.cb"), t("settings.cbDesc"))}
+   ${tog("hc", t("settings.hc"), t("settings.hcDesc"))}
    <div class="act"><div><h3>${t("settings.diff")}</h3><p>${t("settings.diffDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
      ["kolay", t("settings.diffEasy")],
      ["normal", t("settings.diffNormal")],
@@ -115,6 +121,8 @@ export function settingsSheet() {
    ]
      .map(([v, n]) => `<button class="opt ${SETTINGS.diff === v ? "on" : ""}" data-diff="${v}">${n}</button>`)
      .join("")}</div></div>
+   ${tog("autoPlan", t("settings.autoPlan"), t("settings.autoPlanDesc"))}
+   ${late.focusSettingsHTML()}
    ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
    <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
      [0.35, t("settings.volLow")],
@@ -185,6 +193,7 @@ export function settingsSheet() {
         location.reload();
       })
   );
+  late.bindFocusSettings(settingsSheet); // odak modu (src/focus.js)
   late.bindAdsSettings(settingsSheet);
   late.bindTestSettings(settingsSheet);
   late.bindCloudSettings(settingsSheet);

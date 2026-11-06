@@ -9,6 +9,7 @@ import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, shuffle } from "./data.js";
 import { S, closeSheet, norm, sheet } from "./core.js";
 import { save } from "./save.js";
+import { late } from "./late.js";
 
 const IN2 = ["studyo", "taraftar", "performans", "akademi", "borsa", "hipodrom", "liman"];
 export const district = () => (S && S.district === "kompleks" ? "kompleks" : "merkez");
@@ -17,7 +18,7 @@ export function districtTabsHTML() {
   const d = district(),
     n =
       (S.mapEv && S.mapEv.list
-        ? S.mapEv.list.filter(e => !e.done && (IN2.includes(e.loc) ? "kompleks" : "merkez") !== d).length
+        ? S.mapEv.list.filter(e => !e.done && !late.focusLocOff(e.loc) && (IN2.includes(e.loc) ? "kompleks" : "merkez") !== d).length
         : 0) || 0;
   return `<div class="opts" id="dist" style="margin-bottom:6px;flex-wrap:nowrap">${["merkez", "kompleks"]
     .map(
@@ -61,7 +62,7 @@ Bus.on("week:start", () => {
 export function mapEventsHere() {
   if (!S || !S.mapEv || S.mapEv.w !== wk()) return [];
   const d = district();
-  return S.mapEv.list.map((e, i) => ({ ...e, i })).filter(e => !e.done && (IN2.includes(e.loc) ? "kompleks" : "merkez") === d);
+  return S.mapEv.list.map((e, i) => ({ ...e, i })).filter(e => !e.done && !late.focusLocOff(e.loc) && (IN2.includes(e.loc) ? "kompleks" : "merkez") === d);
 }
 function openEvent(i, re) {
   const e = S.mapEv && S.mapEv.list[i];

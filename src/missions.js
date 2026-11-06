@@ -95,7 +95,7 @@ for (const ev of ["match:end", "train:done", "minigame:end", "social:done", "pre
 
 function rewardOf(kind, weekly) {
   const base = Math.max(20, Math.round((S.wage || 10) * (weekly ? 2 : 0.5)));
-  return kind === "money" ? { money: base } : kind === "energy" ? { energy: weekly ? 40 : 20 } : { chips: weekly ? 800 : 250 };
+  return kind === "money" ? { money: base } : kind === "energy" ? { energy: weekly ? 40 : 20 } : late.focusOff("kumar") ? { money: base } : { chips: weekly ? 800 : 250 }; // oyun kulübü kapalıysa para
 }
 const rewardText = r =>
   r.money

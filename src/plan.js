@@ -25,15 +25,26 @@ const ACTS = [
 const actOf = k => ACTS.find(a => a[0] === k);
 export const planRowHTML = () =>
   S && !S.brk && late.unlocked("plan")
-    ? `<div class="grid2" style="margin-top:6px"><button class="btn ghost sm" id="wplan">${$t("pl2.plan")}</button><button class="btn ghost sm" id="wrep" ${S.lastPlan && S.slot > 0 ? "" : "disabled"}>${$t("pl2.repeat")}</button></div>`
+    ? `<div class="grid2" style="margin-top:6px"><button class="btn ghost sm" id="wplan">${$t("pl2.plan")}</button>${
+        late.autoPlanAlways() // ayar: haftayı her zaman otomatik planla (src/autoplan.js)
+          ? `<button class="btn ghost sm" id="wauto" ${S.slot > 0 ? "" : "disabled"}>${$t("ap.apply")}</button>`
+          : `<button class="btn ghost sm" id="wrep" ${S.lastPlan && S.slot > 0 ? "" : "disabled"}>${$t("pl2.repeat")}</button>`
+      }</div>`
     : "";
 export function bindPlanRow() {
   const a = $("#wplan"),
     b = $("#wrep");
   if (a) a.onclick = planSheet;
   if (b) b.onclick = () => runPlan(S.lastPlan);
+  const c = $("#wauto");
+  if (c) c.onclick = () => runPlan(late.autoPlanPick());
 }
+// otomatik öneri, kullanılmış dilimler için dolgu ile (panel her zaman 3 satır gösterir)
+const autoDraft = () => [...late.autoPlanPick(), "rest", "rest", "rest"].slice(0, 3);
 export function planSheet() {
+  const wk = `${S.season}-${S.week}`;
+  if (late.autoPlanAlways() && S.planDraftW !== wk) S.planDraft = autoDraft(); // her hafta yeni öneri
+  S.planDraftW = wk;
   const sel = (S.planDraft = S.planDraft || (S.lastPlan ? S.lastPlan.slice() : ["team", "family", "rest"]));
   const avail = ACTS.filter(a => a[4]());
   sheet(
@@ -43,10 +54,15 @@ export function planSheet() {
       .map(
         i =>
           `<div class="eyebrow">${$t("pl2.slot", { n: i + 1 })}${i >= S.slot ? ` · ${$t("pl2.used")}` : ""}</div><div class="opts" data-ps="${i}">${avail
-            .map(([k]) => `<button class="opt ${sel[i] === k ? "on" : ""}" data-v="${k}" ${i >= S.slot ? "disabled" : ""}>${$t(`pl2.a.${k}`)}</button>`)
+            .map(
+              ([k]) =>
+                `<button class="opt ${sel[i] === k ? "on" : ""}" data-v="${k}" ${i >= S.slot ? "disabled" : ""}>${$t(`pl2.a.${k}`)}</button>`
+            )
             .join("")}</div>`
       )
-      .join("")}<p class="small muted">${$t("pl2.note")}</p><button class="btn pri" id="pl-go" ${S.slot > 0 ? "" : "disabled"}>${$t("pl2.go")}</button>`
+      .join(
+        ""
+      )}<p class="small muted">${$t("pl2.note")}</p><button class="btn ghost" id="pl-auto" ${S.slot > 0 ? "" : "disabled"}>${$t("ap.fill")}</button><button class="btn pri" id="pl-go" ${S.slot > 0 ? "" : "disabled"}>${$t("pl2.go")}</button>`
   );
   $$("[data-ps] [data-v]").forEach(
     b =>
@@ -56,6 +72,10 @@ export function planSheet() {
       })
   );
   $("#pl-go").onclick = () => runPlan(sel.slice(0, S.slot));
+  $("#pl-auto").onclick = () => {
+    S.planDraft = autoDraft();
+    planSheet();
+  };
 }
 /** Planı sırayla uygula: mekânı aç, düğmeye bas, sonucu topla */
 export function runPlan(plan) {
@@ -79,7 +99,11 @@ export function runPlan(plan) {
   }
   closeSheet();
   save();
-  sheet($t("pl2.done"), $t("pl2.doneSub"), `<div class="card" style="gap:6px">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("casino.13")}</button>`);
+  sheet(
+    $t("pl2.done"),
+    $t("pl2.doneSub"),
+    `<div class="card" style="gap:6px">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("casino.13")}</button>`
+  );
   $("#pl-ok").onclick = renderMain;
 }
 

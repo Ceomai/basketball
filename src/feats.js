@@ -146,7 +146,9 @@ export const featName = f =>
 export const featDesc = f =>
   f.cat === "fam" ? $t(`ft.f.${f.fam}.d`, { n: f.fam === "earn" ? fmt(f.n) : nfmt(f.n) }) : $t(`ft.${f.id}.d`);
 export const featGot = id => !!FEATS_ST.got[id];
-export const featTotal = () => FEATS.length;
+// odak modunda kapatılan sisteme bağlı, henüz alınmamış başarım sayılmaz (src/focus.js)
+const featShown = f => FEATS_ST.got[f.id] || !(late.focusFeatOff && late.focusFeatOff(f.id));
+export const featTotal = () => FEATS.filter(featShown).length;
 export const featDone = () => FEATS.filter(f => FEATS_ST.got[f.id]).length;
 /** Kozmetik açık mı? (temalar reklamsız paketle de açılır) */
 export function cosOpen(cos) {
@@ -258,7 +260,7 @@ Bus.on("injury:healed", () => featCount("healed"));
 const CATS = ["fam", "match", "career", "life", "style"];
 export function featsTab(c, re) {
   const cat = (S.featCat = CATS.includes(S.featCat) ? S.featCat : "fam");
-  const list = FEATS.filter(f => f.cat === cat);
+  const list = FEATS.filter(f => f.cat === cat && featShown(f));
   const cosName = cos => (late.cosLabel ? late.cosLabel(cos) : cos);
   c.innerHTML = `<button class="btn ghost sm" id="ft-back">${$t("ft.back")}</button><div class="card"><div class="row between"><div class="eyebrow">${$t("ft.title")}</div><b class="gold">${featDone()}/${featTotal()}</b></div><div class="bar"><i style="width:${Math.round((featDone() / featTotal()) * 100)}%"></i></div><p class="small muted">${$t("ft.sub")}</p>
     <div class="row" style="gap:6px;align-items:center"><span class="small muted">${$t("ft.titleNow")}</span><select id="ft-title" class="opt">${[

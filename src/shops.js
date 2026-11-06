@@ -623,6 +623,8 @@ export const SHOP = [
   }
 ];
 export function locAvm(I, store = "sneaker") {
+  const shown = STORES.filter(s => s.id !== "yatirim" || !late.focusOff("borsa")); // odak modu: yatırım (src/focus.js)
+  if (!shown.some(s => s.id === store)) store = "sneaker";
   const S0 = STORES.find(s => s.id === store);
   const b = sheet(
     I.n,
@@ -631,7 +633,7 @@ export function locAvm(I, store = "sneaker") {
       money: fmt(S.money)
     }),
     `${tabsHTML(
-      STORES.map(s => [s.id, s.n]),
+      shown.map(s => [s.id, s.n]),
       store,
       "s"
     )}<div id="avc" style="display:flex;flex-direction:column;gap:10px"></div>`

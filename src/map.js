@@ -35,7 +35,7 @@ export const HOUSE_NAMES = {
 };
 export function locInfo(id, P) {
   const away = P.city !== P.home;
-  return {
+  const r = {
     okul: { n: P.studying ? (P.stage === "lise" ? $t("map.1") : $t("map.2")) : $t("map.3"), slot: P.studying },
     medya: { n: $t("places.184"), slot: true },
     ev: { n: HOUSE_NAMES[P.housing] || $t("map.4"), slot: false },
@@ -65,6 +65,8 @@ export function locInfo(id, P) {
     hipodrom: { n: P.age < 18 ? $t("hp.locked") : $t("hp.name"), slot: false, locked: P.age < 18 },
     liman: { n: $t("hb.name"), slot: true }
   }[id];
+  // odak modunda kapatılan mekân (src/focus.js)
+  return r && late.focusLocOff && late.focusLocOff(id) ? { ...r, n: `${r.n} · ${$t("fo.off")}`, locked: true, fo: true } : r;
 }
 export function box(x, y, w, h, d, f, s, t) {
   const k = d * 0.6;
@@ -462,7 +464,7 @@ export function mapSVG(P) {
     const lab = I.n.toLocaleUpperCase(LOCALE),
       lw = Math.max(56, lab.length * 6.1 + 24),
       ly = Lc.y + (big ? 78 : 46);
-    g += `<g class="loc${off ? " off" : ""}" data-loc="${Lc.id}" tabindex="0" role="button" aria-label="${esc(I.n)}">
+    g += `<g class="loc${off ? " off" : ""}" data-loc="${Lc.id}" tabindex="0" role="button" aria-label="${esc(I.n)}"${I.locked ? ' aria-disabled="true"' : ""}>
       <ellipse class="hl" cx="${Lc.x}" cy="${Lc.y + 8}" rx="${big ? 112 : 62}" ry="${big ? 70 : 46}" fill="#d8b25a" fill-opacity=".16"/>
       ${B[Lc.id](Lc.x, Lc.y)}
       <g transform="translate(${Lc.x},${ly})"><rect x="${-lw / 2}" y="-10" width="${lw}" height="20" rx="4" fill="#06090f" fill-opacity=".9" stroke="#d8b25a" stroke-opacity=".35"/>${I.slot ? `<circle cx="${-lw / 2 + 10}" cy="0" r="3" fill="${off ? "#5d6b82" : "#d8b25a"}"/>` : ""}<text x="${I.slot ? 5 : 0}" y="4" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="700" letter-spacing="1" font-size="11" fill="#eef2f8">${esc(lab)}</text></g>
@@ -475,7 +477,7 @@ export function mapSVG(P) {
   (P.mev || []).forEach(m => {
     const Lc = (D2 ? LOCS2 : LOCS).find(l => l.id === m.loc);
     if (!Lc) return;
-    g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="!"><circle cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" fill="#ffc54d" stroke="#141414" stroke-width="2"><animate attributeName="r" values="12;15;12" dur="1.4s" repeatCount="indefinite"/></circle><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
+    g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="${esc($t("a11y.mev"))}"><circle cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" fill="#ffc54d" stroke="#141414" stroke-width="2"><animate attributeName="r" values="12;15;12" dur="1.4s" repeatCount="indefinite"/></circle><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
   });
   return g + "</svg>";
 }

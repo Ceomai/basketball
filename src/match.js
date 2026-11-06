@@ -75,6 +75,7 @@ export function bugHTML() {
 export function updBug() {
   const b = $("#bug");
   if (b) b.innerHTML = bugHTML();
+  if (late.a11yScore) late.a11yScore(); // ekran okuyucu için canlı skor (src/a11y.js)
 }
 export const odds = e => (e >= 55 ? ["e", $t("match.1")] : e >= 32 ? ["m", $t("match.2")] : ["h", $t("match.3")]);
 export function oppName() {
