@@ -103,6 +103,7 @@ async function toMain(p, limit = 400) {
         "[data-sl]",
         "#cp-ok",
         "#wn-ok",
+        "[data-amb-cap]",
         "[data-bd]",
         "#sc-ok",
         "#hk-a",

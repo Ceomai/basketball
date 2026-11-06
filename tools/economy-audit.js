@@ -177,6 +177,7 @@ async function inGame() {
       s.money = 1e9;
       s.channel = undefined;
       s.acad = undefined;
+      s.amb = undefined;
       s.mkt2 = undefined;
       s.diet = "serbest";
       s.sponsorDeal = null;
@@ -299,6 +300,18 @@ async function inGame() {
         R.channel[lv] =
           weekMoney(() => (S().channel = { xp: Math.pow(lv - 1, 2) * 20, posts: 0, wk: "", n: 0, gear: {} })) - base;
       R.channelXpFor10 = 81 * 20;
+      // ayakkabı markası (src/ambition.js): en iyi durum (sokak serisi, premium, lansman heyecanı, 30 sayı, MVP/All-Star, 5M takipçi)
+      R.brandCost = G.ambBrandCost ? G.ambBrandCost() : 0;
+      R.brandBest = G.ambBrandCost
+        ? weekMoney(() => {
+            const s = S();
+            s.amb = { proj: {}, cap: 0, brand: { line: "street", tier: "premium", hype: 4, total: 0, season: 0, shoe: {} } };
+            s.followers = 5e6;
+            s.ss = { g: 10, pts: 300 };
+            s.career.mvps = 3;
+            s.career.allStars = 5;
+          }) - base
+        : 0;
       R.acad = {};
       for (const pr of [10, 50, 100])
         R.acad[pr] =
@@ -591,6 +604,7 @@ function md(G, cas, rc, stk, fol) {
   T.push(row(["Akademi binası", ...st.map(s => S[s].acadCost)]));
   T.push(row(["Akademi geliri/hafta (6 öğrenci, prestij 10 / 50 / 100)", ...st.map(s => `${S[s].acad[10]} / ${S[s].acad[50]} / ${S[s].acad[100]}`)]));
   T.push(row(["Kanal geliri/hafta (seviye 2 / 5 / 10)", ...st.map(s => `${S[s].channel[2]} / ${S[s].channel[5]} / ${S[s].channel[10]}`)]));
+  T.push(row(["Ayakkabı markası/hafta en iyi durum (lansman maliyeti, geri dönüş haftası)", ...st.map(s => `${S[s].brandBest} (${S[s].brandCost}, ${S[s].brandBest > 0 ? Math.ceil(S[s].brandCost / S[s].brandBest) : "–"})`)]));
   T.push(row(["Arcade 5 oyunda 1.: haftalık + aylık ödül", ...st.map(s => `${S[s].arcade.weekly} + ${S[s].arcade.monthly}`)]));
   T.push(row(["Sokak turnuvası ödülü (haftada 1)", ...st.map(s => Math.round(12 * S[s].pm))]));
   T.push(row(["Galibiyet primi (not 7)", ...st.map(s => S[s].matchBonusWin7)]));

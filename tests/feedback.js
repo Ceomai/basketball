@@ -2545,7 +2545,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-bd],[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-amb-cap],[data-bd],[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [
@@ -2886,6 +2886,211 @@ test("paket 3a: haftalık koç önerisi kurallı ve ana ekranda/hafta planında 
   assert(r.low === "rest" && r.inj === "rehab" && r.heal === "heal" && r.ag === "agent", "kurallar 1: " + JSON.stringify(r));
   assert(r.mon === "money" && r.mor === "moral" && r.done === "match", "kurallar 2: " + JSON.stringify(r));
   assert(r.main && /Bu hafta:/.test(r.main) && r.plan, "görünüm: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 4d: Hedefler kartı, vakıf projesi haftalarca sürer, bitince haber + plaket + miras", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.stage = "t1";
+    S.wage = G.WAGE.t1;
+    S.money = 500000;
+    S.slot = 3;
+    G.openLoc("ev", "kariyer");
+    const card = !!document.querySelector("#amb-card");
+    document.querySelector("#amb-open").click();
+    const btns = document.querySelectorAll("[data-amb-p]").length;
+    const leg0 = G.legacyScore(),
+      m0 = S.money,
+      t0 = S.rel.taraf;
+    document.querySelector("[data-amb-p=okul]").click();
+    const started = !!(S.amb.proj.okul && S.amb.proj.okul.left === 4),
+      paid = m0 - S.money,
+      slot = S.slot;
+    // aynı anda ikinci proje başlamaz
+    const second = G.ambStartProject("burs");
+    const out = [];
+    for (let i = 0; i < 4; i++) {
+      S.energy = 80;
+      G.Bus.emit("week:start");
+      out.push(S.amb.proj.okul.done ? "done" : S.amb.proj.okul.left);
+    }
+    G.closeSheet();
+    G.openLoc("ev", "vitrin");
+    return {
+      card,
+      btns,
+      started,
+      paid,
+      slot,
+      second,
+      out,
+      fans: S.rel.taraf - t0,
+      leg: G.legacyScore() - leg0,
+      news: S.news.some(n => /Okul sahası/.test(n.t)),
+      plaque: !!document.querySelector("#amb-plaques") && /Okul sahası/.test(document.querySelector("#amb-plaques").textContent)
+    };
+  });
+  assert(r.card && r.btns === 3, "kart: " + JSON.stringify(r));
+  assert(r.started && r.paid === 25000 && r.slot === 2 && r.second === false, "başlangıç: " + JSON.stringify(r));
+  assert(r.out.join() === "3,2,1,done" && r.fans >= 4 && r.leg >= 45 && r.news && r.plaque, "tamamlanma: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 4d: ayakkabı markası şöhret + tasarım ister, satış sınırlı ve performansa bağlı", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.stage = "nba";
+    S.wage = G.WAGE.nba;
+    S.money = 1e7;
+    S.followers = 50;
+    const lowFame = G.ambLaunchBrand("perf", "mid");
+    S.followers = 3e6;
+    S.shoe = null;
+    const noShoe = G.ambLaunchBrand("perf", "mid");
+    S.shoe = { c1: "#000000", c2: "#ffffff", pat: "solid", logo: "pk", made: 1 };
+    G.openLoc("ev", "kariyer");
+    document.querySelector("#amb-open").click();
+    document.querySelector("[data-amb-line=perf]").click();
+    document.querySelector("[data-amb-tier=premium]").click();
+    const m0 = S.money;
+    document.querySelector("#amb-launch").click();
+    const b = S.amb.brand;
+    const cost = m0 - S.money;
+    S.ss = { g: 10, pts: 320 };
+    const hot = G.ambBrandWeekly();
+    S.ss = { g: 10, pts: 40 };
+    b.hype = 0;
+    const cold = G.ambBrandWeekly();
+    S.ss = { g: 10, pts: 600 };
+    S.career.mvps = 10;
+    S.followers = 1e9;
+    const cap = G.ambBrandWeekly();
+    const m1 = S.money;
+    G.Bus.emit("week:start");
+    const sale = S.money - m1;
+    return {
+      lowFame,
+      noShoe,
+      line: b && b.line,
+      tier: b && b.tier,
+      cost,
+      hot,
+      cold,
+      cap,
+      wage: S.wage,
+      sale,
+      name: G.ambBrandName(),
+      ui: !!document.querySelector("#amb-launch")
+    };
+  });
+  assert(r.lowFame === false && r.noShoe === false, "eşik: " + JSON.stringify(r));
+  assert(r.line === "perf" && r.tier === "premium" && r.cost === 10 * r.wage && !r.ui, "lansman: " + JSON.stringify(r));
+  assert(
+    r.hot > r.cold && r.cold > 0 && r.cap <= r.wage * 0.3 && r.sale > 0 && /Test Pro/.test(r.name),
+    "satış: " + JSON.stringify(r)
+  );
+  return p;
+});
+
+test("paket 4d: milli takım kaptanlığı rütbesi, kamp sonu kaptan kararı, veda maçı", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.stage = "euro";
+    S.career.natCaps = 12;
+    S.age = 33;
+    const r0 = G.ambCaptainRank();
+    S.natCaptain = true;
+    const r1 = G.ambCaptainRank();
+    let after = 0;
+    const takim = S.rel.takim;
+    G.camp("A", "Test", () => after++);
+    return { r0, r1, takim };
+  });
+  // kamp ekranında bir seçim yap, sonra kaptan kararı paneli gelmeli
+  await p.click(".pgrid button");
+  await p.waitForSelector("[data-amb-cap]");
+  const r2 = await p.evaluate(() => {
+    document.querySelector("[data-amb-cap=young]").click();
+    const G = window.Game,
+      S = G.S;
+    return { cap: S.amb.cap, last: S.amb.lastCap, ready: G.ambFarewellReady() };
+  });
+  await p.evaluate(() => {
+    const G = window.Game;
+    window.__caps0 = G.S.career.natCaps;
+    G.ambFarewell(true, () => (window.__fw = 1));
+  });
+  for (let i = 0; i < 120; i++) {
+    const done = await p.evaluate(() => {
+      if (window.__fw) return true;
+      const b = document.querySelector("#nok");
+      if (b) b.click();
+      return false;
+    });
+    if (done) break;
+    await p.waitForTimeout(250);
+  }
+  const r3 = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    return {
+      done: !!window.__fw,
+      fw: !!S.amb.farewell,
+      rank: G.ambCaptainRank(),
+      caps: S.career.natCaps - window.__caps0,
+      retired: G.ambNatRetired(),
+      sel: G.natSelected(9, "A"),
+      news: S.news.some(n => /veda/.test(n.t))
+    };
+  });
+  assert(r.r0 === 2 && r.r1 === 3, "rütbe: " + JSON.stringify(r));
+  assert(r2.cap === 1 && r2.last === "young" && r2.ready, "karar: " + JSON.stringify(r2));
+  assert(
+    r3.done && r3.fw && r3.caps === 1 && r3.rank === 4 && r3.retired && r3.sel === false && r3.news,
+    "veda: " + JSON.stringify(r3)
+  );
+  return p;
+});
+
+test("paket 4d: kariyer aşaması olayları aşamaya göre süzülür, seçenekler çalışır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const titles = () => G.eventPool().map(e => e.title);
+    S.stage = "lise";
+    const lise = titles();
+    S.stage = "nba";
+    S.age = 20;
+    S.role = "bench";
+    S.energy = 20;
+    const nba = titles();
+    S.stage = "t2";
+    const t2 = titles();
+    const ev = G.eventPool().find(e => e.title === "Küçük puntolu madde");
+    const m0 = S.money;
+    const out = ev.choices[1].do();
+    return {
+      liseHas: lise.some(t => ["Pembe sırt çantası", "Back-to-back", "Küçük puntolu madde"].includes(t)),
+      nba: ["Pembe sırt çantası", "Back-to-back", "Two-way sözleşme", "Aşağıya bir hafta"].every(t => nba.includes(t)),
+      nbaNoLower: !nba.includes("Küçük puntolu madde"),
+      t2: t2.includes("Küçük puntolu madde") && !t2.includes("Back-to-back"),
+      out: typeof out === "string" && out.length > 10,
+      money: S.money === m0
+    };
+  });
+  assert(!r.liseHas && r.nba && r.nbaNoLower && r.t2 && r.out && r.money, "süzme: " + JSON.stringify(r));
   return p;
 });
 

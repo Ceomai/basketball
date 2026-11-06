@@ -168,7 +168,7 @@ export function locEv(I, tab = "vitrin") {
     c.insertAdjacentHTML("afterbegin", late.featsCardHTML()); // başarımlar özeti (src/feats.js)
     const fo = $("#ft-open");
     if (fo) fo.onclick = () => locEv(I, "rozet");
-    c.insertAdjacentHTML("beforeend", late.decorHTML()); // ev dekoru (src/custom.js)
+    c.insertAdjacentHTML("beforeend", late.ambPlaquesHTML() + late.decorHTML()); // vakıf plaketleri (src/ambition.js) + ev dekoru (src/custom.js)
     late.bindDecor(() => locEv(I, "vitrin"));
   }
   if (tab === "stil") late.stilTab(c, () => locEv(I, "stil")); // görünüm + ayakkabı/forma/kutlama/tema (src/custom.js)
@@ -235,8 +235,12 @@ export function locEv(I, tab = "vitrin") {
   }
   if (tab === "kariyer") {
     late.statsTab(c);
-    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}`);
+    c.insertAdjacentHTML(
+      "afterbegin",
+      `<div style="display:grid">${late.albumButtonHTML()}</div>${late.ambGoalsHTML()}${late.familyTreeHTML()}${late.bondsCareerHTML()}`
+    );
     late.bindAlbumButton(() => locEv(I, "kariyer"));
+    late.ambBindGoals(() => locEv(I, "kariyer")); // geç kariyer hedefleri (src/ambition.js)
   }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
   if (tab === "ev") {

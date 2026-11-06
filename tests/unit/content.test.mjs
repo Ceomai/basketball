@@ -4,11 +4,13 @@ import assert from "node:assert/strict";
 import TR_BASE from "../../src/content/events.tr.js";
 import TR_MORE from "../../src/content/events.more.tr.js";
 import TR_HARD from "../../src/content/events.hard.tr.js";
-const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD];
+import TR_CAREER from "../../src/content/events.career.tr.js";
+const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD, ...TR_CAREER];
 import EN_BASE from "../../src/content/events.en.js";
 import EN_MORE from "../../src/content/events.more.en.js";
 import EN_HARD from "../../src/content/events.hard.en.js";
-const EN = [...EN_BASE, ...EN_MORE, ...EN_HARD];
+import EN_CAREER from "../../src/content/events.career.en.js";
+const EN = [...EN_BASE, ...EN_MORE, ...EN_HARD, ...EN_CAREER];
 import tr from "../../src/i18n/tr.js";
 import en from "../../src/i18n/en.js";
 import trAuto from "../../src/i18n/tr.auto.js";
@@ -101,6 +103,21 @@ test("İngilizce paket Türkçe olaylarla eşleşiyor", () => {
     assert.equal(e.choices.length, t.choices.length, `${e.id}: seçenek sayısı aynı`);
     for (const s of texts({ ...t, ...e, choices: e.choices }))
       for (const p of placeholders(s)) assert.ok(PH.includes(p), `${e.id}: {${p}}`);
+  }
+});
+
+test("kariyer aşaması olayları: Türkçe ve İngilizce aynı sırada, her olayın 2-3 seçeneği ve aşama koşulu var", () => {
+  assert.deepEqual(
+    EN_CAREER.map(e => e.id),
+    TR_CAREER.map(e => e.id)
+  );
+  const STAGE = ["pro", "lower", "top", "euro", "nba"];
+  for (const ev of TR_CAREER) {
+    assert.ok(ev.choices.length >= 2 && ev.choices.length <= 3, `${ev.id}: 2-3 seçenek`);
+    assert.ok(
+      [ev.when].flat().some(w => STAGE.includes(w)),
+      `${ev.id}: aşama koşulu`
+    );
   }
 });
 

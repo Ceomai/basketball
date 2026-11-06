@@ -227,7 +227,7 @@ export function natPotential(avg) {
 }
 export function natSelected(avg, cat) {
   const need = { U18: 38, U20: 47, A: 69 }[cat];
-  if (cat === "A" && !isPro(S.stage)) return false;
+  if (cat === "A" && (!isPro(S.stage) || late.ambNatRetired())) return false; // veda eden kaptan (src/ambition.js)
   return natPotential(avg) >= need;
 }
 // Milli maçı oynatmak için kulüp takımı geçici olarak milli takımla değiştirilir, maç bitince geri alınır.
@@ -332,7 +332,7 @@ export function camp(cat, title, after) {
     norm();
     save();
     closeSheet();
-    after();
+    late.ambCaptainCall(cat, after); // kaptansan kamp sonu kaptan kararı (src/ambition.js)
   };
   bindActs({
     c1: () => {

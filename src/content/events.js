@@ -9,8 +9,9 @@ import { late } from "../late.js";
 import TR_BASE from "./events.tr.js";
 import TR_MORE from "./events.more.tr.js";
 import TR_HARD from "./events.hard.tr.js";
+import TR_CAREER from "./events.career.tr.js";
 
-const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD];
+const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD, ...TR_CAREER];
 // çeviri paketleri dil yüklenince i18n/index.js → PACKS.events içine gelir
 const CONDITIONS = {
   home: () => S.city === S.home,
