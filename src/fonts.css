@@ -1,0 +1,17 @@
+/* Yazı tipleri uygulamaya gömülü (internetsiz açılış, Google'a istek yok). Latin + Latin-ext (Türkçe karakterler). */
+@import "@fontsource/barlow-condensed/latin-500.css";
+@import "@fontsource/barlow-condensed/latin-ext-500.css";
+@import "@fontsource/barlow-condensed/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-ext-600.css";
+@import "@fontsource/barlow-condensed/latin-700.css";
+@import "@fontsource/barlow-condensed/latin-ext-700.css";
+@import "@fontsource/barlow-condensed/latin-800.css";
+@import "@fontsource/barlow-condensed/latin-ext-800.css";
+@import "@fontsource/manrope/latin-500.css";
+@import "@fontsource/manrope/latin-ext-500.css";
+@import "@fontsource/manrope/latin-600.css";
+@import "@fontsource/manrope/latin-ext-600.css";
+@import "@fontsource/manrope/latin-700.css";
+@import "@fontsource/manrope/latin-ext-700.css";
+@import "@fontsource/manrope/latin-800.css";
+@import "@fontsource/manrope/latin-ext-800.css";

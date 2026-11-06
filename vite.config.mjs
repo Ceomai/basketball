@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
       target: "es2022",
       modulePreload: false,
       outDir: single ? "dist-single" : "dist",
-      rollupOptions: single ? { output: { inlineDynamicImports: true } } : {}
+      rollupOptions: single ? { output: { inlineDynamicImports: true } } : {},
+      // tek dosyada yazı tipleri CSS içine gömülür (file:// ile açılınca da çalışsın)
+      assetsInlineLimit: single ? 1e8 : 4096
     },
     plugins: single
       ? [
@@ -32,6 +34,15 @@ export default defineConfig(({ mode }) => {
             enforce: "post",
             generateBundle(_, bundle) {
               const html = Object.values(bundle).find(a => a.fileName.endsWith(".html"));
+              // CSS (gömülü yazı tipleri, src/fonts.css) da tek dosyaya
+              for (const [name, asset] of Object.entries(bundle)) {
+                if (asset.type !== "asset" || !name.endsWith(".css")) continue;
+                html.source = html.source.replace(
+                  new RegExp(`<link[^>]*href="[^"]*${name.replace(/[.]/g, "\\.")}"[^>]*>`),
+                  () => `<style>${String(asset.source)}</style>`
+                );
+                delete bundle[name];
+              }
               for (const [name, chunk] of Object.entries(bundle)) {
                 if (chunk.type !== "chunk" || !name.endsWith(".js")) continue;
                 html.source = html.source

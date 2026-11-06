@@ -92,6 +92,7 @@ import * as derby from "./derby.js";
 import * as culture from "./culture.js";
 import * as brand from "./brand.js";
 import * as release from "./release.js";
+import * as trcase from "./trcase.js";
 
 const MODULES = [
   data,
@@ -184,7 +185,8 @@ const MODULES = [
   derby,
   culture,
   brand,
-  release
+  release,
+  trcase
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

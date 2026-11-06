@@ -3795,6 +3795,44 @@ test("yayın: aynı yazın teklifleri yeniden açılışta değişmez (kapat-aç
   return p;
 });
 
+test("yayın: İngilizcede büyük harfli Türkçe adlar Türkçe kurala göre (ŞAHİN), İngilizce kelimeler etkilenmez; yazı tipleri gömülü", async () => {
+  const p = await page();
+  await p.evaluate(() => localStorage.setItem("pota-lang", "en"));
+  await p.reload();
+  await p.waitForTimeout(500);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.ADS.consent = true;
+    G.F.first = "Ali";
+    G.F.last = "Şahin";
+    G.F.pos = "SF";
+    G.F.slot = 1;
+    G.F.mode = "normal";
+    G.startCareer();
+    G.S.tut = 1;
+    G.S.tipMoment = 1;
+    G.closeSheet();
+    G.renderMain();
+  });
+  await p.waitForTimeout(400);
+  const r = await p.evaluate(() => {
+    const d = document.createElement("h2");
+    d.textContent = "Ali Şahin wins";
+    document.body.appendChild(d);
+    window.Game.trcWrap(d);
+    const spans = [...d.querySelectorAll('span[lang="tr"]')].map(s => s.textContent);
+    const hud = [...document.querySelectorAll('.hud-id span[lang="tr"], h2 span[lang="tr"]')].map(s => s.textContent);
+    d.remove();
+    const fonts = [...document.fonts].filter(f => /Barlow|Manrope/.test(f.family)).length;
+    const ext = [...document.querySelectorAll('link[href*="fonts.googleapis"]')].length;
+    return { spans, hud, fonts, ext };
+  });
+  assert(r.spans.join() === "Ali,Şahin", "sarma: " + JSON.stringify(r));
+  assert(r.hud.includes("Şahin"), "ana ekranda ad sarılmadı: " + JSON.stringify(r));
+  assert(r.fonts >= 8 && r.ext === 0, "yazı tipleri: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);
