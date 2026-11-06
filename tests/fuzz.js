@@ -219,9 +219,10 @@ async function run(b, idx) {
     actions++;
     hist.push(info.act + "@" + info.week);
     if (hist.length > 400) hist.shift();
+    const txtNoUrl = info.txt.replace(/https?:\/\/\S+/g, " "); // bağlantılar (gizlilik/veri silme adresi) ham anahtar sayılmaz
     for (const [re, name] of BAD_TEXT) {
-      const m = re.exec(info.txt);
-      if (m) add("metin", `${name}: "${info.txt.slice(Math.max(0, m.index - 40), m.index + 40).replace(/\s+/g, " ")}"`, info.act);
+      const m = re.exec(txtNoUrl);
+      if (m) add("metin", `${name}: "${txtNoUrl.slice(Math.max(0, m.index - 40), m.index + 40).replace(/\s+/g, " ")}"`, info.act);
     }
     if (info.sig !== lastSig) {
       lastSig = info.sig;

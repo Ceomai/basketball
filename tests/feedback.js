@@ -3096,7 +3096,7 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
     G.closeSheet();
     // bilinen derbi: Fenerbahçe – Anadolu Efes
     const pool = G.leaguePool("t1", "TR");
-    S.team = pool.find(t => t.name === "Fenerbahçe");
+    S.team = pool.find(t => t.name === "Fenerbahçe" || t.name === "Kadıköy Kanaryaları"); // kurgusal adlar açıkken (src/brand.js)
     S.league = pool.map(t => ({ key: t.key, w: 0, l: 0, pf: 0, pa: 0 }));
     out.fb = G.teamByKey(G.dbyArchKey()).name;
     return out;
@@ -3107,7 +3107,7 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
   assert(r.taraf >= 5 && /Derbi bizim/.test(r.news), "sonuç: " + JSON.stringify(r));
   assert(r.city && /korna|Fark büyük/.test(r.cityTxt), "şehir hikâyesi: " + r.cityTxt);
   assert(/Derbiler/.test(r.career) && /1-0/.test(r.career) && /Ezeli rakip/.test(r.career), "kariyer: " + r.career);
-  assert(r.fb === "Anadolu Efes", "Fenerbahçe derbisi: " + r.fb);
+  assert(r.fb === "Anadolu Efes" || r.fb === "Bakırköy Lacivertleri", "Fenerbahçe derbisi: " + r.fb);
   return p;
 });
 
