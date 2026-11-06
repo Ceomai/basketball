@@ -13,10 +13,17 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- Android 15+ kenardan kenara: sistem çubuklarının arkası koyu kalsın (beyaz şerit görünmesin) -->
+        <item name="android:windowBackground">@color/pota_bg</item>
+        <item name="android:statusBarColor">@color/pota_bg</item>
+        <item name="android:navigationBarColor">@color/pota_bg</item>
     </style>
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- Android 12+ sistem açılış ekranı: koyu zemin üzerinde uygulama ikonu (beyaz parlama olmasın) -->
+        <item name="windowSplashScreenBackground">@color/pota_bg</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

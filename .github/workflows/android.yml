@@ -1,6 +1,7 @@
 # Android derlemesi: her push'ta hata ayıklama APK'sı (test için doğrudan kurulabilir) üretilir.
 # GitHub Secrets'ta ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
-# tanımlıysa Google Play'e yüklenecek imzalı yayın paketi (AAB) de üretilir. Ayrıntılar: docs/STORE.md
+# tanımlıysa Google Play'e yüklenecek imzalı yayın paketi (AAB) de üretilir; bunun için AdMob kimlikleri de gerekir
+# (ADMOB_APP_ID, ADMOB_REWARDED_ANDROID, ADMOB_INTERSTITIAL_ANDROID). Ayrıntılar: docs/YAYIN_KONTROL.md
 name: Android
 on:
   push:
@@ -46,6 +47,25 @@ jobs:
           gh release upload apk-latest pota-kariyeri.apk --clobber
           gh release edit apk-latest --notes "Test APK'sı (hata ayıklama sürümü). Son derleme ${GITHUB_SHA::7}, sürüm 1.0.${{ github.run_number }}. Kurulum: telefonda indir, bilinmeyen kaynaklardan yüklemeye izin ver, kur."
 
+      # Yayın paketi: gerçek AdMob kimlikleriyle YENİDEN derlenir (test APK'sı test kimlikleriyle kalır; kendi
+      # reklamına tıklamak AdMob hesabını kapatabilir). Önce yayın kapısı: test kimliği, yer tutucu vb. varsa durur.
+      # Gerekli Secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
+      #   ADMOB_APP_ID, ADMOB_REWARDED_ANDROID, ADMOB_INTERSTITIAL_ANDROID
+      # İsteğe bağlı Variables: ALLOW_TEST_ADS=1 (kapalı testte bilerek test reklamı), VERSION_CODE_OFFSET (elle yüklenmiş
+      #   bir AAB'den büyük sürüm kodu gerekiyorsa). Ayrıntı: docs/YAYIN_KONTROL.md
+      - name: Yayın kapısı ve yayın derlemesi
+        if: ${{ env.HAS_KEY == 'true' }}
+        env:
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+          VITE_ADMOB_REWARDED_ANDROID: ${{ secrets.ADMOB_REWARDED_ANDROID }}
+          VITE_ADMOB_INTERSTITIAL_ANDROID: ${{ secrets.ADMOB_INTERSTITIAL_ANDROID }}
+          ALLOW_TEST_ADS: ${{ vars.ALLOW_TEST_ADS }}
+          VITE_ALLOW_TEST_ADS: ${{ vars.ALLOW_TEST_ADS }}
+        run: |
+          node tools/release-check.js
+          npm run build
+          node tools/release-check.js --dist
+          npx cap sync android
       - name: Yayın paketi (imzalı AAB)
         if: ${{ env.HAS_KEY == 'true' }}
         working-directory: android
@@ -53,6 +73,9 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+          ALLOW_TEST_ADS: ${{ vars.ALLOW_TEST_ADS }}
+          VERSION_CODE_OFFSET: ${{ vars.VERSION_CODE_OFFSET }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.jks"
           export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"

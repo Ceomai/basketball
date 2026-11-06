@@ -4,6 +4,5 @@
     <string name="title_activity_main">Pota Kariyeri</string>
     <string name="package_name">com.potakariyeri.app</string>
     <string name="custom_url_scheme">com.potakariyeri.app</string>
-    <!-- Google'ın test uygulama kimliği; yayından önce kendi AdMob uygulama kimliğinle değiştir -->
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <!-- admob_app_id burada DEĞİL: app/build.gradle → resValue (ADMOB_APP_ID ortam değişkeni) -->
 </resources>

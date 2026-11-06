@@ -5,9 +5,11 @@
 import { loadPack, syncPack } from "./pack-load.js";
 import trManual from "./tr.js";
 import trAuto from "./tr.auto.js";
+import { brandDeep, brandSetLang } from "../brand.js";
 // elle yazılmış anahtarlar (ekran.öğe) ve araçla çıkarılmış anahtarlar (dosya.no) birlikte.
 // İngilizce sözlük ayrı dosyada: yalnızca İngilizce seçiliyse yüklenir (Türkçe oyuncu indirmez). Bkz. loadLang.
-const tr = { ...trAuto, ...trManual },
+// mağaza güvenli adlar (src/brand.js): gerçek lig/turnuva adları sözlük yüklenirken bir kez çevrilir
+const tr = brandDeep({ ...trAuto, ...trManual }, "tr"),
   en = {};
 /** Dil paketleri (olay çevirileri vb.); loadLang doldurur */
 export const PACKS = { events: [] };
@@ -21,8 +23,8 @@ const DICT = { tr, en };
 export async function loadLang() {
   if (LANG !== "en") return;
   const m = await loadPack();
-  Object.assign(DICT.en, m.dict);
-  PACKS.events = m.events;
+  Object.assign(DICT.en, brandDeep({ ...m.dict }, "en"));
+  PACKS.events = brandDeep(m.events, "en");
 }
 export let LANG = (() => {
   try {
@@ -33,9 +35,10 @@ export let LANG = (() => {
   }
 })();
 document.documentElement.lang = LANG;
+brandSetLang(LANG);
 if (syncPack && LANG === "en") {
-  Object.assign(DICT.en, syncPack.dict);
-  PACKS.events = syncPack.events;
+  Object.assign(DICT.en, brandDeep({ ...syncPack.dict }, "en"));
+  PACKS.events = brandDeep(syncPack.events, "en");
 }
 /** Tarih/büyük harf dönüşümleri için yerel ayar (Türkçede i → İ). */
 export let LOCALE = LANG === "tr" ? "tr-TR" : "en-US";

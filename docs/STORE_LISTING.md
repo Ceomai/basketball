@@ -3,16 +3,18 @@
 Play Console → Ana mağaza girişi bölümüne kopyala. Karakter sınırları: uygulama adı 30, kısa açıklama 80, uzun açıklama 4000.
 Ekran görüntüleri `npm run screenshots` ile `store/screens/` içine üretilir (1080×2340, Türkçe ve İngilizce).
 
+> **Marka uyarısı:** Metinlerde ve görsellerde gerçek kulüp, lig, turnuva ya da oyuncu adı (gerçek ABD ve Avrupa ligleri, kulüp adları vb.) KULLANMA; oyun kurgusal adlarla çalışır (`src/brand.js`). Ekran görüntülerini kurgusal adlı derlemeyle yeniden üret (eski görüntülerde gerçek adlar olabilir). Bu dosyayı `tests/unit/brand.test.mjs` denetler.
+
 ## Türkçe
 
 **Uygulama adı:** Pota Kariyeri: Basketbol Hayatı
 
 **Kısa açıklama (≤80):**
-Liseden NBA'e: kendi basketbol efsaneni yaz, maçı yönet, hayatını kur.
+Liseden dünyanın zirvesine: basketbol efsaneni yaz, maçı yönet, hayatını kur.
 
 **Uzun açıklama:**
 
-Mahalle potasında başlayan bir hikâye. Lise takımında ilk forma, üniversite bursu, profesyonel imza, Avrupa ve belki NBA. Her hafta neye vakit ayıracağına sen karar verirsin: antrenman, ders, aile, sevgili, sponsorlar, taraftarlar.
+Mahalle potasında başlayan bir hikâye. Lise takımında ilk forma, üniversite bursu, profesyonel imza, Avrupa ve belki Kuzey Amerika'nın en büyük ligi. Her hafta neye vakit ayıracağına sen karar verirsin: antrenman, ders, aile, sevgili, sponsorlar, taraftarlar.
 
 MAÇI SEN OYNA
 • Tam saha görünümünde takımını izle; top sana geldiğinde nerede durduğuna, savunmacının ne kadar yakın olduğuna göre karar ver.
@@ -22,7 +24,7 @@ MAÇI SEN OYNA
 KARİYERİNİ KUR
 • Rolünü kazan, sözleşme pazarlığı yap, transfer tekliflerini değerlendir.
 • Takım arkadaşlarının kişilikleri var: kavgalar, kaptanlık, genç bir oyuncuya mentorluk.
-• Milli takım, Avrupa kupaları, All-Star, ödüller ve Şöhretler Müzesi.
+• Milli takım, Avrupa kupaları, Yıldızlar Hafta Sonu, ödüller ve Şöhretler Müzesi.
 
 HAYATIN SAHA DIŞINDA DA SÜRÜYOR
 • Ailenle, koçunla, sevgilinle ilişkiler; nişan, düğün, çocuklar.
@@ -34,7 +36,7 @@ HER KARİYER FARKLI
 • Emeklilikten sonra çocuğunla devam et; soy ağacın nesilden nesile büyür.
 • Forma, ayakkabı, kutlama ve tema ile kendi tarzın.
 
-İnternet gerektirmez. Kayıtlar cihazında tutulur; istersen Google hesabınla buluta yedekleyebilirsin. Türkçe ve İngilizce.
+Oynamak için internet gerekmez (reklamlar için bağlantı gerekir). Kayıtlar cihazında tutulur. Bütün kulüp, lig ve oyuncu adları kurgusaldır. Türkçe ve İngilizce.
 
 **Kategori:** Spor · **Etiketler:** basketbol, kariyer, spor simülasyonu, menajer, hikâye
 
@@ -43,11 +45,11 @@ HER KARİYER FARKLI
 **App name:** Hoop Career: Basketball Life
 
 **Short description (≤80):**
-From high school to the NBA: write your basketball legend, play, build a life.
+From high school to the top: write your basketball legend, play, build a life.
 
 **Full description:**
 
-A story that starts on a neighborhood court. Your first high-school jersey, a college scholarship, a pro contract, Europe and maybe the NBA. Every week you decide where your time goes: practice, classes, family, romance, sponsors and fans.
+A story that starts on a neighborhood court. Your first high-school jersey, a college scholarship, a pro contract, Europe and maybe North America's biggest league. Every week you decide where your time goes: practice, classes, family, romance, sponsors and fans.
 
 PLAY THE GAME YOURSELF
 • Watch your team on a full court; when the ball comes to you, decide based on where you stand and how close the defender is.
@@ -57,7 +59,7 @@ PLAY THE GAME YOURSELF
 BUILD YOUR CAREER
 • Earn your role, negotiate contracts, weigh transfer offers.
 • Teammates have personalities: feuds, captaincy, mentoring a young player.
-• National team, European cups, All-Star, awards and the Hall of Fame.
+• National team, European cups, the Stars Weekend, awards and the Hall of Fame.
 
 LIFE GOES ON OFF THE COURT
 • Relationships with family, coach and partner; engagement, wedding, kids.
@@ -69,7 +71,7 @@ EVERY CAREER IS DIFFERENT
 • Continue with your child after retiring; your family tree grows across generations.
 • Your own style with jerseys, shoes, celebrations and themes.
 
-No internet required. Saves stay on your device; back them up to the cloud with your Google account if you like. Turkish and English.
+No internet needed to play (ads need a connection). Saves stay on your device. All clubs, leagues and players are fictional. Turkish and English.
 
 **Category:** Sports · **Tags:** basketball, career, sports sim, manager, story
 

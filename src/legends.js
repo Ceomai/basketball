@@ -16,6 +16,7 @@ import { $, $$, Bus, ORDER, esc } from "./data.js";
 import { portrait } from "./art.js";
 import { S, closeSheet, fullName, news, norm, sheet } from "./core.js";
 import { late } from "./late.js";
+import { brandIsEuro, brandIsNba, brandText } from "./brand.js";
 
 const KEY = "pota-legends",
   MAX = 60;
@@ -60,8 +61,8 @@ Bus.on("season:end", () => {
 function peakOf(st) {
   let p = Math.max(st.peak || 0, ORDER.indexOf(st.stage));
   for (const h of st.hist || []) {
-    if (/NBA/.test(h.league || "")) p = Math.max(p, 6);
-    else if (/EuroLeague/.test(h.league || "")) p = Math.max(p, 5);
+    if (brandIsNba(h.league)) p = Math.max(p, 6);
+    else if (brandIsEuro(h.league)) p = Math.max(p, 5);
   }
   return p;
 }
@@ -220,7 +221,15 @@ export const originTrainMul = () => (S && S.origin === "gec" && S.age <= 22 ? 1.
 export const originName = o => $t((O_KEYS[o] || O_KEYS.istanbul)[0]);
 
 /* ---- Koleksiyon paneli ---- */
-const STAGE_N = () => [$t("leg.p0"), $t("leg.p1"), $t("leg.p2"), $t("leg.p3"), $t("leg.p4"), "EuroLeague", "NBA"];
+const STAGE_N = () => [
+  $t("leg.p0"),
+  $t("leg.p1"),
+  $t("leg.p2"),
+  $t("leg.p3"),
+  $t("leg.p4"),
+  brandText("EuroLeague"),
+  brandText("NBA")
+];
 export function legendsButtonHTML() {
   return `<button class="btn ghost sm" id="legb">${$t("leg.title")} (${LEG.cards.length})</button>`;
 }

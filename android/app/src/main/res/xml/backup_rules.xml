@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 6-11 otomatik yedekleme. Kariyer kayıtları iki yerde: WebView yerel deposu (app_webview) ve
+     Capacitor Preferences (shared_prefs/CapacitorStorage.xml). İkisi de yedeklenir; yeni telefona kurulumda geri gelir.
+     Yalnızca yeniden üretilebilen WebView önbellekleri dışarıda bırakılır (25 MB yedek sınırı). -->
+<full-backup-content>
+    <exclude domain="root" path="app_webview/Default/GPUCache" />
+    <exclude domain="root" path="app_webview/Default/Service Worker/CacheStorage" />
+    <exclude domain="root" path="app_webview/Default/Code Cache" />
+</full-backup-content>

@@ -132,6 +132,7 @@ export function settingsSheet() {
      .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}">${n}</button>`)
      .join("")}</div></div>
    ${late.adsSettingsHTML()}
+   ${late.relSettingsHTML()}
    ${late.cloudSettingsHTML()}
    ${late.testSettingsHTML()}
    <div class="grid2"><button class="btn" id="st-exp">${t("settings.backup")}</button><button class="btn" id="st-help">${t("btn.guide")}</button></div>
@@ -142,6 +143,7 @@ export function settingsSheet() {
       (b.onclick = () => {
         SETTINGS[b.dataset.tg] = !SETTINGS[b.dataset.tg];
         saveSettings();
+        if (b.dataset.tg === "notify" && SETTINGS.notify) late.notifyAsk(true); // Android 13+ izni bağlamında sorulur
         if (!SETTINGS.crowd) late.crowd(false);
         late.applyLowFx();
         applyA11y();
@@ -195,6 +197,7 @@ export function settingsSheet() {
   );
   late.bindFocusSettings(settingsSheet); // odak modu (src/focus.js)
   late.bindAdsSettings(settingsSheet);
+  late.bindRelSettings(settingsSheet); // gizlilik, satın alım geri yükleme, veri silme (src/release.js)
   late.bindTestSettings(settingsSheet);
   late.bindCloudSettings(settingsSheet);
   $("#st-exp").onclick = exportSheet;

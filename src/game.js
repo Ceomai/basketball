@@ -90,6 +90,8 @@ import * as posplay from "./posplay.js";
 import * as series from "./series.js";
 import * as derby from "./derby.js";
 import * as culture from "./culture.js";
+import * as brand from "./brand.js";
+import * as release from "./release.js";
 
 const MODULES = [
   data,
@@ -180,7 +182,9 @@ const MODULES = [
   posplay,
   series,
   derby,
-  culture
+  culture,
+  brand,
+  release
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

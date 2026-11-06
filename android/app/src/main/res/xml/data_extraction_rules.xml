@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ bulut yedeği ve cihazdan cihaza aktarım: backup_rules.xml ile aynı kurallar (kayıtlar korunur). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="app_webview/Default/GPUCache" />
+        <exclude domain="root" path="app_webview/Default/Service Worker/CacheStorage" />
+        <exclude domain="root" path="app_webview/Default/Code Cache" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="app_webview/Default/GPUCache" />
+        <exclude domain="root" path="app_webview/Default/Service Worker/CacheStorage" />
+        <exclude domain="root" path="app_webview/Default/Code Cache" />
+    </device-transfer>
+</data-extraction-rules>

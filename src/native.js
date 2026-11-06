@@ -16,6 +16,7 @@ import { AdMob } from "@capacitor-community/admob";
 import { $, Bus } from "./data.js";
 import { S, closeSheet } from "./core.js";
 import { late } from "./late.js";
+import { REL_AD_REQUEST } from "./release.js";
 
 export const isNative = Capacitor.isNativePlatform();
 export const AD_FREE_ID = "adfree"; // mağazada tanımlanacak tek seferlik ürün kimliği
@@ -74,19 +75,36 @@ if (isNative) {
   StatusBar.setBackgroundColor({ color: "#090d15" }).catch(() => {});
 }
 
-/* ---- AdMob ---- */
+/* ---- AdMob ----
+   Sıra (Google UMP kuralı): 1) rıza bilgisi 2) gerekiyorsa Google rıza formu (AB/UK) 3) iOS'ta App Tracking
+   Transparency istemi 4) yalnızca canRequestAds ise AdMob başlatılır. adsReady çözülmeden reklam istenmez (src/ads.js).
+   Oyun içi kişiselleştirme izni (src/ads.js adsConsent) ayrıca ilk reklamdan önce sorulur; analitik yalnızca o izinle. */
 if (isNative) {
-  window.PotaNative = { AdMob };
-  (async () => {
+  const adsReady = (async () => {
     try {
-      await AdMob.initialize({});
-      // Google'ın rıza formu: yalnızca gerekli bölgelerde (AB/İngiltere) gösterilir
-      const info = await AdMob.requestConsentInfo();
-      if (info.isConsentFormAvailable && info.status === "REQUIRED") await AdMob.showConsentForm();
+      let info = await AdMob.requestConsentInfo();
+      if (info.isConsentFormAvailable && info.status === "REQUIRED") info = await AdMob.showConsentForm();
+      window.PotaNative.privacyOptionsRequired = info.privacyOptionsRequirementStatus === "REQUIRED";
+      if (info.canRequestAds === false) return false;
+      if (Capacitor.getPlatform() === "ios") {
+        const at = await AdMob.trackingAuthorizationStatus().catch(() => null);
+        if (at && at.status === "notDetermined") await AdMob.requestTrackingAuthorization().catch(() => {});
+      }
+      await AdMob.initialize({ ...REL_AD_REQUEST, initializeForTesting: false });
+      return true;
     } catch (e) {
-      /* reklam katmanı kullanılamıyor: oyun reklamsız devam eder */
+      return false; /* reklam katmanı kullanılamıyor: oyun reklamsız devam eder */
     }
   })();
+  window.PotaNative = {
+    AdMob,
+    adsReady,
+    privacyOptionsRequired: false,
+    // Ayarlar → Reklam gizlilik seçenekleri (UMP zorunlu kılar: rıza her zaman geri alınabilmeli)
+    privacyOptions: () => AdMob.showPrivacyOptionsForm(),
+    // Ayarlar → Bütün verilerimi sil: yerel depodaki kayıt yansıları
+    clearPrefs: () => Preferences.clear().catch(() => {})
+  };
 }
 
 /* ---- Uygulama içi satın alma: reklamsız paket ---- */
@@ -107,7 +125,9 @@ function initStore() {
     .approved(tr => tr.verify())
     .verified(rc => rc.finish())
     .finished(grant)
-    .productUpdated(grant);
+    .productUpdated(grant)
+    // bekleyen ödeme (ör. nakit/havale ile Play ödemesi): tamamlanınca approved → finished yoluyla otomatik açılır
+    .pending(() => late.toast($t("rel.iapPending")));
   store.initialize([platform]).then(grant);
   window.PotaStore = {
     buy: id =>
@@ -115,11 +135,16 @@ function initStore() {
         const p = store.get(id, platform),
           offer = p && p.getOffer();
         if (!offer) return reject(new Error($t("native.2")));
+        let n = 0;
         const timer = setInterval(() => {
           if (store.owned(id)) {
             clearInterval(timer);
             grant();
             resolve(true);
+          } else if (++n > 240) {
+            // 2 dakikada tamamlanmadı: ödeme beklemede; sonuç gelince grant() otomatik çalışır
+            clearInterval(timer);
+            resolve("pending");
           }
         }, 500);
         offer.order().then(err => {
@@ -129,7 +154,17 @@ function initStore() {
           }
         });
       }),
-    restore: () => store.restorePurchases().then(grant)
+    // App Store zorunluluğu: "Satın alımları geri yükle" (Ayarlar → Gizlilik ve verilerin; src/release.js)
+    restore: () =>
+      store.restorePurchases().then(() => {
+        grant();
+        return store.owned(AD_FREE_ID);
+      }),
+    // mağazanın yerelleştirilmiş fiyatı (ör. "₺49,99", "$1.99")
+    price: id => {
+      const p = store.get(id, platform);
+      return (p && p.pricing && p.pricing.price) || "";
+    }
   };
 }
 if (isNative) document.addEventListener("deviceready", initStore, false);

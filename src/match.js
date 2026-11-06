@@ -62,6 +62,7 @@ import {
 import { renderSlots, save } from "./save.js";
 import { HOUSING } from "./places.js";
 import { carUpkeep, itemWeekly } from "./shops.js";
+import { brandText } from "./brand.js";
 /* ================= MAÇ ================= */
 export let M = null;
 export function bugHTML() {
@@ -768,7 +769,7 @@ export function seasonEnd(playoff, champ, final) {
   S.hist.push({
     label,
     team: S.team.name,
-    league: S.stage === "euro" ? `${tn} · EuroLeague` : tn, // miras puanı ve kartlar EuroLeague sezonlarını sayar
+    league: S.stage === "euro" ? `${tn} · ${brandText("EuroLeague")}` : tn, // miras puanı ve kartlar EuroLeague sezonlarını sayar
     w,
     l: res.length - w,
     avg,

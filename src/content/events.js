@@ -10,8 +10,9 @@ import TR_BASE from "./events.tr.js";
 import TR_MORE from "./events.more.tr.js";
 import TR_HARD from "./events.hard.tr.js";
 import TR_CAREER from "./events.career.tr.js";
+import { brandDeep } from "../brand.js";
 
-const TR = [...TR_BASE, ...TR_MORE, ...TR_HARD, ...TR_CAREER];
+const TR = brandDeep([...TR_BASE, ...TR_MORE, ...TR_HARD, ...TR_CAREER], "tr"); // mağaza güvenli adlar (src/brand.js)
 // çeviri paketleri dil yüklenince i18n/index.js → PACKS.events içine gelir
 const CONDITIONS = {
   home: () => S.city === S.home,

@@ -1377,7 +1377,7 @@ test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı tu
   const r = await p.evaluate(() => {
     const G = window.Game,
       S = G.S;
-    const club = G.leaguePool("euro").find(t => t.name === "Baskonia");
+    const club = G.leaguePool("euro").find(t => t.key === "club|Baskonia");
     S.stage = "euro";
     S.team = club;
     S.city = club.city;
@@ -1394,7 +1394,7 @@ test("EuroLeague kulübü: hafta sonu ülke ligi, EuroLeague hafta içi ayrı tu
       cup: S.comps.cup && S.comps.cup.rounds.length
     };
   });
-  assert(r.cc === "ES" && !/EuroLeague/.test(r.lg), "ülke ligi değil: " + JSON.stringify(r));
+  assert(r.cc === "ES" && !/EuroLeague|Kıta Ligi/.test(r.lg), "ülke ligi değil: " + JSON.stringify(r));
   assert(r.domestic, "rakipler başka ülkeden");
   assert(r.euro === 6 && r.kind === "el" && r.cup === 3, "yarışmalar: " + JSON.stringify(r));
   return p;
@@ -1419,7 +1419,7 @@ test("hafta içi maçı: lig maçından sonra gelir, simüle edilir, grup tablos
   });
   await p.waitForSelector("#mw-sim", { timeout: 5000 });
   const t = await p.textContent("#ovl");
-  assert(/EuroLeague/.test(t), "hafta içi ekranı: " + t.slice(0, 80));
+  assert(/EuroLeague|Kıta Ligi/.test(t), "hafta içi ekranı: " + t.slice(0, 80));
   await p.click("#mw-sim");
   await p.waitForSelector("#mw-ok", { timeout: 60000 });
   await p.click("#mw-ok");
@@ -1472,7 +1472,7 @@ test("Final Four, ülke kupası, Süper Kupa ve Lig merkezi Kupalar sekmesi", as
   });
   assert(r.sup && JSON.stringify(r.cup) === "[4,9,12]", "kupa/süper: " + JSON.stringify(r));
   assert(/Kupası/.test(r.html) && /Süper Kupa/.test(r.html), "Kupalar sekmesi");
-  assert(/Final Four/.test(r.due), "Final Four gelmedi: " + r.due.slice(0, 100));
+  assert(/Final Four|Dörtlü Final/.test(r.due), "Final Four gelmedi: " + r.due.slice(0, 100));
   return p;
 });
 
@@ -3238,6 +3238,117 @@ test("paket 4c: yeni şehir paneli ilk taşınmada bir kez gelir (3 imza detayı
     r.seen.includes("İstanbul") && r.seen.includes("Madrid") && r.seen.includes("Los Angeles"),
     "kayıt: " + JSON.stringify(r.seen)
   );
+  return p;
+});
+
+// ---- yayın a: mağaza uyumluluğu (kurgusal adlar, gizlilik/veri silme, reklam kimlikleri) ----
+const BRAND_RX =
+  /(?<![A-Za-zÇĞİÖŞÜçğıöşü])(NBA|EuroLeague|EuroCup|FIBA|Final Four|G League|Fenerbahçe|Anadolu Efes|Real Madrid|Barça|Olympiacos|Panathinaikos|Žalgiris|Celtics|Lakers|Basketbol Süper Ligi|Liga ACB)(?![A-Za-zÇĞİÖŞÜçğıöşü])/;
+test("yayın a: kulüp ve lig adları kurgusal, anahtarlar gerçek; ekranda gerçek marka yok", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(rx => {
+    const G = window.Game,
+      R = new RegExp(rx);
+    const nba = G.leaguePool("nba"),
+      euro = G.leaguePool("euro"),
+      tr1 = G.leaguePool("t1", "TR");
+    const names = [...nba, ...euro, ...tr1].map(t => t.name + " " + t.short);
+    const leagues = Object.values(G.LEAGUES).flatMap(l => l.t);
+    G.S.stage = "nba";
+    G.renderMain();
+    const main = document.body.innerText;
+    G.settingsSheet();
+    const sett = document.body.innerText;
+    return {
+      bad: names.concat(leagues).filter(n => R.test(n)),
+      fen: tr1.find(t => t.key === "club|Fenerbahçe").name,
+      bos: nba.find(t => t.key === "club|Boston Celtics").name,
+      us: G.LEAGUES.US.t[0],
+      main: R.exec(main),
+      sett: R.exec(sett)
+    };
+  }, BRAND_RX.source);
+  assert(!r.bad.length, "gerçek ad: " + r.bad.join(", "));
+  assert(r.fen === "Kadıköy Kanaryaları" && r.bos === "Boston Harbormen" && r.us === "Kuzey Amerika Ligi", JSON.stringify(r));
+  assert(!r.main && !r.sett, "ekranda gerçek ad: " + JSON.stringify([r.main, r.sett]));
+  return p;
+});
+
+test("yayın a: eski kayıttaki gerçek adlar açılışta kurgusala çevrilir, anahtarlar ve derbi eşleşmesi korunur", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const pool = G.leaguePool("t1", "TR");
+    S.team = pool.find(t => t.key === "club|Fenerbahçe");
+    S.league = pool.map(t => ({ key: t.key, w: 0, l: 0 }));
+    S.dby = {};
+    const arch = G.dbyArchKey();
+    // eski sürüm kaydı gibi: gerçek adlar ve gerçek lig adı
+    const raw = JSON.parse(JSON.stringify(S));
+    raw.teams["club|Fenerbahçe"].name = "Fenerbahçe";
+    raw.team.name = "Fenerbahçe";
+    raw.hist = [{ team: "Fenerbahçe", league: "Basketbol Süper Ligi · EuroLeague", w: 20, l: 6 }];
+    raw.news = ["Fenerbahçe NBA'e oyuncu gönderdi."];
+    localStorage.setItem("pota-slot-3", JSON.stringify({ v: 5, S: raw }));
+    const L = G.loadSlot(3).S;
+    return {
+      arch,
+      key: L.team.key,
+      name: L.team.name,
+      tkeys: Object.keys(L.teams).includes("club|Fenerbahçe"),
+      league: L.hist[0].league,
+      news: L.news[0]
+    };
+  });
+  assert(r.arch === "club|Anadolu Efes", "derbi: " + r.arch);
+  assert(r.key === "club|Fenerbahçe" && r.tkeys && r.name === "Kadıköy Kanaryaları", JSON.stringify(r));
+  assert(
+    r.league === "Pota Süper Ligi · Kıta Ligi" && r.news === "Kadıköy Kanaryaları KAL'a oyuncu gönderdi.",
+    JSON.stringify(r)
+  );
+  return p;
+});
+
+test("yayın a: Ayarlar'da gizlilik bölümü; bütün verilerimi sil cihazdaki kayıtları siler", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    window.Game.save();
+    window.Game.settingsSheet();
+  });
+  const has = await p.evaluate(() => ({
+    pp: !!document.querySelector("#rel-pp[href$='privacy.html']"),
+    wipe: !!document.querySelector("#rel-wipe"),
+    restore: !!document.querySelector("#rel-restore"),
+    slot: !!localStorage.getItem("pota-slot-1")
+  }));
+  assert(has.pp && has.wipe && !has.restore && has.slot, JSON.stringify(has));
+  await p.click("#rel-wipe");
+  await p.waitForSelector("#rw-yes");
+  await Promise.all([p.waitForEvent("load"), p.click("#rw-yes")]);
+  await p.waitForTimeout(400);
+  const left = await p.evaluate(() => Object.keys(localStorage).filter(k => /^pota-(slot|settings|legends)/.test(k)));
+  assert(!left.length, "silinmedi: " + left.join(","));
+  return p;
+});
+
+test("yayın a: reklam kimlikleri tek noktadan; test kimliği tanınır; çocuklara yönelik değil", async () => {
+  const p = await page();
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    return {
+      same: G.ADS_CFG.admob === G.REL_ADMOB,
+      test: G.relTestAds("android") && G.relTestAds("ios"),
+      isTest: G.relIsTestId("ca-app-pub-3940256099942544/5224354917") && !G.relIsTestId("ca-app-pub-1234567890123456/1234567890"),
+      req: G.REL_AD_REQUEST,
+      warnWeb: G.relWarnTestAds()
+    };
+  });
+  assert(r.same && r.test && r.isTest && !r.warnWeb, JSON.stringify(r));
+  assert(r.req.tagForChildDirectedTreatment === false && r.req.maxAdContentRating === "Teen", JSON.stringify(r.req));
   return p;
 });
 

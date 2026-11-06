@@ -2,6 +2,7 @@ import { LANG, t as $t } from "./i18n/index.js";
 import { BAL, TDB, WAGE, roleFor, stageLevel } from "./logic/rules.js";
 export { BAL, TDB, WAGE };
 import { late } from "./late.js";
+import { brandTiers } from "./brand.js";
 /* ================= YARDIMCILAR ================= */
 export const $ = s => document.querySelector(s);
 export const $$ = s => [...document.querySelectorAll(s)];
@@ -148,7 +149,7 @@ export const luma = hex => {
 export const LEAGUES = {
   TR: {
     n: $t("data.143"),
-    t: ["Basketbol Süper Ligi", "TBL", "TB2L"],
+    t: brandTiers("TR", ["Basketbol Süper Ligi", "TBL", "TB2L"]),
     pr: 0.97,
     cities: [
       "İstanbul",
@@ -185,7 +186,7 @@ export const LEAGUES = {
   },
   ES: {
     n: $t("data.144"),
-    t: ["Liga ACB", "Primera FEB", "Segunda FEB"],
+    t: brandTiers("ES", ["Liga ACB", "Primera FEB", "Segunda FEB"]),
     pr: 1,
     cities: [
       "Madrid",
@@ -207,7 +208,7 @@ export const LEAGUES = {
   },
   IT: {
     n: $t("data.145"),
-    t: ["Serie A", "Serie A2", "Serie B"],
+    t: brandTiers("IT", ["Serie A", "Serie A2", "Serie B"]),
     pr: 0.93,
     cities: [
       "Milano",
@@ -229,7 +230,7 @@ export const LEAGUES = {
   },
   FR: {
     n: $t("data.146"),
-    t: ["LNB Élite", "Pro B", "Nationale 1"],
+    t: brandTiers("FR", ["LNB Élite", "Pro B", "Nationale 1"]),
     pr: 0.92,
     cities: [
       "Paris",
@@ -251,7 +252,7 @@ export const LEAGUES = {
   },
   DE: {
     n: $t("data.147"),
-    t: ["BBL", "ProA", "ProB"],
+    t: brandTiers("DE", ["BBL", "ProA", "ProB"]),
     pr: 0.91,
     cities: [
       "Berlin",
@@ -273,7 +274,7 @@ export const LEAGUES = {
   },
   GR: {
     n: $t("data.148"),
-    t: ["GBL", "Elite League", "National League 1"],
+    t: brandTiers("GR", ["GBL", "Elite League", "National League 1"]),
     pr: 0.94,
     cities: [
       "Atina",
@@ -295,7 +296,7 @@ export const LEAGUES = {
   },
   RS: {
     n: $t("data.149"),
-    t: ["KLS", "Prva Liga", "Druga Liga"],
+    t: brandTiers("RS", ["KLS", "Prva Liga", "Druga Liga"]),
     pr: 0.9,
     cities: [
       "Belgrad",
@@ -317,7 +318,7 @@ export const LEAGUES = {
   },
   LT: {
     n: $t("data.150"),
-    t: ["LKL", "NKL", "RKL"],
+    t: brandTiers("LT", ["LKL", "NKL", "RKL"]),
     pr: 0.89,
     cities: [
       "Kaunas",
@@ -339,7 +340,7 @@ export const LEAGUES = {
   },
   US: {
     n: $t("data.151"),
-    t: ["NBA"],
+    t: brandTiers("US", ["NBA"]),
     pr: 1.2,
     cities: [
       "New York",
@@ -479,7 +480,7 @@ export const MASC_US = [
   "Pilots",
   "Stingrays",
   "Rhinos",
-  "Mariners"
+  "Navigators"
 ];
 export const PAT = {
   TR: [

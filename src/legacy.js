@@ -9,6 +9,7 @@ import { $, $$, Bus, esc, fmt, isPro } from "./data.js";
 import { S, fullName, news, norm, tx } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
+import { brandIsEuro, brandIsNba } from "./brand.js";
 
 export const FOUNDATION = [
   { id: "saha", p: 20000, pts: 40, fans: 5, aile: 5, n: $t("legacy.1"), d: $t("legacy.2") },
@@ -57,7 +58,7 @@ export function legacyBreakdown() {
   const k = S.career,
     lg = L();
   // istatistik ağırlığı düşük, başarılar (kupa, MVP, All-Star, milli takım, üst lig) belirleyici
-  const top = S.hist.filter(h => /EuroLeague|NBA/.test(h.league)).length;
+  const top = S.hist.filter(h => brandIsEuro(h.league) || brandIsNba(h.league)).length;
   const parts = [
     [$t("legacy.20"), Math.round((k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25) * late.modeLegacy().stat)],
     [$t("legacy.21"), Math.round(k.wins * 0.6 * late.modeLegacy().stat)],

@@ -10,19 +10,43 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { App } from "@capacitor/app";
 import { S, fixture, teamByKey } from "./core.js";
 import { late } from "./late.js";
+import { Bus } from "./data.js";
 
 const native = Capacitor.isNativePlatform();
 const ID = 7001;
+// İzin yalnızca KONTROL edilir: uygulama arka plana giderken sistem penceresi açmak (eski davranış) Android 13+'ta
+// kötü deneyim ve reddedilme sebebiydi. İzin bağlamında istenir: 3. maçtan sonra bir kez ya da Ayarlar'da açınca.
 async function permitted() {
+  try {
+    return (await LocalNotifications.checkPermissions()).display === "granted";
+  } catch (e) {
+    return false;
+  }
+}
+const ASK_KEY = "pota-notif-asked";
+/** Bildirim iznini iste (Android 13+ çalışma zamanı izni). force: Ayarlar'dan açıldı (daha önce sorulmuş olsa da). */
+export async function notifyAsk(force = false) {
+  if (!native || window.__SIM || late.SETTINGS.notify === false) return false;
+  try {
+    if (!force && localStorage.getItem(ASK_KEY)) return false;
+    localStorage.setItem(ASK_KEY, "1");
+  } catch (e) {
+    /* depolama kapalı */
+  }
   try {
     const p = await LocalNotifications.checkPermissions();
     if (p.display === "granted") return true;
-    if (p.display === "denied") return false;
     return (await LocalNotifications.requestPermissions()).display === "granted";
   } catch (e) {
     return false;
   }
 }
+// bağlam: oyuncu oyunu birkaç maç denedikten sonra (ilk açılışta izin penceresi yok)
+let notifyGames = 0;
+if (native)
+  Bus.on("match:end", () => {
+    if (++notifyGames >= 3) notifyAsk();
+  });
 /** Bir sonraki bildirimi seç (test edilebilir saf mantık).
     Oyunda enerji gerçek zamanla dolmaz (oyun haftasıyla dolar); bu yüzden yalnızca doğru olan şeyler hatırlatılır. */
 export function nextNotification(state, now = new Date()) {
