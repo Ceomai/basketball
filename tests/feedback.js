@@ -1171,7 +1171,11 @@ test("hikâye: haftalık hikâye olayı (güvenli seçenek), şanslı çorap şu
     if (G.S.goals) G.S.goals.shown = true;
     const R = Math.random;
     Math.random = () => 0.3;
-    G.Bus.first("week:sheet");
+    // önce gelen başka paneller (derbi basını vb.) tüketilir
+    for (let i = 0; i < 6 && !document.querySelector("[data-tl]"); i++) {
+      G.closeSheet();
+      G.Bus.first("week:sheet");
+    }
     Math.random = R;
   });
   await p.waitForSelector("[data-tl]", { timeout: 3000 });
