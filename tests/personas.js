@@ -130,7 +130,7 @@ persona("U07", "Hızlı gezgin: haritada 60 rastgele mekan aç-kapat dokunuşu",
   await career(p);
   for (let i = 0; i < 60; i++) {
     const locs = await p.$$(".loc");
-    await locs[i % locs.length].click();
+    await locs[i % locs.length].dispatchEvent("click"); // kilitli mekân aria-disabled: oyuncu yine dokunabilir (uyarı görür)
     const x = await p.$("#shx");
     if (x) await x.click();
   }
