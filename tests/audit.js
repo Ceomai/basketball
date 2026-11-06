@@ -130,6 +130,7 @@ async function week(p) {
         "[data-amb-cap]",
         "#dby-ok",
         "[data-dbp]",
+        "[data-cu]",
         "[data-bd]",
         "#sc-ok",
         "#hk-a",

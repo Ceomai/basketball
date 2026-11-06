@@ -705,7 +705,7 @@ export default [
   {
     id: "partner-tasinma",
     w: "partner",
-    when: ["partner", "abroad"],
+    when: ["partner", "foreign"],
     who: "Partnerin",
     title: "Uzak mesafe",
     text: '"Sen başka bir ülkedesin, ben İstanbul\'dayım. Ben de oraya gelsem mi?"',
@@ -795,7 +795,7 @@ export default [
   {
     id: "moral-dusuk",
     w: "friend",
-    when: "lowMorale",
+    when: ["lowMorale", "ist"], // Moda'da çay: İstanbul'a özgü
     who: "{friend}",
     title: "Eski arkadaşlar",
     text: '"Uzun zamandır görüşmedik. Moda\'da çay içelim mi? Eskisi gibi."',

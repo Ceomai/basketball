@@ -2,7 +2,7 @@
    İçerik paketlerindeki (events.tr.js, events.<dil>.js) veriyi oyuna uygular:
    koşulları süzer, yer tutucuları doldurur, etkileri ve şans dallarını uygular.
    Yeni olay eklemek için kod değil, yalnızca içerik paketi düzenlenir. */
-import { ORDER, STATS, cOf, cityTheme, fmt, isPro, pick, statName, WAGE } from "../data.js";
+import { CITY_C, ORDER, STATS, cOf, cityTheme, fmt, isPro, pick, statName, WAGE } from "../data.js";
 import { S, fame, tx } from "../core.js";
 import { LANG, PACKS } from "../i18n/index.js";
 import { late } from "../late.js";
@@ -17,6 +17,10 @@ const CONDITIONS = {
   home: () => S.city === S.home,
   abroad: () => S.city !== S.home,
   coast: () => cityTheme(S.city).water === "s",
+  // bölge koşulları (src/culture.js): Türkiye'ye özgü olaylar yurtdışında, İstanbul'a özgüler başka şehirde çıkmaz
+  tr: () => (CITY_C[S.city] || "TR") === "TR",
+  ist: () => S.city === "İstanbul",
+  foreign: () => (CITY_C[S.city] || "TR") !== "TR",
   lise: () => S.stage === "lise",
   studying: () => !!S.studying,
   single: () => !S.partner && S.age >= 16,

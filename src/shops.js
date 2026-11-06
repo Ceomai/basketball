@@ -233,7 +233,9 @@ export const STORES = [
   },
   {
     id: "moda",
-    n: $t("shops.52"),
+    get n() {
+      return $t("shops.52"); // bölgesel ad (src/culture.js)
+    },
     wall: "#2a1f26",
     acc: "#d8b25a",
     disp: "fashion",
@@ -280,7 +282,7 @@ export const SHOP = [
     d: $t("shops.61"),
     p: 60,
     ic: () => icon("sneaker", "#cfd8dc", "#1e88e5"),
-    fx: () => (late.statItem("hiz", 2))
+    fx: () => late.statItem("hiz", 2)
   },
   {
     id: "ayak2",
@@ -318,8 +320,24 @@ export const SHOP = [
       S.rel.taraf += 12;
     }
   },
-  { id: "top", st: "spor", n: $t("shops.68"), d: $t("shops.69"), p: 140, ic: () => icon("ball"), fx: () => (late.statItem("sut", 2)) },
-  { id: "bileklik", st: "spor", n: $t("shops.70"), d: $t("shops.71"), p: 40, ic: () => icon("wrist"), fx: () => (late.statItem("sut", 1)) },
+  {
+    id: "top",
+    st: "spor",
+    n: $t("shops.68"),
+    d: $t("shops.69"),
+    p: 140,
+    ic: () => icon("ball"),
+    fx: () => late.statItem("sut", 2)
+  },
+  {
+    id: "bileklik",
+    st: "spor",
+    n: $t("shops.70"),
+    d: $t("shops.71"),
+    p: 40,
+    ic: () => icon("wrist"),
+    fx: () => late.statItem("sut", 1)
+  },
   {
     id: "dizlik",
     st: "spor",
@@ -327,7 +345,7 @@ export const SHOP = [
     d: $t("shops.73"),
     p: 90,
     ic: () => icon("knee"),
-    fx: () => (late.statItem("sav", 2))
+    fx: () => late.statItem("sav", 2)
   },
   {
     id: "agirlik",
@@ -336,7 +354,7 @@ export const SHOP = [
     d: $t("shops.75"),
     p: 400,
     ic: () => icon("weights"),
-    fx: () => (late.statItem("guc", 2))
+    fx: () => late.statItem("guc", 2)
   },
   {
     id: "forma",
@@ -373,7 +391,7 @@ export const SHOP = [
     d: $t("shops.84"),
     p: 300,
     ic: () => icon("tablet"),
-    fx: () => (late.statItem("pas", 2))
+    fx: () => late.statItem("pas", 2)
   },
   {
     id: "laptop",
@@ -869,7 +887,9 @@ export const MARKET = [
   {
     id: "kahve",
     cat: $t("shops.137"),
-    n: $t("shops.144"),
+    get n() {
+      return $t("shops.144"); // bölgesel ad (src/culture.js)
+    },
     d: $t("shops.145"),
     p: 3,
     ic: () => icon("coffee"),
@@ -915,7 +935,9 @@ export const MARKET = [
   {
     id: "sandvic",
     cat: $t("shops.146"),
-    n: $t("shops.153"),
+    get n() {
+      return $t("shops.153"); // bölgesel ad (src/culture.js)
+    },
     d: $t("shops.154"),
     p: 4,
     ic: () => icon("sandwich"),

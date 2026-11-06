@@ -33,12 +33,21 @@ export const HOUSE_NAMES = {
   villa: $t("map.18"),
   malikane: $t("map.19")
 };
+// ev adları çağrı anında: kiralık ev türü bulunulan şehre göre değişir (src/culture.js)
+const HOUSE_N = {
+  oda: () => $t("map.14"),
+  yurt: () => $t("map.15"),
+  daire: () => $t("map.16"),
+  lux: () => $t("map.17"),
+  villa: () => $t("map.18"),
+  malikane: () => $t("map.19")
+};
 export function locInfo(id, P) {
   const away = P.city !== P.home;
   const r = {
     okul: { n: P.studying ? (P.stage === "lise" ? $t("map.1") : $t("map.2")) : $t("map.3"), slot: P.studying },
     medya: { n: $t("places.184"), slot: true },
-    ev: { n: HOUSE_NAMES[P.housing] || $t("map.4"), slot: false },
+    ev: { n: (HOUSE_N[P.housing] || (() => $t("map.4")))(), slot: false },
     stad: {
       n: P.team ? P.team.short + " " + (["lise", "uni"].includes(P.stage) ? $t("map.5") : $t("map.6")) : $t("map.7"),
       slot: false
@@ -335,18 +344,23 @@ export function mapSVG(P) {
     [380, 664]
   ].forEach(
     ([x, y]) =>
-      (g += `<rect x="${x - 1.5}" y="${y - 8}" width="3" height="8" fill="#5b4636"/><circle cx="${x}" cy="${y - 13}" r="7" fill="${lit ? "#1f3a2a" : "#3d6e4b"}"/>`)
+      (g +=
+        (late.cuTreeSVG && late.cuTreeSVG(P, x, y, lit)) ||
+        `<rect x="${x - 1.5}" y="${y - 8}" width="3" height="8" fill="#5b4636"/><circle cx="${x}" cy="${y - 13}" r="7" fill="${lit ? "#1f3a2a" : "#3d6e4b"}"/>`)
   );
+  const carC = late.cuCarColors && late.cuCarColors(P);
   [
     [40, 274, "#c0392b"],
     [230, 282, "#d8b25a"],
     [330, 410, "#2a9d8f"],
     [300, 542, "#8e99a8"]
-  ].forEach(([x, y, c]) => {
+  ].forEach(([x, y, c], i) => {
+    c = (carC && carC[i]) || c; // ABD'de sarı taksi vb. (src/culture.js)
     g += `<rect x="${x}" y="${y}" width="22" height="10" rx="3" fill="${c}"/>`;
     if (lit) g += `<circle cx="${x + 24}" cy="${y + 5}" r="6" fill="url(#glow)" opacity=".7"/>`;
   });
   const D2 = P.district === "kompleks";
+  if (late.cuMapSVG) g += late.cuMapSVG(P, lit, D2); // bölgesel küçük ipuçları (src/culture.js)
   if (D2) {
     // sahil: alt yarıda deniz, iskele ve tekneler (ileride liman, akademi, hipodrom için)
     g += `<rect x="0" y="556" width="400" height="114" fill="${lit ? "#0e2342" : "#2f6fa6"}"/>`;
@@ -360,6 +374,9 @@ export function mapSVG(P) {
         (g += `<path d="M${x - 22} ${y}H${x + 22}L${x + 14} ${y + 10}H${x - 14}Z" fill="#eceff1"/><rect x="${x - 1}" y="${y - 26}" width="2" height="26" fill="#cfd8dc"/><path d="M${x + 1} ${y - 24}L${x + 16} ${y - 4}H${x + 1}Z" fill="#fff"/>`)
     );
   }
+  // AVM tabelası bölgesel adla (Mall, Centro commerciale...) genişler
+  const avmT = $t("map.13"),
+    avmW = Math.min(84, Math.max(36, avmT.length * 4.4 + 10));
   const B = {
     // akademi: küçük salon ve dış saha
     akademi: (x, y) =>
@@ -442,7 +459,7 @@ export function mapSVG(P) {
       windows(x - 38, y + 30, 64, 14, 4, 1, lit),
     avm: (x, y) =>
       box(x - 52, y + 30, 92, 42, 14, "#cfd6de", "#aab3be", "#bcc5cf") +
-      `<rect x="${x - 44}" y="${y + 2}" width="76" height="22" fill="${lit ? "#ffe3a0" : "#7fa7c9"}" opacity=".9"/><rect x="${x - 24}" y="${y - 8}" width="36" height="10" rx="2" fill="#141414"/><text x="${x - 6}" y="${y}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="8" letter-spacing="1" fill="#d8b25a">${$t("map.13")}</text>`,
+      `<rect x="${x - 44}" y="${y + 2}" width="76" height="22" fill="${lit ? "#ffe3a0" : "#7fa7c9"}" opacity=".9"/><rect x="${x - 6 - avmW / 2}" y="${y - 8}" width="${avmW}" height="10" rx="2" fill="#141414"/><text x="${x - 6}" y="${y}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="8" letter-spacing="1" fill="#d8b25a">${esc(avmT)}</text>`,
     market: (x, y) =>
       box(x - 36, y + 30, 60, 32, 12, "#e9e6df", "#c9c5bc", roof) +
       `<path d="M${x - 38} ${y - 2}h64l-4 9h-56z" fill="#1f7a5c"/>` +

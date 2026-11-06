@@ -42,7 +42,10 @@ const WHEN_NAMES = [
   "national",
   "rivalAhead",
   "lowMorale",
-  "tired"
+  "tired",
+  "tr",
+  "ist",
+  "foreign"
 ];
 const WHEN = {
   includes: w => w === undefined || (Array.isArray(w) ? w.every(x => WHEN_NAMES.includes(x)) : WHEN_NAMES.includes(w))

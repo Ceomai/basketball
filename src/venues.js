@@ -409,7 +409,7 @@ const sl = () => {
       legend: prev.legend || 0,
       titles: prev.titles || 0,
       t: Object.fromEntries([["me", { w: 0, l: 0 }], ...SL_TEAMS.map(k => [k, { w: 0, l: 0, s: +(0.35 + Math.random() * 0.35).toFixed(2) }])]),
-      boss: pick(late.NAME_FIRST || ["Kemal"])
+      boss: pick((late.cOf && late.cOf(S.city).first) || late.NAME_FIRST || ["Kemal"]) // rakip lider bulunulan ülkeden
     };
   }
   return S.sl;

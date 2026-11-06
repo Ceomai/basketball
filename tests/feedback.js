@@ -2969,6 +2969,257 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
   return p;
 });
 
+// paket 4c: şehir dokusu — bölgesel kültür katmanı (src/culture.js)
+async function cuMove(p, city, stage) {
+  return p.evaluate(
+    ([c, st]) => {
+      const G = window.Game,
+        S = G.S,
+        cl = G.allClubs().find(x => x.city === c);
+      S.team = G.clubTeam(cl);
+      S.city = c;
+      S.stage = st || (cl.cc === "US" ? "nba" : "t1");
+      S.studying = false;
+      S.age = 22;
+      S.housing = "daire";
+      S.slot = 3;
+      S.district = "merkez";
+      G.closeSheet();
+      G.renderMain();
+      return Object.fromEntries([...document.querySelectorAll(".loc")].map(g => [g.dataset.loc, g.getAttribute("aria-label")]));
+    },
+    [city, stage]
+  );
+}
+async function cuLocTexts(p, locs) {
+  return p.evaluate(L => {
+    const G = window.Game,
+      out = {};
+    for (const l of L) {
+      G.closeSheet();
+      G.openLoc(l);
+      const sh = document.querySelector(".sheet");
+      out[l] = { title: sh.querySelector("h2").textContent, text: sh.textContent };
+    }
+    G.closeSheet();
+    return out;
+  }, locs);
+}
+test("paket 4c: İstanbul'dan LA ve Madrid'e taşınınca harita etiketleri, mekân başlıkları ve sahneler değişir; Moda/simit görünmez", async () => {
+  const p = await page();
+  await career(p);
+  const LOCS = ["kafe", "market", "sokak", "eglence", "avm"];
+  const ist = await cuMove(p, "İstanbul", "t1");
+  const istT = await cuLocTexts(p, LOCS);
+  const la = await cuMove(p, "Los Angeles");
+  const laT = await cuLocTexts(p, [...LOCS, "liman"]);
+  const laSvg = await p.evaluate(() => {
+    const d = document.querySelector(".cu-deco");
+    return { reg: d && d.dataset.reg, taxi: document.querySelector('svg rect[fill="#f7c51e"]') != null };
+  });
+  const mad = await cuMove(p, "Madrid");
+  const madT = await cuLocTexts(p, [...LOCS, "liman"]);
+  const madDist = await p.evaluate(() => [...document.querySelectorAll("#dist [data-dist]")].map(b => b.textContent));
+  assert(ist.kafe === "Kafe" && ist.avm === "AVM" && ist.sokak === "Sokak sahası", "İstanbul etiketleri: " + JSON.stringify(ist));
+  assert(
+    la.kafe === "Coffee shop" &&
+      la.market === "Corner store" &&
+      la.avm === "Mall" &&
+      la.eglence === "Arcade bar" &&
+      la.sokak === "Venice Beach",
+    "LA etiketleri: " + JSON.stringify(la)
+  );
+  assert(
+    la.ev === "Apartment" && laT.kafe.title === "Coffee shop" && laT.liman.title === "Santa Monica Pier",
+    "LA başlıkları: " + JSON.stringify(laT.liman.title)
+  );
+  assert(
+    /Oat latte ve sohbet/.test(laT.kafe.text) && /Breakfast burrito/i.test(laT.market.text) && laSvg.reg === "usw" && laSvg.taxi,
+    "LA içerik: " + JSON.stringify(laSvg)
+  );
+  assert(
+    mad.kafe === "Tapas barı" && mad.market === "Ultramarinos" && mad.ev === "Kiralık piso" && madT.liman.title === "Madrid Río",
+    "Madrid: " + JSON.stringify(mad)
+  );
+  assert(
+    /Cortado ve sohbet/.test(madT.kafe.text) && /Bocadillo de jamón/i.test(madT.market.text) && /paseo/i.test(madT.liman.text),
+    "Madrid içerik"
+  );
+  assert(madDist[0] === "Barrio" && /nehir/.test(madDist[1]), "semt sekmeleri: " + JSON.stringify(madDist));
+  for (const [c, T] of [
+    ["LA", laT],
+    ["Madrid", madT]
+  ])
+    for (const [l, v] of Object.entries(T))
+      assert(!/Moda sahil|Moda'|simit|Kadıköy|Boğaz/i.test(v.text + v.title), `${c}/${l}: İstanbul metni görünüyor`);
+  assert(
+    LOCS.every(l => istT[l].title !== laT[l].title),
+    "mekân başlıkları değişmeli"
+  );
+  // İngilizce: aynı kültürel adlar
+  await p.evaluate(() => localStorage.setItem("pota-lang", "en"));
+  await p.reload();
+  await p.waitForTimeout(500);
+  await career(p);
+  const laEn = await cuMove(p, "Los Angeles");
+  const madEn = await cuMove(p, "Madrid");
+  const madEnT = await cuLocTexts(p, ["kafe"]);
+  assert(
+    laEn.kafe === "Coffee shop" && laEn.sokak === "Venice Beach" && madEn.kafe === "Tapas bar",
+    "EN etiketler: " + JSON.stringify([laEn, madEn])
+  );
+  assert(/Cortado and a chat/.test(madEnT.kafe.text) && !/simit/i.test(madEnT.kafe.text), "EN kafe");
+  await p.evaluate(() => localStorage.setItem("pota-lang", "tr"));
+  return p;
+});
+
+test("paket 4c: Türkiye'ye özgü olaylar yurtdışında havuzdan çıkar; bölge olayları ve mekân etkileri aynı kalır", async () => {
+  const p = await page();
+  await career(p);
+  const titles = () => p.evaluate(() => window.Game.eventPool().map(e => e.title));
+  await cuMove(p, "İstanbul", "t1");
+  const ist = await titles();
+  await cuMove(p, "Ankara", "t1");
+  const ank = await titles();
+  await cuMove(p, "Los Angeles", "t1");
+  const la = await titles();
+  assert(
+    ist.includes("Çay ocağı analizi") && ist.includes("Taksici tanıdı") && !ist.includes("Tribünde ay yıldız"),
+    "İstanbul havuzu"
+  );
+  assert(
+    ank.includes("Çay ocağı analizi") && !ank.includes("Memleket sofrası") && !ank.includes("Tribünde ay yıldız"),
+    "Ankara havuzu"
+  );
+  assert(
+    !la.includes("Çay ocağı analizi") &&
+      !la.includes("Taksici tanıdı") &&
+      !la.includes("Sabah simidi") &&
+      la.includes("Memleket sofrası"),
+    "LA havuzu"
+  );
+  // aynı mekân eylemi, farklı şehir: aynı etki
+  const act = city =>
+    p.evaluate(async c => {
+      const G = window.Game,
+        S = G.S;
+      const cl = G.allClubs().find(x => x.city === c);
+      S.team = G.clubTeam(cl);
+      S.city = c;
+      S.stage = "t1";
+      Object.assign(S, { moral: 50, money: 5000, slot: 3 });
+      S.rel.ark = 40;
+      G.closeSheet();
+      G.openLoc("kafe");
+      document.querySelector('[data-act="sohbet"]').click();
+      return { moral: S.moral - 50, ark: S.rel.ark - 40, money: 5000 - S.money, slot: 3 - S.slot };
+    }, city);
+  const a1 = await act("İstanbul"),
+    a2 = await act("Los Angeles"),
+    a3 = await act("Madrid");
+  assert(
+    JSON.stringify(a1) === JSON.stringify(a2) && JSON.stringify(a1) === JSON.stringify(a3) && a1.moral > 0,
+    "kafe etkisi aynı olmalı: " + JSON.stringify([a1, a2, a3])
+  );
+  // şehir hayatı olayı: bölgeye özgü metin, aynı mekanik
+  const ev = city =>
+    p.evaluate(c => {
+      const G = window.Game,
+        S = G.S;
+      const cl = G.allClubs().find(x => x.city === c);
+      S.team = G.clubTeam(cl);
+      S.city = c;
+      S.stage = "t1";
+      S.cu = null;
+      Object.assign(S, { moral: 50, energy: 60 });
+      S.rel.takim = 40;
+      G.closeSheet();
+      const left = G.cuEventsLeft().length;
+      G.cuEvent("food");
+      const t = document.querySelector(".sheet h2").textContent;
+      document.querySelector('[data-cu="a"]').click();
+      const left2 = G.cuEventsLeft().length;
+      G.closeSheet();
+      return { t, left, left2, d: [S.moral - 50, S.energy - 60, S.rel.takim - 40] };
+    }, city);
+  const e1 = await ev("Madrid"),
+    e2 = await ev("Los Angeles"),
+    e3 = await ev("Berlin");
+  assert(e1.t !== e2.t && e2.t !== e3.t, "olay metinleri bölgeye özgü: " + JSON.stringify([e1.t, e2.t, e3.t]));
+  assert(
+    JSON.stringify(e1.d) === JSON.stringify(e2.d) &&
+      JSON.stringify(e1.d) === JSON.stringify(e3.d) &&
+      JSON.stringify(e1.d) === "[5,-4,3]",
+    "olay etkisi aynı: " + JSON.stringify([e1.d, e2.d, e3.d])
+  );
+  assert(e1.left === 5 && e1.left2 === 4, "tekrar etmez: " + JSON.stringify(e1));
+  // çaylak siparişleri bölgenin yemeklerinden
+  const ord = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.city = "Madrid";
+    const m = G.cuOrders(["simit"]);
+    G.S.city = "İstanbul";
+    return [m, G.cuOrders(["simit"])];
+  });
+  assert(ord[0].includes("churros") && !ord[0].includes("simit") && ord[1][0] === "simit", "siparişler: " + JSON.stringify(ord));
+  return p;
+});
+
+test("paket 4c: yeni şehir paneli ilk taşınmada bir kez gelir (3 imza detayı + ilk seçim), geri dönüşte gelmez", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S,
+      out = {};
+    out.start = G.cuWelcomeSheet(); // kariyer başı İstanbul: panel yok
+    out.registered = G.Bus.p["week:sheet"].some(x => x.f === G.cuWelcomeSheet && x.prio < 20);
+    const move = c => {
+      const cl = G.allClubs().find(x => x.city === c);
+      S.team = G.clubTeam(cl);
+      S.city = c;
+      S.stage = cl.cc === "US" ? "nba" : "euro";
+    };
+    move("Los Angeles");
+    S.energy = 50;
+    out.first = G.cuWelcomeSheet();
+    const sh = document.querySelector(".sheet");
+    out.title = sh && sh.querySelector("h2").textContent;
+    out.sig = [...document.querySelectorAll("#cu-sig li")].map(li => li.textContent);
+    out.choices = document.querySelectorAll("[data-cu]").length;
+    document.querySelector('[data-cu="c"]').click();
+    out.energy = S.energy - 50;
+    G.closeSheet();
+    out.again = G.cuWelcomeSheet();
+    move("İstanbul");
+    out.backIst = G.cuWelcomeSheet();
+    move("Los Angeles");
+    out.backLa = G.cuWelcomeSheet();
+    move("Madrid");
+    out.madrid = G.cuWelcomeSheet();
+    out.madSig = [...document.querySelectorAll("#cu-sig li")].map(li => li.textContent);
+    G.closeSheet();
+    out.seen = Object.keys(S.cu.seen);
+    return out;
+  });
+  assert(r.start === false && r.registered, "başlangıç: " + JSON.stringify(r));
+  assert(
+    r.first && /Los Angeles/.test(r.title) && r.sig.length === 3 && r.sig.some(s => /Venice Beach/.test(s)) && r.choices === 3,
+    "LA paneli: " + JSON.stringify(r)
+  );
+  assert(r.energy === 8, "ilk seçim etkisi: " + r.energy);
+  assert(r.again === false && r.backIst === false && r.backLa === false, "bir kez: " + JSON.stringify(r));
+  assert(
+    r.madrid === true && r.madSig.length === 3 && r.madSig.some(s => /Rastro|Retiro|Plaza Mayor/.test(s)),
+    "Madrid paneli: " + JSON.stringify(r.madSig)
+  );
+  assert(
+    r.seen.includes("İstanbul") && r.seen.includes("Madrid") && r.seen.includes("Los Angeles"),
+    "kayıt: " + JSON.stringify(r.seen)
+  );
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);
@@ -2988,7 +3239,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
         const a = $("#adx");
         if (a) return a.disabled ? "w" : (a.click(), "c");
         const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-amb-cap],[data-bd],#dby-ok,[data-dbp],[data-o]"
+          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-amb-cap],[data-bd],#dby-ok,[data-dbp],[data-cu],[data-o]"
         );
         if (c) return (c.click(), "c");
         for (const s of [

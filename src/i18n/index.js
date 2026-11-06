@@ -50,9 +50,17 @@ export function setLang(l) {
   }
   document.documentElement.lang = l;
 }
+// Bölgesel kültür katmanı (src/culture.js): bazı anahtarların metni oyuncunun bulunduğu şehre göre değişir
+let OVR = null;
+/** @param {((key: string) => string | undefined) | null} f */
+export function setTOverride(f) {
+  OVR = f;
+}
+/** Sözlükteki ham metin (yoksa undefined); bölgesel yedek zinciri için. @param {string} key */
+export const tRaw = key => (DICT[LANG] && DICT[LANG][key]) ?? DICT.tr[key];
 /** @param {string} key @param {Record<string, any>} [params] */
 export function t(key, params) {
-  const s = (DICT[LANG] && DICT[LANG][key]) ?? DICT.tr[key] ?? key;
+  const s = (OVR && OVR(key)) ?? (DICT[LANG] && DICT[LANG][key]) ?? DICT.tr[key] ?? key;
   const out = params ? s.replace(/\{(\w+)\}/g, (m, k) => params[k] ?? m) : s;
   return out.indexOf("｛") >= 0 || out.indexOf("｝") >= 0 ? out.replace(/｛/g, "{").replace(/｝/g, "}") : out;
 }

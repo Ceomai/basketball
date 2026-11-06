@@ -89,6 +89,7 @@ import * as mtut from "./mtut.js";
 import * as posplay from "./posplay.js";
 import * as series from "./series.js";
 import * as derby from "./derby.js";
+import * as culture from "./culture.js";
 
 const MODULES = [
   data,
@@ -178,7 +179,8 @@ const MODULES = [
   mtut,
   posplay,
   series,
-  derby
+  derby,
+  culture
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

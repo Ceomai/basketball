@@ -402,7 +402,7 @@ export default [
   {
     id: "gurbetci",
     w: "friend",
-    when: "abroad",
+    when: "foreign",
     who: "Gurbetçi taraftarlar",
     title: "Tribünde ay yıldız",
     text: "{city}'deki maçında tribünde Türk bayraklarıyla bir grup vardı. Maç sonu seni bekliyorlar.",
@@ -418,7 +418,7 @@ export default [
   {
     id: "kargo",
     w: "mom",
-    when: "abroad",
+    when: "foreign",
     who: "{mom}",
     title: "Kargo kolisi",
     text: '"Sana kuru fasulye, çay, pul biber ve kuru dut yolladım. {city}\'de doğru dürüst yemek yoktur oralarda."',
@@ -434,7 +434,7 @@ export default [
   {
     id: "lokanta",
     w: "friend",
-    when: "abroad",
+    when: "foreign",
     who: "Türk lokantası",
     title: "Memleket sofrası",
     text: '{city}\'de bir Türk lokantası buldun. Sahibi seni tanıdı ve "Hesap bizden, yeter ki maçta sayı at" dedi.',
@@ -450,6 +450,7 @@ export default [
   {
     id: "kahvehane",
     w: "press",
+    when: "tr", // Türkiye'ye özgü (src/culture.js)
     who: "Kahvehane yorumcuları",
     title: "Çay ocağı analizi",
     text: 'Mahalle kahvesinde maçın yayını açık. Masadaki amcalar seni yorumluyor: "Bu çocuk sola hiç dönmüyor. Ben söylüyorum, sağdan geçeceksin."',
@@ -469,6 +470,7 @@ export default [
   {
     id: "taksici",
     w: "neighbor",
+    when: "tr", // Türkiye'ye özgü (src/culture.js)
     who: "Taksi şoförü",
     title: "Taksici tanıdı",
     text: 'Bindiğin taksinin şoförü dikiz aynasından baktı: "Abi sen o basketbolcu değil misin? Abi bizim takımı neden almıyorsun, bizim de pivota ihtiyacımız var!"',
