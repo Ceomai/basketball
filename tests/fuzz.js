@@ -118,7 +118,7 @@ async function run(b, idx) {
     let info;
     try {
       info = await p.evaluate(
-        ([r1, r2, r3]) => {
+        ([r1, r2, r3, r4]) => {
           const vis = e => {
             const rc = e.getBoundingClientRect();
             if (rc.width < 4 || rc.height < 4) return false;
@@ -147,7 +147,9 @@ async function run(b, idx) {
           );
           const S = window.Game && window.Game.S;
           let act = "none";
-          if (els.length) {
+          // arada bir Android geri tuşu (src/native.js nativeBack): panel, maç, mini oyun, Sezon Gecesi her yerde
+          if (r4 < 0.04 && window.Game && window.Game.nativeBack) act = "geri:" + window.Game.nativeBack();
+          else if (els.length) {
             // yalnızca büyük tuval mini oyundur (portreler ve simgeler küçük)
             const canv = els.filter(
               e => e.tagName === "CANVAS" && e.getBoundingClientRect().width * e.getBoundingClientRect().height > 40000
@@ -207,7 +209,7 @@ async function run(b, idx) {
           ];
           return { btns, sig, act, txt: txt.slice(0, 4000), week: S ? `${S.season}/${S.week}` : "-", stage: S ? S.stage : "-" };
         },
-        [R(), R(), R()]
+        [R(), R(), R(), R()]
       );
     } catch (e) {
       // sayfa yeniden yüklendi (dil değişimi) ya da gezinme: bekle
@@ -257,7 +259,15 @@ async function run(b, idx) {
   return { idx, seed, view: `${view.w}x${view.h}`, lang, low, pos, actions, weeks, seasons, end: S, issues };
 }
 
+// tüm çeviri anahtarı önekleri: yeni modüllerin ham anahtarları da ("sn.title" gibi) yakalansın
+async function keyPattern() {
+  const tr = (await import("../src/i18n/tr.js")).default,
+    auto = (await import("../src/i18n/tr.auto.js")).default;
+  const pre = [...new Set(Object.keys({ ...auto, ...tr }).map(k => k.split(".")[0]))];
+  BAD_TEXT.push([new RegExp(`(?:^|[^\\w.])(?:${pre.join("|")})\\.\\w+\\b`), "ham anahtar"]);
+}
 (async () => {
+  await keyPattern();
   const b = await chromium.launch();
   const results = [];
   let next = 0;

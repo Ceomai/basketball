@@ -11,7 +11,13 @@ const path = require("path");
 const N = +process.argv[2] || 40,
   SEED0 = +(process.argv[3] || 1),
   PAGES = +process.env.PAGES || 4;
+const fs = require("fs");
 const URL = "file://" + path.resolve(__dirname, "..", "dist-single", "index.html");
+// eski sürümlerden alınmış gerçek kayıtlar (tests/fixtures/old-<commit>.json): her beşinci durum bunlardan biriyle başlar
+const OLD = fs
+  .readdirSync(path.join(__dirname, "fixtures"))
+  .filter(f => /^old-.*\.json$/.test(f))
+  .map(f => fs.readFileSync(path.join(__dirname, "fixtures", f), "utf8"));
 const BAD_TEXT = [
   [/\bundefined\b/, "undefined"],
   [/\bNaN\b/, "NaN"],
@@ -24,9 +30,17 @@ const BAD_TEXT = [
   [/\{[a-z]\w*\}/, "doldurulmamış yer tutucu"]
 ];
 
+// tüm çeviri anahtarı önekleri (ekranda "lc.title" gibi ham anahtar kalmasın)
+async function keyPattern() {
+  const tr = (await import("../src/i18n/tr.js")).default,
+    auto = (await import("../src/i18n/tr.auto.js")).default;
+  const pre = [...new Set(Object.keys({ ...auto, ...tr }).map(k => k.split(".")[0]))];
+  BAD_TEXT.push([new RegExp(`(?:^|[^\\w.])(?:${pre.join("|")})\\.\\w+\\b`), "ham anahtar"]);
+}
 async function one(b, idx) {
   const seed = SEED0 + idx,
-    lang = idx % 4 === 3 ? "en" : "tr";
+    lang = idx % 4 === 3 ? "en" : "tr",
+    oldSave = OLD.length && idx % 5 === 4 ? OLD[Math.floor(idx / 5) % OLD.length] : null;
   const ctx = await b.newContext({ viewport: { width: idx % 2 ? 390 : 844, height: idx % 2 ? 844 : 390 } });
   const p = await ctx.newPage();
   const issues = [];
@@ -108,70 +122,84 @@ async function one(b, idx) {
     await check(where);
   };
   // 1) durum kur
-  await step(
-    "kurulum",
-    s => {
-      const G = window.Game;
-      let x = s;
-      const R = () => (x = (x * 16807) % 2147483647) / 2147483647;
-      const pick = a => a[Math.floor(R() * a.length)];
-      G.F.first = pick(["Ali", "Zeynep", "Çağrı", "Ömer", "İlkay"]);
-      G.F.last = pick(["Yılmaz", "Öztürk", "Şahin", "Ğ'li", "O'Neal"]);
-      G.F.pos = pick(["PG", "SG", "SF", "PF", "C"]);
-      G.F.slot = 1;
-      G.startCareer();
-      G.closeSheet();
-      const S = G.S;
-      const stage = pick(["lise", "lise", "t3", "t2", "t1", "euro", "nba"]);
-      if (stage !== "lise") {
-        const cc = stage === "nba" ? "US" : pick(["TR", "ES", "IT", "FR", "DE", "GR", "RS", "LT"]);
-        const t = pick(G.leaguePool(stage, cc));
-        S.age = 18 + Math.floor(R() * 4);
-        G.acceptOffer({
-          team: t,
-          stage,
-          role: pick(["star", "rot", "bench"]),
-          wage: Math.round(10 + R() * 4000),
-          years: 2,
-          clauses: R() < 0.5 ? { release: true, perf: true } : {}
-        });
+  if (oldSave)
+    await step(
+      "eski kayıt",
+      raw => {
+        const G = window.Game;
+        localStorage.setItem("pota-slot-1", raw);
+        const r = G.loadSlot(1);
+        G.setS(r.S);
+        G.migrate();
+        G.save();
+      },
+      oldSave
+    );
+  else
+    await step(
+      "kurulum",
+      s => {
+        const G = window.Game;
+        let x = s;
+        const R = () => (x = (x * 16807) % 2147483647) / 2147483647;
+        const pick = a => a[Math.floor(R() * a.length)];
+        G.F.first = pick(["Ali", "Zeynep", "Çağrı", "Ömer", "İlkay"]);
+        G.F.last = pick(["Yılmaz", "Öztürk", "Şahin", "Ğ'li", "O'Neal"]);
+        G.F.pos = pick(["PG", "SG", "SF", "PF", "C"]);
+        G.F.slot = 1;
+        G.startCareer();
         G.closeSheet();
-      }
-      const M = (k, f) => R() < 0.45 && f();
-      M("yaş", () => (S.age = 15 + Math.floor(R() * 28)));
-      M("para", () => (S.money = pick([0, -500, 3, 1e9, 123456.789])));
-      M("enerji", () => (S.energy = pick([0, -20, 150, 49])));
-      M("moral", () => (S.moral = pick([0, -10, 120])));
-      M("ilişki", () => Object.keys(S.rel).forEach(k => (S.rel[k] = pick([-50, 0, 100, 250]))));
-      M("nitelik", () => Object.keys(S.st).forEach(k => (S.st[k] = pick([1, 99, 140]))));
-      M("sakatlık", () => (S.injury = { n: "Ayak bileği", w: pick([1, 3, 12]) }));
-      M("eşyalar", () => G.SHOP.forEach(it => (S.items[it.id] = 1)));
-      M("ev", () => (S.housing = pick(["oda", "yurt", "daire", "lux", "villa", "malikane"])));
-      M("hafta", () => (S.week = 1 + Math.floor(R() * Math.max(1, (S.sched || []).length))));
-      M("fiş", () => (S.chips = pick([0, 5, 1e7])));
-      M("takipçi", () => (S.followers = pick([0, 1e9])));
-      M("partner", () => (S.partner = "Deniz"));
-      M("miras", () => (S.legacy = { found: { saha: 1 }, club: pick([0, 50, 60, 100]) }));
-      M("program", () => (S.program = pick(["sut", "toparlanma", "yok-boyle-bir-program"])));
-      M(
-        "görev",
-        () =>
-          (S.missions = pick([
-            null,
-            {},
-            { day: "2020-01-01", daily: [], weekly: [] },
-            { day: "x", daily: [{ id: "silinmis", p: 3, done: true }], weekly: null }
-          ]))
-      );
-      M("madde", () => (S.clauses = pick([null, {}, { perf: true }])));
-      M("sonuçlar", () => (S.results = []));
-      M("emekli", () => ((S.retired = true), (S.epilogue = pick([null, "koc", "tv", "baskan", "bilinmeyen"]))));
-      M("çalışma", () => ((S.studying = false), (S.graduated = true)));
-      G.save();
-      return true;
-    },
-    seed
-  );
+        const S = G.S;
+        const stage = pick(["lise", "lise", "t3", "t2", "t1", "euro", "nba"]);
+        if (stage !== "lise") {
+          const cc = stage === "nba" ? "US" : pick(["TR", "ES", "IT", "FR", "DE", "GR", "RS", "LT"]);
+          const t = pick(G.leaguePool(stage, cc));
+          S.age = 18 + Math.floor(R() * 4);
+          G.acceptOffer({
+            team: t,
+            stage,
+            role: pick(["star", "rot", "bench"]),
+            wage: Math.round(10 + R() * 4000),
+            years: 2,
+            clauses: R() < 0.5 ? { release: true, perf: true } : {}
+          });
+          G.closeSheet();
+        }
+        const M = (k, f) => R() < 0.45 && f();
+        M("yaş", () => (S.age = 15 + Math.floor(R() * 28)));
+        M("para", () => (S.money = pick([0, -500, 3, 1e9, 123456.789])));
+        M("enerji", () => (S.energy = pick([0, -20, 150, 49])));
+        M("moral", () => (S.moral = pick([0, -10, 120])));
+        M("ilişki", () => Object.keys(S.rel).forEach(k => (S.rel[k] = pick([-50, 0, 100, 250]))));
+        M("nitelik", () => Object.keys(S.st).forEach(k => (S.st[k] = pick([1, 99, 140]))));
+        M("sakatlık", () => (S.injury = { n: "Ayak bileği", w: pick([1, 3, 12]) }));
+        M("eşyalar", () => G.SHOP.forEach(it => (S.items[it.id] = 1)));
+        M("ev", () => (S.housing = pick(["oda", "yurt", "daire", "lux", "villa", "malikane"])));
+        M("hafta", () => (S.week = 1 + Math.floor(R() * Math.max(1, (S.sched || []).length))));
+        M("fiş", () => (S.chips = pick([0, 5, 1e7])));
+        M("takipçi", () => (S.followers = pick([0, 1e9])));
+        M("partner", () => (S.partner = "Deniz"));
+        M("miras", () => (S.legacy = { found: { saha: 1 }, club: pick([0, 50, 60, 100]) }));
+        M("program", () => (S.program = pick(["sut", "toparlanma", "yok-boyle-bir-program"])));
+        M(
+          "görev",
+          () =>
+            (S.missions = pick([
+              null,
+              {},
+              { day: "2020-01-01", daily: [], weekly: [] },
+              { day: "x", daily: [{ id: "silinmis", p: 3, done: true }], weekly: null }
+            ]))
+        );
+        M("madde", () => (S.clauses = pick([null, {}, { perf: true }])));
+        M("sonuçlar", () => (S.results = []));
+        M("emekli", () => ((S.retired = true), (S.epilogue = pick([null, "koc", "tv", "baskan", "bilinmeyen"]))));
+        M("çalışma", () => ((S.studying = false), (S.graduated = true)));
+        G.save();
+        return true;
+      },
+      seed
+    );
   // 2) keşif: ana ekran öğeleri ve panel içleri
   const explore = async (depth, label) => {
     const n = await p
@@ -333,6 +361,7 @@ async function one(b, idx) {
 }
 
 (async () => {
+  await keyPattern();
   const b = await chromium.launch();
   const results = [];
   let next = 0;

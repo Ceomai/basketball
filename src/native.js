@@ -60,14 +60,20 @@ export const nativeShareText = isNative
   : null;
 
 /* ---- Geri tuşu ---- */
+/** Geri tuşunun yaptığı iş (web testleri de çağırır). Dönen değer: ne yapıldığı. */
+export function nativeBack() {
+  if ($("#adov")) return "ad"; // reklam ekranı kendi butonuyla kapanır
+  const x = $("#shx");
+  if (x) return (x.click(), "close"); // kapatılabilir panel
+  if ($("#ovl").innerHTML.trim()) return "locked"; // zorunlu seçim paneli: geri tuşu yok sayılır
+  // emekli kariyer: harita (oynanabilir hafta) yerine kariyer sonu ekranına dön; oradaysa uygulamayı küçült
+  if (S && S.retired) return $("#nw") ? "min" : (late.retireScreen(), "retire");
+  if (S && !$("#gostad") && !$("#mview")) return (late.renderMain(), "main"); // alt ekrandan haritaya dön
+  return "min";
+}
 if (isNative) {
   App.addListener("backButton", () => {
-    if ($("#adov")) return; // reklam ekranı kendi butonuyla kapanır
-    const x = $("#shx");
-    if (x) return x.click(); // kapatılabilir panel
-    if ($("#ovl").innerHTML) return; // zorunlu seçim paneli: geri tuşu yok sayılır
-    if (S && !$("#gostad") && !$("#mview")) return late.renderMain(); // alt ekrandan haritaya dön
-    App.minimizeApp();
+    if (nativeBack() === "min") App.minimizeApp();
   });
   // uygulama arka plana alınırken kaydet
   App.addListener("pause", () => S && late.save());

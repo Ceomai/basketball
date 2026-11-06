@@ -251,7 +251,7 @@ function boxOut(dn) {
           btn: $t("pp.btnTip"),
           art: "tip"
         });
-        if (!g.ok) return { good: false, w: 1, st: "hiz", txt: $t("pp.tipNo", { dn }) };
+        if (!g.ok) return { good: false, w: 1, st: "hiz", txt: $t("pp.tipNo", { sur, dn }) };
         M.stops++;
         return { good: true, w: 1, st: "hiz", txt: $t("pp.tipOk", { sur }) };
       }
