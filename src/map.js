@@ -1,5 +1,6 @@
 import { LOCALE, t as $t } from "./i18n/index.js";
 import { STY, cityTheme, clamp, esc, luma, shade } from "./data.js";
+import { late } from "./late.js";
 /* ================= ŞEHİR HARİTASI ================= */
 export const LOCS = [
   { id: "okul", x: 92, y: 200 },
@@ -268,6 +269,7 @@ export function mapSVG(P) {
       h = 10 + (((seed >> (i % 13)) * 7 + i * 31) % 38);
     g += `<rect x="${x}" y="${base - h}" width="${14 + (i % 3) * 3}" height="${h}" fill="${silh}" opacity=".5"/>`;
   }
+  if (late.polMapSVG) g += late.polMapSVG("sky", tod, seed, base); // akşam pencere ışıkları (src/polish.js)
   const L = th.land,
     n = L.length,
     xs = n === 1 ? [200] : n === 2 ? [118 + (seed % 30), 292 - (seed % 24)] : [84, 206, 326];
@@ -468,6 +470,7 @@ export function mapSVG(P) {
   });
   if (lit)
     g += `<rect width="400" height="670" fill="${tod === "night" ? "#050a24" : "#2a1d55"}" opacity="${tod === "night" ? 0.22 : 0.1}" pointer-events="none"/>`;
+  if (late.polMapSVG) g += late.polMapSVG("top", tod, seed, base); // ışık tonu ve yağmur (src/polish.js)
   // haftalık olay işaretleri (src/district.js): tıklanınca olay paneli
   (P.mev || []).forEach(m => {
     const Lc = (D2 ? LOCS2 : LOCS).find(l => l.id === m.loc);

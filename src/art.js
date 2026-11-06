@@ -259,8 +259,10 @@ export function drawKid(c, x, y, s, L, o = {}) {
     c.restore();
   }
   const ey = hY - 3;
-  ell(c, -9, ey, 10, 12, "#fff", -0.18);
-  ell(c, 9, ey, 10, 12, "#fff", 0.18);
+  if (!o.blink) {
+    ell(c, -9, ey, 10, 12, "#fff", -0.18);
+    ell(c, 9, ey, 10, 12, "#fff", 0.18);
+  }
   const lx = o.look || 0;
   c.fillStyle = INK;
   if (o.mood === "kizgin") {
@@ -274,9 +276,18 @@ export function drawKid(c, x, y, s, L, o = {}) {
     c.lineWidth = 2.2;
   }
   c.beginPath();
-  c.arc(-4 + lx, ey + 1, 2.6, 0, 7);
-  c.arc(4 + lx, ey + 1, 2.6, 0, 7);
-  c.fill();
+  if (o.blink) {
+    // göz kırpma (ana ekran portre animasyonu, src/polish.js)
+    c.moveTo(-17, ey + 1);
+    c.quadraticCurveTo(-9, ey + 6, -1, ey + 1);
+    c.moveTo(1, ey + 1);
+    c.quadraticCurveTo(9, ey + 6, 17, ey + 1);
+    c.stroke();
+  } else {
+    c.arc(-4 + lx, ey + 1, 2.6, 0, 7);
+    c.arc(4 + lx, ey + 1, 2.6, 0, 7);
+    c.fill();
+  }
   if (o.glasses || L.glasses) {
     c.beginPath();
     c.moveTo(-1, ey);
@@ -317,6 +328,16 @@ export function drawKid(c, x, y, s, L, o = {}) {
     c.stroke();
   } else if (o.mood === "uzgun") {
     c.arc(2, my + 3, 6, Math.PI + 0.3, -0.3);
+    c.stroke();
+  } else if (o.mood === "gulumse") {
+    c.arc(2, my - 4, 8, 0, Math.PI);
+    c.closePath();
+    c.fillStyle = "#7a2020";
+    c.fill();
+    c.stroke();
+    c.fillStyle = INK;
+  } else if (o.mood === "hafif") {
+    c.arc(2, my + 7, 7, Math.PI + 0.85, -0.85);
     c.stroke();
   } else if (o.mood === "saskin") {
     ell(c, 2, my - 1, 4, 5, INK);

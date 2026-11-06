@@ -1108,6 +1108,7 @@ export function retireScreen() {
   ${late.hofCard()}
   ${late.legendRetireHTML()}
   ${late.afterCareerHTML()}
+  ${late.cchCardHTML()}
   <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
   $("#rp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   if (!S.retired) {
@@ -1116,6 +1117,7 @@ export function retireScreen() {
   }
   $("#nw").onclick = renderSlots;
   late.bindAfterCareer(retireScreen);
+  late.cchBind(retireScreen); // koçluk kariyeri (src/coaching.js)
   late.bindCardButton(retireScreen);
   late.bindAlbumButton(retireScreen);
 }

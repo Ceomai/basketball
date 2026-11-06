@@ -71,7 +71,8 @@ export function legacyBreakdown() {
     [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
     [$t("legacy.52"), S.epiloguePts || 0],
     [$t("st.legacyPart"), (lg.kids || 0) * 15],
-    [$t("ac.legacyPart"), late.acadLegacy ? late.acadLegacy() : 0]
+    [$t("ac.legacyPart"), late.acadLegacy ? late.acadLegacy() : 0],
+    [$t("cch.legacyPart"), late.cchLegacy ? late.cchLegacy() : 0]
   ];
   const sum = parts.reduce((a, p) => a + p[1], 0),
     mul = late.modeLegacy().total;

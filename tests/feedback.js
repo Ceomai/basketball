@@ -2123,6 +2123,177 @@ test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağac
   return p;
 });
 
+test("paket 3d: portre göz kırpar/gülümser, yeniden çizimde tek zamanlayıcı, düşük grafikte kapalı", async () => {
+  const p = await page();
+  await career(p);
+  const a = await p.evaluate(() => {
+    const G = window.Game;
+    G.SETTINGS.lowfx = false;
+    G.S.moral = 85;
+    G.renderMain();
+    G.renderMain();
+    G.renderMain();
+    return {
+      st: G.polPortraitState(),
+      canv: document.querySelectorAll("#hav canvas").length,
+      low: G.polBaseMood(35),
+      vlow: G.polBaseMood(10)
+    };
+  });
+  assert(a.st.running && a.canv === 1 && a.low === "hafif" && a.vlow === "uzgun", "başlangıç: " + JSON.stringify(a));
+  const f0 = a.st.frames;
+  await p.waitForTimeout(9500);
+  const b = await p.evaluate(() => ({
+    st: window.Game.polPortraitState(),
+    canv: document.querySelectorAll("#hav canvas").length
+  }));
+  // üç yeniden çizimden sonra tek zamanlayıcı: 9.5 sn'de en çok ~3 döngü (kırpma 2 kare, gülümseme 2 kare)
+  assert(b.canv === 1 && b.st.frames - f0 >= 2 && b.st.frames - f0 <= 8, "animasyon: " + JSON.stringify({ f0, b }));
+  const c = await p.evaluate(async () => {
+    const G = window.Game;
+    G.app.innerHTML = "";
+    await new Promise(r => setTimeout(r, 5000));
+    const gone = G.polPortraitState().running;
+    G.SETTINGS.lowfx = true;
+    G.renderMain();
+    const low = G.polPortraitState().running;
+    G.SETTINGS.lowfx = false;
+    return { gone, low };
+  });
+  assert(!c.gone && !c.low, "durma: " + JSON.stringify(c));
+  return p;
+});
+
+test("paket 3d: harita akşam pencere ışıkları, sabah tonu, haftaya bağlı yağmur (düşük grafikte statik)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S,
+      seed = G.cityTheme(S.city).seed,
+      out = {};
+    G.SETTINGS.lowfx = false;
+    S.slot = 1;
+    G.renderMain();
+    out.win = document.querySelectorAll(".pol-winlit rect").length;
+    S.slot = 3;
+    let w = 1;
+    while (w < 60 && ((S.week = w), !G.polRainy(seed))) w++;
+    out.rainWeek = w;
+    G.renderMain();
+    out.rain = !!document.querySelector(".pol-rain");
+    out.anim = !!document.querySelector(".pol-rain animateTransform");
+    out.tint = !!document.querySelector(".pol-atmos > rect");
+    out.wx = G.polWeather();
+    G.SETTINGS.lowfx = true;
+    G.renderMain();
+    out.lowAnim = !!document.querySelector(".pol-rain animateTransform");
+    out.lowRain = !!document.querySelector(".pol-rain");
+    G.SETTINGS.lowfx = false;
+    let d = 1;
+    while (d < 60 && ((S.week = d), G.polRainy(seed))) d++;
+    G.renderMain();
+    out.dry = !document.querySelector(".pol-rain");
+    out.locs = document.querySelectorAll(".loc").length;
+    return out;
+  });
+  assert(r.win > 5, "pencere ışığı yok: " + JSON.stringify(r));
+  assert(
+    r.rainWeek < 60 && r.rain && r.anim && r.tint && r.wx.rain && r.wx.tod === "morning",
+    "yağmur/ton: " + JSON.stringify(r)
+  );
+  assert(r.lowRain && !r.lowAnim && r.dry && r.locs > 5, "düşük grafik/kuru hafta: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 3d: kupa dolabı raflarda kupalar, boş raflar, dokununca etiket", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.career.trophies = [
+      { type: "champ", label: "2030 · Şampiyonluk" },
+      { type: "mvp", label: "2030 · MVP" },
+      { type: "nat_gold", label: "2031 · Altın" },
+      { type: "arcade", label: "Arcade" },
+      { type: "cup", label: "Kupa" },
+      { type: "street", label: "Sokak" }
+    ];
+    G.openLoc("ev", "vitrin");
+    const items = document.querySelectorAll("#pol-cab .pol-tr");
+    const empty = document.querySelectorAll("#pol-cab svg > ellipse").length;
+    items[1].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const icons = new Set(["champ", "mvp", "nat_gold", "arcade", "street"].map(t => G.polCabinetIcon({ type: t }).join())).size;
+    return { n: items.length, empty, lbl: document.querySelector("#pol-cab-lbl").textContent, icons };
+  });
+  assert(r.n === 6 && r.empty >= 9 && r.lbl.includes("MVP") && r.icons === 5, "dolap: " + JSON.stringify(r));
+  return p;
+});
+
+test("paket 3d: emeklilik sonrası koçluk sezonu oynanır, mirasa eklenir, kariyer verisi bozulmaz", async () => {
+  const p = await page();
+  await career(p);
+  const before = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.age = 36;
+    S.career.games = 400;
+    G.retireScreen();
+    return {
+      games: S.career.games,
+      hist: S.hist.length,
+      team: S.team.name,
+      legacy: G.legacyScore(),
+      card: !!document.querySelector("#cch-card")
+    };
+  });
+  assert(before.card, "koçluk kartı yok");
+  await p.click("#cch-open");
+  await p.click("[data-cch-team=old]");
+  let steps = 0;
+  for (; steps < 60; steps++) {
+    const st = await p.evaluate(() => {
+      const $ = s => document.querySelector(s);
+      if ($("#cch-again")) return "done";
+      const o = document.querySelectorAll("[data-cch-o]");
+      if (o.length) return (o[Math.floor(Math.random() * 3)].click(), "c");
+      if ($("#cch-next")) return ($("#cch-next").click(), "c");
+      return "?";
+    });
+    if (st === "done") break;
+    assert(st === "c", "koçluk ekranı takıldı");
+  }
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    const L = S.legacy.coach;
+    const part = G.legacyBreakdown().parts.find(x => x[0] === G.t("cch.legacyPart"));
+    const out = {
+      L: { ...L },
+      part: part && part[1],
+      legacy: G.legacyScore(),
+      games: S.career.games,
+      hist: S.hist.length,
+      team: S.team.name,
+      log: S.cch.log.length,
+      res: S.cch.res
+    };
+    document.querySelector("#cch-again").click();
+    out.pick = document.querySelectorAll("[data-cch-team]").length;
+    document.querySelector("#cch-back").click();
+    out.back = !!document.querySelector("#cch-card");
+    return out;
+  });
+  assert(r.L.seasons === 1 && r.L.pts > 0 && r.part === r.L.pts && r.legacy > before.legacy, "miras: " + JSON.stringify(r));
+  assert(
+    r.games === before.games && r.hist === before.hist && r.team === before.team,
+    "kariyer verisi değişti: " + JSON.stringify(r)
+  );
+  assert(r.log >= 8 && r.log <= 10 && r.pick === 2 && r.back, "akış: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

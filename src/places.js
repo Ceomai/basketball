@@ -141,7 +141,7 @@ export function locEv(I, tab = "vitrin") {
   const c = $("#evc");
   if (tab === "vitrin") {
     c.innerHTML = `<div class="scene" id="vit" style="min-height:120px"></div><div class="small muted">${$t("places.10")}</div>
-     <div class="card"><div class="eyebrow">${$t("places.11")}</div>${S.career.trophies.length ? S.career.trophies.map(t => `<div class="row nowrap small"><span style="width:28px">${icon(...late.trophyIcon(t)).replace("<svg", '<svg width="28" height="28"')}</span>${esc(t.label)}</div>`).join("") : `<div class="small muted">${$t("places.7")}</div>`}</div>
+     ${late.polCabinetHTML()}
      ${actHTML({
        id: "rest",
        ic: icon("bed"),
@@ -164,6 +164,7 @@ export function locEv(I, tab = "vitrin") {
       }
     });
     bindActs({ rest: restAct });
+    late.polBindCabinet(); // kupa dolabı (src/polish.js)
     c.insertAdjacentHTML("afterbegin", late.featsCardHTML()); // başarımlar özeti (src/feats.js)
     const fo = $("#ft-open");
     if (fo) fo.onclick = () => locEv(I, "rozet");
