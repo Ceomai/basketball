@@ -429,7 +429,9 @@ export function injuryRisk() {
 export function rollInjury() {
   const re = late.reinjury(); // konservatif tedavi sonrası tekrar (src/dilemmas.js)
   if (re) return re;
-  if (S.injury || Math.random() >= injuryRisk() * late.modeInjuryMul()) return null;
+  // seri maçları aynı haftaya sığar: haftalık sakatlık riskini maçlara böl (yoksa play-off haftası 3-5 kat riskli)
+  const serMul = late.serGameNo && late.serGameNo() > 0 ? 0.35 : 1;
+  if (S.injury || Math.random() >= injuryRisk() * late.modeInjuryMul() * serMul) return null;
   let r = Math.random(),
     pick2 = INJ[0];
   for (const x of INJ) {

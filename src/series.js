@@ -118,9 +118,22 @@ export function serScore() {
   const s = S && S.series && S.series.season === S.season ? S.series : null; // yarı final kaydı faz değiştikten sonra yazılır
   return s && s.need > 1 ? [s.w, s.l] : null;
 }
+/** Aktif seride kaçıncı maç (0: seri yok ya da ilk maç) — sakatlık riski için */
+export const serGameNo = () => {
+  const s = cur();
+  return s ? s.w + s.l : 0;
+};
 /** Seri maçları arası: kısa dinlenme, tek eylem hakkı, ana ekran */
 export function serNext() {
   S.energy = Math.min(100, S.energy + 16);
+  // iki seri maçı arası ~yarım hafta: sakatlık da yarım hafta iyileşir (yoksa tüm seriyi kaçırırdın)
+  if (S.injury) {
+    S.injury.half = (S.injury.half || 0) + 1;
+    if (S.injury.half >= 2) {
+      S.injury.half = 0;
+      if (late.healTick) late.healTick();
+    }
+  }
   S.slot = 1; // maç arası tek eylem
   norm();
   save();
