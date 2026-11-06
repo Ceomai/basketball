@@ -78,6 +78,7 @@ import * as scenarios from "./scenarios.js";
 import * as polish from "./polish.js";
 import * as coaching from "./coaching.js";
 import * as bonds from "./bonds.js";
+import * as matchfeel from "./matchfeel.js";
 
 const MODULES = [
   data,
@@ -156,7 +157,8 @@ const MODULES = [
   scenarios,
   polish,
   coaching,
-  bonds
+  bonds,
+  matchfeel
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

@@ -61,6 +61,8 @@ function floor() {
   ${halfLines(true)}${halfLines(false)}
   <circle id="net-r" cx="${HR.x}" cy="98" r="9" fill="#ffc54d" opacity="0"/>`;
 }
+/** Kritik an tekrarı için saha zemini (file id'si ayrı; src/matchfeel.js) */
+export const courtFloorSVG = () => floor().replace('id="net-r"', 'id="rp-net"');
 const dot = (id, x, y, fill, ring, label) =>
   `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="11" fill="none" stroke="#ffc54d" stroke-width="2.6"/>` : ""}${ring ? courtShoe() : ""}<circle r="7.5" fill="${fill}" stroke="${id[0] === "d" ? "#ffffff" : "#141414"}" stroke-width="${id[0] === "d" ? 1.8 : 1.4}" ${id[0] === "d" ? 'stroke-dasharray="3 2"' : ""}/><text y="3" text-anchor="middle" font-size="7" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
 /** Maç başında: iki takım orta sahada */
@@ -129,6 +131,7 @@ export function courtPlay(r, on, dur) {
   mv("ball", pos.PG[0] + 6, pos.PG[1] - 5, t0);
   const me = $(`#o-${S.pos}`);
   if (me) me.style.opacity = on ? 1 : 0.35;
+  late.mfRings(on); // enerji halkaları (src/matchfeel.js)
   const cap = $("#crt-cap");
   if (cap) cap.textContent = on ? (right ? $t("ct.attack") : $t("ct.defend")) : $t("ct.bench");
   const a = $("#arrows");
@@ -284,6 +287,7 @@ export function courtFreeze(s) {
     if (s.drive) arr += `<line x1="${x}" y1="${y}" x2="${h.x}" y2="${h.y}" stroke="#ff5468" stroke-width="1.8" stroke-dasharray="5 4"/>`;
   }
   if (a) a.innerHTML = arr;
+  late.mfRings(true);
   C.cur = { s, pos };
   const cap = $("#crt-cap");
   if (cap && s.sp) cap.innerHTML = `<b>${s.us ? $t("ct.attack") : $t("ct.defend")}</b>`;
@@ -483,5 +487,5 @@ export function reportHTML() {
   return `<div class="card fm"><div class="eyebrow">${$t("ct.report")}</div>
   <div class="kv"><span>${$t("ct.fg")}</span><b>${pct(M.fgm || 0, M.fga || 0)}</b><span>${$t("ct.tp")}</span><b>${pct(M.tpm || 0, M.tpa || 0)}</b><span>${$t("ct.ft")}</span><b>${pct(M.ftm || 0, M.fta || 0)}</b><span>${$t("ct.bench2")}</span><b>${M.autoPts || 0}</b></div>
   ${q.length ? `<div class="tbl"><table><tr><th></th>${q.map((_, i) => `<th>${i < 4 ? $t("common.q", { n: i + 1 }) : $t("ct.ot")}</th>`).join("")}</tr><tr><td>${esc(S.team.short)}</td>${q.map(x => `<td>${x[0]}</td>`).join("")}</tr><tr><td>${$t("ct.opp")}</td>${q.map(x => `<td>${x[1]}</td>`).join("")}</tr></table></div>` : ""}
-  ${path ? `<div class="eyebrow">${$t("ct.flow")}</div><svg viewBox="0 0 300 80" style="width:100%;height:60px"><line x1="10" y1="40" x2="290" y2="40" stroke="#5d6b82" stroke-dasharray="3 3"/><path d="${path}" fill="none" stroke="#ffc54d" stroke-width="2"/></svg><div class="row between small muted"><span>${$t("ct.start")}</span><span>${$t("ct.end")}</span></div>` : ""}</div>`;
+  ${path ? `<div class="eyebrow">${$t("ct.flow")}</div><svg viewBox="0 0 300 80" style="width:100%;height:60px"><line x1="10" y1="40" x2="290" y2="40" stroke="#5d6b82" stroke-dasharray="3 3"/><path d="${path}" fill="none" stroke="#ffc54d" stroke-width="2"/></svg><div class="row between small muted"><span>${$t("ct.start")}</span><span>${$t("ct.end")}</span></div>` : ""}</div>${late.mfKeyHTML()}`;
 }

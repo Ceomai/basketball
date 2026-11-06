@@ -1,11 +1,13 @@
 /* ================= MOLA VE SON DAKİKA KARARLARI (kendin oynarken) =================
    - Mola hakkı: ilk yarı 2, ikinci yarı 3, uzatmada 1. Rakip seri yakalayınca (üst üste 3 sayı) düğme yanıp söner.
-     Molada: seriyi kes (rakibin sonraki birkaç hücumu zorlaşır) ya da taktik seç (tempo, savunma, top bende).
+     Molada set oyunu: seriyi kes (rakibin sonraki birkaç hücumu zorlaşır), son şut senin (sıradaki hücumda kesin karar
+     anı + küçük isabet bonusu, kaçarsa moral −), pick and roll (sonraki 3 hücumumuz +%7), zon savunma (rakibin sonraki
+     4 hücumu −%8; rakip üçlükçüyse etkisi yarıya). Rakip tarzına göre "Koç önerisi" (src/matchfeel.js).
    - Son dakika (son 50 sn, sahadayken):
      · gerideyken rakip hücumda → "faul yap, saati durdur" (rakip 2 serbest atış, top size) ya da savun
      · 1-3 öndeyken top sizde (son 35 sn) → "zamanı tüket" (saat akar, isabet biraz düşer) ya da hücum et */
 import { t as $t } from "./i18n/index.js";
-import { $, $$ } from "./data.js";
+import { $, $$, Bus } from "./data.js";
 import { M } from "./match.js";
 import { S } from "./core.js";
 import { late } from "./late.js";
@@ -15,6 +17,11 @@ export function timeoutInit() {
   M.toLeft = 2;
   M.oppRun = 0;
   M.runStop = 0;
+  M.toPnr = 0;
+  M.toZone = 0;
+  M.toLast = 0;
+  M.toLastOn = 0;
+  M.on = false; // sahada mı (src/engine.js günceller)
 }
 export const timeoutBtnHTML = () =>
   M && M.toLeft != null
@@ -36,15 +43,18 @@ export function timeoutCard(el) {
   M.toLeft--;
   late.sfx && late.sfx("whistle");
   late.buzz && late.buzz(40); // titreşim (ayarlardan kapatılabilir)
+  const rec = late.osRecommend ? late.osRecommend() : "stop";
+  const sets = [
+    ["stop", $t("cl.stop"), $t("cl.stopD")],
+    ["last", $t("cl.set.last"), $t("cl.set.lastD")],
+    ["pnr", $t("cl.set.pnr"), $t("cl.set.pnrD")],
+    ["zone", $t("cl.set.zone"), late.osStyle && late.osStyle() === "ucluk" ? $t("cl.set.zoneHalf") : $t("cl.set.zoneD")]
+  ].filter(([k]) => k !== "last" || M.on !== false);
   return new Promise(res => {
-    el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("cl.toT", { q: M.q, c: M.clock })}</div><h2>${$t("cl.toH")}</h2><p class="muted">${M.oppRun >= 3 ? $t("cl.toRun", { n: M.oppRun }) : $t("cl.toCalm")}</p><div class="choices">${[
-      ["stop", $t("cl.stop"), $t("cl.stopD")],
-      ["tempo", $t("engine.66"), $t("cl.tempoD")],
-      ["def", $t("engine.67"), $t("cl.defD")],
-      ["ball", $t("engine.68"), $t("cl.ballD")]
-    ]
+    el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("cl.toT", { q: M.q, c: M.clock })}</div><h2>${$t("cl.toH")}</h2><p class="muted">${M.oppRun >= 3 ? $t("cl.toRun", { n: M.oppRun }) : $t("cl.toCalm")}</p><div class="choices">${sets
       .map(
-        ([k, t, d]) => `<button class="choice" data-to="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`
+        ([k, t, d]) =>
+          `<button class="choice" data-to="${k}"><span class="ct">${t}</span><span class="cd">${d}</span>${k === rec ? `<span class="od e">${$t("cl.rec")}</span>` : ""}</button>`
       )
       .join("")}</div></div>`;
     $$("[data-to]").forEach(
@@ -54,10 +64,10 @@ export function timeoutCard(el) {
           if (k === "stop") {
             M.runStop = 5;
             M.oppRun = 0;
-          } else {
-            M.tac = k;
-            if (k === "ball") S.rel.koc -= 1; // çeyrek arasındaki "topu bana verin" ile aynı bedel
-          }
+          } else if (k === "last") M.toLast = 1;
+          else if (k === "pnr") M.toPnr = 3;
+          else if (k === "zone") M.toZone = 4;
+          M.toSet = k;
           el.innerHTML = "";
           res();
           if (M.feed && late.addFeed) late.addFeed(`<b>${$t("cl.toFeed")}</b> ${$t(`cl.toFx.${k}`)}`);
@@ -74,8 +84,31 @@ export function possMod(us) {
     M.runStop--;
     m *= 0.85; // mola sonrası rakip ritmini kaybeder
   }
+  if (us && M.toPnr > 0) {
+    M.toPnr--;
+    m *= 1.07; // pick and roll seti
+  }
+  if (!us && M.toZone > 0) {
+    M.toZone--;
+    m *= late.osStyle && late.osStyle() === "ucluk" ? 0.96 : 0.92; // zon savunma; üçlükçüye karşı yarı etki
+  }
   return m;
 }
+/** "Son şut senin": sıradaki hücumumuzda kesin karar anı (sahadaysan) */
+export function toLastTake(ourBall) {
+  if (!M || !M.toLast || !ourBall) return false;
+  M.toLast = 0;
+  M.toLastOn = 1;
+  return true;
+}
+Bus.on("match:moment", e => {
+  if (!M || !M.toLastOn) return;
+  M.toLastOn = 0;
+  if (e && !e.good) {
+    S.moral = Math.max(0, (S.moral || 0) - 3);
+    if (M.feed && late.addFeed) late.addFeed(`<b>${$t("cl.toFeed")}</b> ${$t("cl.lastMiss")}`);
+  }
+});
 export function runTrack(us, scored) {
   if (!M) return;
   if (!us && scored) M.oppRun = (M.oppRun || 0) + 1;
