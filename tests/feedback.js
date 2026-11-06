@@ -2364,10 +2364,13 @@ test("paket 3c: takım arkadaşı hafızası ve eski takımla karşılaşma", as
     S.mentee = { n: ros[5].n, step: 1, at: 0, team: S.team.name };
     S.captain = S.team.key;
     S.role = "star"; // yedekte kaptanlık düşer
+    ros[0].chem = 999; // kaptanın sağ kolu mentee/kavga tarafından farklı biri olsun (aynı kişi iki kez yazılmaz)
     S.tales = S.tales || { last: -9, done: {}, sock: 0, pivot: 0, coffee: 0, trash: 0 };
     S.tales.feudSide = { n: ros[3].n, team: S.team.key };
     G.Bus.emit("week:start");
     const old = S.team;
+    S.captain = old.key; // hafta başı rol değerlendirmesi kaptanlığı düşürmüş olabilir
+    S.role = "star";
     S.team = pool[1];
     S.city = S.team.city;
     G.newSeasonLeague();
