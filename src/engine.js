@@ -54,7 +54,7 @@ export function modeChoice() {
   return new Promise(r => {
     const cur = S.matchMode || ""; // ilk maçta "son seçimin" rozeti yok
     $("#mview").innerHTML =
-      `${late.preMatchHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
+      `${late.preMatchHTML()}${late.osPreHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
       <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
@@ -207,7 +207,7 @@ export async function playMatch(ctx) {
     // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
     if (!AUTO && !$("#mstat")) return;
     // önde olan rakip son dakikada saati sonuna kadar kullanır (kendin oynarken: faul kararını anlamlı kılar)
-    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : ri(12, 22);
+    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : late.osDur(ri(12, 22)); // rakip tarzı temposu (src/matchfeel.js)
     const t0 = t;
     t = Math.min(end, t + dur);
     setClock();
@@ -228,6 +228,7 @@ export async function playMatch(ctx) {
       want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo && M.ftSit !== M.q; // faulle oyun dışı / faul sorunu
     if (want !== on) {
       on = want;
+      M.on = on;
       if (on) {
         banner(
           $t("engine.21", {
@@ -306,10 +307,11 @@ export async function playMatch(ctx) {
     const involve =
       (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
     const before = [M.us, M.them];
-    const ap0 = M.autoPts || 0;
+    const ap0 = M.autoPts || 0,
+      mp0 = M.pts;
     const skipMoment = M.lcTrail;
     M.lcTrail = false;
-    if (on && !skipMoment && Math.random() < involve) {
+    if (on && !skipMoment && ((!AUTO && late.toLastTake(ourBall)) || Math.random() < involve)) {
       if (ourBall) M.touches = (M.touches || 0) + 1;
       await moment(ourBall, clutch);
     } else {
@@ -323,6 +325,7 @@ export async function playMatch(ctx) {
         );
     }
     if (on) M.plus += M.us - before[0] - (M.them - before[1]);
+    if (!AUTO) late.mfTrack({ us: ourBall, before, pts0: mp0, left: end - t, ot: t > TOTAL }); // kritik an (src/matchfeel.js)
     M.low = Math.min(M.low || 0, M.us - M.them); // en büyük geri düşülen fark (geri dönüş başarımı)
     ourBall = !ourBall;
     updBug();
@@ -382,7 +385,10 @@ export async function playMatch(ctx) {
     const tacU = M.tac === "tempo" ? 1.06 : M.tac === "def" ? 0.97 : 1,
       tacT = M.tac === "def" ? 0.93 : M.tac === "tempo" ? 1.03 : 1;
     const p = clamp(
-      ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) * late.possMod(us),
+      ppp *
+        (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) *
+        late.possMod(us) *
+        late.osPossMul(us),
       0.15,
       0.85
     );
@@ -397,7 +403,7 @@ export async function playMatch(ctx) {
     late.runTrack(us, sc); // rakip serisi (mola düğmesi)
     M.hold = 0;
     if (sc) {
-      const three = Math.random() < 0.32,
+      const three = Math.random() < late.osThree(us),
         pts = three ? 3 : 2;
       if (us) M.us += pts;
       else M.them += pts;
@@ -492,7 +498,7 @@ export async function playMatch(ctx) {
         d: `${d} · ${statName(st)} ${Math.round(eff(st))}${late.foulNote(k)}`,
         e: eff(st) + (k === "safe" ? 15 : 0)
       }));
-      scn = late.courtScenario(false);
+      scn = late.osScenario(late.courtScenario(false));
       opts = late.applyScenario(opts, scn);
     } else {
       // faul anı: çoğunlukla 2 serbest atış, bazen üçlükte faul (3 serbest atış)
@@ -506,7 +512,8 @@ export async function playMatch(ctx) {
     if (sp && sp.pen) opts = opts.map(o => ({ ...o, e: o.e - sp.pen })); // şut saati baskısı
     // imza hareket (maçta bir kez) ve maç koşulları + özellikler seçeneklerin başarı değerine eklenir
     if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
-    opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) }));
+    opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) + (AUTO ? 0 : late.osMomentMod(o.k, ty)) }));
+    M.mfScn = scn;
     const render = () => {
       late.courtFreeze(scn || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
@@ -552,7 +559,7 @@ export async function playMatch(ctx) {
           : null;
       if (fu && fu.pk) pk = fu.pk;
       const pickd = opts.find(o => o.k === k);
-      M.effMod = ((fu && fu.mod) || 0) + dm + Math.round(((pickd && pickd.sm) || 0) * 0.6); // durum (boş/sıkı/kalabalık) sonucu da etkiler
+      M.effMod = ((fu && fu.mod) || 0) + dm + Math.round(((pickd && pickd.sm) || 0) * 0.6) + (AUTO ? 0 : late.osMomentMod(k, ty)); // durum (boş/sıkı/kalabalık) ve rakip tarzı sonucu da etkiler
       if (fu && fu.foulChance && Math.random() < fu.foulChance) pk = "free"; // turnikeyi zorladı, faul aldı
       if (!AUTO) late.setMgCtx(late.mgContext(scn)); // mini oyun sahadaki pozisyona uyar (src/games.js)
       M.lastPk = pk;

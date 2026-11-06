@@ -2175,6 +2175,182 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   return p;
 });
 
+test("paket 3b: rakip koç tarzı kararlı, simetrik ve maç öncesi kartta; yorgunluk halkası ve kenarda dinleniyor", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const t = G.teamByKey(G.fixture().opp);
+    const a = G.osStyleOf(t),
+      b = G.osStyleOf({ ...t });
+    const seen = new Set();
+    for (let i = 0; i < 200; i++) seen.add(G.osStyleOf({ key: "k" + i }));
+    // her tarzda beklenen sayı farkı ~0: rakibin sayı/hücum oranı bizimkine eşit
+    const sym = {};
+    G.setM({ opp: t, live: 1, feed: [] });
+    for (const s of G.OS_STYLES) {
+      G.M.ostyle = s;
+      const ev = (G.osPossMul(false) * (2 + G.osThree(false))) / 2.32;
+      sym[s] = +(ev - (G.osPossMul(true) * (2 + G.osThree(true))) / 2.32).toFixed(3);
+    }
+    G.setM(null);
+    return { a, b, n: seen.size, sym };
+  });
+  assert(r.a === r.b && G_OK(r.a), "kararlı tarz: " + JSON.stringify(r));
+  assert(r.n === 5, "beş tarzın hepsi: " + r.n);
+  assert(
+    Object.values(r.sym).every(v => Math.abs(v) <= 0.005),
+    "simetri: " + JSON.stringify(r.sym)
+  );
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.matchMode = "";
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("#os-pre", { timeout: 8000 });
+  const pre = await p.textContent("#os-pre");
+  assert(/Rakip koç/.test(pre) && /(Pres|Yavaş|Üçlükçü|İçeri|Dengeli)/.test(pre), "maç öncesi tarz: " + pre);
+  const q = await p.evaluate(() => {
+    const G = window.Game;
+    G.SETTINGS.lowfx = false;
+    G.courtPlay({ us: true, scored: true }, true, 0);
+    const mine = document.querySelector(`#o-${G.S.pos} .mf-er`);
+    const mates = document.querySelectorAll("#crt-p .mf-er").length;
+    const dash = mine && mine.getAttribute("stroke-dasharray");
+    const restOn = !!document.querySelector("#mf-rest");
+    G.courtPlay({ us: false, scored: false }, false, 0);
+    const rest = (document.querySelector("#mf-rest") || {}).textContent || "";
+    G.SETTINGS.lowfx = true;
+    G.courtPlay({ us: true, scored: false }, true, 0);
+    const lowN = document.querySelectorAll("#crt-p .mf-er").length;
+    const lowDash = document.querySelector(`#o-${G.S.pos} .mf-er`).getAttribute("stroke-dasharray");
+    G.SETTINGS.lowfx = false;
+    return { v: mine && +mine.dataset.v, mates, dash, restOn, rest, lowN, lowDash };
+  });
+  assert(q.v > 0 && q.v <= 100 && q.mates === 5 && /\d/.test(q.dash || ""), "enerji halkaları: " + JSON.stringify(q));
+  assert(!q.restOn && /DİNLENİYOR/.test(q.rest), "kenarda dinleniyor: " + JSON.stringify(q));
+  assert(q.lowN === 1 && q.lowDash === null, "düşük grafik: yalnız benim halkam, düz: " + JSON.stringify(q));
+  return p;
+});
+const G_OK = s => ["pres", "yavas", "ucluk", "iceri", "denge"].includes(s);
+
+test("paket 3b: mola setleri (son şut, pick and roll, zon) ve koç önerisi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game;
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const card = async (style, pickK, on = true) => {
+      G.M.ostyle = style;
+      G.M.on = on;
+      G.M.toReq = 1;
+      const pr = G.timeoutCard(el);
+      const keys = [...el.querySelectorAll("[data-to]")].map(b => b.dataset.to);
+      const rec = [...el.querySelectorAll("[data-to]")].filter(b => /Koç önerisi/.test(b.textContent)).map(b => b.dataset.to);
+      const b = el.querySelector(`[data-to="${pickK}"]`);
+      b && b.click();
+      await pr;
+      return { keys, rec };
+    };
+    G.setM({ q: 3, clock: "4:00", us: 50, them: 50, plus: 0, live: 1, feed: [], opp: G.teamByKey(G.fixture().opp) });
+    G.timeoutInit();
+    G.M.toLeft = 5;
+    const c1 = await card("ucluk", "zone");
+    const zoneU = [G.possMod(false), G.possMod(false), G.possMod(false), G.possMod(false), G.possMod(false)];
+    const c2 = await card("iceri", "zone");
+    const zoneI = G.possMod(false);
+    G.M.toZone = 0;
+    const c3 = await card("pres", "pnr");
+    const pnr = [G.possMod(true), G.possMod(true), G.possMod(true), G.possMod(true)];
+    const bench = await card("denge", "stop", false);
+    const c4 = await card("yavas", "last");
+    const take0 = G.toLastTake(false),
+      take = G.toLastTake(true),
+      bonus = G.osMomentMod("corner", "off"),
+      m0 = G.S.moral;
+    G.Bus.emit("match:moment", { good: false });
+    const m1 = G.S.moral,
+      after = G.osMomentMod("corner", "off");
+    el.remove();
+    G.setM(null);
+    return { c1, zoneU, c2, zoneI, c3, pnr, bench, c4, take0, take, bonus, after, m0, m1 };
+  });
+  assert(JSON.stringify(r.c1.keys) === '["stop","last","pnr","zone"]', "setler: " + JSON.stringify(r.c1));
+  assert(
+    r.c1.rec[0] === "stop" && r.c2.rec[0] === "zone" && r.c3.rec[0] === "pnr" && r.c4.rec[0] === "last",
+    "koç önerisi: " + JSON.stringify(r)
+  );
+  assert(r.zoneU.slice(0, 4).every(v => Math.abs(v - 0.96) < 1e-9) && r.zoneU[4] === 1, "zon üçlükçüye yarı etki: " + r.zoneU);
+  assert(Math.abs(r.zoneI - 0.92) < 1e-9, "zon: " + r.zoneI);
+  assert(r.pnr.slice(0, 3).every(v => Math.abs(v - 1.07) < 1e-9) && r.pnr[3] === 1, "pick and roll 3 hücum: " + r.pnr);
+  assert(!r.bench.keys.includes("last"), "kenardayken son şut seti yok: " + r.bench.keys);
+  assert(!r.take0 && r.take && r.bonus - r.after === 5, "son şut: " + JSON.stringify(r));
+  assert(r.m1 === r.m0 - 3, "kaçan son şut moral: " + r.m0 + "→" + r.m1);
+  return p;
+});
+
+test("paket 3b: kritik an kaydı, rapor kartı ve tekrar izle; simüle maçta kayıt yok", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game;
+    G.setM({
+      q: 4,
+      clock: "00:40",
+      us: 70,
+      them: 71,
+      pts: 10,
+      plus: 0,
+      live: 1,
+      feed: [],
+      qs: [],
+      opp: G.teamByKey(G.fixture().opp)
+    });
+    // erken bir sayı, sonra son 2 dakikada öne geçiren üçlük (senin)
+    G.M.us = 72;
+    G.M.pts = 12;
+    G.mfTrack({ us: true, before: [70, 71], pts0: 10, left: 400, ot: false });
+    const mine0 = !!G.M.mfMine && !G.M.mfKey;
+    const before = [G.M.us, G.M.them];
+    G.M.them += 2;
+    G.mfTrack({ us: false, before, pts0: G.M.pts, left: 100, ot: false });
+    const b2 = [G.M.us, G.M.them];
+    G.M.us += 3;
+    G.M.pts += 3;
+    G.M.mfScn = { us: true, zone: "corner" };
+    G.mfTrack({ us: true, before: b2, pts0: G.M.pts - 3, left: 40, ot: false });
+    const key = { ...G.M.mfKey };
+    const rep = G.reportHTML();
+    const host = document.createElement("div");
+    host.innerHTML = rep;
+    document.body.appendChild(host);
+    const has = !!host.querySelector("#mf-key #mf-replay") && !!host.querySelector("#mf-svg #rp-net");
+    host.querySelector("#mf-replay").click();
+    await new Promise(res => setTimeout(res, 2100));
+    const ball = (document.querySelector("#mf-ball") || { style: {} }).style.transform;
+    const dots = document.querySelectorAll("#mf-p g").length;
+    host.remove();
+    G.M.auto = true;
+    const autoRep = G.mfKeyHTML();
+    G.setM({ q: 4, clock: "00:40", us: 70, them: 70, pts: 0, live: 1, feed: [], auto: true });
+    G.M.us = 73;
+    G.mfTrack({ us: true, before: [70, 70], pts0: 0, left: 30, ot: false });
+    const autoKey = G.M.mfKey;
+    G.setM(null);
+    return { mine0, key, has, ball, dots, autoRep, autoKey: autoKey || null, title: /Kritik an/.test(rep) };
+  });
+  assert(r.mine0, "erken sayı yalnız 'son sayın' olarak: " + JSON.stringify(r));
+  assert(
+    r.key.us && r.key.mine && r.key.pts === 3 && r.key.zone === "corner" && r.key.a === 75,
+    "kritik an: " + JSON.stringify(r.key)
+  );
+  assert(r.title && r.has, "rapor kartı ve düğme");
+  assert(r.dots === 11 && /translate\(336px/.test(r.ball), "tekrar sahada oynar: " + JSON.stringify(r));
+  assert(r.autoRep === "" && r.autoKey === null, "simüle maçta kayıt yok: " + JSON.stringify(r));
+  return p;
+});
+
 (async () => {
   await serveDist();
   browser = await chromium.launch();
