@@ -32,6 +32,14 @@ export function audioInit() {
     { passive: true }
   )
 );
+// arka plana alınınca bütün sesler (seyirci döngüsü dahil) susar, öne gelince bağlam kaldığı yerden sürer
+document.addEventListener("visibilitychange", () => {
+  if (!AC) return;
+  try {
+    const pr = document.hidden ? AC.suspend() : AC.resume();
+    if (pr && pr.catch) pr.catch(() => {});
+  } catch (e) {}
+});
 // arayüz tıklamaları
 document.addEventListener(
   "click",

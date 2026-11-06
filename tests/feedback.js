@@ -578,7 +578,20 @@ test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etk
   await career(p);
   const r = await p.evaluate(async () => {
     const G = window.Game;
-    G.setM({ pts: 0, ast: 0, reb: 0, stl: 0, blk: 0, stops: 0, mmod: 0, live: 1, qs: [[20, 18], [41, 40]] });
+    G.setM({
+      pts: 0,
+      ast: 0,
+      reb: 0,
+      stl: 0,
+      blk: 0,
+      stops: 0,
+      mmod: 0,
+      live: 1,
+      qs: [
+        [20, 18],
+        [41, 40]
+      ]
+    });
     const el = document.createElement("div");
     document.body.appendChild(el);
     const R0 = Math.random;
@@ -613,14 +626,28 @@ test("ikinci karar: pivot önüne çıkınca pas/ikilik/spin/zorla; seçimin etk
     const live = G.liveLine();
     const rep = G.reportHTML();
     el.remove();
-    return { keys, pull, force, pres, none, M: { fga: M.fga, fgm: M.fgm, tpa: M.tpa, tpm: M.tpm, fta: M.fta, ftm: M.ftm }, e0, e1, live, rep };
+    return {
+      keys,
+      pull,
+      force,
+      pres,
+      none,
+      M: { fga: M.fga, fgm: M.fgm, tpa: M.tpa, tpm: M.tpm, fta: M.fta, ftm: M.ftm },
+      e0,
+      e1,
+      live,
+      rep
+    };
   });
   assert(JSON.stringify(r.keys) === '["pass","pull","spin","force"]', "seçenekler: " + r.keys);
   assert(r.pull.pk === "mid" && r.pull.mod < 0, "ikiliğe kalk orta mesafe olur");
   assert(r.force.foulChance > 0 && r.force.mod < 0, "turnikeyi zorla: zor ama faul şansı");
   assert(typeof r.pres.good === "boolean" && r.pres.st === "pas", "pas sonucu");
   assert(r.none === null, "boş şutta ikinci karar yok");
-  assert(r.M.fga === 2 && r.M.fgm === 1 && r.M.tpa === 1 && r.M.tpm === 1 && r.M.fta === 2 && r.M.ftm === 1, "takip: " + JSON.stringify(r.M));
+  assert(
+    r.M.fga === 2 && r.M.fgm === 1 && r.M.tpa === 1 && r.M.tpm === 1 && r.M.fta === 2 && r.M.ftm === 1,
+    "takip: " + JSON.stringify(r.M)
+  );
   assert(r.e1 < r.e0, "effMod eff'e yansımalı");
   assert(/1\/2/.test(r.live), "canlı satır: " + r.live);
   assert(/Maç raporu/.test(r.rep) && /Serbest atış/.test(r.rep), "rapor");
@@ -660,10 +687,33 @@ test("başarımlar: 100+ başarım, kariyer ve maç denetimi, unvan, kozmetik a�
     G.checkFeats();
     const got = ["troph1", "champ", "pts1", "pts2"].map(id => G.featGot(id));
     // maç başarımı: basket faulle kazanılan maç
-    G.checkMatchFeats({ win: true, and1: 1, pts: 12, ast: 10, reb: 10, fga: 5, fgm: 5, fta: 0, ftm: 0, tpm: 0, low: -14, us: 80, them: 70 });
+    G.checkMatchFeats({
+      win: true,
+      and1: 1,
+      pts: 12,
+      ast: 10,
+      reb: 10,
+      fga: 5,
+      fgm: 5,
+      fta: 0,
+      ftm: 0,
+      tpm: 0,
+      low: -14,
+      us: 80,
+      them: 70
+    });
     const mf = ["andone", "triple", "perfect", "comeback"].map(id => G.featGot(id));
     G.S.title = "champ";
-    return { n, bad, before, after: G.cosOpen("c1"), got, mf, title: G.titleText(), stored: !!JSON.parse(localStorage.getItem("pota-feats")).got.champ };
+    return {
+      n,
+      bad,
+      before,
+      after: G.cosOpen("c1"),
+      got,
+      mf,
+      title: G.titleText(),
+      stored: !!JSON.parse(localStorage.getItem("pota-feats")).got.champ
+    };
   });
   assert(r.n >= 100, "başarım sayısı: " + r.n);
   assert(!r.bad.length, "eksik metin: " + r.bad.slice(0, 3));
@@ -848,7 +898,7 @@ test("rakip yıldız düellosu maç sonunda; kazanınca başarım ve takipçi", 
     const G = window.Game;
     return { won: G.M.duelWon, star: G.M.star.pts, me: G.M.pts };
   });
-  assert(r.won === (r.me > r.star), "düello sonucu: " + JSON.stringify(r));
+  assert(r.won === r.me > r.star, "düello sonucu: " + JSON.stringify(r));
   return p;
 });
 
@@ -948,7 +998,10 @@ test("kafe bilgi gecesi (5 soru, 4 doğru kazanır); gece sokak ligi tablosu ve 
     await p.click("[data-qa]");
   }
   await p.waitForTimeout(200);
-  assert(await p.evaluate(() => window.Game.S.quizWk === `${window.Game.S.season}-${window.Game.S.week}`), "bilgi gecesi oynandı");
+  assert(
+    await p.evaluate(() => window.Game.S.quizWk === `${window.Game.S.season}-${window.Game.S.week}`),
+    "bilgi gecesi oynandı"
+  );
   const r = await p.evaluate(() => {
     const G = window.Game;
     G.S.age = 17;
@@ -1088,7 +1141,18 @@ test("maç 3: tam saha (iki pota), hücum geçiş-set-şut akışı, mini oyun s
     const open = G.mgContext({ us: true, zone: "wing", guard: "open", help: false, mate: true });
     const tight = G.mgContext({ us: true, zone: "wing", guard: "tight", help: true, mate: false });
     const def = G.mgContext({ us: false, drive: true });
-    return { vb, hoops, rx: x(right), lx: x(left), changed: before !== right, open, tight, def, shot: G.isShotKey("corner"), pass: G.isShotKey("kick") };
+    return {
+      vb,
+      hoops,
+      rx: x(right),
+      lx: x(left),
+      changed: before !== right,
+      open,
+      tight,
+      def,
+      shot: G.isShotKey("corner"),
+      pass: G.isShotKey("kick")
+    };
   });
   assert(r.vb === "0 0 360 196" && r.hoops === 2, "tam saha: " + JSON.stringify(r));
   assert(r.changed && r.rx > 180 && r.lx < 180, "hücumda sağ yarıya, savunmada sol yarıya: " + JSON.stringify(r));
@@ -1183,7 +1247,10 @@ test("hikâye: haftalık hikâye olayı (güvenli seçenek), şanslı çorap şu
   // ilk seçenek her zaman mini oyunsuz: sonuç ekranı gelir, takılmaz
   await p.click("[data-tl]");
   await p.waitForTimeout(300);
-  const after = await p.evaluate(() => ({ sheet: !!document.querySelector(".sheet"), tl: !!document.querySelector("[data-tl]") }));
+  const after = await p.evaluate(() => ({
+    sheet: !!document.querySelector(".sheet"),
+    tl: !!document.querySelector("[data-tl]")
+  }));
   assert(title && !after.tl, "hikâye olayı: " + title + " " + JSON.stringify(after));
   const r = await p.evaluate(async () => {
     const G = window.Game,
@@ -1240,7 +1307,11 @@ test("hafta planı (uygula, tekrarla), hafta özeti, milli takım arası serbest
   await p.click('[data-ps="2"] [data-v="cafe"]');
   await p.click("#pl-go");
   await p.waitForSelector("#pl-ok", { timeout: 3000 });
-  const r1 = await p.evaluate(() => ({ slot: window.Game.S.slot, plan: window.Game.S.lastPlan, n: document.querySelectorAll(".sheet .small").length }));
+  const r1 = await p.evaluate(() => ({
+    slot: window.Game.S.slot,
+    plan: window.Game.S.lastPlan,
+    n: document.querySelectorAll(".sheet .small").length
+  }));
   assert(r1.slot === 0 && r1.plan.join() === "team,rest,cafe" && r1.n >= 3, "plan: " + JSON.stringify(r1));
   const r2 = await p.evaluate(() => {
     const G = window.Game,
@@ -1763,7 +1834,9 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
   await p.waitForSelector("[data-tl]", { timeout: 5000 });
   await p.evaluate(() => {
     const t = document.querySelector(".sheet").textContent;
-    const btn = [...document.querySelectorAll("[data-tl]")].find(b => !/muz|çorap|uzaylı|anneanne|ezan|kuzu/.test(b.dataset.tl)) || document.querySelector("[data-tl]");
+    const btn =
+      [...document.querySelectorAll("[data-tl]")].find(b => !/muz|çorap|uzaylı|anneanne|ezan|kuzu/.test(b.dataset.tl)) ||
+      document.querySelector("[data-tl]");
     void t;
     btn.click();
   });
@@ -1857,7 +1930,7 @@ test("haftalık hazırlık her maç haftasında: şut seansı, video, odaklanma;
   await p.evaluate(() => window.Game.openLoc("stad", "mac"));
   assert(
     // derbi/zirve haftasında şut seansı yerine basın toplantısı gelir
-    ((await p.isVisible("#pr-shot")) !== !!(await p.$("#pr-press"))) && (await p.isVisible("#pr-focus")),
+    (await p.isVisible("#pr-shot")) !== !!(await p.$("#pr-press")) && (await p.isVisible("#pr-focus")),
     "haftalık hazırlık düğmeleri"
   );
   await p.evaluate(() => {
@@ -2084,7 +2157,7 @@ test("paket 2: kişilikler, kaptanlık, kavga, mentorluk, yaşlanan portre", asy
     } catch (e) {
       portrait = String(e);
     }
-    return { tr, cap, pill: G.mateTraitHTML("Ali Kaya").includes("pill") , portrait };
+    return { tr, cap, pill: G.mateTraitHTML("Ali Kaya").includes("pill"), portrait };
   });
   assert(r.tr.every(Boolean) && new Set(r.tr).size >= 2, "kişilikler: " + JSON.stringify(r.tr));
   assert(r.cap && r.pill && r.portrait === true, "kaptan/portre: " + JSON.stringify(r));
@@ -2106,7 +2179,14 @@ test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağac
       G.F.scenario = id;
       G.startCareer();
       const S = G.S;
-      out[id] = { age: S.age, stage: S.stage, team: !!S.team, scn: S.scn && S.scn.id, until: S.scn && S.scn.until, html: G.scenarioHTML().length > 0 };
+      out[id] = {
+        age: S.age,
+        stage: S.stage,
+        team: !!S.team,
+        scn: S.scn && S.scn.id,
+        until: S.scn && S.scn.until,
+        html: G.scenarioHTML().length > 0
+      };
       G.closeSheet();
     }
     const S = G.S;
@@ -2124,7 +2204,10 @@ test("paket 2: üç kariyer senaryosu kurulur, hedef değerlendirilir; soy ağac
     out.sfx = ["netSwish", "squeak", "chant"].every(k => typeof G.SFX[k] === "function");
     return out;
   });
-  assert(r.fallen.age === 27 && r.fallen.stage === "t2" && r.fallen.scn === "fallen" && r.fallen.html, "düşen yıldız: " + JSON.stringify(r.fallen));
+  assert(
+    r.fallen.age === 27 && r.fallen.stage === "t2" && r.fallen.scn === "fallen" && r.fallen.html,
+    "düşen yıldız: " + JSON.stringify(r.fallen)
+  );
   assert(r.smallclub.stage === "t3" && r.smallclub.age === 22, "küçük kulüp: " + JSON.stringify(r.smallclub));
   assert(r.lastdance.stage === "euro" && r.lastdance.age === 34, "son dans: " + JSON.stringify(r.lastdance));
   assert(r.done === 1 && r.tree && r.next && r.sfx, "hedef/soy/ses: " + JSON.stringify(r));
@@ -2498,7 +2581,7 @@ test("paket 3c: yeni senaryolar (dönüş, yabancı lig, memleket) ve özel zorl
     out.cbDone = S.scn.done;
     S = start("abroad");
     out.ab = { age: S.age, stage: S.stage, cc: S.team.cc };
-    out.abSheet = G.bondsAbroadSheet() || (S.week = 2) && G.bondsAbroadSheet();
+    out.abSheet = G.bondsAbroadSheet() || ((S.week = 2) && G.bondsAbroadSheet());
     if (document.querySelector('[data-bd="b"]')) document.querySelector('[data-bd="b"]').click();
     G.closeSheet();
     S.role = "rot";
@@ -2525,8 +2608,14 @@ test("paket 3c: yeni senaryolar (dönüş, yabancı lig, memleket) ve özel zorl
     out.def = [G.modeInjuryMul(), G.modeWageMul(), G.diffStrMod()];
     return out;
   });
-  assert(r.cb.age === 25 && r.cb.stage === "t1" && r.cb.role === "bench" && r.cb.cap && r.cbCleared && r.cbDone === 1, "dönüş: " + JSON.stringify(r));
-  assert(r.ab.age === 23 && r.ab.stage === "t1" && r.ab.cc !== "TR" && r.abSheet && r.abDone === 1, "yabancı: " + JSON.stringify(r));
+  assert(
+    r.cb.age === 25 && r.cb.stage === "t1" && r.cb.role === "bench" && r.cb.cap && r.cbCleared && r.cbDone === 1,
+    "dönüş: " + JSON.stringify(r)
+  );
+  assert(
+    r.ab.age === 23 && r.ab.stage === "t1" && r.ab.cc !== "TR" && r.abSheet && r.abDone === 1,
+    "yabancı: " + JSON.stringify(r)
+  );
   assert(r.ht.age === 31 && r.ht.stage === "t2" && r.ht.home && r.htLeft === -1, "memleket: " + JSON.stringify(r));
   assert(r.F === JSON.stringify({ inj: "az", money: "kit", match: "zor" }), "özel seçici: " + r.F);
   assert(r.mul[0] === 0.6 && r.mul[1] === 0.7 && r.mul[2] < 0 && r.def.join() === "1,1,0", "çarpanlar: " + JSON.stringify(r));
@@ -2583,7 +2672,10 @@ test("paket 4a: odak modu — sistemler tek tek kapanır, mekân kapalı görün
   await pro(p);
   await p.evaluate(() => window.Game.openLoc("sans"));
   await p.click("#fo-on");
-  const on = await p.evaluate(() => ({ off: window.Game.focusOff("kumar"), sheet: !document.querySelector("#fo-on") && !!document.querySelector(".sheet") }));
+  const on = await p.evaluate(() => ({
+    off: window.Game.focusOff("kumar"),
+    sheet: !document.querySelector("#fo-on") && !!document.querySelector(".sheet")
+  }));
   assert(!on.off && on.sheet, "aç ve gir: " + JSON.stringify(on));
   return p;
 });
@@ -2610,18 +2702,30 @@ test("paket 4a: ilk maç rehberi — adım adım, Geç, bir kez; simüle maçta 
   await p.waitForSelector("[data-m='key']", { timeout: 6000 });
   await p.click("[data-m='key']");
   await p.waitForSelector("#mt-bub", { timeout: 6000 });
-  const a = await p.evaluate(() => ({ t: document.querySelector("#mt-bub").textContent, hl: document.querySelector("#spd").classList.contains("mt-hl") }));
+  const a = await p.evaluate(() => ({
+    t: document.querySelector("#mt-bub").textContent,
+    hl: document.querySelector("#spd").classList.contains("mt-hl")
+  }));
   assert(/Maç hızı/.test(a.t) && /1\/4/.test(a.t) && a.hl, "1. adım: " + JSON.stringify(a));
   await p.click("#mt-next");
   // mola adımı ya da (mola yoksa) karar anı beklenir
-  await p.waitForFunction(() => {
-    const b = document.querySelector("#mt-bub");
-    return b && /2\/4|3\/4/.test(b.textContent);
-  }, null, { timeout: 8000 });
+  await p.waitForFunction(
+    () => {
+      const b = document.querySelector("#mt-bub");
+      return b && /2\/4|3\/4/.test(b.textContent);
+    },
+    null,
+    { timeout: 8000 }
+  );
   const b = await p.evaluate(() => document.querySelector("#mt-bub").textContent);
   assert(/Mola|Karar anı/.test(b), "2. adım: " + b);
   await p.click("#mt-skip");
-  const c = await p.evaluate(() => ({ act: window.Game.mtutActive(), bub: !!document.querySelector("#mt-bub"), hl: document.querySelectorAll(".mt-hl").length, s: window.Game.S.mtut }));
+  const c = await p.evaluate(() => ({
+    act: window.Game.mtutActive(),
+    bub: !!document.querySelector("#mt-bub"),
+    hl: document.querySelectorAll(".mt-hl").length,
+    s: window.Game.S.mtut
+  }));
   assert(!c.act && !c.bub && !c.hl && c.s === 1, "Geç: " + JSON.stringify(c));
   // bir kez: sonraki elle maçta çıkmaz
   await p.evaluate(() => {
@@ -2664,7 +2768,12 @@ test("paket 4a: otomatik hafta — Otomatik doldur koç önerisine uyar, ayarla 
     G.closeSheet();
     G.SETTINGS.autoPlan = true;
     G.renderMain();
-    return { auto: !!document.querySelector("#wauto"), rep: !!document.querySelector("#wrep"), qw: !!document.querySelector("#quickw"), slot: G.S.slot };
+    return {
+      auto: !!document.querySelector("#wauto"),
+      rep: !!document.querySelector("#wrep"),
+      qw: !!document.querySelector("#quickw"),
+      slot: G.S.slot
+    };
   });
   assert(s.auto && !s.rep && s.qw && s.slot === 3, "ana ekran: " + JSON.stringify(s));
   await p.click("#wauto");
@@ -2686,9 +2795,20 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
   const a = await p.evaluate(() => {
     const h = document.documentElement,
       cs = getComputedStyle(h);
-    return { cls: h.className, fs: cs.fontSize, good: cs.getPropertyValue("--good").trim(), bg: cs.getPropertyValue("--bg").trim(), close: document.querySelector("#shx").getAttribute("aria-label"), pressed: document.querySelector('[data-tg="hc"]').getAttribute("aria-pressed"), w: h.scrollWidth };
+    return {
+      cls: h.className,
+      fs: cs.fontSize,
+      good: cs.getPropertyValue("--good").trim(),
+      bg: cs.getPropertyValue("--bg").trim(),
+      close: document.querySelector("#shx").getAttribute("aria-label"),
+      pressed: document.querySelector('[data-tg="hc"]').getAttribute("aria-pressed"),
+      w: h.scrollWidth
+    };
   });
-  assert(/fs-xl/.test(a.cls) && /\bcb\b/.test(a.cls) && /\bhc\b/.test(a.cls) && a.fs === "20px", "sınıflar: " + JSON.stringify(a));
+  assert(
+    /fs-xl/.test(a.cls) && /\bcb\b/.test(a.cls) && /\bhc\b/.test(a.cls) && a.fs === "20px",
+    "sınıflar: " + JSON.stringify(a)
+  );
   assert(a.good !== good0 && a.bg === "#000", "palet: " + good0 + " " + JSON.stringify(a));
   assert(a.close === "Kapat" && a.pressed === "true", "aria: " + JSON.stringify(a));
   assert(a.w <= 390, "ayarlar paneli taşıyor: " + a.w);
@@ -2726,7 +2846,10 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
     txt: document.querySelector("#a11y-live") && document.querySelector("#a11y-live").textContent,
     w: document.documentElement.scrollWidth
   }));
-  assert(/hız/i.test(g.spd) && g.grp === "group" && g.live === "polite" && /Çeyrek/.test(g.txt), "maç aria: " + JSON.stringify(g));
+  assert(
+    /hız/i.test(g.spd) && g.grp === "group" && g.live === "polite" && /Çeyrek/.test(g.txt),
+    "maç aria: " + JSON.stringify(g)
+  );
   assert(g.w <= 390, "maç ekranı taşıyor: " + g.w);
   return p;
 });
@@ -3793,6 +3916,295 @@ test("paket 4d: kariyer aşaması olayları aşamaya göre süzülür, seçenekl
     };
   });
   assert(!r.liseHas && r.nba && r.nbaNoLower && r.t2 && r.out && r.money, "süzme: " + JSON.stringify(r));
+  return p;
+});
+
+/* ---- yayın b: çalışma zamanı sağlamlığı ---- */
+const OLD_FIX = fs
+  .readdirSync(path.join(__dirname, "fixtures"))
+  .filter(f => /^old-.*\.json$/.test(f))
+  .map(f => [f, fs.readFileSync(path.join(__dirname, "fixtures", f), "utf8")]);
+test("yayın b: eski sürüm kayıtları açılır, para/istatistik korunur, iki hafta hatasız oynanır", async () => {
+  assert(OLD_FIX.length >= 3, "eski kayıt örnekleri eksik");
+  const p = await page();
+  for (const [name, raw] of OLD_FIX) {
+    const r = await p.evaluate(raw => {
+      const G = window.Game;
+      localStorage.clear();
+      localStorage.setItem("pota-slot-1", raw);
+      const before = JSON.parse(raw).S;
+      const ld = G.loadSlot(1);
+      if (!ld || !ld.S) return { err: "açılmadı" };
+      G.setS(ld.S);
+      G.migrate();
+      const S = G.S;
+      const kept = S.money === before.money && S.career.games === before.career.games && S.career.pts === before.career.pts;
+      const bad = [];
+      const walk = (o, at, d) => {
+        if (d > 8 || !o) return;
+        for (const k of Object.keys(o)) {
+          const v = o[k];
+          if (typeof v === "number" && !isFinite(v)) bad.push(at + "." + k);
+          else if (v && typeof v === "object") walk(v, at + "." + k, d + 1);
+        }
+      };
+      if (S.retired) G.retireScreen();
+      else {
+        G.renderMain();
+        for (let i = 0; i < 2; i++) {
+          G.closeSheet();
+          G.quickWeek && G.S.phase !== "offseason" && G.quickWeek();
+          const b = document.querySelector("#qw-sim");
+          if (b) b.click();
+        }
+      }
+      walk(G.S, "S", 0);
+      const txt = document.body.innerText;
+      return { kept, bad: bad.slice(0, 5), txt: /\bundefined\b|\bNaN\b|\[object Object\]/.test(txt) };
+    }, raw);
+    assert(!r.err && r.kept && !r.bad.length && !r.txt, name + ": " + JSON.stringify(r));
+    await p.waitForTimeout(400);
+  }
+  return p;
+});
+test("yayın b: Android geri tuşu panel, alt ekran, maç ve emeklilikte doğru davranır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      $ = s => document.querySelector(s);
+    const out = {};
+    G.renderMain();
+    out.main = G.nativeBack();
+    G.settingsSheet();
+    out.sheet = G.nativeBack();
+    out.sheetClosed = !$("#ovl").innerHTML.trim();
+    G.sheet("Zorunlu", "", `<button class="btn" id="zz">x</button>`, { noClose: true });
+    out.locked = G.nativeBack();
+    G.closeSheet();
+    G.openLoc("stad");
+    G.closeSheet();
+    document.querySelector("#app").innerHTML = `<div id="stg"></div>`; // mini oyun / alt ekran
+    out.sub = G.nativeBack();
+    out.subMain = !!$("#gostad");
+    G.S.retired = true;
+    G.retireScreen();
+    out.retire = G.nativeBack();
+    document.querySelector("#app").innerHTML = `<div id="stg"></div>`; // emekliyken alt ekran: haritaya değil kariyer sonuna
+    out.retSub = G.nativeBack();
+    out.retScreen = !!$("#nw") && !$("#gostad");
+    return out;
+  });
+  assert(
+    r.main === "min" &&
+      r.sheet === "close" &&
+      r.sheetClosed &&
+      r.locked === "locked" &&
+      r.sub === "main" &&
+      r.subMain &&
+      r.retire === "min" &&
+      r.retSub === "retire" &&
+      r.retScreen,
+    JSON.stringify(r)
+  );
+  return p;
+});
+test("yayın b: depolama dolunca kayıt kaybolmaz (uyarı + oturum kopyası + IndexedDB'den dönüş)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game,
+      S = G.S;
+    if (!G.IDB.db) await G.idbOpen();
+    G.save();
+    const orig = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      if (/^pota-slot/.test(k)) {
+        const e = new Error("dolu");
+        e.name = "QuotaExceededError";
+        throw e;
+      }
+      return orig.call(this, k, v);
+    };
+    await new Promise(r => setTimeout(r, 20)); // iki kaydın zaman damgası ayrı olsun
+    S.money = 777777;
+    G.save();
+    const warned = G.TOAST_LOG.some(t => t === G.t("save.3"));
+    const mem = G.loadSlot(1).S.money;
+    // yeniden açılış: localStorage'da eski kopya, IndexedDB'de yeni kopya; hafıza hâlâ dolu
+    for (const k of Object.keys(G.SAVE_MEM)) delete G.SAVE_MEM[k];
+    const stale = G.loadSlot(1).S.money;
+    // IndexedDB yazımı eşzamansız: yeni kopya oraya düşene kadar bekle
+    for (let i = 0; i < 40; i++) {
+      const all = await G.idbAll();
+      const o = all["pota-slot-1"] && JSON.parse(all["pota-slot-1"]);
+      if (o && o.S.money === 777777) break;
+      await new Promise(r => setTimeout(r, 100));
+    }
+    await G.storageRestore();
+    const restored = G.loadSlot(1).S.money;
+    Storage.prototype.setItem = orig;
+    return { warned, mem, stale, restored };
+  });
+  assert(r.warned && r.mem === 777777 && r.stale !== 777777 && r.restored === 777777, JSON.stringify(r));
+  return p;
+});
+test("yayın b: uygulama arka plandayken maç saati durur, öne gelince sürer", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    window.Game.playMatch();
+  });
+  await p.waitForTimeout(300);
+  const drive = () =>
+    p.evaluate(() => {
+      const $ = s => document.querySelector(s);
+      const m = $("[data-m='full']");
+      if (m) return m.click();
+      const c = $(
+        "#mview [data-k],#mview [data-fu],#mview [data-rb],#mview [data-rf],#mview [data-pp],#mview [data-to],#mview [data-lt],#qgo"
+      );
+      if (c) return c.click();
+      const sg = $("#sp-go");
+      if (sg) {
+        if (sg.disabled) {
+          const a = $("#sp-s [data-v]"),
+            b = $("#sp-r [data-v]");
+          a && a.click();
+          b && b.click();
+        } else sg.click();
+      }
+      if (window.Game.M) window.Game.M.speed = 4;
+    });
+  const clock = () => p.evaluate(() => (window.Game.M ? `${window.Game.M.q}-${window.Game.M.clock}` : ""));
+  const t0 = Date.now();
+  while (Date.now() - t0 < 8000 && !(await p.$("#mstat"))) (await drive(), await p.waitForTimeout(80));
+  for (let i = 0; i < 15; i++) (await drive(), await p.waitForTimeout(80));
+  await p.evaluate(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await p.waitForTimeout(700); // o anda süren adım biter
+  const c1 = await clock();
+  await p.waitForTimeout(2500);
+  const c2 = await clock();
+  await p.evaluate(() => {
+    delete document.hidden;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  let c3 = c2;
+  for (let i = 0; i < 100 && c3 === c2; i++) {
+    await drive();
+    await p.waitForTimeout(100);
+    c3 = await clock();
+  }
+  assert(c1 && c1 === c2 && c3 !== c2, `arka plan ${c1} → ${c2}, öne gelince ${c3}`);
+  await p.evaluate(() => window.Game.renderMain());
+  return p;
+});
+test("yayın b: saat geri alınınca Günün Maçı yeniden açılıp ödül vermez", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.DLY.today = { day: "2099-12-31", tries: 1, ad: false, res: { r: "w", us: 10, them: 2, grid: [1, 1, 1] }, won: true };
+    const open = G.dailyOpen();
+    G.DLY.today = { day: "2000-01-01", tries: 1, ad: false, res: { r: "w", us: 10, them: 2, grid: [1, 1, 1] }, won: true };
+    const next = G.dailyOpen();
+    return { open, next };
+  });
+  assert(r.open === false && r.next === true, JSON.stringify(r));
+  return p;
+});
+
+test("yayın b: teklif panelindeyken kapanan uygulama sezonu ikinci kez bitirmez, teklifler geri gelir", async () => {
+  const p = await page();
+  const fx = fs.readFileSync(path.join(__dirname, "fixtures", "career-long.json"), "utf8"); // 14/14. hafta, normal sezon
+  await p.evaluate(fx => {
+    const G = window.Game;
+    window.__TEST = { noSummer: true };
+    localStorage.setItem("pota-slot-1", fx);
+    const r = G.loadSlot(1);
+    G.setS(r.S);
+    G.migrate();
+    G.closeSheet();
+    G.quickWeek();
+    document.querySelector("#qw-sim").click();
+  }, fx);
+  for (let i = 0; i < 400 && !(await p.$("#sn-go,[data-o],#ret")); i++) {
+    await p.evaluate(() => {
+      const e = ["#nx", "#adx", "#ok", "#nok", "#rok", "#chok", "#wn-ok", "#sc-ok", "#cp-ok", "#qgo"]
+        .map(s => document.querySelector(s))
+        .find(e => e && !e.disabled);
+      if (e) e.click();
+    });
+    await p.waitForTimeout(60);
+  }
+  const st = () =>
+    p.evaluate(() => {
+      const S = window.Game.S;
+      return {
+        season: S.season,
+        age: S.age,
+        hist: S.hist.length,
+        games: S.career.games,
+        offers: !!document.querySelector("#sn-go,[data-o],#ret")
+      };
+    });
+  const a = await st();
+  assert(
+    a.offers,
+    "teklif paneli açılmadı " + JSON.stringify(a) + (await p.evaluate(() => document.body.innerText.slice(0, 300)))
+  );
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.evaluate(() => {
+    window.__TEST = { noSummer: true };
+    document.querySelector('[data-go="1"]').click();
+  });
+  await p.waitForTimeout(400);
+  // açılışta "yenilikler" vb. panel varsa kapat: haritaya dönünce geçiş sürmeli
+  for (let i = 0; i < 20 && !(await p.$("#sn-go,[data-o],#ret")); i++) {
+    await p.evaluate(() => {
+      const x = document.querySelector("#wn-ok,#shx");
+      if (x) x.click();
+      else if (document.querySelector("#quickw")) window.Game.quickWeek(); // hızlı hafta da önce geçişi açmalı
+    });
+    await p.waitForTimeout(150);
+  }
+  const b = await st();
+  assert(
+    b.offers && b.season === a.season && b.age === a.age && b.hist === a.hist && b.games === a.games,
+    `önce ${JSON.stringify(a)} sonra ${JSON.stringify(b)}`
+  );
+  return p;
+});
+
+test("yayın b: yarıda bırakılan okul sınavı sonradan açılan paneli ele geçirmez", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.studying = true;
+    G.S.slot = 3;
+    G.closeSheet();
+    G.openLoc("okul");
+    document.querySelector('[data-act="ders"]').click();
+  });
+  await p.waitForTimeout(300);
+  const q0 = await p.evaluate(() => document.querySelectorAll(".qbtn").length);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet(); // geri tuşu / ✕
+    G.renderMain();
+    G.settingsSheet();
+  });
+  await p.waitForTimeout(9500); // 8 sn soru süresi + 0.9 sn geçiş
+  const r = await p.evaluate(() => ({
+    quiz: document.querySelectorAll(".qbtn").length,
+    settings: !!document.querySelector("#shb") && !document.querySelector("#rb")
+  }));
+  assert(q0 > 0 && r.quiz === 0 && r.settings, JSON.stringify({ q0, ...r }));
   return p;
 });
 

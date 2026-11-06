@@ -325,6 +325,7 @@ export function autoWeekPlan() {
   return out;
 }
 export function quickWeek() {
+  if (late.offResume(true)) return; // yarıda kalmış sezon geçişi önce tamamlanır
   closeSheet();
   const plan = autoWeekPlan();
   const big = bigMatch();

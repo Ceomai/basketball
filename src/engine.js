@@ -70,6 +70,7 @@ export function modeChoice() {
   });
 }
 export async function playMatch(ctx) {
+  if ((!ctx || ctx.comp === "lig") && late.offResume(true)) return; // yarıda kalmış sezon geçişi: önce teklifler
   closeSheet();
   window.scrollTo(0, 0);
   Bus.emit("match:start", ctx);
@@ -201,6 +202,8 @@ export async function playMatch(ctx) {
   const pace = async () => {
     const ms = paceMs();
     if (ms) await wait(ms);
+    // uygulama arka plandayken maç saati durur (telefon kilitlenince akış kaçmaz); öne gelince kaldığı yerden sürer
+    while (!AUTO && document.hidden && $("#mstat")) await wait(300);
   };
   let end = TOTAL;
   while (t < end) {

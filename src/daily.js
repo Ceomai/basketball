@@ -76,7 +76,8 @@ export function scenario(day = localDay()) {
 }
 const today = () => {
   const d = localDay();
-  if (!DLY.today || DLY.today.day !== d) DLY.today = { day: d, tries: 0, ad: false, res: null };
+  // yalnızca ileri bir gün yeni senaryo açar: saat geri alınarak geçmiş günler yeniden oynanıp ödül toplanmasın
+  if (!DLY.today || !DLY.today.day || d > DLY.today.day) DLY.today = { day: d, tries: 0, ad: false, res: null };
   return DLY.today;
 };
 export const dailyOpen = () => !!S && !window.__SIM && !today().res;

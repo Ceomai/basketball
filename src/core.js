@@ -242,6 +242,7 @@ export function newSeasonLeague() {
   S.phase = "regular";
   S.results = [];
   S.week = 1;
+  S.offPend = 0; // sezon geçişi tamamlandı (src/match.js offResume)
   S.slot = 3;
   S.playoffOpp = null;
   S.ss = late.blankSS();
@@ -314,6 +315,7 @@ export function bindActs(map, tag) {
   );
 }
 export function resultView(title, text, fx) {
+  if (!$("#shb")) return; // panel bu arada kapandıysa (geri tuşu, başka ekran) sonuç sessizce düşer
   $("#shb").innerHTML =
     `<div class="say">${text}</div>${fx ? fxHTML(fx) : ""}<button class="btn pri" id="rb">${$t("casino.13")}</button>`;
   $("#rb").onclick = () => {

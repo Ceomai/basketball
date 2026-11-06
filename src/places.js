@@ -821,13 +821,14 @@ export function runQuiz(nq, done) {
         correct: correct
       })}</div><h3 style="text-transform:none;font-family:var(--body);font-weight:800;font-size:1rem;letter-spacing:0">${esc(Q.q)}</h3><div class="bar"><i id="qt" style="width:100%;transition:width 8s linear;background:var(--warn)"></i></div><div class="qopts">${Q.o.map(o => `<button class="qbtn" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>`
     );
+    const card = b.lastElementChild; // bu soru kartı: panel kapanır ya da başka panel açılırsa sınav sessizce biter
     requestAnimationFrame(() => {
       const q = $("#qt");
       if (q) q.style.width = "0%";
     });
     let over = false;
     const fin = pickd => {
-      if (over || !$("#shb")) return;
+      if (over || !card || !card.isConnected) return;
       over = true;
       clearTimeout(tm);
       $$(".qbtn").forEach(x => {
@@ -837,6 +838,7 @@ export function runQuiz(nq, done) {
       });
       if (pickd === Q.a) correct++;
       setTimeout(() => {
+        if (!card.isConnected) return;
         i++;
         i < nq ? ask() : done(correct);
       }, 900);

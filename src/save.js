@@ -99,9 +99,12 @@ try {
 export function validSave(o) {
   return o && typeof o === "object" && o.first && o.team && o.team.key && o.st && o.league && Array.isArray(o.league) && o.rel;
 }
+/** Tarayıcı hafızasına sığmayan (QuotaExceededError) en yeni kayıtlar: bu oturumda yuvalar bunlardan açılır,
+    böylece IndexedDB'deki yeni kopya eski localStorage kopyasıyla ezilmez. */
+export const SAVE_MEM = {};
 export function readKey(k) {
   try {
-    const raw = localStorage.getItem(k);
+    const raw = SAVE_MEM[k] || localStorage.getItem(k);
     if (!raw) return null;
     const o = JSON.parse(raw);
     const s = o && o.v ? o.S : o;
@@ -133,10 +136,12 @@ export function save() {
       } catch (_) {}
     }
     localStorage.setItem(k, data);
+    delete SAVE_MEM[k];
   };
   try {
     write();
   } catch (e) {
+    SAVE_MEM[k] = data; // bu oturumda en yeni kayıt kaybolmasın (yuva ekranından devam edilirse buradan açılır)
     // yer açmak için diğer yuvaların yedeklerini silip tekrar dene
     try {
       for (let i = 1; i <= SLOT_N; i++) if (i !== S.saveSlot) localStorage.removeItem(slotKey(i) + "-bak");
@@ -167,6 +172,7 @@ export function loadSlot(i) {
   return corrupt ? { S: null, from: "corrupt" } : null;
 }
 export function deleteSlot(i) {
+  delete SAVE_MEM[slotKey(i)];
   try {
     localStorage.removeItem(slotKey(i));
     localStorage.removeItem(slotKey(i) + "-bak");
@@ -279,10 +285,13 @@ export async function storageRestore() {
     ].filter(c => c[1]);
     const best = cands.sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0))[0];
     if (best && (!cur || (best[1].ts || 0) > (cur.ts || 0))) {
+      const raw = typeof best[0] === "string" ? best[0] : JSON.stringify(best[0]);
       try {
-        localStorage.setItem(k, typeof best[0] === "string" ? best[0] : JSON.stringify(best[0]));
-        n++;
-      } catch (e) {}
+        localStorage.setItem(k, raw);
+      } catch (e) {
+        SAVE_MEM[k] = raw; // hafıza dolu: eski kopya açılmasın, IndexedDB'deki yeni kopyayla devam edilsin
+      }
+      n++;
     } else if (cur && all[k] !== undefined && (cur.ts || 0) > ((parseSave(all[k]) || {}).ts || 0))
       idbPut(k, localStorage.getItem(k));
   }

@@ -814,6 +814,7 @@ export function seasonEnd(playoff, champ, final) {
   S.age++;
   S.year++;
   S.season++;
+  S.offPend = S.season; // sezon geçişi (teklifler) bitene kadar: yarıda kalırsa offResume kaldığı yerden sürdürür
   S.stageSeason++;
   late.rivalSeason();
   norm();
@@ -826,6 +827,7 @@ export function seasonEnd(playoff, champ, final) {
     v: res.length - w
   })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}<div id="seasonad">${late.seasonAdHTML()}</div>${late.rivalCard(avg)}`;
   S.offArgs = { avg, champ, head }; // turnuva arasında oyun kapanırsa sezon geçişi buradan sürer (src/natcup.js)
+  save();
   late.summerTournament(avg, () => transition(avg, champ, head));
 }
 export function potential(avg, champ) {
@@ -883,6 +885,17 @@ export function offerHTML(o, i) {
       : ""
   }</span><span class="od ${cls}">${lab}</span></button>`;
 }
+/** Sezon geçişi yarıda kaldıysa (uygulama teklif/kamp panelinde kapandı, panel dışarıdan kapandı) teklif ekranına dön.
+    Yoksa oyuncu haritada eski sezonun son haftasında kalır; hızlı hafta son maçı yeniden oynatıp sezonu ikinci kez
+    bitirir (yaş, sözleşme yılı ve sezon geçmişi bozulur). force: panel/ekran denetimi yapmadan (maç ve hafta girişleri). */
+export function offResume(force) {
+  if (!S || SIM() || S.retired || S.brk || S.natT || !S.offPend || S.offPend !== S.season) return false;
+  if (!force && ($("#ovl").innerHTML.trim() || !$("#gostad"))) return false;
+  const a = S.offArgs || { avg: 0, champ: false, head: "" };
+  transition(a.avg, a.champ, a.head || "");
+  return true;
+}
+Bus.on("screen:main", () => setTimeout(() => offResume(), 0));
 export function transition(avg, champ, head) {
   let offers = [],
     title = $t("match.65"),
