@@ -85,6 +85,7 @@ import { save } from "./save.js";
 /* ================= MEKANLAR ================= */
 export function openLoc(id, tab) {
   const I = locInfo(id, mapState());
+  if (I.fo) return late.focusLocSheet(id, I); // odak modunda kapalı (src/focus.js)
   ({
     ev: locEv,
     stad: locStad,

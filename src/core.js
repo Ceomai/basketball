@@ -273,7 +273,7 @@ export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core
 /* ================= PANEL SİSTEMİ ================= */
 export function sheet(title, sub, body, o = {}) {
   $("#ovl").innerHTML =
-    `<div class="sheet-bg"><div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="sheet-h">${o.icon || ""}<div style="min-width:0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="Kapat">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
+    `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h">${o.icon || ""}<div style="min-width:0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
   if (!o.noClose) {
     const cl = () => {
       closeSheet();

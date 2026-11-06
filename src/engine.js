@@ -131,7 +131,7 @@ export async function playMatch(ctx) {
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
+      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
     late.bindTimeout(renderSpd);
     $$("#spd [data-s]").forEach(
       b =>
@@ -517,16 +517,16 @@ export async function playMatch(ctx) {
     const render = () => {
       late.courtFreeze(scn || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
-        `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
+        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
           {
             q: M.q,
             clock: M.clock
           }
-        )}${clutch ? $t("engine.51") : ""}</div><h2>${head}</h2><p class="muted">${desc}</p>${late.conditionsHTML(us)}<div class="choices">${opts
+        )}${clutch ? $t("engine.51") : ""}</div><h2 id="mom-h">${head}</h2><p class="muted">${desc}</p>${late.conditionsHTML(us)}<div class="choices" role="group" aria-labelledby="mom-h">${opts
           .map(o => {
             const [c, l] = o.k === "safe" ? ["i", $t("engine.52")] : odds(o.e);
-            return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}">${l}</span></button>`;
+            return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}" aria-label="${$t("a11y.odds", { v: l })}">${l}</span></button>`;
           })
           .join("")}</div></div>`;
       try {

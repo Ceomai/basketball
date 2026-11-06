@@ -3063,6 +3063,111 @@ test("paket 4d: milli takım kaptanlığı rütbesi, kamp sonu kaptan kararı, v
 });
 
 test("paket 4d: kariyer aşaması olayları aşamaya göre süzülür, seçenekler çalışır", async () => {
+  return p;
+});
+
+test("paket 4a: odak modu — sistemler tek tek kapanır, mekân kapalı görünür, olay/görev/başarım istemez", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const d = await p.evaluate(() => {
+    const G = window.Game;
+    G.S.age = 22;
+    return { n: G.focusCount(), hik: G.unlocked("hikaye"), gl: G.unlocked("geceligi"), tot: G.featTotal() };
+  });
+  assert(d.n === 0 && d.hik && d.gl, "varsayılan hepsi açık olmalı: " + JSON.stringify(d));
+  // ayarlar panelinden kapat
+  await p.evaluate(() => window.Game.settingsSheet());
+  assert((await p.$$("[data-fo]")).length === 6, "odak modu düğmeleri eksik");
+  for (const k of ["kumar", "hikaye", "studyo", "borsa", "geceligi"]) await p.click(`[data-fo="${k}"]`);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.renderMain();
+    const sans = document.querySelector('.loc[data-loc="sans"]');
+    const out = {
+      off: JSON.stringify(G.SETTINGS.off),
+      sansOff: sans.classList.contains("off"),
+      sansLbl: sans.getAttribute("aria-label"),
+      hik: G.unlocked("hikaye"),
+      gl: G.unlocked("geceligi"),
+      night: G.nightLeagueHTML(),
+      tot: G.featTotal()
+    };
+    G.openLoc("sans");
+    out.foSheet = !!document.querySelector("#fo-on");
+    G.closeSheet();
+    G.openLoc("avm");
+    out.avmInvest = !!document.querySelector('[data-s="yatirim"]');
+    G.closeSheet();
+    return out;
+  });
+  assert(/kumar/.test(r.off) && /hikaye/.test(r.off), "ayar kaydı: " + r.off);
+  assert(r.sansOff && /kapalı/.test(r.sansLbl), "kumarhane kapalı görünmeli: " + JSON.stringify(r));
+  assert(!r.hik && !r.gl && r.night === "", "hikâye/gece ligi kapanmalı: " + JSON.stringify(r));
+  assert(r.foSheet && !r.avmInvest, "mekân paneli/AVM yatırımı: " + JSON.stringify(r));
+  assert(r.tot < d.tot, "başarım toplamı düşmeli: " + d.tot + " → " + r.tot);
+  // kalıcı: yeniden yüklemede ayar korunur; "Aç ve gir" ile mekân açılır
+  await p.reload();
+  await p.waitForTimeout(500);
+  const k = await p.evaluate(() => window.Game.focusOff("kumar") && window.Game.focusOff("studyo"));
+  assert(k, "odak ayarı kalıcı değil");
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => window.Game.openLoc("sans"));
+  await p.click("#fo-on");
+  const on = await p.evaluate(() => ({ off: window.Game.focusOff("kumar"), sheet: !document.querySelector("#fo-on") && !!document.querySelector(".sheet") }));
+  assert(!on.off && on.sheet, "aç ve gir: " + JSON.stringify(on));
+  return p;
+});
+
+test("paket 4a: ilk maç rehberi — adım adım, Geç, bir kez; simüle maçta ve testlerde çıkmaz", async () => {
+  const p = await page();
+  await career(p);
+  // simüle maçta rehber yok
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.tipMoment = 0;
+    G.S.mtut = 0;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
+  });
+  await p.waitForTimeout(400);
+  assert(!(await p.evaluate(() => window.Game.mtutActive())), "simüle maçta rehber açıldı");
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.S.tipMoment = 0;
+    G.S.mtut = 0;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m='key']", { timeout: 6000 });
+  await p.click("[data-m='key']");
+  await p.waitForSelector("#mt-bub", { timeout: 6000 });
+  const a = await p.evaluate(() => ({ t: document.querySelector("#mt-bub").textContent, hl: document.querySelector("#spd").classList.contains("mt-hl") }));
+  assert(/Maç hızı/.test(a.t) && /1\/4/.test(a.t) && a.hl, "1. adım: " + JSON.stringify(a));
+  await p.click("#mt-next");
+  // mola adımı ya da (mola yoksa) karar anı beklenir
+  await p.waitForFunction(() => {
+    const b = document.querySelector("#mt-bub");
+    return b && /2\/4|3\/4/.test(b.textContent);
+  }, null, { timeout: 8000 });
+  const b = await p.evaluate(() => document.querySelector("#mt-bub").textContent);
+  assert(/Mola|Karar anı/.test(b), "2. adım: " + b);
+  await p.click("#mt-skip");
+  const c = await p.evaluate(() => ({ act: window.Game.mtutActive(), bub: !!document.querySelector("#mt-bub"), hl: document.querySelectorAll(".mt-hl").length, s: window.Game.S.mtut }));
+  assert(!c.act && !c.bub && !c.hl && c.s === 1, "Geç: " + JSON.stringify(c));
+  // bir kez: sonraki elle maçta çıkmaz
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.renderMain();
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForTimeout(600);
+  assert(!(await p.evaluate(() => window.Game.mtutActive())), "rehber ikinci kez açıldı");
+  return p;
+});
+
+test("paket 4a: otomatik hafta — Otomatik doldur koç önerisine uyar, ayarla tek dokunuş; hızlı hafta yerinde", async () => {
   const p = await page();
   await career(p);
   const r = await p.evaluate(() => {
@@ -3091,6 +3196,97 @@ test("paket 4d: kariyer aşaması olayları aşamaya göre süzülür, seçenekl
     };
   });
   assert(!r.liseHas && r.nba && r.nbaNoLower && r.t2 && r.out && r.money, "süzme: " + JSON.stringify(r));
+  return p;
+});
+
+    S.energy = 20;
+    S.injury = null;
+    const tired = G.autoPlanPick();
+    S.energy = 90;
+    S.moral = 20;
+    const sad = G.autoPlanPick();
+    S.moral = 70;
+    S.injury = { w: 3, t: "x" };
+    const inj = G.autoPlanPick();
+    S.injury = null;
+    S.energy = 70;
+    G.planSheet();
+    document.querySelector("#pl-auto").click();
+    return { tired, sad, inj, draft: S.planDraft, on: [...document.querySelectorAll("[data-ps] .opt.on")].map(b => b.dataset.v) };
+  });
+  assert(r.tired[0] === "rest" && !r.inj.includes("team"), "yorgun/sakat: " + JSON.stringify(r));
+  assert(r.sad[0] === "cafe", "moral önerisi: " + JSON.stringify(r));
+  assert(r.draft.length === 3 && r.on.join() === r.draft.join(), "panel doldurulmadı: " + JSON.stringify(r));
+  // ayar: her zaman otomatik planla → ana ekranda tek dokunuş
+  const s = await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.SETTINGS.autoPlan = true;
+    G.renderMain();
+    return { auto: !!document.querySelector("#wauto"), rep: !!document.querySelector("#wrep"), qw: !!document.querySelector("#quickw"), slot: G.S.slot };
+  });
+  assert(s.auto && !s.rep && s.qw && s.slot === 3, "ana ekran: " + JSON.stringify(s));
+  await p.click("#wauto");
+  await p.waitForSelector("#pl-ok", { timeout: 4000 });
+  const e = await p.evaluate(() => ({ slot: window.Game.S.slot, last: window.Game.S.lastPlan }));
+  assert(e.slot === 0 && e.last.length === 3, "plan uygulanmadı: " + JSON.stringify(e));
+  return p;
+});
+
+test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast anında ve kalıcı; aria etiketleri; 390 px taşma yok", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => window.Game.settingsSheet());
+  assert((await p.$$("[data-fs]")).length === 4, "dört yazı boyutu olmalı");
+  const good0 = await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--good").trim());
+  await p.click('[data-fs="xl"]');
+  await p.click('[data-tg="cb"]');
+  await p.click('[data-tg="hc"]');
+  const a = await p.evaluate(() => {
+    const h = document.documentElement,
+      cs = getComputedStyle(h);
+    return { cls: h.className, fs: cs.fontSize, good: cs.getPropertyValue("--good").trim(), bg: cs.getPropertyValue("--bg").trim(), close: document.querySelector("#shx").getAttribute("aria-label"), pressed: document.querySelector('[data-tg="hc"]').getAttribute("aria-pressed"), w: h.scrollWidth };
+  });
+  assert(/fs-xl/.test(a.cls) && /\bcb\b/.test(a.cls) && /\bhc\b/.test(a.cls) && a.fs === "20px", "sınıflar: " + JSON.stringify(a));
+  assert(a.good !== good0 && a.bg === "#000", "palet: " + good0 + " " + JSON.stringify(a));
+  assert(a.close === "Kapat" && a.pressed === "true", "aria: " + JSON.stringify(a));
+  assert(a.w <= 390, "ayarlar paneli taşıyor: " + a.w);
+  // ana ekran (çok büyük yazı) taşmamalı; ikonlar etiketli
+  const m = await p.evaluate(() => {
+    const G = window.Game;
+    G.closeSheet();
+    G.renderMain();
+    return {
+      w: document.documentElement.scrollWidth,
+      bell: document.querySelector("#ibx-bell") && document.querySelector("#ibx-bell").getAttribute("aria-label"),
+      loc: [...document.querySelectorAll(".loc")].every(g => g.getAttribute("aria-label")),
+      hav: document.querySelector("#hav").getAttribute("aria-label")
+    };
+  });
+  assert(m.w <= 390 && m.bell && m.loc && m.hav, "ana ekran: " + JSON.stringify(m));
+  // kalıcı
+  await p.reload();
+  await p.waitForTimeout(500);
+  const k = await p.evaluate(() => document.documentElement.className);
+  assert(/fs-xl/.test(k) && /hc/.test(k), "kalıcı değil: " + k);
+  await career(p);
+  // maç: hız düğmeleri, karar kartı rolü, canlı skor
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector("[data-m='only']", { timeout: 6000 });
+  await p.click("[data-m='only']");
+  await p.waitForSelector("#mview .choices", { timeout: 60000 });
+  const g = await p.evaluate(() => ({
+    spd: document.querySelector("#spd [data-s]").getAttribute("aria-label"),
+    grp: document.querySelector("#mview .choices").getAttribute("role"),
+    live: document.querySelector("#a11y-live") && document.querySelector("#a11y-live").getAttribute("aria-live"),
+    txt: document.querySelector("#a11y-live") && document.querySelector("#a11y-live").textContent,
+    w: document.documentElement.scrollWidth
+  }));
+  assert(/hız/i.test(g.spd) && g.grp === "group" && g.live === "polite" && /Çeyrek/.test(g.txt), "maç aria: " + JSON.stringify(g));
+  assert(g.w <= 390, "maç ekranı taşıyor: " + g.w);
   return p;
 });
 

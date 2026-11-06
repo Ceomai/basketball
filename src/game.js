@@ -82,6 +82,10 @@ import * as matchfeel from "./matchfeel.js";
 import * as seasonnight from "./seasonnight.js";
 import * as inbox from "./inbox.js";
 import * as ambition from "./ambition.js";
+import * as focus from "./focus.js";
+import * as a11y from "./a11y.js";
+import * as autoplan from "./autoplan.js";
+import * as mtut from "./mtut.js";
 
 const MODULES = [
   data,
@@ -164,7 +168,11 @@ const MODULES = [
   matchfeel,
   seasonnight,
   inbox,
-  ambition
+  ambition,
+  focus,
+  a11y,
+  autoplan,
+  mtut
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

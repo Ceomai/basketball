@@ -7,6 +7,7 @@
 import { t as $t } from "./i18n/index.js";
 import { $, Bus, isPro } from "./data.js";
 import { S, closeSheet, sheet } from "./core.js";
+import { late } from "./late.js";
 
 // yeni oyuncuyu bunaltmamak için: ilk haftalar sade, sistemler sırayla tanıtılır
 const early = w => S.season >= 2 || S.week >= w;
@@ -23,7 +24,8 @@ const RULES = {
 };
 export const FEATURES = Object.keys(RULES);
 /** Özellik açık mı (S yoksa açık sayılır). S.unlocks[k] === 2: zorla açık (testler, eski kayıtlar) */
-export const unlocked = k => !S || !RULES[k] || RULES[k]() || (S.unlocks && S.unlocks[k] === 2);
+export const unlocked = k =>
+  (!S || !RULES[k] || RULES[k]() || (S.unlocks && S.unlocks[k] === 2)) && !(late.focusOff && late.focusOff(k)); // odak modu (src/focus.js)
 
 const TXT = {
   plan: ["unl.plan", "unl.planD"],
@@ -40,7 +42,7 @@ const TXT = {
 function unlockSheet() {
   if (!S) return false;
   S.unlocks = S.unlocks || {};
-  const fresh = FEATURES.filter(k => RULES[k]() && !S.unlocks[k]);
+  const fresh = FEATURES.filter(k => RULES[k]() && !S.unlocks[k] && !(late.focusOff && late.focusOff(k))); // kapatılan sistem tanıtılmaz
   // bu sürümden önce başlamış kariyerler: yeni sistemler ayrıca tanıtılmaz ("Yenilikler" kartı anlatır)
   if (S.season >= 2) for (const k of ["plan", "basarim", "tasarim", "hikaye", "geceligi"]) if (fresh.includes(k) && S.unlocks.program !== undefined) fresh.splice(fresh.indexOf(k), 1), (S.unlocks[k] = 1);
   if (!fresh.length) return false;

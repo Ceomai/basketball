@@ -118,6 +118,19 @@ html.cb{--good:#4aa8ff;--bad:#ff9b3d}
 html.cb .pill.w{background:rgba(74,168,255,.15)} html.cb .pill.l{background:rgba(255,155,61,.15)}
 html.cb .fx .p{background:rgba(74,168,255,.12)} html.cb .fx .n{background:rgba(255,155,61,.12)}
 html.cb .btn.good{color:#03111f}
+/* paket 4a: küçük yazı, renk körü ek bölgeler, yüksek kontrast (tema değişkenlerinin üstüne çıkar), ekran okuyucu, ilk maç rehberi */
+html.fs-s{font-size:14.5px} html.fs-s body{font-size:12.75px}
+html.cb[data-theme]{--good:#4aa8ff;--bad:#ff9b3d}
+html.cb .od.e{background:rgba(74,168,255,.15)} html.cb .od.h{background:rgba(255,155,61,.15)}
+html.cb .qbtn.ok{background:rgba(74,168,255,.18)} html.cb .qbtn.no{background:rgba(255,155,61,.15)}
+html.hc,html.hc[data-theme]{--bg:#000;--bg2:#05070b;--card:#0b0f17;--card2:#121826;--line:#5b6b86;--line2:#8fa1c2;--text:#fff;--muted:#d0d8e6;--dim:#a9b4c6;--gold:#ffd166}
+html.hc .btn,html.hc .opt,html.hc .choice,html.hc .card,html.hc .act{border-width:2px}
+html.hc :focus-visible{outline:3px solid #ffd166;outline-offset:2px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.mt-hl{outline:3px solid var(--gold);outline-offset:3px;border-radius:10px;animation:mtPulse 1s ease-in-out infinite alternate}
+@keyframes mtPulse{to{outline-color:rgba(216,178,90,.35)}}
+.mt-bub{position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 32px));z-index:46;border-color:var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.mt-bub .grid2 .btn{min-height:40px}
 .act{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .act .ai{width:52px;height:52px;border-radius:10px;background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}

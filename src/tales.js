@@ -584,7 +584,7 @@ export function commentLine(kind) {
 
 /* ---------- Haftalık mizah köşesi ---------- */
 Bus.on("week:start", () => {
-  if (!S || window.__SIM || S.week % 3 !== 0) return;
+  if (!S || window.__SIM || S.week % 3 !== 0 || late.focusOff("hikaye")) return;
   const last = (S.results || []).slice(-1)[0];
   const pool = last ? (last.win ? "w" : "l") : "n";
   news(`${$t("tl.hd.tag")} ${$t(`tl.hd.${pool}.${ri(1, 5)}`, { v: esc(nm()), c: esc(S.npc.coach), t: esc(S.team.short) })}`);
