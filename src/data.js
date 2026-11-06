@@ -102,6 +102,7 @@ export function toast(t) {
   if (SIM()) return;
   TOAST_LOG.push(String(t));
   if (TOAST_LOG.length > 60) TOAST_LOG.splice(0, 20);
+  if (typeof late.inboxAdd === "function") late.inboxAdd(t, "toast"); // bildirim kutusu (src/inbox.js)
   if (typeof late.sfx === "function") late.sfx("notify");
   $$(".toast").forEach(x => x.remove());
   const d = document.createElement("div");

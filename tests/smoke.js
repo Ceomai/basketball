@@ -136,6 +136,8 @@ const check = (ok, msg) => {
     await p.evaluate(() => /Rakibin/.test(document.querySelector("#ovl").textContent)),
     "sezon sonunda rakip kıyas kartı var"
   );
+  await p.evaluate(() => document.querySelectorAll(".tour").forEach(x => x.remove())); // ilk açılış turu kalıntısı
+  await p.tap('[data-sn="off"]'); // Sezon Gecesi: Teklifler sekmesi
   await (await p.$$("[data-o]"))[0].tap();
   await p.waitForTimeout(200);
   const ok = await p.$("#ng-ok");

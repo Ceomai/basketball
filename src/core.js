@@ -117,6 +117,7 @@ export function tx(d, a) {
 export function news(t) {
   S.news.unshift({ w: `S${S.season} H${S.week}`, t });
   S.news = S.news.slice(0, 8);
+  if (late.inboxAdd) late.inboxAdd(t, "news"); // bildirim kutusu (src/inbox.js)
 }
 export const seasonLabel = () => `${S.year}–${String(S.year + 1).slice(2)}`;
 export const lgName = () => leagueName(S.stage === "euro" ? "t1" : S.stage, S.team.cc, S.stageSeason);

@@ -39,7 +39,7 @@ export function planSheet() {
   sheet(
     $t("pl2.plan"),
     $t("pl2.sub", { n: S.slot }),
-    `${[0, 1, 2]
+    `${late.coachTipHTML()}${[0, 1, 2]
       .map(
         i =>
           `<div class="eyebrow">${$t("pl2.slot", { n: i + 1 })}${i >= S.slot ? ` · ${$t("pl2.used")}` : ""}</div><div class="opts" data-ps="${i}">${avail

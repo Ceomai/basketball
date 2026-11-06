@@ -772,7 +772,8 @@ export function seasonEnd(playoff, champ, final) {
     c2: S.team.c2,
     ...(S.ss || late.blankSS())
   });
-  const gr = BAL.grow.find(g => S.age <= g[0]);
+  const gr = BAL.grow.find(g => S.age <= g[0]),
+    st0 = { ...S.st }; // yaz gelişimi Sezon Gecesi "Gelecek sezon" sekmesinde gösterilir (src/seasonnight.js)
   for (const [k] of STATS) {
     let g = ri(gr[1], gr[2]);
     if (S.age >= 30 && (k === "sut" || k === "pas")) g = Math.max(g, -1);
@@ -803,6 +804,7 @@ export function seasonEnd(playoff, champ, final) {
       S.moral -= 6;
     }
   }
+  S.snGrow = Object.fromEntries(STATS.map(([k]) => [k, S.st[k] - st0[k]]));
   if (S.contract > 0) S.contract--;
   S.age++;
   S.year++;
@@ -968,6 +970,7 @@ export function transition(avg, champ, head) {
     force = S.age >= 38 || (S.farewell && S.season > S.farewell); // veda turu sezonu bitince emeklilik
   // menajerin ek kulüp araması (reklamla): yalnızca gerçek bir kulüp seçimi yapılan yazlarda
   const allowExtra = !force && (S.stage !== "lise" || S.stageSeason > 2);
+  late.snReset();
   const show = () => {
     // bütün kulüpler masadan kalktıysa ilk tekliflerinde (pazarlıksız) dururlar; oyuncu teklifsiz kalmaz
     if (offers.length && offers.every(o => o.withdrawn))
@@ -980,21 +983,25 @@ export function transition(avg, champ, head) {
       $t("match.79", {
         v: seasonLabel()
       }),
-      `${head}${intro}${
-        force
-          ? `<div class="say">${$t("match.80")}</div><button class="btn bad" id="ret">${$t("match.81")}</button>`
-          : `<div class="choices">${offers
-              .map((o, i) =>
-                o.withdrawn
-                  ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.135")}</span></button>`
-                  : offerHTML(o, i)
-              )
-              .join(
-                ""
-              )}</div>${late.offerAdsHTML(offers, allowExtra)}${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
-      }`,
+      late.snShellHTML(
+        head,
+        `${intro}${
+          force
+            ? `<div class="say">${$t("match.80")}</div><button class="btn bad" id="ret">${$t("match.81")}</button>`
+            : `<div class="choices">${offers
+                .map((o, i) =>
+                  o.withdrawn
+                    ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.135")}</span></button>`
+                    : offerHTML(o, i)
+                )
+                .join(
+                  ""
+                )}</div>${late.offerAdsHTML(offers, allowExtra)}${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
+        }`
+      ),
       { noClose: true }
     );
+    late.snBind(); // Sezon Gecesi sekmeleri (src/seasonnight.js)
     // sezon sonu ödülü bir kez alınınca yeniden çizimde düğme yerine bilgi kalmasın diye kutu tazelenir
     const sa = $("#seasonad");
     if (sa) sa.innerHTML = late.seasonAdHTML();

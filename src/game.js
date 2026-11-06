@@ -79,6 +79,8 @@ import * as polish from "./polish.js";
 import * as coaching from "./coaching.js";
 import * as bonds from "./bonds.js";
 import * as matchfeel from "./matchfeel.js";
+import * as seasonnight from "./seasonnight.js";
+import * as inbox from "./inbox.js";
 
 const MODULES = [
   data,
@@ -158,7 +160,9 @@ const MODULES = [
   polish,
   coaching,
   bonds,
-  matchfeel
+  matchfeel,
+  seasonnight,
+  inbox
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
