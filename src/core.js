@@ -376,6 +376,7 @@ export function renderCreate() {
       <p class="small muted" style="margin-top:6px">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
     <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
     ${late.modePickerHTML(F.mode || "normal")}
+    ${late.diffPickerHTML(F)}
     ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
     ${F.heir ? "" : late.scenarioPickerHTML(F.scenario || "")}
   </div>
@@ -403,6 +404,7 @@ export function renderCreate() {
   };
   $("#bkS").onclick = late.renderSlots;
   bind("mode", v => (F.mode = v));
+  bind("dfx", v => late.diffSet(F, v)); // özel zorluk (src/bonds.js)
   bind("origin", v => (F.origin = v));
   bind("scn", v => (F.scenario = v || null)); // kariyer senaryosu (src/scenarios.js)
   $("#fn").onkeydown = e => {
@@ -572,6 +574,7 @@ export function startCareer() {
     }
   });
   S.mode = F.mode || "normal";
+  late.diffApply(F);
   S.saveSlot = F.slot || 1;
   S.wk14 = 1;
   S.schema = late.SAVE_V;

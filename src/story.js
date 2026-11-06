@@ -389,7 +389,7 @@ export function rivalStageFor(o, age) {
 }
 export function rivalSeason() {
   const R = S.rival;
-  if (!R) return null;
+  if (!R || R.retired) return null; // emekli rakip (src/bonds.js)
   const age = S.age; // seasonEnd yaşı artırdıktan sonra çağrılır
   const g = ri(...rivalGrowthRange(age));
   R.ovr = clamp(Math.round(R.ovr + g * R.talent), 25, 95);

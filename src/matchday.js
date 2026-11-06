@@ -38,6 +38,7 @@ export function matchdayStart(ctx, foes, mates) {
   if (late.exCoachNote) late.exCoachNote(opp); // eski hocan rakip kenarda (src/tales.js)
   if (late.fanMatchStart) late.fanMatchStart(); // koreografi / taraftar otobüsü (src/seasonlife.js)
   if (late.gradMeet) late.gradMeet(foes || [], M.mates); // akademi mezunu sahada (src/venues.js)
+  if (late.bondsMatchStart) late.bondsMatchStart(opp, foes || []); // eski takım arkadaşı / rakip (src/bonds.js)
   chemFor(M.mates);
 }
 export function matchdayEnd() {

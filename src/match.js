@@ -1106,6 +1106,7 @@ export function retireScreen() {
    }</p>
    <div class="grid2"><button class="btn pri big" id="nw">${$t("match.92")}</button>${late.cardButtonHTML()}</div>${late.albumButtonHTML()}</div>
   ${late.hofCard()}
+  ${late.bondsRetireHTML()}
   ${late.legendRetireHTML()}
   ${late.afterCareerHTML()}
   <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;

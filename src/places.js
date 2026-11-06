@@ -234,7 +234,7 @@ export function locEv(I, tab = "vitrin") {
   }
   if (tab === "kariyer") {
     late.statsTab(c);
-    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}`);
+    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}`);
     late.bindAlbumButton(() => locEv(I, "kariyer"));
   }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
