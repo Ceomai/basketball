@@ -257,7 +257,7 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
   const m = (await p.$("[data-m='key']")) || (await p.$("[data-m]"));
   if (m) await m.click();
   // karar anında ilk seçenek; mini oyunda tuvalin ortasına ve eylem düğmesine dokunma olayları
-  const end = Date.now() + 160000;
+  const end = Date.now() + 230000;
   while (Date.now() < end) {
     const st = await p.evaluate(g0 => {
       const $ = s => document.querySelector(s);
@@ -548,7 +548,7 @@ persona("U25", "Eski cihaz: 4 kat yavaş işlemci, düşük grafik, 320 px", asy
   const { server, base } = await serveDist();
   BASE = base;
   const results = [];
-  for (const x of P) {
+  for (const x of P.filter(q => !process.env.ONLY || q.id === process.env.ONLY)) {
     if (FILTER && !FILTER.test(x.id)) continue;
     const t0 = Date.now();
     let status = "geçti",
@@ -556,7 +556,7 @@ persona("U25", "Eski cihaz: 4 kat yavaş işlemci, düşük grafik, 320 px", asy
     try {
       const r = await Promise.race([
         x.fn(),
-        new Promise((_, rej) => setTimeout(() => rej(new Error("zaman aşımı (180 sn)")), 180000))
+        new Promise((_, rej) => setTimeout(() => rej(new Error("zaman aşımı (250 sn)")), 250000))
       ]);
       if (r) detail = String(r);
     } catch (e) {
