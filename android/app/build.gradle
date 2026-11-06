@@ -7,9 +7,12 @@ android {
         applicationId "com.potakariyeri.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Sürüm: CI'da VERSION_CODE / VERSION_NAME ortam değişkenleriyle artırılır
-        versionCode Integer.parseInt(System.getenv("VERSION_CODE") ?: "1")
+        // Sürüm: CI'da VERSION_CODE (github.run_number) + VERSION_CODE_OFFSET ile her derlemede artar.
+        // Play aynı versionCode'u iki kez kabul etmez ve küçülmesine izin vermez; elle AAB yüklersen OFFSET'i büyüt.
+        versionCode Integer.parseInt(System.getenv("VERSION_CODE") ?: "1") + Integer.parseInt(System.getenv("VERSION_CODE_OFFSET") ?: "0")
         versionName(System.getenv("VERSION_NAME") ?: "1.0.0")
+        // AdMob uygulama kimliği TEK noktadan: ADMOB_APP_ID ortam değişkeni (CI'da GitHub Secrets). Yoksa Google'ın test kimliği.
+        resValue "string", "admob_app_id", (System.getenv("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -30,6 +33,8 @@ android {
     }
     buildTypes {
         release {
+            // Kod küçültme kapalı: uygulama kodu WebView'de (JS); R8 Capacitor/Cordova eklentilerinin yansıma ile
+            // çağrılan sınıflarını silebilir. Açmak istersen önce proguard-rules.pro'ya eklenti kuralları eklenmeli.
             minifyEnabled false
             if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -56,6 +61,16 @@ dependencies {
 }
 
 apply from: 'capacitor.build.gradle'
+
+// Yayın kapısı: test AdMob kimliğiyle imzalı yayın paketi üretilmesin (docs/YAYIN_KONTROL.md).
+// Kapalı test için bilerek test reklamı istiyorsan ALLOW_TEST_ADS=1.
+gradle.taskGraph.whenReady { graph ->
+    def releasing = graph.allTasks.any { it.name in ['bundleRelease', 'assembleRelease'] }
+    def appId = System.getenv("ADMOB_APP_ID") ?: ""
+    if (releasing && System.getenv("ALLOW_TEST_ADS") != "1" && (appId == "" || appId.startsWith("ca-app-pub-3940256099942544"))) {
+        throw new GradleException("ADMOB_APP_ID tanımlı değil ya da Google test kimliği. Yayın paketi durduruldu (ALLOW_TEST_ADS=1 ile atlanabilir).")
+    }
+}
 
 try {
     def servicesJSON = file('google-services.json')

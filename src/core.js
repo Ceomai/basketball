@@ -31,6 +31,7 @@ import {
 import { leaguePool } from "./clubs.js";
 import { SKINS, drawKid, icon, portrait } from "./art.js";
 import { mapSVG } from "./map.js";
+import { brandGen } from "./brand.js";
 /* ================= DURUM ================= */
 export let S = null;
 export const fullName = () => `${S.first} ${S.last}`;
@@ -180,7 +181,7 @@ export function makeTeam(kind, city, salt = 0) {
     name = `${city} ${["Üniversitesi", "Teknik Üniversitesi", "Spor Akademisi"][salt % 3]}`;
   } else {
     const p = PAT[cc] || PAT.TR;
-    name = p[(salt + (h >> 2)) % p.length](city);
+    name = brandGen(p[(salt + (h >> 2)) % p.length](city), city); // üretilen ad gerçek bir kulübe denk gelmesin
   }
   short = (short || city)
     .normalize("NFD")
@@ -476,7 +477,7 @@ export const NAME_FIRST = [
   "Serkan",
   "Tolga",
   "Sinan",
-  "Cedi",
+  "Cenk",
   "Ömer",
   "Furkan",
   "Enes",

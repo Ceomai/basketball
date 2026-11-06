@@ -15,6 +15,7 @@ import { S, crestSVG, fullName, lgName, news, norm, sheet, standings, teamByKey,
 import { save } from "./save.js";
 import { leaguePool } from "./clubs.js";
 import { late } from "./late.js";
+import { brandText } from "./brand.js";
 
 const PRO_CUP = ["t3", "t2", "t1", "euro"];
 const nGames = () => (S.sched ? S.sched.length : 14);
@@ -98,7 +99,7 @@ const compName = g =>
       : g.comp === "ff"
         ? `${euroName()} · ${$t("cp.ff")} · ${S.comps.euro.ff.at === 0 ? $t("cp.sf") : $t("cp.f")}`
         : `${euroName()} · ${$t("cp.group")}`;
-const euroName = () => (S.comps && S.comps.euro && S.comps.euro.kind === "ec" ? "EuroCup" : "EuroLeague");
+const euroName = () => brandText(S.comps && S.comps.euro && S.comps.euro.kind === "ec" ? "EuroCup" : "EuroLeague");
 
 /** afterMatch → hafta içi maçları sırayla, sonra next (lig akışı) */
 export function midweek(next) {

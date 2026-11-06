@@ -6,6 +6,7 @@ import { save } from "./save.js";
 import { M } from "./match.js";
 import { settingsSheet } from "./systems.js";
 import { RC, loadRemote, onRemote } from "./remote.js";
+import { REL_ADMOB, relAdFreeLabel, relWarnTestAds } from "./release.js";
 /* ================= REKLAM GELİR MODELİ =================
    İlke: reklam oyuncunun tercihidir. Ödüllü reklamlar bir karşılık verir; zorunlu geçiş reklamı seyrek ve
    sıklık sınırlıdır, ilk saatlerde hiç gösterilmez.
@@ -21,11 +22,8 @@ import { RC, loadRemote, onRemote } from "./remote.js";
    Web sürümünde gerçek reklam yoktur; akışı göstermek için oyun içi tanıtım ekranı çıkar.
    "Reklamsız paket" alındığında geçiş reklamları kapanır, ödüllü reklamların ödülü reklamsız verilir. */
 export const ADS_CFG = {
-  // Mağaza sürümünde AdMob reklam birimi kimlikleri buraya yazılır (şimdilik Google'ın test kimlikleri)
-  admob: {
-    rewarded: { android: "ca-app-pub-3940256099942544/5224354917", ios: "ca-app-pub-3940256099942544/1712485313" },
-    interstitial: { android: "ca-app-pub-3940256099942544/1033173712", ios: "ca-app-pub-3940256099942544/4411468910" }
-  },
+  // Reklam birimi kimlikleri TEK noktadan: src/release.js (VITE_ADMOB_* derleme değişkenleri; yoksa Google test kimlikleri)
+  admob: REL_ADMOB,
   // ödüllü reklam oyuncunun tercihi: günlük sınır yok, yalnızca bot/hatalı trafiğe karşı güvenlik tavanı
   dailyRewardCap: 100,
   energyPerWeek: 20,
@@ -121,9 +119,15 @@ export let admobReady = false;
 export async function admobInit() {
   const A = admob();
   if (!A || admobReady) return !!A;
+  relWarnTestAds();
+  // native.js önce Google rıza formunu (UMP, AB/UK) tamamlar, izin varsa AdMob'u başlatır; ondan önce reklam istenmez
+  const ready = window.PotaNative && window.PotaNative.adsReady;
   try {
-    await A.initialize({ initializeForTesting: false });
-    admobReady = true;
+    if (ready) admobReady = !!(await ready);
+    else {
+      await A.initialize({ initializeForTesting: false });
+      admobReady = true;
+    }
   } catch (e) {}
   return admobReady;
 }
@@ -389,7 +393,7 @@ export function adsSettingsHTML() {
       : `${$t("ads.36")} ${rewardLeft()}${$t("ads.56", {
           total: total
         })}`
-  }</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${$t("ads.39")}</button>`}</div></div>`;
+  }</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${relAdFreeLabel()}</button>`}</div></div>`;
 }
 export function bindAdsSettings(re) {
   const c = $("#ad-cons");
@@ -406,7 +410,9 @@ export function bindAdsSettings(re) {
 export async function buyAdFree(re) {
   if (window.PotaStore && window.PotaStore.buy) {
     try {
-      if (await window.PotaStore.buy("adfree")) {
+      const r = await window.PotaStore.buy("adfree");
+      if (r === "pending") toast($t("rel.iapPending"));
+      else if (r) {
         ADS.adFree = true;
         adsSave();
         toast($t("ads.42"));

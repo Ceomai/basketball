@@ -2,7 +2,7 @@
   "name": "pota-kariyeri",
   "version": "1.0.0",
   "private": true,
-  "description": "İstanbul'dan NBA'e basketbol kariyer simülasyonu",
+  "description": "İstanbul'dan dünyanın zirvesine basketbol kariyer simülasyonu",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -27,7 +27,8 @@
     "test:personas": "npm run build && npm run build:single && node tests/personas.js",
     "fixture": "npm run build:single && node tests/make-fixture.js",
     "screenshots": "node tools/screenshots.js",
-    "perf": "node tools/perf-check.js"
+    "perf": "node tools/perf-check.js",
+    "release:check": "node tools/release-check.js --dist"
   },
   "devDependencies": {
     "@babel/parser": "^7.29.12",

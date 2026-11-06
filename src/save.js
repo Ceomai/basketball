@@ -2,6 +2,7 @@ import { LOCALE, t as $t, t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, SIM, esc, toast } from "./data.js";
 import { icon, portrait } from "./art.js";
+import { brandSave } from "./brand.js";
 import { F, MY_LISE, S, app, closeSheet, migrate, renderCreate, renderMain, setS, setTeamVars, sheet } from "./core.js";
 /* ================= KAYIT SİSTEMİ =================
    5 kariyer yuvası. Her yazımda bir önceki sağlam kayıt yedeğe alınır; ana kayıt bozulursa yedekten açılır.
@@ -36,6 +37,7 @@ export function cleanStrings(o, depth = 0) {
 }
 export function upgradeSave(s, from) {
   cleanStrings(s); // bütün yükleme yolları buradan geçer: yuva, yedek, IndexedDB, kayıt kodu, dosya
+  brandSave(s); // eski kayıtlardaki gerçek kulüp/lig adları → kurgusal (anahtarlar değişmez; src/brand.js)
   for (let v = (from || 3) + 1; v <= SAVE_V; v++) if (MIGRATIONS[v]) MIGRATIONS[v](s);
   s.schema = SAVE_V;
   return s;

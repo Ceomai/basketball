@@ -19,8 +19,12 @@ const LOC_SYS = { borsa: "borsa", hipodrom: "hipodrom", sans: "kumar", studyo: "
 // başarım → sistem (kapalıyken listede görünmez, toplamdan düşer)
 const FEAT_SYS = { streetking: "geceligi", studio5: "studyo", live: "studyo", investor: "borsa" };
 
+// Mağaza derlemesi seçeneği: VITE_GAMBLING=off ile kumarhane ve hipodrom bahsi tamamen kapalı derlenir (ayarda da
+// görünmez). App Store yaş derecelendirmesini düşürmek için (docs/YAYIN_KONTROL.md → Kumar). Varsayılan: açık.
+const ENV = (typeof import.meta !== "undefined" && import.meta.env) || {};
+export const FOCUS_HARD_OFF = ENV.VITE_GAMBLING === "off" ? ["kumar", "hipodrom"] : [];
 /** Sistem oyuncu tarafından kapatıldı mı? (kademeli açılıştan bağımsız) */
-export const focusOff = k => !!(SETTINGS.off && SETTINGS.off[k]);
+export const focusOff = k => FOCUS_HARD_OFF.includes(k) || !!(SETTINGS.off && SETTINGS.off[k]);
 /** Harita mekânı odak modunda kapalı mı? */
 export const focusLocOff = id => !!LOC_SYS[id] && focusOff(LOC_SYS[id]);
 /** Başarım kapalı bir sisteme mi bağlı? */
@@ -39,10 +43,12 @@ export function focusSet(k, off) {
 export const focusSettingsHTML = () =>
   `<div class="eyebrow" style="margin-top:4px">${$t("fo.title")}${focusCount() ? ` · ${$t("fo.offN", { n: focusCount() })}` : ""}</div>
    <p class="small muted">${$t("fo.sub")}</p>
-   ${FOCUS_SYS.map(
-     k =>
-       `<div class="act"><div><h3>${$t(`fo.s.${k}`)}</h3><p>${$t(`fo.s.${k}D`)}</p></div><button class="btn ${focusOff(k) ? "ghost" : "team"} sm" data-fo="${k}" aria-pressed="${!focusOff(k)}">${focusOff(k) ? $t("btn.off") : $t("btn.on")}</button></div>`
-   ).join("")}`;
+   ${FOCUS_SYS.filter(k => !FOCUS_HARD_OFF.includes(k))
+     .map(
+       k =>
+         `<div class="act"><div><h3>${$t(`fo.s.${k}`)}</h3><p>${$t(`fo.s.${k}D`)}</p></div><button class="btn ${focusOff(k) ? "ghost" : "team"} sm" data-fo="${k}" aria-pressed="${!focusOff(k)}">${focusOff(k) ? $t("btn.off") : $t("btn.on")}</button></div>`
+     )
+     .join("")}`;
 export function bindFocusSettings(re) {
   $$("[data-fo]").forEach(
     b =>
@@ -56,6 +62,7 @@ export function bindFocusSettings(re) {
 /** Kapalı mekâna dokunulunca: kısa açıklama ve tek dokunuşla açma */
 export function focusLocSheet(id, I) {
   const k = LOC_SYS[id];
+  if (FOCUS_HARD_OFF.includes(k)) return late.renderMain(); // derlemede kapalı: açma kısayolu yok
   sheet(
     I.n,
     $t("fo.locSub"),

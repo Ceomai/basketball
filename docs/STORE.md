@@ -1,5 +1,7 @@
 # Mağazaya çıkış rehberi (Android önce)
 
+> Yayın öncesi tam kontrol listesi ve "senin yapman gerekenler": **docs/YAYIN_KONTROL.md**. iOS: **docs/IOS.md**.
+
 Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki adımlar senin hesaplarınla yapılması gereken işler.
 
 ## Hazır olanlar
@@ -7,7 +9,9 @@ Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki ad
 - `android/` projesi.
 - Uygulama kimliği `com.potakariyeri.app`. Play'e ilk yüklemeden sonra değiştirilemez; değiştirmek istersen şimdi `capacitor.config.json` ve `android/app/build.gradle` içinde değiştir.
 - İkonlar, açılış ekranı, dikey ekran, Android geri tuşu desteği.
-- **Reklam:** AdMob eklentisi, Google rıza formu (UMP) ve oyun içi reklam yerleşimleri (`src/ads.js`). Şu an Google'ın **test** kimlikleri kullanılıyor.
+- **Reklam:** AdMob eklentisi, Google rıza formu (UMP, reklamdan ÖNCE), oyun içi reklam yerleşimleri (`src/ads.js`). Kimlikler tek noktadan (`src/release.js` + `ADMOB_APP_ID`); tanımlı değilse Google'ın **test** kimlikleri ve yayın kapısı (`tools/release-check.js`, Gradle) imzalı paketi durdurur.
+- **Mağaza güvenli adlar:** bütün kulüp, lig ve turnuva adları kurgusal (`src/brand.js`), test: `tests/unit/brand.test.mjs`.
+- **Veri silme:** Ayarlar → Gizlilik ve verilerin → Bütün verilerimi sil; web: `public/delete-data.html`.
 - **Satın alma:** reklamsız paket (`src/native.js`, ürün kimliği `adfree`).
 - **Kayıtlar:** tarayıcı hafızası ve IndexedDB'ye ek olarak yerel depoya (Preferences) da yazılır. Android otomatik yedekleme açık; kayıtlar kullanıcının Google hesabına yedeklenir ve yeni telefona kurulumda geri gelir.
 - **Gizlilik politikası:** `public/privacy.html`. Derlenince `dist/privacy.html`; GitHub Pages'te `.../privacy.html` adresinde yayınlanır.
@@ -24,22 +28,28 @@ Oyun Capacitor ile Android uygulamasına paketlenir. Kod hazır. Aşağıdaki ad
 1. https://play.google.com/console : geliştirici hesabı (tek seferlik 25 USD).
 2. Yeni uygulama → ad: **Pota Kariyeri**, varsayılan dil Türkçe, oyun, ücretsiz.
 3. **Uygulama içeriği** bölümü:
-   - **Gizlilik politikası:** Pages adresindeki `privacy.html`. Önce dosyadaki `[iletişim e-postası]` alanını doldur.
-   - **Reklamlar:** "Evet, reklam içeriyor".
-   - **Hedef kitle:** 13+ öner. 13 altı seçilirse Aileler politikası ve sertifikalı reklam ağı gerekir.
-   - **Veri güvenliği formu:**
-     - Toplanan: "Cihaz veya diğer kimlikler (reklam kimliği)" → amaç reklam (AdMob), paylaşım: Google.
-     - Uygulama etkinliği: yalnızca kullanıcı oyun testini açıp raporu kendi gönderirse.
-     - Şifreleme: aktarım yok.
-     - Silme: uygulama içinden (Ayarlar → Kaydı temizle).
-   - **İçerik derecelendirmesi anketi:** şiddet yok, kumar yok. Oyun Kulübü yalnızca oyun içi fişle çalışıyor ama "simüle kumar" sorusuna **evet** demek gerekir; bu derecelendirmeyi yükseltir. Mağaza sürümünden Oyun Kulübü'nü kaldırmak istersen söyle.
+   - **Gizlilik politikası:** Pages adresindeki `privacy.html`. Önce `privacy.html` ve `delete-data.html` içindeki `[iletişim e-postası]` / `[contact email]` alanlarını doldur.
+   - **Reklamlar:** "Evet, reklam içeriyor". **Reklam kimliği beyanı:** "Evet, reklam için kullanılıyor" (manifestte `AD_ID` izni var).
+   - **Hedef kitle:** 13+ (en az; 16+ da savunulabilir). 13 altı SEÇME: simüle kumar var ve Aileler politikası sertifikalı reklam ağı ister. Uygulama "çocukların ilgisini çekebilir mi?" sorusuna: Hayır.
+   - **Veri güvenliği formu (şu anki kod için):**
+     | Veri türü | Toplanıyor mu | Paylaşılıyor mu | Amaç | Zorunlu mu |
+     |---|---|---|---|---|
+     | Cihaz veya diğer kimlikler (reklam kimliği) | Evet (AdMob SDK) | Evet, Google | Reklam/pazarlama, dolandırıcılık önleme | Zorunlu (reklamlı sürüm) |
+     | Uygulama etkinliği → uygulama etkileşimleri | Yalnızca Firebase Analytics eklenirse ve oyuncu izin verirse | Hayır (Google işleyici) | Analiz | İsteğe bağlı |
+     | Uygulama bilgileri ve performans → çökme günlükleri, tanılama | Yalnızca `SENTRY_DSN` doldurulursa (ayardan kapatılabilir) | Hayır (işleyici) | Uygulama işlevselliği | İsteğe bağlı |
+     | Kişisel bilgiler → e-posta, Kullanıcı içeriği → diğer (oyun kayıtları) | Yalnızca bulut kayıt yapılandırılırsa (şu an KAPALI) | Hayır | Uygulama işlevselliği, hesap yönetimi | İsteğe bağlı |
+     | Satın alma geçmişi | Hayır (Google Play işler) | | | |
+     - Aktarımda şifreleme: **Evet** (bütün istekler HTTPS).
+     - Silme talebi: **Evet** → uygulama içi (Ayarlar → Gizlilik ve verilerin → Bütün verilerimi sil) ve web bağlantısı `https://ceomai.github.io/basketball/delete-data.html`. Bulut kayıt açılırsa bu URL Play Console → Uygulama içeriği → **Hesap silme** alanına da girilir.
+     - Oyun testi raporu: oyuncu dosyayı kendisi paylaşır (otomatik gönderim yok, `TELEMETRY_ENDPOINT` boş) → beyan gerekmez; uç nokta doldurulursa "Uygulama etkinliği" eklenir.
+   - **İçerik derecelendirmesi (IARC) anketi:** şiddet yok; **simüle kumar: Evet** (kumarhane fişleri ve at yarışı bahsi, yalnızca oyun parası; gerçek para yok, satın alınamaz). Sonuç genelde PEGI 12 / ESRB Teen / USK 12 civarı çıkar (kesin sonucu anket verir). Daha düşük derece istenirse `VITE_GAMBLING=off` ile kumarsız derleme (docs/YAYIN_KONTROL.md).
 4. **Ürünler → Uygulama içi ürünler →** ürün kimliği `adfree`, tek seferlik, fiyat (örn. ₺49,99), etkinleştir.
 
 ## 3. AdMob
 
 1. https://admob.google.com : uygulama ekle (Android, Play'de yayımlanmadıysa "henüz yayımlanmadı").
-2. **Uygulama kimliği** (`ca-app-pub-XXXX~YYYY`) → `android/app/src/main/res/values/strings.xml` → `admob_app_id`.
-3. İki reklam birimi oluştur: **Ödüllü** ve **Geçiş**. Kimlikleri `src/ads.js` → `ADS_CFG.admob` içine yaz. Ödüllü yerleşimler (maç primi, enerji, devre arası, sakatlık, son hücum, ek teklif, geri çağırma, sezon sonu, antrenman, günlük kutu) aynı birimi kullanır; raporlamada ayrıştırmak istenirse her yerleşime ayrı birim açılabilir.
+2. **Uygulama kimliği** (`ca-app-pub-XXXX~YYYY`) → GitHub Secret `ADMOB_APP_ID` (Gradle `resValue` ile manifeste girer; strings.xml'e YAZMA).
+3. İki reklam birimi oluştur: **Ödüllü** ve **Geçiş**. Kimlikler → GitHub Secrets `ADMOB_REWARDED_ANDROID`, `ADMOB_INTERSTITIAL_ANDROID` (derlemede `VITE_ADMOB_*` olur, `src/release.js` okur). Kodda kimlik yazılmaz. Ödüllü yerleşimler (maç primi, enerji, devre arası, sakatlık, son hücum, ek teklif, geri çağırma, sezon sonu, antrenman, günlük kutu) aynı birimi kullanır; raporlamada ayrıştırmak istenirse her yerleşime ayrı birim açılabilir.
 4. AdMob → Gizlilik ve mesajlaşma → **GDPR (AB) mesajı** oluştur. Uygulamadaki rıza formu bunu gösterir.
 5. Gerçek kimliklerle **kendi telefonunda reklamlara tıklama**; hesabın kapanabilir. Testi test kimlikleriyle ya da AdMob'da test cihazı tanımlayarak yap.
 6. **Aracılık (mediation), gelirin en ucuz artışı (%20-40):** AdMob → Aracılık → aracılık grubu oluştur (Ödüllü ve Geçiş için ayrı ayrı) → kaynak olarak AppLovin, Unity Ads, Meta Audience Network, Liftoff ekle (her birinde hesap açıp uygulama tanımlamak gerekir). Her ağın Android bağdaştırıcısı `android/app/build.gradle` içine `implementation 'com.google.ads.mediation:<ağ>:<sürüm>'` olarak eklenir. Oyun kodunda değişiklik gerekmez.
@@ -69,6 +79,7 @@ Olay katmanı hazır (`src/analytics.js`): `active_day` (kurulumdan bu yana gün
 2. GitHub → Settings → Secrets and variables → Actions → şu gizli değerleri ekle:
    - `ANDROID_KEYSTORE_BASE64`: `base64 -w0 pota-release.jks` çıktısı
    - `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`pota`), `ANDROID_KEY_PASSWORD`
+   - `ADMOB_APP_ID`, `ADMOB_REWARDED_ANDROID`, `ADMOB_INTERSTITIAL_ANDROID` (yoksa yayın kapısı AAB'yi durdurur; kapalı testte bilerek test reklamı için Variables → `ALLOW_TEST_ADS=1`)
 3. Sonraki push'ta Actions → Android → `pota-kariyeri-release-aab` çıkar. Sürüm kodu her çalıştırmada otomatik artar.
 4. Play Console → **Test → İç test** → yeni sürüm → AAB'yi yükle → test kullanıcılarının e-postalarını ekle. Bu, `docs/PLAYTEST.md`'deki oyun testi için en temiz dağıtım yoludur.
 5. Test bitince **Üretim** kanalına terfi ettir. İlk incelemede 1-7 gün beklenebilir.
@@ -83,11 +94,11 @@ Olay katmanı hazır (`src/analytics.js`): `active_day` (kurulumdan bu yana gün
 
 ## 6. Yayın öncesi kontrol listesi
 
-- [ ] `strings.xml` → gerçek `admob_app_id`
-- [ ] `src/ads.js` → gerçek ödüllü ve geçiş reklam birimi kimlikleri
-- [ ] `privacy.html` → iletişim e-postası
+- [ ] Secrets: `ADMOB_APP_ID`, `ADMOB_REWARDED_ANDROID`, `ADMOB_INTERSTITIAL_ANDROID` (+ imza anahtarı)
+- [ ] `privacy.html` ve `delete-data.html` → iletişim e-postası
 - [ ] Play'de `adfree` ürünü etkin
-- [ ] Kulüp adları: gerçek kulüp, NBA ve EuroLeague adları marka sorunu yaratabilir. Mağaza sürümü için kurgusal adlar önerilir.
+- [x] Kulüp/lig adları kurgusal (`src/brand.js`, varsayılan açık)
+- [ ] Ekran görüntüleri kurgusal adlı derlemeyle yeniden üretildi
 - [ ] Görsel tarz ve Oyun Kulübü kararı (derecelendirme)
 - [ ] İç testte en az 20 kişi, `tools/playtest-report.js` raporu incelendi
 
@@ -126,9 +137,9 @@ Kod hazır ama yapılandırılana kadar kapalı (Ayarlar'da "Yakında" yazar). F
 
 ## 9. Bildirimler
 
-`@capacitor/local-notifications` ile yalnızca cihazda planlanır; sunucu yok. Android 13+ ilk planlamada bildirim izni ister. Ayarlar → Bildirimler ile kapatılabilir.
+`@capacitor/local-notifications` ile yalnızca cihazda planlanır; sunucu yok. Android 13+ izni bağlamında istenir: 3. maçtan sonra bir kez ya da Ayarlar → Bildirimler açılınca (uygulama arka plana giderken istenmez). Tam alarm izni kullanılmaz.
 
-## iOS (sonra)
+## iOS (sonra) — ayrıntılı rehber: docs/IOS.md
 
 iOS paketi macOS ve Xcode ister.
 

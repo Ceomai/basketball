@@ -99,6 +99,25 @@ export function signOut() {
   persist();
 }
 
+/** Hesap ve veri silme (Google Play hesap silme politikası): buluttaki bütün kayıt yuvaları ve Firebase hesabı silinir.
+    Web bağlantısı: public/delete-data.html. Cihazdaki kayıtlara dokunmaz (onları Ayarlar → Bütün verilerimi sil siler). */
+export async function cloudDeleteAll() {
+  if (!cloudReady() || !signedIn()) return false;
+  const auth = { Authorization: `Bearer ${await token()}` };
+  for (let i = 1; i <= 5; i++) {
+    const r = await fetch(docURL(i), { method: "DELETE", headers: auth });
+    if (!r.ok && r.status !== 404) throw new Error($t("cloud.delFail"));
+  }
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${CLOUD_CONFIG.apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken: await token() })
+  });
+  if (!r.ok) throw new Error($t("cloud.delFail"));
+  signOut();
+  return true;
+}
+
 /* ---- Firestore ---- */
 const docURL = slot =>
   `https://firestore.googleapis.com/v1/projects/${CLOUD_CONFIG.projectId}/databases/(default)/documents/saves/${st.uid}/slots/${slot}`;
@@ -173,7 +192,7 @@ document.addEventListener("visibilitychange", () => {
 /* ---- Ayarlar bölümü ---- */
 export function cloudSettingsHTML() {
   if (!cloudReady()) return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${$t("cloud.15")}</p></div></div>`;
-  return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2" style="grid-column:1/-1">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
+  return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2" style="grid-column:1/-1">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button><button class="btn ghost sm" id="cl-del" style="grid-column:1/-1">${$t("cloud.del")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
 }
 export function bindCloudSettings(re) {
   const b = (id, f) => {
@@ -192,4 +211,25 @@ export function bindCloudSettings(re) {
   b("cl-in", signIn);
   b("cl-sync", syncAll);
   b("cl-out", async () => signOut());
+  // hesap silme: önce onay (geri alınamaz)
+  const d = $("#cl-del");
+  if (d)
+    d.onclick = () => {
+      sheet(
+        $t("cloud.del"),
+        $t("cloud.delSub"),
+        `<div class="say" style="border-left-color:var(--bad)">${$t("cloud.delWarn")}</div><div class="grid2"><button class="btn ghost" id="cd-no">${$t("rel.cancel")}</button><button class="btn pri" id="cd-yes">${$t("cloud.del")}</button></div>`
+      );
+      $("#cd-no").onclick = () => (closeSheet(), re());
+      $("#cd-yes").onclick = async () => {
+        try {
+          await cloudDeleteAll();
+          late.toast($t("cloud.delOk"));
+        } catch (err) {
+          late.toast($t("cloud.24") + (err.message || ""));
+        }
+        closeSheet();
+        re();
+      };
+    };
 }

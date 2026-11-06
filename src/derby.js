@@ -13,6 +13,7 @@ import { S, closeSheet, fixture, fullName, news, norm, renderMain, sheet, teamBy
 import { M } from "./match.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
+import { brandRealOf } from "./brand.js";
 
 const SIM = () => !!window.__SIM;
 const wi = () => S.season * 20 + S.week;
@@ -61,8 +62,10 @@ export function dbyArchKey() {
     cand = S.league.map(r => r.key).filter(k => k !== me.key && S.teams[k]);
   let k = null;
   for (const [x, y] of PAIRS) {
-    const other = x === me.name ? y : y === me.name ? x : null;
-    const hit = other && cand.find(c => S.teams[c].name === other);
+    // eşleşme gerçek kimlikle (anahtar) yapılır; görünen ad mağaza sürümünde kurgusaldır (src/brand.js)
+    const mine = brandRealOf(me),
+      other = x === mine ? y : y === mine ? x : null;
+    const hit = other && cand.find(c => brandRealOf(S.teams[c]) === other);
     if (hit) {
       k = hit;
       break;

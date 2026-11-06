@@ -1,5 +1,6 @@
 import { late } from "./late.js";
 import { CITY_C, CITY_THEME, LEAGUES } from "./data.js";
+import { brandClub, brandClubShort } from "./brand.js";
 /* ================= GERÇEK KULÜPLER =================
    Biçim: "Kulüp|Şehir|renk1|renk2". Listeler güçlüden zayıfa sıralı; sıra takım gücünü belirler.
    3. ligler gerçek kadrolarla değil, şehir adından üretilen kulüplerle kalır. */
@@ -43,7 +44,8 @@ export const parseClubs = (raw, cc) =>
   raw
     ? raw.split(";").map((e, i, a) => {
         const [n, city, c1, c2] = e.split("|");
-        return { n, city, cc, c1, c2, str: +(1.16 - (i / (a.length - 1 || 1)) * 0.3).toFixed(3) };
+        // n: görünen ad (mağaza sürümünde kurgusal, src/brand.js); real: gerçek ad (takım anahtarı, kayıt uyumu)
+        return { n: brandClub(n), real: n, city, cc, c1, c2, str: +(1.16 - (i / (a.length - 1 || 1)) * 0.3).toFixed(3) };
       })
     : [];
 export const CLUBS = {};
@@ -52,7 +54,7 @@ export const NBA_CLUBS = parseClubs(NBA_RAW, "US");
 export const allClubs = () => [...Object.values(CLUBS).flatMap(v => [...v.t1, ...v.t2]), ...NBA_CLUBS];
 export const EURO_CLUBS = EURO_RAW.split(";").map((e, i, a) => {
   const [n] = e.split("|");
-  const c = allClubs().find(x => x.n === n);
+  const c = allClubs().find(x => x.real === n);
   return { ...c, str: +(1.16 - (i / (a.length - 1)) * 0.22).toFixed(3) };
 });
 
@@ -83,19 +85,13 @@ NBA_CLUBS.forEach(c => {
 /* ---- Kulüp nesnesi: oyunun takım biçimine çevir ---- */
 export function clubTeam(c) {
   late.S.teams = late.S.teams || {};
-  const key = `club|${c.n}`;
+  const real = c.real || c.n;
+  const key = `club|${real}`; // anahtar gerçek adla kalır: eski kayıtlar bozulmaz
   if (late.S.teams[key]) return late.S.teams[key];
-  const short =
-    c.n
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .replace(/[^A-Za-zıİ ]/g, "")
-      .split(" ")
-      .filter(w => w.length > 1 && !/^(AS|BC|CB|KK|SL|JL|SIG|LDLC|MHP)$/i.test(w))[0] || c.n;
   const t = {
     key,
     name: c.n,
-    short: short.slice(0, 3).toLocaleUpperCase("tr-TR"),
+    short: brandClubShort(real),
     city: c.city,
     cc: c.cc,
     kind: "club",

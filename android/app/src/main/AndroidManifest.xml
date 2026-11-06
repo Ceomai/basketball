@@ -3,13 +3,16 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- AdMob uygulama kimliği. Yayından önce kendi AdMob kimliğinle değiştir (docs/STORE.md). Şu an Google'ın test kimliği. -->
+        <!-- AdMob uygulama kimliği: app/build.gradle → ADMOB_APP_ID ortam değişkeni (yoksa Google'ın test kimliği) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id"/>
@@ -44,4 +47,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Reklam kimliği (AdMob). Android 13+ için açıkça gerekir; Play Console → Uygulama içeriği → Reklam kimliği beyanı: "Evet, reklam". -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!-- Eklentilerden birleşenler: POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, WAKE_LOCK (yerel bildirim),
+         ACCESS_NETWORK_STATE (AdMob), BILLING (satın alma). Tam alarm (SCHEDULE_EXACT_ALARM) bilerek YOK: Play kısıtlar. -->
 </manifest>
