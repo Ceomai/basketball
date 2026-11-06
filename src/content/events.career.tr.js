@@ -260,7 +260,7 @@ export default [
     when: ["pro", "tired"],
     who: "{coach}",
     title: "Erken dönüş baskısı",
-    text: '"Doktor iki hafta daha diyor ama play-off yarışındayız. Hazır hissediyorsan bu akşam on dakika lazımsın."',
+    text: '"Doktor iki hafta daha diyor ama playoff yarışındayız. Hazır hissediyorsan bu akşam on dakika lazımsın."',
     choices: [
       {
         t: "Doktoru dinle",

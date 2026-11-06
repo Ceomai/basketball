@@ -1,4 +1,4 @@
-import { t as $t } from "./i18n/index.js";
+import { LANG, t as $t } from "./i18n/index.js";
 import { BAL, TDB, WAGE, roleFor, stageLevel } from "./logic/rules.js";
 export { BAL, TDB, WAGE };
 import { late } from "./late.js";
@@ -112,19 +112,23 @@ export function toast(t) {
   document.body.appendChild(d);
   setTimeout(() => d.remove(), 2600);
 }
-export const kfmt = n =>
-  n >= 1e6
-    ? (n / 1e6).toFixed(1).replace(".", ",") + "M"
+// Türkçede ondalık virgül ve "B" (bin); İngilizcede nokta ve "K" ("B" orada milyar okunur)
+const dec = x => (LANG === "tr" ? x.replace(".", ",") : x);
+export const kfmt = n => {
+  const K = LANG === "tr" ? "B" : "K";
+  return n >= 1e6
+    ? dec((n / 1e6).toFixed(1)) + "M"
     : n >= 1e4
-      ? Math.round(n / 1e3) + "B"
+      ? Math.round(n / 1e3) + K
       : n >= 1e3
-        ? (n / 1e3).toFixed(1).replace(".", ",") + "B"
+        ? dec((n / 1e3).toFixed(1)) + K
         : String(Math.round(n));
+};
 export const RATE = 40; // para birimi: içeride €, ekranda ₺
 export function fmt(eur) {
   const v = Math.round(eur * RATE),
     a = Math.abs(v),
-    s = a >= 1e7 ? (a / 1e6).toFixed(1).replace(".", ",") + "M" : a.toLocaleString("tr-TR");
+    s = a >= 1e7 ? dec((a / 1e6).toFixed(1)) + "M" : a.toLocaleString(LANG === "tr" ? "tr-TR" : "en-US");
   return (v < 0 ? "−" : "") + "₺" + s;
 }
 export function shade(hex, amt) {

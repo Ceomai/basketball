@@ -1,0 +1,330 @@
+{
+ "tr-m": {
+  "raw": {},
+  "bad": {},
+  "ph": {},
+  "turk": {},
+  "eng": {},
+  "over": {},
+  "hscroll": {},
+  "screens": 486,
+  "weeks": 34,
+  "errs": []
+ },
+ "en-m": {
+  "raw": {},
+  "bad": {},
+  "ph": {},
+  "turk": {
+   "Martı": [
+    "akış",
+    "akış",
+    "hafta 0 ana ekran"
+   ],
+   "İSTANBUL": [
+    "akış",
+    "akış",
+    "hafta 0 ana ekran"
+   ],
+   "Beyoğlu": [
+    "akış",
+    "hafta 0 ana ekran",
+    "mekân okul"
+   ],
+   "İstanbul": [
+    "mekân medya",
+    "mekân ev sekme 1",
+    "mekân ev sekme 1"
+   ],
+   "Sarıyer": [
+    "mekân ev sekme 4",
+    "mekân stad sekme 3",
+    "mekân ev sekme 4"
+   ],
+   "Çelik": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Doğan": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Yılmaz": [
+    "mekân stad sekme 2",
+    "akış",
+    "akış"
+   ],
+   "Koç": [
+    "mekân stad sekme 2",
+    "akış",
+    "akış"
+   ],
+   "Barış": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Şahin": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "akış"
+   ],
+   "Ataşehir": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "Bahçelievler": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "HÜLYA": [
+    "mekân aile",
+    "akış",
+    "akış"
+   ],
+   "Aydın": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "BEYOĞLU": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "ÇELIK": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "Öztürk": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "ATAŞEHIR": [
+    "akış",
+    "akış"
+   ],
+   "BAHÇELIEVLER": [
+    "akış",
+    "akış"
+   ],
+   "TÜRKIYE": [
+    "akış",
+    "hafta 14 ana ekran",
+    "akış"
+   ],
+   "Türkiye": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "Eskişehir": [
+    "akış",
+    "akış",
+    "hafta 15 ana ekran"
+   ],
+   "ESKIŞEHIR": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "Üniversitesi": [
+    "akış",
+    "akış",
+    "hafta 28 ana ekran"
+   ],
+   "Ayıları": [
+    "akış",
+    "hafta 28 ana ekran",
+    "mekân okul"
+   ],
+   "İzmir": [
+    "mekân ev sekme 4",
+    "mekân stad sekme 3",
+    "akış"
+   ],
+   "Kurtları": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "Kuzgunları": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "DOĞAN": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "Hülya": [
+    "akış"
+   ],
+   "İZMIR": [
+    "mekân stad",
+    "mekân stad sekme 0",
+    "akış"
+   ]
+  },
+  "eng": {},
+  "over": {},
+  "hscroll": {},
+  "screens": 495,
+  "weeks": 34,
+  "errs": []
+ },
+ "en-xl": {
+  "raw": {},
+  "bad": {},
+  "ph": {},
+  "turk": {
+   "Martı": [
+    "akış",
+    "akış",
+    "hafta 0 ana ekran"
+   ],
+   "İSTANBUL": [
+    "akış",
+    "akış",
+    "hafta 0 ana ekran"
+   ],
+   "Sarıyer": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "İstanbul": [
+    "mekân medya",
+    "mekân ev sekme 1",
+    "mekân ev sekme 1"
+   ],
+   "DOĞAN": [
+    "mekân ev sekme 4",
+    "mekân ev sekme 4",
+    "mekân ev sekme 4"
+   ],
+   "Koç": [
+    "mekân stad sekme 2",
+    "akış",
+    "akış"
+   ],
+   "Yılmaz": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Çelik": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Aydın": [
+    "mekân stad sekme 2",
+    "akış",
+    "akış"
+   ],
+   "Barış": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "mekân stad sekme 2"
+   ],
+   "Öztürk": [
+    "mekân stad sekme 2",
+    "akış",
+    "akış"
+   ],
+   "Şahin": [
+    "mekân stad sekme 2",
+    "mekân stad sekme 2",
+    "akış"
+   ],
+   "Ataşehir": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "Beyoğlu": [
+    "mekân stad sekme 3",
+    "mekân stad sekme 3",
+    "akış"
+   ],
+   "Bahçelievler": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "KOÇ": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "BAHÇELIEVLER": [
+    "akış",
+    "akış"
+   ],
+   "Doğan": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "ATAŞEHIR": [
+    "akış",
+    "akış"
+   ],
+   "BEYOĞLU": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "TÜRKIYE": [
+    "akış",
+    "hafta 14 ana ekran",
+    "akış"
+   ],
+   "Türkiye": [
+    "akış",
+    "akış",
+    "akış"
+   ],
+   "İzmir": [
+    "mekân stad sekme 3",
+    "akış",
+    "akış"
+   ],
+   "İZMIR": [
+    "akış",
+    "akış"
+   ],
+   "ÖZTÜRK": [
+    "mekân okul",
+    "akış",
+    "akış"
+   ]
+  },
+  "eng": {},
+  "over": {},
+  "hscroll": {},
+  "screens": 482,
+  "weeks": 34,
+  "errs": []
+ },
+ "tr-xl": {
+  "raw": {},
+  "bad": {},
+  "ph": {},
+  "turk": {},
+  "eng": {},
+  "over": {},
+  "hscroll": {},
+  "screens": 492,
+  "weeks": 34,
+  "errs": []
+ }
+}

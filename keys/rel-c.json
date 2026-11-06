@@ -1,0 +1,24 @@
+{
+ "tr": {
+  "rc.q.plant": "Yaprak|Kök|Çiçek|Tohum",
+  "rc.q.cont": "Avrupa|Asya|Amerika|Afrika",
+  "rc.gm.made": "{n}/{reps} · sayı {ok}",
+  "rc.st.sendMoney": "Parayı gönder ({v})",
+  "rc.st.joinCamp": "Kampa katıl ({v})",
+  "rc.ad.wrong": "muz|çorap|uzaylı|anneanne|tavşan|kuzu",
+  "rc.a11y.map": "{city} haritası",
+  "rc.a11y.ratings": "Maç notları",
+  "rc.a11y.lane": "Şerit {n}"
+ },
+ "en": {
+  "rc.q.plant": "Leaf|Root|Flower|Seed",
+  "rc.q.cont": "Europe|Asia|Americas|Africa",
+  "rc.gm.made": "{n}/{reps} · made {ok}",
+  "rc.st.sendMoney": "Send the money ({v})",
+  "rc.st.joinCamp": "Join the camp ({v})",
+  "rc.ad.wrong": "banana|sock|alien|grandma|rabbit|lamb",
+  "rc.a11y.map": "Map of {city}",
+  "rc.a11y.ratings": "Game ratings",
+  "rc.a11y.lane": "Lane {n}"
+ }
+}

@@ -225,7 +225,7 @@ export default [
       },
       {
         t: "Call it a wrap and walk off",
-        out: "Your agent spent a long call apologising. Whether the brand calls again is anyone's guess."
+        out: "Your agent spent a long call apologizing. Whether the brand calls again is anyone's guess."
       }
     ]
   },
@@ -244,7 +244,7 @@ export default [
   {
     id: "kr-hayir-maci",
     title: "Summer charity game",
-    text: '"We\'re organising a charity game for the hospital. If stars show up, tickets will fly. Will you come, and maybe donate?"',
+    text: '"We\'re organizing a charity game for the hospital. If stars show up, tickets will fly. Will you come, and maybe donate?"',
     choices: [
       { t: "Play and donate", out: "A kid sent a cheering video from a hospital bed. You didn't show it to anyone for a while." },
       { t: "Just come to the game", out: "Sold out. At halftime you had a free-throw contest with the kids, and lost." },
@@ -298,7 +298,7 @@ export default [
   {
     id: "kr-beslenme-uzmani",
     title: "The plate that extends careers",
-    text: "The club nutritionist drew up a new plan: no sugar, no late-night snacks, and definitely none of your favourite dessert.",
+    text: "The club nutritionist drew up a new plan: no sugar, no late-night snacks, and definitely none of your favorite dessert.",
     choices: [
       {
         t: "Follow it to the letter",
@@ -430,7 +430,7 @@ export default [
       },
       { t: "Go dark on the media for a week", out: "A quiet week behind closed doors. But the silence became a headline too." },
       {
-        t: "Organise a meet-up with the fans",
+        t: "Organize a meet-up with the fans",
         out: "A shooting contest with fans in a local gym. The next day's cover had you smiling."
       }
     ]

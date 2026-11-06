@@ -229,7 +229,7 @@ export async function adShoot() {
     words = $t(`tl.ad.l.${line}`).split(" "),
     miss = ri(1, words.length - 2),
     right = words[miss];
-  const wrong = shuffle(["muz", "çorap", "uzaylı", "anneanne", "ezan", "kuzu"].filter(w => w !== right)).slice(0, 2);
+  const wrong = shuffle($t("rc.ad.wrong").split("|").filter(w => w !== right)).slice(0, 2);
   // replik 2 sn görünür, sonra eksik kelimeyi seç
   sheet($t("tl.ad.t"), $t("tl.ad.s"), `<div class="say"><b>${esc(words.join(" "))}</b></div><p class="small muted">${$t("tl.ad.mem")}</p>`, { noClose: true });
   await new Promise(r => setTimeout(r, window.__SIM ? 0 : 2200));

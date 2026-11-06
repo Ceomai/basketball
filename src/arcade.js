@@ -618,7 +618,7 @@ export function mgRhythm(el, { title, karaoke }) {
     $("#mgC").innerHTML = lanes
       .map(
         (_, i) =>
-          `<button class="btn" data-l="${i}" style="background:${cols[i]};border-color:${cols[i]};color:#141414" aria-label="Şerit ${i + 1}">●</button>`
+          `<button class="btn" data-l="${i}" style="background:${cols[i]};border-color:${cols[i]};color:#141414" aria-label="${$t("rc.a11y.lane", { n: i + 1 })}">●</button>`
       )
       .join("");
     $$("#mgC [data-l]").forEach(

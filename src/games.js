@@ -1231,7 +1231,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
           }
         }
       }
-      info(`${Math.min(n + 1, reps)}/${reps} · sayı ${ok}`);
+      info($t("rc.gm.made", { n: Math.min(n + 1, reps), reps, ok }));
     });
   });
 }

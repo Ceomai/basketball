@@ -1777,7 +1777,7 @@ test("sponsor ilişkisi: her hafta azalır, reklam çekimi yükseltir, ihmal edi
   await p.waitForSelector("[data-tl]", { timeout: 5000 });
   await p.evaluate(() => {
     const t = document.querySelector(".sheet").textContent;
-    const btn = [...document.querySelectorAll("[data-tl]")].find(b => !/muz|çorap|uzaylı|anneanne|ezan|kuzu/.test(b.dataset.tl)) || document.querySelector("[data-tl]");
+    const btn = [...document.querySelectorAll("[data-tl]")].find(b => !/muz|çorap|uzaylı|anneanne|tavşan|kuzu/.test(b.dataset.tl)) || document.querySelector("[data-tl]");
     void t;
     btn.click();
   });
@@ -3807,6 +3807,45 @@ test("paket 4d: kariyer aşaması olayları aşamaya göre süzülür, seçenekl
     };
   });
   assert(!r.liseHas && r.nba && r.nbaNoLower && r.t2 && r.out && r.money, "süzme: " + JSON.stringify(r));
+  return p;
+});
+
+test("yayın c: İngilizcede bilgi sorularının doğru cevabı seçeneklerde, sayılar K ile, olaylarda Türkçe konuşmacı yok", async () => {
+  const p = await page();
+  await p.evaluate(() => localStorage.setItem("pota-lang", "en"));
+  await p.reload();
+  await p.waitForTimeout(500);
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    let bad = [];
+    for (let i = 0; i < 400; i++) {
+      const q = G.makeQuestion();
+      if (!q.o.includes(q.a)) bad.push(q.q + " → " + q.a + " / " + q.o.join(","));
+    }
+    G.S.city = "İstanbul";
+    G.S.home = "İstanbul";
+    for (const k of Object.keys(G.S.npc)) if (typeof G.S.npc[k] === "string") G.S.npc[k] = "Alex";
+    G.S.first = "Alex";
+    const who = G.eventPool().map(e => e.who + " " + e.title + " " + e.choices.map(c => c.t).join(" "));
+    return {
+      bad: bad.slice(0, 3),
+      k: G.kfmt(15000),
+      k2: G.kfmt(1500),
+      money: G.fmt(1000),
+      turk: who.filter(w => /Dayın|Mahalle|Teyzen|amca|Simitçi|Gurbetçi|lokantası|Kahvehane|şoförü/.test(w))
+    };
+  });
+  assert(!r.bad.length, "doğru cevap seçeneklerde yok: " + r.bad.join(" | "));
+  assert(r.k === "15K" && r.k2 === "1.5K", "EN kfmt: " + r.k + " " + r.k2);
+  assert(r.money === "₺40,000", "EN para: " + r.money);
+  assert(!r.turk.length, "EN olaylarda Türkçe: " + r.turk.slice(0, 3).join(" | "));
+  await p.evaluate(() => localStorage.setItem("pota-lang", "tr"));
+  await p.reload();
+  await p.waitForTimeout(500);
+  await career(p);
+  const tr = await p.evaluate(() => ({ k: window.Game.kfmt(1500), m: window.Game.fmt(1000) }));
+  assert(tr.k === "1,5B" && tr.m === "₺40.000", "TR biçim: " + JSON.stringify(tr));
   return p;
 });
 
