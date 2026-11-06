@@ -3766,6 +3766,30 @@ test("yayın b: yarıda bırakılan okul sınavı sonradan açılan paneli ele g
   return p;
 });
 
+test("yayın: aynı yazın teklifleri yeniden açılışta değişmez (kapat-aç ile teklif çekilemez)", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    S.offArgs = { avg: 7, champ: false, head: "" };
+    S.buffs = S.buffs || {};
+    S.buffs.offer = 1;
+    const sig = () => (window.__lastOffers || []).map(o => o.team.key + ":" + Math.round(o.wage)).join(",");
+    G.transition(7, false, "");
+    const a = sig();
+    G.closeSheet();
+    G.transition(7, false, "");
+    const b = sig();
+    G.closeSheet();
+    return { a, b, buff: S.offArgs.buff };
+  });
+  assert(r.a && r.a === r.b, "teklifler değişti: " + JSON.stringify(r));
+  assert(r.buff === 1, "menajer bonusu korunmadı: " + JSON.stringify(r));
+  return p;
+});
+
 test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
   const p = await page();
   await career(p);

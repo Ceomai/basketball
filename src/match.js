@@ -898,6 +898,26 @@ export function offResume(force) {
 }
 Bus.on("screen:main", () => setTimeout(() => offResume(), 0));
 export function transition(avg, champ, head) {
+  // aynı yazın teklifleri sabit: oyunu kapatıp açarak yeni teklif çekilemez (tohumlu rastgele + menajer bonusu korunur)
+  if (S.offArgs) {
+    if (S.offArgs.buff == null) S.offArgs.buff = (S.buffs && S.buffs.offer) || 0;
+    else if (S.buffs) S.buffs.offer = S.offArgs.buff;
+  }
+  const rnd0 = Math.random;
+  let seed = [...`${S.season}|${S.first}|${S.last}|${S.year}|${S.career.pts}|${S.career.games}`].reduce((h, c) => (Math.imul(h ^ c.charCodeAt(0), 2654435761) >>> 0), 7);
+  Math.random = () => {
+    seed = (seed + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  try {
+    return transitionInner(avg, champ, head);
+  } finally {
+    Math.random = rnd0;
+  }
+}
+function transitionInner(avg, champ, head) {
   let offers = [],
     title = $t("match.65"),
     intro = "";
