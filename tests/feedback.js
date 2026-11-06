@@ -41,6 +41,8 @@ function serveDist() {
 }
 async function page(url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  // rastgele haftaya düşen derbi/koç panelleri testleri bölmesin (src/derby.js, src/bonds.js)
+  await ctx.addInitScript(() => (window.__TEST = Object.assign(window.__TEST || {}, { quietSheets: 1 })));
   const p = await ctx.newPage();
   p.errs = [];
   p.on("pageerror", e => p.errs.push(e.message));
@@ -912,7 +914,11 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     G.S.kid.named = 1;
     G.S.week = 5;
     if (G.S.goals) G.S.goals.shown = true; // sezon hedefleri paneli öne geçmesin
-    G.Bus.first("week:sheet");
+    // önce gelen başka rastgele paneller tüketilir
+    for (let i = 0; i < 6 && !document.querySelector('[data-kd="1"]'); i++) {
+      window.Game.closeSheet();
+      window.Game.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector('[data-kd="1"]', { timeout: 3000 });
   await p.click('[data-kd="1"]');
@@ -923,7 +929,11 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     G.S.wed = { s: G.S.season - 2, w: G.S.week };
     G.S.annWk = "";
     G.S.money = 5000;
-    G.Bus.first("week:sheet");
+    // önce gelen başka rastgele paneller tüketilir
+    for (let i = 0; i < 6 && !document.querySelector('[data-an="trip"]'); i++) {
+      window.Game.closeSheet();
+      window.Game.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector('[data-an="trip"]', { timeout: 3000 });
   const rp = await p.evaluate(() => window.Game.S.rel.partner);
@@ -1317,7 +1327,11 @@ test("yaz kampı (hızlı geç), ödül gecesi (3 adım), rehabilitasyon, rakipl
     S.week = 1;
     S.campSeason = 0;
     if (S.goals) S.goals.shown = true;
-    G.Bus.first("week:sheet");
+    // önce gelen başka rastgele paneller tüketilir
+    for (let i = 0; i < 6 && !document.querySelector('[data-sl="skip"]'); i++) {
+      window.Game.closeSheet();
+      window.Game.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector('[data-sl="skip"]', { timeout: 3000 });
   await p.click('[data-sl="skip"]');
@@ -1470,7 +1484,7 @@ test("playoff ağacı: yarı final kaydı ve Lig merkezi Playoff sekmesi", async
       S = G.S;
     S.week = S.sched.length;
     S.league.find(x => x.key === S.team.key).w = 20;
-    window.__TEST = { noEvents: true };
+    window.__TEST = Object.assign(window.__TEST || {}, { noEvents: true });
     G.closeSheet();
     G.afterMatchFlow(true);
     const semi = { phase: S.phase, po: !!S.po };
@@ -2839,7 +2853,7 @@ test("paket 4b: play-off serisi — yarı final en iyi 3 (E-D-E), final en iyi 5
   const r = await p.evaluate(() => {
     const G = window.Game,
       S = G.S;
-    window.__TEST = { noEvents: true };
+    window.__TEST = Object.assign(window.__TEST || {}, { noEvents: true });
     S.stage = "t1";
     S.week = S.sched.length;
     S.league.find(x => x.key === S.team.key).w = 30;
@@ -2922,7 +2936,7 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
   const r = await p.evaluate(() => {
     const G = window.Game,
       S = G.S;
-    window.__TEST = { noEvents: true };
+    window.__TEST = Object.assign(window.__TEST || {}, { noEvents: true });
     S.rival = null;
     const ak = G.dbyArchKey(),
       arch = G.teamByKey(ak);

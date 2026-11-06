@@ -214,7 +214,8 @@ export function dbyPressSheet() {
   };
   return true;
 }
-Bus.offer("week:sheet", dbyPressSheet, 19);
+// window.__TEST.quietSheets: testlerde rastgele haftaya düşen paneller kapalı (doğrudan çağrı çalışır)
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), 19);
 
 /* ---- Derbi sonrası şehir hikâyesi (sonraki hafta) ---- */
 export function dbyCitySheet() {
@@ -243,7 +244,7 @@ export function dbyCitySheet() {
   };
   return true;
 }
-Bus.offer("week:sheet", dbyCitySheet, 18);
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyCitySheet(), 18);
 
 /* ---- Ev → Kariyer: derbi istatistiği ---- */
 export function dbyCareerHTML() {

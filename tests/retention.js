@@ -41,6 +41,8 @@ function serveDist() {
 }
 async function page(url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  // rastgele haftaya düşen derbi/koç panelleri testleri bölmesin (src/derby.js, src/bonds.js)
+  await ctx.addInitScript(() => (window.__TEST = Object.assign(window.__TEST || {}, { quietSheets: 1 })));
   const p = await ctx.newPage();
   p.errs = [];
   p.on("pageerror", e => p.errs.push(e.message));
@@ -422,7 +424,11 @@ test("sezon ortası haftası: normal 8, hızlı 5; All-Star'a seçilmeyen herkes
     G.S.week = G.midWeek();
     G.S.phase = "regular";
     G.closeSheet();
-    G.Bus.first("week:sheet");
+    // önce gelen başka rastgele paneller tüketilir
+    for (let i = 0; i < 6 && !document.querySelector("[data-pk]"); i++) {
+      window.Game.closeSheet();
+      window.Game.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector("[data-pk]", { timeout: 2000 });
   await p.click("#pk-no");
@@ -462,7 +468,11 @@ test("ara transfer: kulübedeki profesyonele ligden teklif, transfer fikstürü 
     G.S.skillWk = G.S.season; // beceri yarışması bu sezon yapıldı
     G.closeSheet();
     window.__old = G.S.team.key;
-    G.Bus.first("week:sheet");
+    // önce gelen başka rastgele paneller tüketilir
+    for (let i = 0; i < 6 && !document.querySelector("[data-mt]"); i++) {
+      window.Game.closeSheet();
+      window.Game.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector("[data-mt]", { timeout: 2000 });
   await p.click('[data-mt="0"]');

@@ -542,7 +542,7 @@ export function bondsCoachSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsCoachSheet, 12);
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && bondsCoachSheet(), 12);
 // "Uyum sağla": her antrenman yeni sisteme uyumu artırır (systemFit'e en fazla +4)
 Bus.on("train:done", () => {
   const cs = S && S.coachSys;
