@@ -198,6 +198,18 @@ html,body{overscroll-behavior-y:none}
 textarea,input[type=text]{font-size:16px;box-sizing:border-box;min-width:0;max-width:100%}
 .grid2>*{min-width:0}
 .sheet-h .shx,#shx{min-width:40px;min-height:40px}
+/* tek elle kullanım: uzun panellerde birincil düğme parmak bölgesinde (altta yapışkan), karar kartları büyük ve alta hizalı */
+.sheet-b>.btn.pri:last-child,.sn-pane>.btn.pri:last-child{position:sticky;bottom:0;z-index:2;box-shadow:0 -10px 12px -4px var(--bg2)}
+.sheet-b>.choices:last-child{margin-top:auto}
+@media (pointer:coarse){.choice{min-height:58px;padding:15px 16px}}
+/* Sezon Gecesi sekmeleri (src/seasonnight.js) */
+.sn-tabs{position:sticky;top:0;z-index:3;background:var(--bg2);padding-bottom:4px}
+.sn-pane{display:flex;flex-direction:column;gap:10px}.sn-pane>*{flex-shrink:0}.sn-pane[hidden]{display:none}
+/* bildirim kutusu zili ve koç önerisi (src/inbox.js) */
+.ibx-bell{position:relative;flex-shrink:0;width:40px;height:40px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line2);border-radius:10px;color:var(--text);cursor:pointer;padding:0}
+.ibx-n{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--bad);color:#fff;font-size:.68rem;font-weight:800;display:grid;place-items:center;line-height:1}
+.ibx-n[hidden]{display:none}
+.ctip{margin-top:6px;padding:6px 10px;border-left:3px solid var(--warn);background:rgba(255,197,77,.08);border-radius:6px;line-height:1.3}
 @media (pointer:coarse){.btn.sm{min-height:42px}.opt{min-height:40px;min-width:40px}.sw{min-width:34px;min-height:34px}.tabs button{min-height:40px}}
 /* Yatay telefonda oyun alanı ekrana sığsın */
 @media (orientation:landscape) and (max-height:560px){.stage{width:min(100%,calc((100dvh - 120px)*.75));align-self:center;margin-inline:auto}.mgctrl .btn{padding:10px 0}}

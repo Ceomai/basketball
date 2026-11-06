@@ -175,6 +175,7 @@ test("yaz dönemi: ek teklif (yaz başına bir) ve masadan kalkan kulübü geri 
   await pro(p);
   await p.evaluate(() => window.Game.transition(6.5, false, '<div id="seasonad"></div>'));
   const n0 = await p.evaluate(() => window.__lastOffers.length);
+  await p.click('[data-sn="off"]'); // Sezon Gecesi: Teklifler sekmesi
   assert(await p.isVisible("#ad-extra"), "ek teklif düğmesi yok");
   await p.click("#ad-extra");
   await watchAd(p);

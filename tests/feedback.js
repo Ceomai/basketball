@@ -1537,6 +1537,7 @@ test("reklamla teklifleri yenile: kalma teklifi yerinde, diğerleri yeni kulüpl
   await pro(p);
   await p.evaluate(() => window.Game.transition(6.5, false, '<div id="seasonad"></div>'));
   const before = await p.evaluate(() => window.__lastOffers.map(o => o.team.key + (o.stay ? "*" : "")));
+  await p.click('[data-sn="off"]'); // Sezon Gecesi: Teklifler sekmesi
   assert(await p.isVisible("#ad-reroll"), "yenile düğmesi yok");
   await p.click("#ad-reroll");
   await watchAd(p);
@@ -2172,6 +2173,141 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
       await p.waitForTimeout(st === "w" ? 60 : 15);
     }
   }
+  return p;
+});
+
+test("paket 3a: Sezon Gecesi sekmeleri — sonuçlar, teklifler (pazarlık dönüşü sekmede kalır), gelecek sezon", async () => {
+  const p = await page();
+  await career(p);
+  await pro(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.results = [{ rating: 7.1, win: true }];
+    G.S.ss = { g: 10, min: 280, pts: 160, ast: 30, reb: 40, blk: 5, stl: 8, rs: 72, dnp: 0 };
+    G.S.contract = 2;
+    G.seasonEnd(true, false, false);
+  });
+  await p.waitForSelector('[data-sn="res"]', { timeout: 4000 });
+  const a = await p.evaluate(() => ({
+    tabs: document.querySelectorAll("[data-sn]").length,
+    res: !document.querySelector('[data-snp="res"]').hidden,
+    off: document.querySelector('[data-snp="off"]').hidden,
+    rows: document.querySelectorAll("[data-o]").length,
+    stats: /Sezon istatistikleri/.test(document.querySelector('[data-snp="res"]').textContent),
+    sticky: getComputedStyle(document.querySelector("#sn-go")).position
+  }));
+  assert(a.tabs === 3 && a.res && a.off && a.rows >= 2 && a.stats, "kabuk: " + JSON.stringify(a));
+  assert(a.sticky === "sticky", "birincil düğme yapışkan değil: " + a.sticky);
+  await p.click('[data-sn="fut"]');
+  const f = await p.evaluate(() => document.querySelector('[data-snp="fut"]').textContent);
+  assert(/Yaz gelişimi/.test(f) && /Sözleşme: 1 yıl kaldı/.test(f), "gelecek sezon: " + f.slice(0, 200));
+  await p.click("#sn-back");
+  assert(await p.isVisible("[data-o]"), "teklifler görünmüyor");
+  await p.click("[data-o]");
+  await p.waitForSelector("#ng-back");
+  await p.click("#ng-back");
+  await p.waitForSelector('[data-snp="off"]');
+  assert(await p.isVisible("[data-o]"), "pazarlıktan dönünce teklif sekmesi açık değil");
+  await p.evaluate(() => {
+    const L = window.__lastOffers,
+      i = Math.max(
+        0,
+        L.findIndex(o => o.stay)
+      );
+    document.querySelector(`[data-o="${i}"]`).click();
+  });
+  await p.waitForSelector("#ng-ok");
+  await p.click("#ng-ok");
+  for (let i = 0; i < 40 && !(await p.$("#quickw")); i++) {
+    await p.evaluate(() => {
+      const b = document.querySelector("#chok,#ok,#nx,#adov #adx.pri");
+      if (b) b.click();
+    });
+    await p.waitForTimeout(100);
+  }
+  const s = await p.evaluate(() => ({ season: window.Game.S.season, main: !!document.querySelector("#quickw") }));
+  assert(s.season === 2 && s.main, "sezon geçişi: " + JSON.stringify(s));
+  return p;
+});
+
+test("paket 3a: bildirim kutusu — zil, okunmamış sayısı, geçmiş, en fazla 40", async () => {
+  const p = await page();
+  await career(p);
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.S.inbox = null;
+    G.renderMain();
+    G.toast("Deneme bildirimi");
+    G.news("Önemli haber");
+    G.news("Önemli haber");
+  });
+  const a = await p.evaluate(() => ({
+    bell: !!document.querySelector("#ibx-bell"),
+    n: document.querySelector("#ibx-n").textContent,
+    hid: document.querySelector("#ibx-n").hidden
+  }));
+  assert(a.bell && a.n === "2" && !a.hid, "zil: " + JSON.stringify(a));
+  await p.click("#ibx-bell");
+  const b = await p.evaluate(() => ({
+    txt: document.querySelector("#shb").textContent,
+    unread: window.Game.S.inbox.unread
+  }));
+  assert(
+    /Deneme bildirimi/.test(b.txt) && /Önemli haber/.test(b.txt) && /S1 H1/.test(b.txt) && b.unread === 0,
+    "liste: " + JSON.stringify(b)
+  );
+  const c = await p.evaluate(() => {
+    const G = window.Game;
+    G.renderMain();
+    const hid = document.querySelector("#ibx-n").hidden;
+    for (let i = 0; i < 55; i++) G.toast("b" + i);
+    return { hid, len: G.S.inbox.items.length, first: G.S.inbox.items[0].t, n: document.querySelector("#ibx-n").textContent };
+  });
+  assert(c.hid && c.len === 40 && c.first === "b54" && c.n === "9+", "sınır: " + JSON.stringify(c));
+  return p;
+});
+
+test("paket 3a: haftalık koç önerisi kurallı ve ana ekranda/hafta planında görünür", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S,
+      k = () => (G.coachTipKey() || [])[0];
+    S.slot = 3;
+    S.rival = null;
+    S.energy = 20;
+    const low = k();
+    S.injury = { w: 3 };
+    const inj = k();
+    S.injury.rehab = true;
+    const heal = k();
+    S.injury = null;
+    S.energy = 90;
+    S.stage = "t1";
+    S.contract = 1;
+    S.wage = 100;
+    S.money = 100000;
+    const ag = k();
+    S.contract = 3;
+    S.money = 5;
+    const mon = k();
+    S.money = 100000;
+    S.moral = 20;
+    const mor = k();
+    S.slot = 0;
+    const done = k();
+    S.slot = 3;
+    S.moral = 70;
+    G.renderMain();
+    const main = document.querySelector(".weekcard #ctip");
+    G.planSheet();
+    const plan = document.querySelector("#shb #ctip");
+    return { low, inj, heal, ag, mon, mor, done, main: main && main.textContent, plan: !!plan };
+  });
+  assert(r.low === "rest" && r.inj === "rehab" && r.heal === "heal" && r.ag === "agent", "kurallar 1: " + JSON.stringify(r));
+  assert(r.mon === "money" && r.mor === "moral" && r.done === "match", "kurallar 2: " + JSON.stringify(r));
+  assert(r.main && /Bu hafta:/.test(r.main) && r.plan, "görünüm: " + JSON.stringify(r));
   return p;
 });
 
