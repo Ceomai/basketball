@@ -486,7 +486,8 @@ export function afterMatch(win) {
   Bus.run("match:after", { win }, () => late.midweek(() => afterMatchFlow(win)));
 }
 export function afterMatchFlow(win) {
-  let next = () => endWeek();
+  const weekly = () => endWeek();
+  let next = weekly;
   if (S.phase === "regular" && S.week >= S.sched.length) {
     const st = standings(),
       rank = st.findIndex(r => r.key === S.team.key) + 1;
@@ -559,6 +560,7 @@ export function afterMatchFlow(win) {
       return chapter("tryout", () => maybeEvent(go));
     }
   }
+  if (next !== weekly) return next(); // sezon sonu / play-off: olay yok, geçiş panelleri yeterince kalabalık
   maybeEvent(next);
 }
 // window.__TEST.noEvents: duman testinde rastgele olaylar kapatılır

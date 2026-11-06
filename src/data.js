@@ -105,7 +105,8 @@ export function toast(t) {
   if (typeof late.sfx === "function") late.sfx("notify");
   $$(".toast").forEach(x => x.remove());
   const d = document.createElement("div");
-  d.className = "toast";
+  // panel/maç ekranı açıkken alttaki düğmelerin üstüne binmesin
+  d.className = document.querySelector(".sheet, #adov, #mview") ? "toast top" : "toast";
   d.textContent = t;
   document.body.appendChild(d);
   setTimeout(() => d.remove(), 2600);

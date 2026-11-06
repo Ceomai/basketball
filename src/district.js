@@ -19,9 +19,10 @@ export function districtTabsHTML() {
       (S.mapEv && S.mapEv.list
         ? S.mapEv.list.filter(e => !e.done && (IN2.includes(e.loc) ? "kompleks" : "merkez") !== d).length
         : 0) || 0;
-  return `<div class="opts" id="dist" style="margin-bottom:6px">${["merkez", "kompleks"]
+  return `<div class="opts" id="dist" style="margin-bottom:6px;flex-wrap:nowrap">${["merkez", "kompleks"]
     .map(
-      k => `<button class="opt ${d === k ? "on" : ""}" data-dist="${k}">${$t(`dist.${k}`)}${k !== d && n ? " •" : ""}</button>`
+      k =>
+        `<button class="opt ${d === k ? "on" : ""}" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:8px;padding-right:8px" data-dist="${k}">${$t(`dist.${k}`)}${k !== d && n ? " •" : ""}</button>`
     )
     .join("")}</div>`;
 }

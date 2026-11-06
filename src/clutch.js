@@ -43,7 +43,9 @@ export function timeoutCard(el) {
       ["def", $t("engine.67"), $t("cl.defD")],
       ["ball", $t("engine.68"), $t("cl.ballD")]
     ]
-      .map(([k, t, d]) => `<button class="choice" data-to="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`)
+      .map(
+        ([k, t, d]) => `<button class="choice" data-to="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`
+      )
       .join("")}</div></div>`;
     $$("[data-to]").forEach(
       b =>
@@ -82,11 +84,14 @@ export function runTrack(us, scored) {
 /** Son dakika kararı; "foul" | "hold" | null */
 export function lateCall(ourBall, diff, el, secLeft) {
   if (!M) return Promise.resolve(null);
+  M.lcTrail = false;
   let kind = null;
   if (secLeft < 8) return Promise.resolve(null); // birkaç saniye kala karar anlamsız
-  if (!ourBall && diff <= -3 && diff >= -6) kind = "trail"; // 1-2 sayı gerideyken savunma açıkça doğru
+  if (!ourBall && diff <= -3 && diff >= -6)
+    kind = "trail"; // 1-2 sayı gerideyken savunma açıkça doğru
   else if (ourBall && diff >= 1 && diff <= 3 && secLeft <= 35) kind = "lead";
   if (!kind) return Promise.resolve(null);
+  M.lcTrail = kind === "trail"; // savunmayı seçtiysen aynı hücum için ikinci bir savunma kartı çıkmaz
   late.buzz && late.buzz(25);
   const opts =
     kind === "trail"
@@ -100,7 +105,9 @@ export function lateCall(ourBall, diff, el, secLeft) {
         ];
   return new Promise(res => {
     el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t(diff > 0 ? "cl.lateUp" : "cl.lateDown", { s: secLeft, n: Math.abs(diff) })}</div><h2>${$t(kind === "trail" ? "cl.trailH" : "cl.leadH")}</h2><div class="choices">${opts
-      .map(([k, t, d]) => `<button class="choice" data-lt="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`)
+      .map(
+        ([k, t, d]) => `<button class="choice" data-lt="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`
+      )
       .join("")}</div></div>`;
     $$("[data-lt]").forEach(
       b =>

@@ -53,7 +53,8 @@ export function modeChoice() {
   if (window.__SIM) return Promise.resolve("key");
   return new Promise(r => {
     const cur = S.matchMode || ""; // ilk maçta "son seçimin" rozeti yok
-    $("#mview").innerHTML = `${late.preMatchHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
+    $("#mview").innerHTML =
+      `${late.preMatchHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
       <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
@@ -302,10 +303,13 @@ export async function playMatch(ctx) {
     const close = Math.abs(M.us - M.them) <= 6,
       clutch = t > TOTAL - 120 && close;
     // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
-    const involve = (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
+    const involve =
+      (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
     const before = [M.us, M.them];
     const ap0 = M.autoPts || 0;
-    if (on && Math.random() < involve) {
+    const skipMoment = M.lcTrail;
+    M.lcTrail = false;
+    if (on && !skipMoment && Math.random() < involve) {
       if (ourBall) M.touches = (M.touches || 0) + 1;
       await moment(ourBall, clutch);
     } else {
@@ -377,7 +381,11 @@ export async function playMatch(ctx) {
   function simPossession(us) {
     const tacU = M.tac === "tempo" ? 1.06 : M.tac === "def" ? 0.97 : 1,
       tacT = M.tac === "def" ? 0.93 : M.tac === "tempo" ? 1.03 : 1;
-    const p = clamp(ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) * late.possMod(us), 0.15, 0.85);
+    const p = clamp(
+      ppp * (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) * late.possMod(us),
+      0.15,
+      0.85
+    );
     const starTurn = !us && Math.random() < 0.3, // rakip yıldızın payı: akışta da onun adı geçer
       who = us ? pick(mates) : starTurn ? foes[0] : pick(foes.slice(1)),
       team = us ? S.team.short : opp.short;
