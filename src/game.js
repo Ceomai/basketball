@@ -77,6 +77,7 @@ import * as clutch from "./clutch.js";
 import * as scenarios from "./scenarios.js";
 import * as polish from "./polish.js";
 import * as coaching from "./coaching.js";
+import * as bonds from "./bonds.js";
 
 const MODULES = [
   data,
@@ -154,7 +155,8 @@ const MODULES = [
   clutch,
   scenarios,
   polish,
-  coaching
+  coaching,
+  bonds
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

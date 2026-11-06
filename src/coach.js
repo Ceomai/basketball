@@ -56,6 +56,8 @@ export const SYSTEMS = {
 };
 /** Takımın oyun sistemi (takıma göre sabit) */
 export const teamSystem = team => {
+  const nc = late.bondsCoachSys ? late.bondsCoachSys(team) : null; // kulüp koçu değiştirdiyse (src/bonds.js)
+  if (nc) return nc;
   const keys = Object.keys(SYSTEMS);
   return keys[hash((team && team.key) || "x") % keys.length];
 };
@@ -69,7 +71,8 @@ export function systemFit(team = S && S.team) {
     wsum = ks.reduce((a, k) => a + w[k], 0),
     weighted = ks.reduce((a, k) => a + st[k] * w[k], 0) / wsum;
   // pozisyonlar doğal olarak uzmanlaşır; katsayı küçük tutulur ki çoğu oyuncu "orta/iyi/zayıf" bandında kalsın, uçlar nadir olsun
-  return Math.max(-8, Math.min(8, Math.round((weighted - plain) * 0.9)));
+  const adapt = late.bondsCoachAdapt ? late.bondsCoachAdapt(team) : 0; // yeni koçun sistemine uyum (src/bonds.js)
+  return Math.max(-8, Math.min(8, Math.round((weighted - plain) * 0.9) + adapt));
 }
 export const fitLabel = f =>
   f >= 5 ? $t("coach.19") : f >= 2 ? $t("coach.25") : f > -2 ? $t("coach.26") : f > -5 ? $t("coach.20") : $t("coach.27");

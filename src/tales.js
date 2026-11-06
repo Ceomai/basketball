@@ -391,6 +391,7 @@ async function feudTale() {
     return done($t("tl.fd.mediateR", { a: esc(a), b: esc(b) }), [[$t("tl.fx.team", { v: 5 }), "p"]]);
   }
   S.rel.takim += 1;
+  tl().feudSide = { n: k === "a" ? a : b, team: S.team.key }; // takım arkadaşı hafızası (src/bonds.js)
   return done($t("tl.fd.sideR", { w: esc(k === "a" ? a : b), l: esc(k === "a" ? b : a) }), [[$t("tl.fx.team", { v: 1 }), "p"]]);
 }
 async function captainTale() {

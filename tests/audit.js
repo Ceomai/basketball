@@ -127,6 +127,7 @@ async function week(p) {
         "[data-sl]",
         "#cp-ok",
         "#wn-ok",
+        "[data-bd]",
         "#sc-ok",
         "#hk-a",
         "#nt-sim",

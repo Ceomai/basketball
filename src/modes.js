@@ -7,6 +7,7 @@
      ve Şöhretler Müzesi'nde "Efsane modu" damgası. */
 import { t as $t } from "./i18n/index.js";
 import { S } from "./core.js";
+import { late } from "./late.js";
 
 export const MODES = ["normal", "hizli", "efsane"];
 export const mode = () => (S && MODES.includes(S.mode) ? S.mode : "normal");
@@ -17,9 +18,9 @@ export const modeTrainMul = () => (isQuick() ? 2.1 : isLegend() ? 0.88 : 1);
 /** Maç içi karar anlarından nitelik kazancı çarpanı (hızlı: maç sayısı yarı) */
 export const modePlayMul = () => (isQuick() ? 2 : 1);
 /** Haftalık ücret çarpanı */
-export const modeWageMul = () => (isQuick() ? 1.9 : 1);
+export const modeWageMul = () => (isQuick() ? 1.9 : 1) * (late.diffMoneyMul ? late.diffMoneyMul() : 1); // özel zorluk (src/bonds.js)
 /** Sakatlık riski çarpanı */
-export const modeInjuryMul = () => (isLegend() ? 1.3 : 1);
+export const modeInjuryMul = () => (isLegend() ? 1.3 : 1) * (late.diffInjMul ? late.diffInjMul() : 1);
 /** Teklif potansiyeline eklenecek değer (efsane: daha seçici kulüpler) */
 export const modePotential = () => (isLegend() ? -3 : 0);
 /** Ödüller için maç sayısı çarpanı */

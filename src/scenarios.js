@@ -3,6 +3,7 @@
      · Düşen yıldız: 27 yaşında, 2. ligde; hedef 2 sezonda üst lige ya da Avrupa'ya dönmek
      · Küçük kulüp: 22 yaşında 3. ligin en zayıf takımında; hedef 3 sezonda lig şampiyonluğu
      · Son dans: 34 yaşında Avrupa kulübünde; hedef 2 sezonda bir kupa
+     · Sakatlıktan dönüş, yabancı ligde tek Türk, memlekete dönüş (takım/kurulum/karar: src/bonds.js)
    - Soy ağacı: varis kariyerleri nesil nesil; her neslin adı, kupası ve Şöhretler Müzesi seviyesi.
    - Ses: file sesi, ayakkabı gıcırtısı, tribün tezahüratı (seyirci heyecanı dolunca).
    - Salon: büyük maçlarda (derbi, zirve, final) sahaya ışık gösterisi. */
@@ -18,7 +19,11 @@ import { late } from "./late.js";
 export const SCENARIOS = {
   fallen: { age: 27, stage: "t2", base: 50, role: "star", years: 2 },
   smallclub: { age: 22, stage: "t3", base: 46, role: "star", years: 3, weakest: true },
-  lastdance: { age: 34, stage: "euro", base: 68, role: "rot", years: 2 }
+  lastdance: { age: 34, stage: "euro", base: 68, role: "rot", years: 2 },
+  // src/bonds.js: takım seçimi, kurulum ve hedef kararı
+  comeback: { age: 25, stage: "t1", base: 55, role: "bench", years: 2 },
+  abroad: { age: 23, stage: "t1", base: 55, role: "bench", years: 2 },
+  hometown: { age: 31, stage: "t2", base: 52, role: "star", years: 3 }
 };
 export function scenarioPickerHTML(cur) {
   const c = cur || "";
@@ -33,7 +38,7 @@ export function scenarioSetup(id) {
   S.age = sc.age;
   for (const k of Object.keys(S.st)) S.st[k] = Math.min(90, sc.base + (S.st[k] - 20));
   const pool = late.leaguePool(sc.stage, "TR");
-  const t = sc.weakest ? pick(pool.slice().sort((a, b) => a.str - b.str).slice(0, 3)) : pick(pool);
+  const t = (late.bdScnTeam && late.bdScnTeam(id)) || (sc.weakest ? pick(pool.slice().sort((a, b) => a.str - b.str).slice(0, 3)) : pick(pool));
   S.stage = sc.stage;
   S.stageSeason = 1;
   S.team = t;
@@ -48,6 +53,7 @@ export function scenarioSetup(id) {
   S.housing = sc.stage === "euro" ? "lux" : "daire"; // yeni şehirde kendi evi (aile odası değil)
   S.unlocks = { program: 2, sistem: 2, gorev: 2, miras: 2, plan: 2, basarim: 2, tasarim: 2, hikaye: 2, geceligi: 2 }; // deneyimli oyuncu: her şey açık
   S.scn = { id, until: S.season + sc.years - 1, done: 0, team: t.key };
+  if (late.bdScnSetup) late.bdScnSetup(id, t);
   if (id === "fallen") S.reinj = { p: 0.2, until: (late.weekIndex ? late.weekIndex() : 0) + 20 }; // eski sakatlık: tekrar riski
   newSeasonLeague();
   norm();
@@ -63,6 +69,7 @@ Bus.on("season:end", ({ champ } = {}) => {
   if (!s || s.done) return;
   if (s.id === "smallclub" && champ && (!s.team || S.team.key === s.team)) s.hit = 1;
   if (s.id === "lastdance" && champ) s.hit = 1;
+  if (late.bdScnSeasonEnd) late.bdScnSeasonEnd(s, { champ });
 });
 Bus.on("week:start", () => {
   const s = S && S.scn;
@@ -71,7 +78,9 @@ Bus.on("week:start", () => {
   if (s.done) return;
   const tr = (S.career.trophies || []).slice(s.tr0);
   if (s.id === "lastdance" && tr.some(x => CUPS.includes(x.type))) s.hit = 1;
-  if (s.id === "smallclub" && s.team && S.team.key !== s.team && !s.hit) s.done = -1; // küçük kulüpten ayrıldın
+  const ex = late.bdScnEval ? late.bdScnEval(s) : 0;
+  if (ex) s.done = ex;
+  else if (s.id === "smallclub" && s.team && S.team.key !== s.team && !s.hit) s.done = -1; // küçük kulüpten ayrıldın
   else if (s.hit || (s.id === "fallen" && UP.includes(S.stage) && S.role !== "bench")) s.done = 1;
   else if (S.season > s.until) s.done = -1;
   if (s.done) s.show = 1;

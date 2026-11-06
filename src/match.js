@@ -1106,6 +1106,7 @@ export function retireScreen() {
    }</p>
    <div class="grid2"><button class="btn pri big" id="nw">${$t("match.92")}</button>${late.cardButtonHTML()}</div>${late.albumButtonHTML()}</div>
   ${late.hofCard()}
+  ${late.bondsRetireHTML()}
   ${late.legendRetireHTML()}
   ${late.afterCareerHTML()}
   ${late.cchCardHTML()}
