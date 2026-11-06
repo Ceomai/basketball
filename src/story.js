@@ -907,7 +907,7 @@ export const ARCS = {
           }),
           [
             {
-              t: `Parayı gönder (₺${fmt(cost)})`,
+              t: $t("rc.st.sendMoney", { v: fmt(cost) }),
               d: $t("story.139"),
               do: () => {
                 a.choice = "pay";
@@ -1369,7 +1369,7 @@ export const ARCS = {
           }),
           [
             {
-              t: `Kampa katıl (${fmt(cost)})`,
+              t: $t("rc.st.joinCamp", { v: fmt(cost) }),
               d: $t("story.228"),
               do: () => {
                 a.choice = "yes";

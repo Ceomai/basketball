@@ -114,7 +114,7 @@ export default [
     choices: [
       {
         t: "Work with the local brand",
-        out: "You had your neighbourhood's name printed on the sole. The first batch sold out in a day."
+        out: "You had your neighborhood's name printed on the sole. The first batch sold out in a day."
       },
       {
         t: "Wait for the big brand",
@@ -188,11 +188,11 @@ export default [
   {
     id: "euro-final-four",
     title: "Final Four tickets",
-    text: '"The whole neighbourhood wants to come to the Final Four! Can you find twelve tickets?"',
+    text: '"The whole neighborhood wants to come to the Final Four! Can you find twelve tickets?"',
     choices: [
       {
         t: "Sort them all out",
-        out: "One corner of the stands filled up with neighbours who came from Istanbul. Everyone saw the banner."
+        out: "One corner of the stands filled up with neighbors who came from Istanbul. Everyone saw the banner."
       },
       {
         t: "I can only get them for my family",
@@ -361,7 +361,7 @@ export default [
     choices: [
       {
         t: '"Tell me what I need to do"',
-        out: "The coach opened up the defence videos. You talked for an hour. For the first time, he drew you a plan."
+        out: "The coach opened up the defense videos. You talked for an hour. For the first time, he drew you a plan."
       },
       {
         t: '"You\'re being unfair"',
@@ -451,7 +451,7 @@ export default [
     text: '"Your knees are worn out. We need to reduce your training load this week, or the injury risk goes up."',
     choices: [
       {
-        t: "Follow the programme",
+        t: "Follow the program",
         out: "A week of pool and bike. Your knees said thank you."
       },
       {
@@ -637,7 +637,7 @@ export default [
   {
     id: "milli-marş",
     title: "Anthem moment",
-    text: '"During the anthem at yesterday\'s national game, the camera turned to you. Your eyes were welling up. The neighbours are talking about nothing else."',
+    text: '"During the anthem at yesterday\'s national game, the camera turned to you. Your eyes were welling up. The neighbors are talking about nothing else."',
     choices: [
       {
         t: '"It happens every time, mom"',

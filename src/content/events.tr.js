@@ -144,7 +144,7 @@ export default [
     when: "abroad",
     who: "{mom}",
     title: "Memleket özlemi",
-    text: '"{city}\'de yemek yiyor musun? Sana bir koli kurabiye yolladım. Kargocu üç kere aradı."',
+    text: '"{city} nasıl, doğru dürüst yemek yiyor musun? Sana bir koli kurabiye yolladım. Kargocu üç kere aradı."',
     choices: [
       {
         t: "Hemen git kargoyu al",
@@ -270,7 +270,7 @@ export default [
     w: "press",
     who: "Çocuk basketbol kulübü",
     title: "Davet",
-    text: "{city}'deki bir çocuk kulübü seni antrenmanına davet etti.",
+    text: "{city} şehrindeki bir çocuk kulübü seni antrenmanına davet etti.",
     choices: [
       {
         t: "Git, günü onlarla geçir",
@@ -405,7 +405,7 @@ export default [
     when: "foreign",
     who: "Gurbetçi taraftarlar",
     title: "Tribünde ay yıldız",
-    text: "{city}'deki maçında tribünde Türk bayraklarıyla bir grup vardı. Maç sonu seni bekliyorlar.",
+    text: "Maçında tribünde Türk bayraklarıyla bir grup vardı: {city} gurbetçileri. Maç sonu seni bekliyorlar.",
     choices: [
       {
         t: "Yanlarına git, fotoğraf çektir",
@@ -421,7 +421,7 @@ export default [
     when: "foreign",
     who: "{mom}",
     title: "Kargo kolisi",
-    text: '"Sana kuru fasulye, çay, pul biber ve kuru dut yolladım. {city}\'de doğru dürüst yemek yoktur oralarda."',
+    text: '"Sana kuru fasulye, çay, pul biber ve kuru dut yolladım. {city} neresi, doğru dürüst yemek yoktur oralarda."',
     choices: [
       {
         t: "Takım arkadaşlarına Türk yemeği pişir",
@@ -437,7 +437,7 @@ export default [
     when: "foreign",
     who: "Türk lokantası",
     title: "Memleket sofrası",
-    text: '{city}\'de bir Türk lokantası buldun. Sahibi seni tanıdı ve "Hesap bizden, yeter ki maçta sayı at" dedi.',
+    text: '{city} sokaklarında bir Türk lokantası buldun. Sahibi seni tanıdı ve "Hesap bizden, yeter ki maçta sayı at" dedi.',
     choices: [
       { t: "Kebap ve ayran", fx: { moral: 8, energy: 4 }, out: "Ayran köpüklüydü. Duvara imzalı forman asılacak." },
       {

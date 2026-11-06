@@ -375,7 +375,7 @@ export function sparkHTML() {
   const xs = i => (n === 1 ? w / 2 : 12 + (i * (w - 24)) / (n - 1)),
     ys = v => h - 8 - ((v - 1) / 9) * (h - 16);
   const pts = rs.map((r, i) => `${xs(i).toFixed(1)},${ys(r.rating).toFixed(1)}`).join(" ");
-  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="Maç notları"><line x1="0" x2="${w}" y1="${ys(6)}" y2="${ys(6)}" stroke="#24314a" stroke-dasharray="4 4"/><text x="2" y="${ys(6) - 3}" fill="#5d6b82" font-size="9">6.0</text><polygon points="${xs(0)},${h} ${pts} ${xs(n - 1)},${h}" fill="var(--team)" opacity=".15"/><polyline points="${pts}" fill="none" stroke="var(--team)" stroke-width="2.5"/>${rs.map((r, i) => `<circle cx="${xs(i)}" cy="${ys(r.rating)}" r="${i === n - 1 ? 4.5 : 3}" fill="${r.win ? "#36d38e" : "#ff5468"}"/>`).join("")}</svg><div class="row" style="gap:4px">${rs.map(r => `<span class="pill ${r.win ? "w" : "l"}">${r.us}-${r.them} · ${r.rating.toFixed(1)}</span>`).join("")}</div>`;
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="${$t("rc.a11y.ratings")}"><line x1="0" x2="${w}" y1="${ys(6)}" y2="${ys(6)}" stroke="#24314a" stroke-dasharray="4 4"/><text x="2" y="${ys(6) - 3}" fill="#5d6b82" font-size="9">6.0</text><polygon points="${xs(0)},${h} ${pts} ${xs(n - 1)},${h}" fill="var(--team)" opacity=".15"/><polyline points="${pts}" fill="none" stroke="var(--team)" stroke-width="2.5"/>${rs.map((r, i) => `<circle cx="${xs(i)}" cy="${ys(r.rating)}" r="${i === n - 1 ? 4.5 : 3}" fill="${r.win ? "#36d38e" : "#ff5468"}"/>`).join("")}</svg><div class="row" style="gap:4px">${rs.map(r => `<span class="pill ${r.win ? "w" : "l"}">${r.us}-${r.them} · ${r.rating.toFixed(1)}</span>`).join("")}</div>`;
 }
 
 /* --- Stadyum --- */
@@ -766,8 +766,8 @@ export const TRIVIA = [
   [$t("places.121"), $t("places.122"), [$t("places.122"), $t("places.123"), $t("places.124"), $t("places.125")]],
   [$t("places.126"), "100 °C", ["100 °C", "90 °C", "80 °C", "120 °C"]],
   [$t("places.127"), "12", ["12", "14", "11", "16"]],
-  [$t("places.128"), $t("places.129"), ["Yaprak", "Kök", "Çiçek", "Tohum"]],
-  [$t("places.130"), $t("places.131"), ["Avrupa", "Asya", "Amerika", "Afrika"]]
+  [$t("places.128"), $t("places.129"), $t("rc.q.plant").split("|")],
+  [$t("places.130"), $t("places.131"), $t("rc.q.cont").split("|")]
 ];
 export function makeQuestion() {
   const r = Math.random();

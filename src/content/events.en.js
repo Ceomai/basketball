@@ -14,7 +14,7 @@ export default [
   {
     id: "taktik",
     title: "Secret play",
-    text: "\"I drew a new set. It's called 'Turtle 3'. Everyone attacks slowly, and when the defence falls asleep, we speed up.\"",
+    text: "\"I drew a new set. It's called 'Turtle 3'. Everyone attacks slowly, and when the defense falls asleep, we speed up.\"",
     choices: [
       { t: "Brilliant idea, coach", out: "{coach} patted your back. Your teammates rolled their eyes." },
       { t: "Coach, that won't work", out: "The coach turned red and made you run 20 laps. But the team respected you." }
@@ -157,7 +157,7 @@ export default [
   },
   {
     id: "uzaylilar",
-    who: "Your neighbour Mr. Harry",
+    who: "Your neighbor Mr. Harry",
     title: "Midnight",
     text: '"Wake up! Aliens stole the basketball from my garden! And a cow. I don\'t even have a cow."',
     choices: [
@@ -181,6 +181,7 @@ export default [
   },
   {
     id: "dugun",
+    who: "The neighborhood",
     title: "Wedding down the street",
     text: "There's a wedding on the next street. Drums and zurna look set to go on until 2 a.m. You have practice in the morning.",
     choices: [
@@ -199,6 +200,7 @@ export default [
   },
   {
     id: "dayi",
+    who: "Your uncle",
     title: "Uncle's tactics",
     text: 'At family dinner your uncle drew a play on a napkin: "Look, you get the ball, beat everyone, shoot. Simple as that. When I was your age nobody in the neighborhood could guard me."',
     choices: [
@@ -221,6 +223,7 @@ export default [
   },
   {
     id: "simitci",
+    who: "The simit seller",
     title: "Morning simit",
     text: 'The simit seller on your way to school recognized you: "I saw you in the game yesterday, son! This simit is on me. Win the title and bring me a jersey."',
     choices: [
@@ -230,6 +233,7 @@ export default [
   },
   {
     id: "bayram",
+    who: "Your aunt",
     title: "Holiday visit",
     text: 'For the holiday you visited your aunt to kiss her hand. Out came an envelope of pocket money. Then came the questions: "Do you have a girlfriend? When are you getting married?"',
     choices: [
@@ -239,6 +243,7 @@ export default [
   },
   {
     id: "gurbetci",
+    who: "Expat fans",
     title: "Turkish flags in the stands",
     text: "At your game in {city} there was a group with Turkish flags in the stands. They're waiting for you after the game.",
     choices: [
@@ -257,6 +262,7 @@ export default [
   },
   {
     id: "lokanta",
+    who: "Turkish restaurant",
     title: "A taste of home",
     text: 'You found a Turkish restaurant in {city}. The owner recognized you: "The bill is on us, just score in the game."',
     choices: [
@@ -266,6 +272,7 @@ export default [
   },
   {
     id: "kahvehane",
+    who: "Coffeehouse pundits",
     title: "Tea house analysis",
     text: 'The neighborhood tea house has the game on. The old men at the table are analyzing you: "This kid never goes left. Mark my words, you go right on him."',
     choices: [
@@ -275,6 +282,7 @@ export default [
   },
   {
     id: "taksici",
+    who: "Taxi driver",
     title: "The taxi driver knows you",
     text: 'Your taxi driver looked in the rear-view mirror: "Hey, aren\'t you that basketball player? Why don\'t you join our team, we need a center too!"',
     choices: [

@@ -748,7 +748,7 @@ export async function playMatch(ctx) {
             ? $t("engine.73")
             : `${$t("engine.79", {
                 v: qn + 1
-              })}${M.tac ? ` ${$t("engine.75")} ${{ tempo: "tempo", def: "savunma", ball: "top " + sur + $t("engine.74") }[M.tac]}.` : ""}`
+              })}${M.tac ? ` ${$t("engine.75")} ${{ tempo: $t("engine.66"), def: $t("engine.67"), ball: $t("engine.68") }[M.tac]}.` : ""}`
         );
         r();
       };
