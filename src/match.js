@@ -513,7 +513,10 @@ export function afterMatchFlow(win) {
       );
       next = () => seasonEnd(false, false);
     }
+  } else if ((S.phase === "semi" || S.phase === "final") && late.serStep(win) === "cont") {
+    next = () => late.serNext(); // play-off serisi sürüyor: aynı hafta içinde sıradaki maç (src/series.js)
   } else if (S.phase === "semi") {
+    win = late.serWon(win);
     if (win) {
       S.phase = "final";
       const o = S._otherSemi,
@@ -536,6 +539,7 @@ export function afterMatchFlow(win) {
       next = () => seasonEnd(true, false);
     }
   } else if (S.phase === "final") {
+    win = late.serWon(win);
     late.poFinal(win);
     news(
       win

@@ -484,15 +484,20 @@ export function bigMatch() {
   const fx = fixture(),
     opp = fx && teamByKey(fx.opp);
   if (!opp) return null;
-  if (isDerby(opp)) return { kind: "derby", label: $t("big.derby", { v: rivalName() }) };
+  if (isDerby(opp)) return { kind: "derby", label: $t("big.derby", { v: derbyWho(opp) }) };
   const top = standings()
     .slice(0, 2)
     .map(r => r.key);
   if (S.week >= 4 && top.includes(S.team.key) && top.includes(opp.key)) return { kind: "top", label: $t("big.top") };
   return null;
 }
-export const isDerby = opp => !!(S.rival && opp && S.rival.team && opp.key === S.rival.team.key);
+// derbi: kişisel rakibinin takımı ya da şehrin ezeli rakibi (src/derby.js)
+export const isRivalDerby = opp => !!(S.rival && opp && S.rival.team && opp.key === S.rival.team.key);
+export const isDerby = opp => isRivalDerby(opp) || !!(opp && late.dbyArchKey() === opp.key);
+/** Derbinin karşı tarafı: kişisel rakip adı ya da ezeli rakip kulüp */
+export const derbyWho = opp => (isRivalDerby(opp) ? rivalName() : (opp && opp.name) || "");
 export function derbyResult(win) {
+  if (!isRivalDerby(M.opp)) return late.dbyResult(win); // ezeli rakip derbisi: şehir hikâyesi
   const R = S.rival,
     rp = Math.max(0, Math.round(R.ppg * rnd(0.55, 1.45)));
   const beat = M.pts > rp,
@@ -623,28 +628,30 @@ export function pressFollowUp(win) {
   return "";
 }
 export function pressConference(win, after) {
-  const derby = isDerby(M.opp),
+  const derby = isRivalDerby(M.opp),
     R = S.rival,
     j = S.npc.journalist,
-    dr = derby ? derbyResult(win) : null;
+    dr = isDerby(M.opp) ? derbyResult(win) : null;
   const q = derby
     ? $t("story.51", {
         txt: dr.txt,
         first: R.first
       })
-    : S.phase !== "regular"
-      ? win
-        ? $t("story.52")
-        : $t("story.53")
-      : M.rating >= 8.3
-        ? $t("story.54", {
-            pts: M.pts
-          })
-        : M.rating <= 4.5
-          ? $t("story.55")
-          : win
-            ? $t("story.56")
-            : $t("story.57");
+    : dr
+      ? `${dr.txt} ${win ? $t("story.56") : $t("story.57")}`
+      : S.phase !== "regular"
+        ? win
+          ? $t("story.52")
+          : $t("story.53")
+        : M.rating >= 8.3
+          ? $t("story.54", {
+              pts: M.pts
+            })
+          : M.rating <= 4.5
+            ? $t("story.55")
+            : win
+              ? $t("story.56")
+              : $t("story.57");
   const A = derby
     ? [
         [
@@ -1526,6 +1533,7 @@ export function storyOffers(offers) {
 }
 // Maç sekmesine derbi uyarısı
 export function derbyNote(opp) {
+  if (isDerby(opp) && !isRivalDerby(opp)) return late.dbyNoteHTML(opp);
   return isDerby(opp)
     ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("story.120")}</b> ${$t("story.121", {
         v: esc(rivalName())

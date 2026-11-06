@@ -238,7 +238,7 @@ export function locEv(I, tab = "vitrin") {
     late.statsTab(c);
     c.insertAdjacentHTML(
       "afterbegin",
-      `<div style="display:grid">${late.albumButtonHTML()}</div>${late.ambGoalsHTML()}${late.familyTreeHTML()}${late.bondsCareerHTML()}`
+      `<div style="display:grid">${late.albumButtonHTML()}</div>${late.ambGoalsHTML()}${late.familyTreeHTML()}${late.bondsCareerHTML()}${late.dbyCareerHTML()}`
     );
     late.bindAlbumButton(() => locEv(I, "kariyer"));
     late.ambBindGoals(() => locEv(I, "kariyer")); // geç kariyer hedefleri (src/ambition.js)
@@ -439,7 +439,7 @@ export function locStad(I, tab = "mac") {
            })}</p>`
          : ""
      }</div>
-     ${late.adEnergyHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
+     ${late.adEnergyHTML()}${late.serPreHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
       late.playMatch();

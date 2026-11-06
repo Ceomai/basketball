@@ -86,6 +86,9 @@ import * as focus from "./focus.js";
 import * as a11y from "./a11y.js";
 import * as autoplan from "./autoplan.js";
 import * as mtut from "./mtut.js";
+import * as posplay from "./posplay.js";
+import * as series from "./series.js";
+import * as derby from "./derby.js";
 
 const MODULES = [
   data,
@@ -172,7 +175,10 @@ const MODULES = [
   focus,
   a11y,
   autoplan,
-  mtut
+  mtut,
+  posplay,
+  series,
+  derby
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))
