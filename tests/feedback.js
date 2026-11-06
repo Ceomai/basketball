@@ -1020,8 +1020,11 @@ test("cila: Stil alt sekmeleri (görünüm+tasarım), Vitrin'den Başarımlar, a
     G.S.pPrev = 3; // doğum bu hafta oldu (eski kayıt değil)
     if (G.S.goals) G.S.goals.shown = true;
     G.Bus.emit("week:start");
-    G.closeSheet();
-    G.Bus.first("week:sheet");
+    // önce gelen başka paneller (derbi basını vb. rastgele haftaya düşebilir) tüketilir
+    for (let i = 0; i < 6 && !document.querySelector("[data-kn]"); i++) {
+      G.closeSheet();
+      G.Bus.first("week:sheet");
+    }
   });
   await p.waitForSelector("[data-kn]", { timeout: 3000 });
   await p.click('#kn-g [data-v="f"]');
