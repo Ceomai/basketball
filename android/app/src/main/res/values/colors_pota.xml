@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Oyunun arka plan rengi (index.html --bg); sistem çubuklarının arkası -->
+    <!-- Oyunun arka plan rengi (index.html bg değişkeni); sistem çubuklarının arkası -->
     <color name="pota_bg">#090D15</color>
 </resources>
