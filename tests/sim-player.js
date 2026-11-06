@@ -137,15 +137,17 @@
     }
     let adCredit = 0;
     function simWeek() {
-      REC.weeks++;
+      // play-off serisi maç arası: hafta içinde tek eylem hakkı (src/series.js serNext)
+      const acts = S.slot >= 1 && S.slot < 3 && S.series && S.phase !== "regular" ? S.slot : 3;
+      if (acts === 3) REC.weeks++;
       adCredit = Math.min(adCredit + (window.__SIM.adsPerWeek || 0), 8);
       if (S.injury && S.injury.w > 1 && !S.injury.adHealed && useAd("heal")) {
         S.injury.w--;
         S.injury.adHealed = true;
       }
       if (S.energy < 60 && !S.injury && useAd("energy")) S.energy += 30;
-      S.slot = 3;
-      for (let s = 0; s < 3; s++) {
+      S.slot = acts;
+      for (let s = 0; s < acts; s++) {
         if (S.injury) {
           if (S.slot > 0) {
             S.slot--;

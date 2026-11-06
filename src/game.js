@@ -81,6 +81,9 @@ import * as bonds from "./bonds.js";
 import * as matchfeel from "./matchfeel.js";
 import * as seasonnight from "./seasonnight.js";
 import * as inbox from "./inbox.js";
+import * as posplay from "./posplay.js";
+import * as series from "./series.js";
+import * as derby from "./derby.js";
 
 const MODULES = [
   data,
@@ -162,7 +165,10 @@ const MODULES = [
   bonds,
   matchfeel,
   seasonnight,
-  inbox
+  inbox,
+  posplay,
+  series,
+  derby
 ];
 for (const ns of MODULES)
   for (const k of Object.keys(ns))

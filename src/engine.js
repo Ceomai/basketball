@@ -513,9 +513,10 @@ export async function playMatch(ctx) {
     // imza hareket (maçta bir kez) ve maç koşulları + özellikler seçeneklerin başarı değerine eklenir
     if (!(sp && sp.opts)) opts = late.addSignature(opts, ty);
     opts = opts.map(o => ({ ...o, e: o.e + late.momentMod(o.k) + (AUTO ? 0 : late.osMomentMod(o.k, ty)) }));
+    if (!AUTO) opts = late.serAdapt(opts); // play-off serisi: rakip son mağlubiyetindeki karar türüne hazır (src/series.js)
     M.mfScn = scn;
     const render = () => {
-      late.courtFreeze(scn || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
+      late.courtFreeze(scn || (sp && sp.scn) || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
         `<div class="card sit">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
@@ -567,7 +568,7 @@ export async function playMatch(ctx) {
         fu && fu.resolve
           ? fu.resolve()
           : sp && sp.resolve
-            ? sp.resolve(k, sur)
+            ? await sp.resolve(k, sur) // pozisyon anları mini oyunla çözülür (src/posplay.js)
             : AUTO
               ? late.autoResolve(pk, sur)
               : await resolvePlay(pk, $("#mview"), sur, dn);

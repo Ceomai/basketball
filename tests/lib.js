@@ -103,6 +103,8 @@ async function toMain(p, limit = 400) {
         "[data-sl]",
         "#cp-ok",
         "#wn-ok",
+        "#dby-ok",
+        "[data-dbp]",
         "[data-bd]",
         "#sc-ok",
         "#hk-a",

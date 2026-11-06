@@ -297,12 +297,12 @@ export function poStart(st, rank, opp, other) {
 }
 export function poSemi(win, finalOpp) {
   if (!S.po) return;
-  S.po.res.semi = { win, us: late.M ? late.M.us : 0, them: late.M ? late.M.them : 0 };
+  S.po.res.semi = { win, us: late.M ? late.M.us : 0, them: late.M ? late.M.them : 0, ser: late.serScore() };
   S.po.otherWin = finalOpp || null;
 }
 export function poFinal(win) {
   if (!S.po) return;
-  S.po.res.final = { win, us: late.M ? late.M.us : 0, them: late.M ? late.M.them : 0, opp: S.playoffOpp };
+  S.po.res.final = { win, us: late.M ? late.M.us : 0, them: late.M ? late.M.them : 0, opp: S.playoffOpp, ser: late.serScore() };
 }
 const nm = k => esc((teamOf(k) || { short: "?" }).short || (teamOf(k) || {}).name || "?");
 export function playoffHTML() {
@@ -312,10 +312,10 @@ export function playoffHTML() {
     f = P.res.final,
     [o1, o2] = P.other;
   const box = (a, b, r, mine) =>
-    `<div class="card" style="padding:8px 10px;${mine ? "border-color:var(--gold)" : ""}"><div class="row between nowrap"><b>${nm(a)}</b><span>${r ? `${r.us}–${r.them}` : "–"}</span><b>${nm(b)}</b></div>${r ? `<div class="small ${r.win ? "good" : "bad"}">${r.win ? nm(a) : nm(b)} ${$t("cp.adv")}</div>` : ""}</div>`;
+    `<div class="card" style="padding:8px 10px;${mine ? "border-color:var(--gold)" : ""}"><div class="row between nowrap"><b>${nm(a)}</b><span>${r ? (r.ser ? `${r.ser[0]}–${r.ser[1]}` : `${r.us}–${r.them}`) : "–"}</span><b>${nm(b)}</b></div>${r ? `<div class="small ${r.win ? "good" : "bad"}">${r.win ? nm(a) : nm(b)} ${$t("cp.adv")}</div>` : ""}</div>`;
   const otherRes = P.otherWin ? { us: "", them: "", win: P.otherWin === o1 } : null;
   return `<div class="eyebrow">${$t("cp.sf")}</div>${box(P.me, P.semi, s, true)}<div class="card" style="padding:8px 10px"><div class="row between nowrap"><b>${nm(o1)}</b><span>${otherRes ? "✓" : "–"}</span><b>${nm(o2)}</b></div>${P.otherWin ? `<div class="small">${nm(P.otherWin)} ${$t("cp.adv")}</div>` : ""}</div>
-  <div class="eyebrow">${$t("cp.f")}</div>${s && s.win ? box(P.me, P.otherWin || S.playoffOpp, f, true) : `<p class="small muted">${P.otherWin ? `${nm(P.otherWin)} ${$t("cp.inFinal")}` : $t("cp.tbd")}</p>`}${f ? `<p class="${f.win ? "good" : ""}"><b>${f.win ? $t("cp.poChamp") : $t("cp.poRunner")}</b></p>` : ""}`;
+  <div class="eyebrow">${$t("cp.f")}</div>${s && s.win ? box(P.me, P.otherWin || S.playoffOpp, f, true) : `<p class="small muted">${P.otherWin ? `${nm(P.otherWin)} ${$t("cp.inFinal")}` : $t("cp.tbd")}</p>`}${f ? `<p class="${f.win ? "good" : ""}"><b>${f.win ? $t("cp.poChamp") : $t("cp.poRunner")}</b></p>` : ""}${late.serListHTML()}`;
 }
 export function compsHTML() {
   const C = S.comps;

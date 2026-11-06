@@ -848,7 +848,7 @@ export const tapGuard = new WeakMap();
 document.addEventListener(
   "click",
   e => {
-    const b = e.target.closest && e.target.closest(".btn,.choice");
+    const b = e.target.closest && e.target.closest(".btn:not([data-rapid]),.choice"); // data-rapid: art arda dokunma mini oyunu (src/posplay.js)
     if (!b) return;
     const now = performance.now(),
       t = tapGuard.get(b);

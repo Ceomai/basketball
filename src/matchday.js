@@ -40,6 +40,7 @@ export function matchdayStart(ctx, foes, mates) {
   if (late.gradMeet) late.gradMeet(foes || [], M.mates); // akademi mezunu sahada (src/venues.js)
   if (late.bondsMatchStart) late.bondsMatchStart(opp, foes || []); // eski takım arkadaşı / rakip (src/bonds.js)
   chemFor(M.mates);
+  if (late.dbyAtmos) late.dbyAtmos(ctx); // derbi tribünü ve play-off serisi atmosferi (src/derby.js, src/series.js)
 }
 export function matchdayEnd() {
   if (!M) return;
@@ -55,10 +56,11 @@ export const refAnd1 = () => (M && M.live && REFS[M.ref] ? REFS[M.ref].and1 : 1)
 
 /* ---- Seyirci ---- */
 /** Efektif değere seyirci etkisi (yalnız maç sırasında) */
-export const crowdBoost = () => (!M || !M.live || !document.getElementById("mstat") ? 0 : M.home ? (M.hypeOn > 0 ? 4 : 0) : M.loud ? -2 : 0);
+export const crowdBoost = () =>
+  !M || !M.live || !document.getElementById("mstat") ? 0 : M.home ? (M.hypeOn > 0 ? 4 : 0) : M.loud ? -2 : 0;
 function hypeAdd(v) {
   if (!M || !M.home || M.hypeOn > 0) return;
-  M.hype = clamp((M.hype || 0) + v, 0, 100);
+  M.hype = clamp((M.hype || 0) + v * (M.hypeMul || 1), 0, 100);
   if (M.hype >= 100) {
     M.hypeOn = 3;
     M.hype = 0;
@@ -146,8 +148,7 @@ export function extraOffOpts(opts, clutch, auto) {
       d: `${$t("md.duoD")} · ${$t("md.chemShort")} ${Math.round(S.chem.v)}`,
       e: eff("pas") + duoMod()
     });
-  if (clutch && !M.setUsed)
-    out.push({ k: "set", t: $t("md.set"), d: $t("md.setD"), e: (eff("sut") + eff("hiz")) / 2 + 4 });
+  if (clutch && !M.setUsed) out.push({ k: "set", t: $t("md.set"), d: $t("md.setD"), e: (eff("sut") + eff("hiz")) / 2 + 4 });
   return out;
 }
 export const duoMod = () => Math.round(chemVal() / 8);
@@ -186,7 +187,9 @@ export function setPlay(el) {
     const render = () => {
       el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("md.set")}</div><h2>${$t("md.setH")}</h2>
        <div class="eyebrow">${$t("md.screener")}</div><div class="opts" id="sp-s">${pos.map((p, i) => `<button class="opt ${scr === p ? "on" : ""}" data-v="${p}">${p} · ${esc(names[i % names.length])}</button>`).join("")}</div>
-       <div class="eyebrow">${$t("md.route")}</div><div class="opts" id="sp-r">${Object.keys(ROUTES).map(k => `<button class="opt ${rt === k ? "on" : ""}" data-v="${k}">${$t(`md.rt.${k}`)}</button>`).join("")}</div>
+       <div class="eyebrow">${$t("md.route")}</div><div class="opts" id="sp-r">${Object.keys(ROUTES)
+         .map(k => `<button class="opt ${rt === k ? "on" : ""}" data-v="${k}">${$t(`md.rt.${k}`)}</button>`)
+         .join("")}</div>
        <p class="small muted">${$t("md.setHint")}</p><button class="btn pri" id="sp-go" ${scr && rt ? "" : "disabled"}>${$t("md.setGo")}</button></div>`;
       $$("#sp-s [data-v]").forEach(b => (b.onclick = () => ((scr = b.dataset.v), draw(), render())));
       $$("#sp-r [data-v]").forEach(b => (b.onclick = () => ((rt = b.dataset.v), draw(), render())));

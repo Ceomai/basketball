@@ -71,6 +71,8 @@ export function pickSpecial(us, clutch, diff, dn) {
       keys: ["pull", "catch", "drive", "kick", "step", "mid"]
     };
   if (clutch) return null;
+  const pp = late.ppSpecial(us, clutch, diff, dn); // pozisyona özgü an (src/posplay.js; yalnız kendin oynarken)
+  if (pp) return pp;
   // her an türü kendi zarını atar (önceki sürümde sataşma hiç gelmiyordu: aynı sayı önce diğer koşullara takılıyordu)
   if (Math.random() < 0.04) return provocation(dn);
   if (us && Math.random() < 0.12) return fastBreak(dn);

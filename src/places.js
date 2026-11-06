@@ -235,7 +235,10 @@ export function locEv(I, tab = "vitrin") {
   }
   if (tab === "kariyer") {
     late.statsTab(c);
-    c.insertAdjacentHTML("afterbegin", `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}`);
+    c.insertAdjacentHTML(
+      "afterbegin",
+      `<div style="display:grid">${late.albumButtonHTML()}</div>${late.familyTreeHTML()}${late.bondsCareerHTML()}${late.dbyCareerHTML()}`
+    );
     late.bindAlbumButton(() => locEv(I, "kariyer"));
   }
   if (tab === "miras") late.legacyTab(c, () => locEv(I, "miras"));
@@ -434,7 +437,7 @@ export function locStad(I, tab = "mac") {
            })}</p>`
          : ""
      }</div>
-     ${late.adEnergyHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
+     ${late.adEnergyHTML()}${late.serPreHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
       late.playMatch();
