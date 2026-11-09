@@ -69,6 +69,25 @@ export function modeChoice() {
     );
   });
 }
+/** Maç akışında yakalanmayan hata: raporlanır, oyuncu donmuş skor ekranında kalmaz, haritaya döner.
+    playMatch çağrıları .catch(matchFail) ile biter. */
+export function matchFail(e) {
+  console.error(e);
+  try {
+    late.reportError && late.reportError("match", (e && e.message) || String(e), e && e.stack);
+  } catch (_) {
+    /* raporlama yok */
+  }
+  try {
+    closeSheet();
+    if (!S) return late.renderSlots();
+    late.renderMain();
+    late.toast($t("s32.match.err"));
+  } catch (e2) {
+    console.error(e2);
+    late.renderSlots();
+  }
+}
 export async function playMatch(ctx) {
   if ((!ctx || ctx.comp === "lig") && late.offResume(true)) return; // yarıda kalmış sezon geçişi: önce teklifler
   closeSheet();
@@ -709,7 +728,7 @@ export async function playMatch(ctx) {
                ["def", $t("engine.67")],
                ["ball", $t("engine.68")]
              ]
-               .map(([k, n]) => `<button class="btn ${M.tac === k ? "team" : "ghost"} sm" data-tac="${k}">${n}</button>`)
+               .map(([k, n]) => `<button class="btn ${M.tac === k ? "sel" : "ghost"} sm" data-tac="${k}" aria-pressed="${M.tac === k}">${n}</button>`)
                .join("")}</div>`
        }
        ${half ? late.adHalfHTML() : ""}${half ? late.mascotHTML() : ""}<button class="btn pri" id="qgo">${
@@ -729,7 +748,10 @@ export async function playMatch(ctx) {
           (b.onclick = () => {
             M.tac = b.dataset.tac;
             if (M.tac === "ball") S.rel.koc -= 1;
-            $$("[data-tac]").forEach(x => (x.className = `btn ${M.tac === x.dataset.tac ? "team" : "ghost"} sm`));
+            $$("[data-tac]").forEach(x => {
+              x.className = `btn ${M.tac === x.dataset.tac ? "sel" : "ghost"} sm`;
+              x.setAttribute("aria-pressed", String(M.tac === x.dataset.tac));
+            });
           })
       );
       if (half) {

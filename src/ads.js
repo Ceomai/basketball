@@ -131,20 +131,34 @@ export async function admobInit() {
   } catch (e) {}
   return admobReady;
 }
+/** Son reklamın neden ödül vermediği: "noad" (yüklenemedi / çevrimdışı) ya da "abort" (oyuncu yarıda kapattı) */
+export const AD_LAST = { why: null };
 export async function nativeAd(kind) {
   const A = admob();
   if (!A || !(await admobInit())) return null;
   const id = ADS_CFG.admob[kind][platform() === "ios" ? "ios" : "android"];
+  AD_LAST.why = null;
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    AD_LAST.why = "noad";
+    return false;
+  }
+  try {
+    if (kind === "rewarded") await A.prepareRewardVideoAd({ adId: id, npa: ADS.consent === false });
+    else await A.prepareInterstitial({ adId: id, npa: ADS.consent === false });
+  } catch (e) {
+    AD_LAST.why = "noad"; // yükleme hatası: doldurulacak reklam yok ya da ağ yok
+    return false;
+  }
   try {
     if (kind === "rewarded") {
-      await A.prepareRewardVideoAd({ adId: id, npa: ADS.consent === false });
       const rw = await A.showRewardVideoAd();
+      if (!rw) AD_LAST.why = "abort";
       return !!rw;
     }
-    await A.prepareInterstitial({ adId: id, npa: ADS.consent === false });
     await A.showInterstitial();
     return true;
   } catch (e) {
+    AD_LAST.why = "abort";
     return false;
   }
 }
@@ -193,6 +207,7 @@ export function webAd(kind) {
     btn.onclick = () => {
       clearInterval(iv);
       el.remove();
+      if (kind === "rewarded" && !done) AD_LAST.why = "abort";
       res(kind === "rewarded" ? done : true);
     };
   });
@@ -215,17 +230,34 @@ export async function showRewarded(place) {
     toast($t("ads.26"));
     return false;
   }
-  await adsConsent();
-  adStat(place, "shown");
-  late.sfx("click");
-  const ok = await playAd("rewarded");
+  // basılan reklam düğmesi hazırlanırken "Yükleniyor…" (aria-busy); sonuçtan sonra eski haline döner
+  const btn = AD_BTN.el && document.body.contains(AD_BTN.el) ? AD_BTN.el : null;
+  AD_BTN.el = null;
+  const html = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.setAttribute("aria-busy", "true");
+    btn.innerHTML = `<span class="adtag">${$t("ads.19")}</span>${$t("s32.ad.loading")}`;
+  }
+  let ok = false;
+  try {
+    await adsConsent();
+    adStat(place, "shown");
+    late.sfx("click");
+    AD_LAST.why = null;
+    ok = await playAd("rewarded");
+  } finally {
+    if (btn && document.body.contains(btn)) {
+      btn.removeAttribute("aria-busy");
+      btn.innerHTML = html;
+    }
+  }
   Bus.emit("ad", { place, kind: "rewarded", ok });
   if (ok) {
     ADS.today++;
     adStat(place, "done");
     adsSave();
     late.sfx("coin");
-  } else toast($t("ads.27"));
+  } else toast(AD_LAST.why === "noad" ? $t("s32.ad.none") : $t("ads.27")); // yüklenemedi ≠ yarıda kesildi
   return ok;
 }
 // Maçlar arası geçiş reklamı (sıklık sınırlı); bittiğinde next() çağrılır
@@ -277,8 +309,23 @@ export const adBtn = (id, label, sub, place) => {
   if (place && late.adOffer) late.adOffer(place);
   return adBtnRaw(id, label, sub);
 };
+/** Basılan ödüllü reklam düğmesi (yakalama aşamasında not edilir; showRewarded "Yükleniyor…" gösterir) */
+const AD_BTN = { el: null };
+try {
+  document.addEventListener(
+    "click",
+    e => {
+      const b = e.target && e.target.closest && e.target.closest(".adbtn");
+      if (b) AD_BTN.el = b;
+    },
+    true
+  );
+} catch (e) {
+  /* DOM yok */
+}
+const AD_IC = `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
 const adBtnRaw = (id, label, sub) =>
-  `<button class="btn team adbtn" id="${id}"><span class="adtag">${ADS.adFree ? $t("ads.28") : rewardLeft() <= 5 ? `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}` : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+  `<button class="btn ad adbtn" id="${id}"><span class="adtag">${AD_IC}${ADS.adFree ? $t("ads.28") : rewardLeft() <= 5 ? `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}` : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
 export function adDoubleHTML(bonus) {

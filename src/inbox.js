@@ -47,7 +47,7 @@ export function inboxSheet() {
     $t("ibx.sub", { n: b.items.length }),
     b.items.length
       ? `<div class="news ibx-list">${b.items.map(x => `<div><time>${esc(x.w)}</time><span>${x.k === "news" ? "📰 " : ""}${esc(x.t)}</span></div>`).join("")}</div>`
-      : `<p class="small muted">${$t("ibx.empty")}</p>`
+      : `<div class="empty-st"><div class="empty-ic">${BELL.replace('width="20" height="20"', 'width="40" height="40"')}</div><h3>${$t("ibx.empty")}</h3><p class="small muted">${$t("s32.ibx.hint")}</p></div>`
   );
 }
 

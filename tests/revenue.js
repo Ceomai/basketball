@@ -297,7 +297,7 @@ test("günlük kutu: ücretsiz + reklamla bir tane, saat geri alınınca yenilen
   assert(rb === false, "saat geri alınınca kutu yenilendi");
   await p.click("#today");
   await p.click("#dbox");
-  await p.click("#bx-x");
+  await p.click("#shx");
   return p;
 });
 

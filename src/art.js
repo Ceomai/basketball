@@ -418,6 +418,9 @@ export function portrait(L, o = {}, w = 84, h = 84, bg) {
 export const sv = b => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${b}</svg>`;
 export const ST = 'stroke="#141414" stroke-width="2" stroke-linejoin="round"';
 export const ICON = {
+  // kilit: arayüz simgesi (yazı rengini alır; kilitli seçenekler, açılımlar)
+  lock: () =>
+    `<svg class="ico-lock" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
   can: (c = "#1e88e5") =>
     sv(
       `<rect x="20" y="8" width="24" height="48" rx="5" fill="${c}" ${ST}/><rect x="22" y="6" width="20" height="5" rx="2" fill="#cfd8dc" ${ST}/><path d="M34 18 L26 34 H32 L29 46 L39 28 H33 L36 18Z" fill="#ffd54f" ${ST}/><rect x="23" y="12" width="4" height="40" rx="2" fill="#fff" opacity=".25"/>`

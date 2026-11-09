@@ -176,7 +176,7 @@ export function stadiumSVG(x, y, P, lit) {
   const st = P.stage;
   const ink = luma(tc.c1) < 60 ? tc.c2 : tc.c1;
   const sign = (t, w = 96, dy = 44) =>
-    `<rect x="${x - w / 2}" y="${y + dy}" width="${w}" height="16" rx="3" fill="#06090f" stroke="${ink}" stroke-opacity=".5"/><text x="${x}" y="${y + dy + 12}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="11" letter-spacing="1.2" fill="${ink}">${esc(t)}</text>`;
+    `<g class="lab"><rect x="${x - w / 2}" y="${y + dy}" width="${w}" height="16" rx="3" fill="#06090f" stroke="${ink}" stroke-opacity=".5"/><text x="${x}" y="${y + dy + 12}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="11" letter-spacing="1.2" fill="${ink}">${esc(t)}</text></g>`;
   if (st === "lise" || st === "uni" || st === "t3") {
     const w = st === "t3" ? 150 : 126;
     return (
@@ -484,7 +484,7 @@ export function mapSVG(P) {
     g += `<g class="loc${off ? " off" : ""}" data-loc="${Lc.id}" tabindex="0" role="button" aria-label="${esc(I.n)}"${I.locked ? ' aria-disabled="true"' : ""}>
       <ellipse class="hl" cx="${Lc.x}" cy="${Lc.y + 8}" rx="${big ? 112 : 62}" ry="${big ? 70 : 46}" style="fill:var(--gold)" fill-opacity=".16"/>
       ${B[Lc.id](Lc.x, Lc.y)}
-      <g transform="translate(${Lc.x},${ly})"><rect x="${-lw / 2}" y="-10" width="${lw}" height="20" rx="4" fill="#06090f" fill-opacity=".9" style="stroke:var(--gold)" stroke-opacity=".35"/>${I.slot ? `<circle cx="${-lw / 2 + 10}" cy="0" r="3" style="fill:var(${off ? "--dim" : "--gold"})"/>` : ""}<text x="${I.slot ? 5 : 0}" y="4" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="700" letter-spacing="1" font-size="11" style="fill:var(--text)">${esc(lab)}</text></g>
+      <g transform="translate(${Lc.x},${ly})"><g class="lab"><rect x="${-lw / 2}" y="-10" width="${lw}" height="20" rx="4" fill="#06090f" fill-opacity=".9" style="stroke:var(--gold)" stroke-opacity=".35"/>${I.slot ? `<circle cx="${-lw / 2 + 10}" cy="0" r="3" style="fill:var(${off ? "--dim" : "--gold"})"/>` : ""}<text x="${I.slot ? 5 : 0}" y="4" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="700" letter-spacing="1" font-size="11" style="fill:var(--text)">${esc(lab)}</text></g></g>
       <rect x="${Lc.x - (big ? 104 : 56)}" y="${Lc.y - (big ? 70 : 62)}" width="${big ? 208 : 112}" height="${big ? 160 : 118}" fill="transparent"/></g>`;
   });
   if (lit)
@@ -497,4 +497,34 @@ export function mapSVG(P) {
     g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="${esc($t("a11y.mev"))}"><circle cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" style="fill:var(--warn)" stroke="#141414" stroke-width="2"><animate attributeName="r" values="12;15;12" dur="1.4s" repeatCount="indefinite"/></circle><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
   });
   return g + "</svg>";
+}
+
+/* ---- Harita etiketleri okunur boyutta ----
+   SVG genişliğe göre ölçeklendiği için 11 birimlik etiket dar ekranda ~9,8 px'e iner. Etiket (kutu + yazı) birlikte
+   --lab-k ile büyütülür: ekranda en az 11 px ve yazı boyutu ayarına (html.fs-*) oranla; en fazla 1,6 kat. */
+export function fitMapLabels() {
+  try {
+    const svg = document.querySelector(".mapwrap svg"),
+      wrap = document.querySelector(".mapwrap");
+    if (!svg || !wrap) return 1;
+    const r = svg.getBoundingClientRect();
+    if (!r.width) return 1;
+    const scale = Math.max(r.width / 400, r.height / 670); // preserveAspectRatio "slice"
+    const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const want = Math.max(11, (11 * root) / 16); // px
+    const k = Math.min(1.6, Math.max(1, want / (11 * scale)));
+    wrap.style.setProperty("--lab-k", k.toFixed(3));
+    return k;
+  } catch (e) {
+    return 1;
+  }
+}
+try {
+  let tm = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(tm);
+    tm = setTimeout(fitMapLabels, 120);
+  });
+} catch (e) {
+  /* DOM yok */
 }

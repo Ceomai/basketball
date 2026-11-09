@@ -2818,7 +2818,7 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
       good: cs.getPropertyValue("--good").trim(),
       bg: cs.getPropertyValue("--bg").trim(),
       close: document.querySelector("#shx").getAttribute("aria-label"),
-      pressed: document.querySelector('[data-tg="hc"]').getAttribute("aria-pressed"),
+      pressed: document.querySelector('[data-tg="hc"]').getAttribute("aria-checked"), // 3.2: aç/kapa ayarları role="switch"
       w: h.scrollWidth
     };
   });
@@ -4438,6 +4438,234 @@ test("yayın c: İngilizcede bilgi sorularının doğru cevabı seçeneklerde, s
   await career(p);
   const tr = await p.evaluate(() => ({ k: window.Game.kfmt(1500), m: window.Game.fmt(1000) }));
   assert(tr.k === "1,5B" && tr.m === "₺40.000", "TR biçim: " + JSON.stringify(tr));
+  return p;
+});
+
+/* ---- yayın 3.2: tasarım düzeltmeleri — hata kurtarma, panel davranışı, durumlar ---- */
+test("yayın 3.2: bozuk kayıt açılışta onarılır (takımlar yok, fikstür boş, play-off rakibi yok, npc sayı)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      base = JSON.stringify(G.S),
+      out = {};
+    const cases = {
+      teams: s => delete s.teams,
+      sched: s => (s.sched = []),
+      semi: s => {
+        s.phase = "semi";
+        s.playoffOpp = null;
+        delete s._otherSemi;
+      },
+      npc: s => (s.npc = 5),
+      league: s => (s.league = [{ key: "yok|yok|0", w: 1, l: 0, pf: 1, pa: 0 }]),
+      week: s => (s.week = "x")
+    };
+    for (const [k, f] of Object.entries(cases)) {
+      const s = JSON.parse(base);
+      f(s);
+      s.saveSlot = 1;
+      localStorage.setItem("pota-slot-1", JSON.stringify({ v: G.SAVE_V, ts: Date.now(), S: s }));
+      localStorage.removeItem("pota-slot-1-bak");
+      const ld = G.loadSlot(1);
+      if (!ld || !ld.S) {
+        out[k] = "açılmadı";
+        continue;
+      }
+      const ok = G.openSafe(ld.S);
+      const S = G.S,
+        fx = G.fixture();
+      out[k] = {
+        ok,
+        main: !!document.querySelector("#gostad"),
+        opp: !!(fx && G.teamByKey(fx.opp)),
+        own: S.league.some(x => x.key === S.team.key),
+        npc: typeof S.npc === "object" && typeof S.npc.mom === "string",
+        semi: S.phase !== "semi" || (S._otherSemi || []).length === 2
+      };
+      // onarılan kayıtla bir hafta oynanabilir
+      G.closeSheet();
+      if (S.phase === "regular") {
+        G.quickWeek();
+        const b = document.querySelector("#qw-sim");
+        if (b) b.click();
+      }
+    }
+    return out;
+  });
+  for (const [k, v] of Object.entries(r))
+    assert(v && v.ok && v.main && v.opp && v.own && v.npc && v.semi, k + ": " + JSON.stringify(v));
+  await p.waitForTimeout(600);
+  return p;
+});
+
+test("yayın 3.2: açılış hata verirse yedekten açılır; yedek de bozuksa yuvalar + açıklayıcı panel (boş ekran yok)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      good = JSON.parse(JSON.stringify(G.S)),
+      bad = JSON.parse(JSON.stringify(G.S));
+    bad.team.c1 = undefined; // açılışta hata (renk hesabı); onarımla düzeltilemeyen bozukluk
+    good.money = 4321;
+    localStorage.setItem("pota-slot-1", JSON.stringify({ v: G.SAVE_V, ts: Date.now(), S: bad }));
+    localStorage.setItem("pota-slot-1-bak", JSON.stringify({ v: G.SAVE_V, ts: Date.now() - 1000, S: good }));
+    const a = G.openSafe(G.loadSlot(1).S);
+    const out = { bak: a && !!document.querySelector("#gostad") && G.S.money === 4321, toast: G.TOAST_LOG.includes(G.t("s32.rec.bak")) };
+    localStorage.setItem("pota-slot-1", JSON.stringify({ v: G.SAVE_V, ts: Date.now(), S: bad }));
+    localStorage.setItem("pota-slot-1-bak", JSON.stringify({ v: G.SAVE_V, ts: Date.now(), S: bad }));
+    const b = G.openSafe(G.loadSlot(1).S);
+    out.fail = !b && !G.S && !!document.querySelector("#rec-ok") && !!document.querySelector("[data-go], [data-new]");
+    out.locked = G.nativeBack() === "locked";
+    document.querySelector("#rec-ok").click();
+    out.slots = !document.querySelector("#ovl").innerHTML.trim() && !!document.querySelector("#help0");
+    out.logged = G.errorLog().some(e => e.type === "open");
+    return out;
+  });
+  assert(r.bak && r.toast && r.fail && r.locked && r.slots && r.logged, JSON.stringify(r));
+  return p;
+});
+
+test("yayın 3.2: maç sonu hatası akışı kesmez (Bus.run, lig tablosu, playMatch .catch)", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(async () => {
+    const G = window.Game,
+      out = {};
+    // ara katman hata verse de son adım çalışır
+    G.Bus.use("t32:x", () => {
+      throw new Error("ara katman");
+    });
+    let fin = 0;
+    G.Bus.run("t32:x", {}, () => fin++);
+    out.run = fin === 1;
+    // lig tablosunda kendi takım yoksa satır eklenir
+    G.S.league = G.S.league.filter(x => x.key !== G.S.team.key);
+    const opp = G.teamByKey(G.fixture().opp);
+    G.updateLeague(true, opp, 70, 60);
+    out.league = G.S.league.some(x => x.key === G.S.team.key && x.w === 1);
+    // playMatch reddedilirse haritaya dönülür
+    const orig = G.S.team.str;
+    G.S.team.str = undefined;
+    await G.playMatch({ opp: null, home: true, comp: "lig", auto: true }).catch(G.matchFail);
+    G.S.team.str = orig;
+    out.main = !!document.querySelector("#gostad");
+    out.logged = G.errorLog().some(e => e.type === "bus") && G.errorLog().some(e => e.type === "match");
+    return out;
+  });
+  assert(r.run && r.league && r.main && r.logged, JSON.stringify(r));
+  return p;
+});
+
+test("yayın 3.2: panel — Esc ve geri hareketi kapatır, zorunlu panelde kapanmaz ve uyarır; odak panelde", async () => {
+  const p = await page();
+  await career(p);
+  await p.click("#opt");
+  const a = await p.evaluate(() => ({
+    focus: !!document.activeElement.closest(".sheet"),
+    grab: !!document.querySelector(".sheet .grab")
+  }));
+  await p.keyboard.press("Escape");
+  const esc = await p.evaluate(() => !document.querySelector("#ovl .sheet"));
+  // tarayıcı geri hareketi (web/PWA)
+  await p.click("#opt");
+  await p.goBack().catch(() => {});
+  await p.waitForTimeout(200);
+  const back = await p.evaluate(() => !document.querySelector("#ovl .sheet") && !!document.querySelector("#gostad"));
+  const lk = await p.evaluate(() => {
+    const G = window.Game;
+    G.sheet("Zorunlu", "", `<button class="btn pri" id="zz">Devam</button>`, { noClose: true });
+    return { grab: !!document.querySelector(".sheet .grab"), x: !!document.querySelector("#shx") };
+  });
+  await p.keyboard.press("Escape");
+  await p.goBack().catch(() => {});
+  await p.waitForTimeout(200);
+  const kept = await p.evaluate(() => ({
+    open: !!document.querySelector("#zz"),
+    toast: window.Game.TOAST_LOG.includes(window.Game.t("s32.locked"))
+  }));
+  assert(a.focus && a.grab && esc && back, "kapatılabilir panel: " + JSON.stringify({ a, esc, back }));
+  assert(!lk.grab && !lk.x && kept.open && kept.toast, "zorunlu panel: " + JSON.stringify({ lk, kept }));
+  return p;
+});
+
+test("yayın 3.2: ekranlar — tek başlat düğmesi, gelişmiş seçenekler, satır içi hata, kilitli köken, anahtarlar, boş kutu", async () => {
+  const p = await page();
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      $ = s => document.querySelector(s),
+      out = {};
+    localStorage.clear();
+    G.renderSlots();
+    out.start = document.querySelectorAll("[data-new]").length === 1 && !!$('[data-new="1"].btn.pri');
+    $('[data-new="1"]').click();
+    out.adv = !!$("#adv") && !$("#adv").open && !!$("#adv #mode");
+    $("#fn").value = "";
+    $("#go").click();
+    out.err = !$("#nerr").hidden && $("#fn").getAttribute("aria-invalid") === "true" && !G.S;
+    const lk = $("#origin .opt.locked");
+    if (lk) {
+      lk.click();
+      out.lock = !!lk.querySelector("svg") && G.TOAST_LOG[G.TOAST_LOG.length - 1].includes(G.t("leg.req1").slice(0, 3)) && !G.S;
+    } else out.lock = "kilitli köken yok";
+    out.sw = [...document.querySelectorAll("#skin .sw")].every(b => /\d/.test(b.getAttribute("aria-label")) && b.hasAttribute("aria-pressed"));
+    return out;
+  });
+  await career(p);
+  const s = await p.evaluate(() => {
+    const G = window.Game,
+      out = {};
+    G.settingsSheet();
+    const sw = [...document.querySelectorAll("[data-tg]")];
+    out.switch = sw.length >= 8 && sw.every(b => b.getAttribute("role") === "switch" && b.hasAttribute("aria-checked"));
+    out.groups = document.querySelectorAll(".set-g").length >= 5;
+    G.closeSheet();
+    G.S.inbox = { items: [], unread: 0 };
+    G.inboxSheet();
+    out.empty = !!document.querySelector(".empty-st svg") && document.querySelector(".empty-st").textContent.includes(G.t("s32.ibx.hint"));
+    G.closeSheet();
+    G.renderMain();
+    out.onePri = document.querySelectorAll(".weekcard .btn.pri").length === 1 && !document.querySelector(".weekcard .btn.team");
+    out.ink = getComputedStyle(document.documentElement).getPropertyValue("--team-ink").trim();
+    out.toast = (() => {
+      G.toast("kısa");
+      const t = document.querySelector(".toast");
+      return t.getAttribute("role") === "status" && G.toastMs("x".repeat(90)) >= 4000 && G.toastMs("kısa") < 4000;
+    })();
+    return out;
+  });
+  assert(r.start && r.adv && r.err && r.lock === true && r.sw, "oluşturma: " + JSON.stringify(r));
+  assert(s.switch && s.groups && s.empty && s.onePri && s.toast, "ekranlar: " + JSON.stringify(s));
+  return p;
+});
+
+test("yayın 3.2: depolama dolunca kapatılana kadar kalan uyarı ve yedek eylemi", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    const orig = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      if (/^pota-slot/.test(k)) {
+        const e = new Error("dolu");
+        e.name = "QuotaExceededError";
+        throw e;
+      }
+      return orig.call(this, k, v);
+    };
+    G.S.money += 1;
+    G.save();
+    Storage.prototype.setItem = orig;
+    const bar = document.querySelector("#savewarn");
+    const out = { bar: !!bar && bar.getAttribute("role") === "alert" };
+    document.querySelector("#sw-bk").click();
+    out.exp = !!document.querySelector("#exp");
+    G.closeSheet();
+    document.querySelector("#sw-x").click();
+    out.closed = !document.querySelector("#savewarn");
+    return out;
+  });
+  assert(r.bar && r.exp && r.closed, JSON.stringify(r));
   return p;
 });
 

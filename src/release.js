@@ -76,7 +76,7 @@ export function relSettingsHTML() {
   const store = !!(window.PotaStore && window.PotaStore.restore);
   const ump = !!(window.PotaNative && window.PotaNative.privacyOptionsRequired);
   const test = isNative() && relTestAds(plat());
-  return `<div class="eyebrow mt-1">${$t("rel.title")}</div>
+  return `<div class="eyebrow set-g">${$t("rel.title")}</div>
    ${test ? `<p class="small muted" id="rel-test">${$t("rel.testAds")}</p>` : ""}
    <div class="act"><div><h3>${$t("rel.privacy")}</h3><p>${$t("rel.privacyD")}</p></div><a class="btn ghost sm" id="rel-pp" href="${REL_PRIVACY_URL}" target="_blank" rel="noopener">${$t("rel.open")}</a></div>
    ${ump ? `<div class="act"><div><h3>${$t("rel.ump")}</h3><p>${$t("rel.umpD")}</p></div><button class="btn ghost sm" id="rel-ump">${$t("rel.open")}</button></div>` : ""}
@@ -113,7 +113,7 @@ function relWipeSheet(re) {
   sheet(
     $t("rel.wipe"),
     $t("rel.wipeSub"),
-    `<div class="say bad">${$t("rel.wipeWarn")}</div>${cloud ? `<p class="small">${$t("rel.wipeCloud")}</p>` : ""}<p class="small muted">${$t("rel.wipeWeb", { url: REL_DELETE_URL })}</p><div class="grid2"><button class="btn ghost" id="rw-no">${$t("rel.cancel")}</button><button class="btn pri" id="rw-yes">${$t("rel.wipeBtn")}</button></div>`
+    `<div class="say bad">${$t("rel.wipeWarn")}</div>${cloud ? `<p class="small">${$t("rel.wipeCloud")}</p>` : ""}<p class="small muted">${$t("rel.wipeWeb", { url: REL_DELETE_URL })}</p><button class="btn pri" id="rw-no">${$t("rel.cancel")}</button><button class="btn bad" id="rw-yes">${$t("rel.wipeBtn")}</button>`
   );
   $("#rw-no").onclick = () => (closeSheet(), re && re());
   $("#rw-yes").onclick = async () => {

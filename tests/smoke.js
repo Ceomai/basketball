@@ -23,7 +23,8 @@ const check = (ok, msg) => {
   await p.waitForTimeout(600);
 
   // 1) kayıt ekranı ve yeni kariyer (isim listeden seçilerek)
-  check((await p.$$eval("[data-new],[data-go]", x => x.length)) === 5, "kayıt ekranında 5 yuva var");
+  // 3.2: hiç kariyer yokken boş yuvalar listelenmez, tek büyük "Kariyere başla" (ilk boş yuva) görünür
+  check((await p.$$eval("[data-new].btn.pri", x => x.map(b => b.dataset.new).join())) === "1", "kayıt ekranında tek başlat düğmesi (yuva 1)");
   await p.tap('[data-new="1"]');
   await p.tap("#npick");
   await p.tap('[data-nf="Ali"]');

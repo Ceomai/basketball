@@ -3,7 +3,7 @@ import { late } from "./late.js";
 import { $, $$, Bus, SIM, esc, toast } from "./data.js";
 import { icon, portrait } from "./art.js";
 import { brandSave } from "./brand.js";
-import { F, MY_LISE, S, app, closeSheet, migrate, renderCreate, renderMain, setS, setTeamVars, sheet } from "./core.js";
+import { F, MY_LISE, S, app, closeSheet, renderCreate, setS, setTeamVars, sheet } from "./core.js";
 /* ================= KAYIT SİSTEMİ =================
    5 kariyer yuvası. Her yazımda bir önceki sağlam kayıt yedeğe alınır; ana kayıt bozulursa yedekten açılır.
    Tarayıcı kaydı kapalıysa ya da depolama doluysa oyuncu uyarılır ve kayıt kodu ile ilerlemesini taşıyabilir. */
@@ -49,14 +49,15 @@ export function normalizeState(s) {
     { posBonus: {}, npc: {} }
   );
   for (const k of Object.keys(def)) if (k !== "unlocks" && (s[k] === undefined || s[k] === null)) s[k] = def[k];
+  // Bozuk ya da eksik alanları onar (depolama hatası, yarım yazılmış kayıt, eski sürüm): oyun hiçbir kayıtta çökmemeli.
+  // Tür onarımı alan atamalarından ÖNCE: npc/rel/st sayı ya da dizi gelirse s.npc[k] = ... TypeError verirdi.
+  for (const k of ["hist", "tx", "news", "arcQ", "results", "league", "sched"]) if (!Array.isArray(s[k])) s[k] = [];
+  for (const k of ["items", "teams", "arcs", "chapters", "clauses", "evSeen", "npc", "rel", "st"])
+    if (!s[k] || typeof s[k] !== "object" || Array.isArray(s[k])) s[k] = {};
   for (const k of ["mom", "dad", "friend", "rival", "agent", "journalist", "coach"])
     if (typeof s.npc[k] !== "string" || !s.npc[k]) s.npc[k] = "-";
   for (const k of ["koc", "takim", "taraf", "aile", "ark", "partner"])
     if (typeof s.rel[k] !== "number" || !isFinite(s.rel[k])) s.rel[k] = 50;
-  // Bozuk ya da eksik alanları onar (depolama hatası, yarım yazılmış kayıt, eski sürüm): oyun hiçbir kayıtta çökmemeli
-  for (const k of ["hist", "tx", "news", "arcQ", "results"]) if (!Array.isArray(s[k])) s[k] = [];
-  for (const k of ["items", "teams", "arcs", "chapters", "clauses", "evSeen", "npc", "rel"])
-    if (!s[k] || typeof s[k] !== "object" || Array.isArray(s[k])) s[k] = {};
   for (const [k, v] of [
     ["money", 30],
     ["energy", 85],
@@ -79,6 +80,7 @@ export function normalizeState(s) {
   s.teams = s.teams || {};
   s.arcs = s.arcs || {};
   s.arcQ = s.arcQ || [];
+  if (s.career && typeof s.career !== "object") s.career = null;
   s.career = s.career || { games: 0, pts: 0, ast: 0, reb: 0, blk: 0, wins: 0, trophies: [], mvps: 0, earned: 0 };
   if (!Array.isArray(s.career.trophies)) s.career.trophies = [];
   if (s.team && s.team.key === "lise|İstanbul|0") {
@@ -98,8 +100,24 @@ try {
 } catch (e) {
   storageOK = false;
 }
+/** Açılabilir kayıt: kimlik, kendi takım ve temel tablolar nesne türünde. Takımlar/fikstür/play-off tutarlılığı
+    açılışta onarılır (src/core.js repairLeague); onarılamayan kayıt yedekten açılır (openSafe). */
 export function validSave(o) {
-  return o && typeof o === "object" && o.first && o.team && o.team.key && o.st && o.league && Array.isArray(o.league) && o.rel;
+  return !!(
+    o &&
+    typeof o === "object" &&
+    o.first &&
+    o.team &&
+    typeof o.team === "object" &&
+    typeof o.team.key === "string" &&
+    o.st &&
+    typeof o.st === "object" &&
+    Array.isArray(o.league) &&
+    o.rel &&
+    typeof o.rel === "object" &&
+    (o.teams == null || typeof o.teams === "object") &&
+    (o.sched == null || Array.isArray(o.sched))
+  );
 }
 /** Tarayıcı hafızasına sığmayan (QuotaExceededError) en yeni kayıtlar: bu oturumda yuvalar bunlardan açılır,
     böylece IndexedDB'deki yeni kopya eski localStorage kopyasıyla ezilmez. */
@@ -152,9 +170,24 @@ export function save() {
       if (!storageWarned) {
         storageWarned = true;
         toast($t("save.3"));
+        saveWarnBar();
       }
     }
   }
+}
+/** Depolama dolu: kapatılana kadar ekranda kalan uyarı + kayıt kodu/yedek eylemi (bildirim birkaç saniyede kaybolur) */
+export function saveWarnBar() {
+  if (SIM() || document.getElementById("savewarn")) return;
+  const d = document.createElement("div");
+  d.id = "savewarn";
+  d.setAttribute("role", "alert");
+  d.innerHTML = `<div class="minw-0"><b>${esc($t("s32.save.title"))}</b><p class="small">${esc($t("save.3"))}</p><button class="btn gold sm" id="sw-bk">${esc($t("s32.save.act"))}</button></div><button class="x" id="sw-x" aria-label="${esc($t("a11y.close"))}">✕</button>`;
+  document.body.appendChild(d);
+  d.querySelector("#sw-bk").onclick = () => {
+    if (S) exportSheet();
+    else late.renderSlots();
+  };
+  d.querySelector("#sw-x").onclick = () => d.remove();
 }
 export function loadSlot(i) {
   const main = readKey(slotKey(i));
@@ -403,16 +436,14 @@ export function importCode(code) {
     toast($t("save.8"));
     return false;
   }
-  setS(s);
-  S.saveSlot = free;
-  migrate();
+  s.saveSlot = free;
+  if (!late.openSafe(s, { noBak: true })) return false;
   save();
   toast(
     $t("save.9", {
       free: free
     })
   );
-  renderMain();
   return true;
 }
 // Yedek hatırlatması: kurulu değilse 2 sezonda, kuruluysa 4 sezonda bir
@@ -446,6 +477,23 @@ export function backupNudge() {
 Bus.offer("week:sheet", backupNudge, 90);
 
 /* ================= KAYIT EKRANI ================= */
+/** Yuva listesi: hiç kariyer yoksa tek büyük "Kariyere başla"; varsa kariyerler ve boş yuvalar tek satırda */
+export function slotRowsHTML(rows) {
+  const empty = rows.filter(([, r]) => !r).map(([i]) => i);
+  const used = rows.filter(([, r]) => r);
+  if (!used.length && empty.length)
+    return `<button class="btn pri big" data-new="${empty[0]}">${t("s32.slots.start")}</button>`;
+  const cards = used.map(([i, r]) =>
+    r.from === "corrupt"
+      ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${t("slots.corrupt", { i })}</h3><p>${t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${t("slots.clear")}</button></div>`
+      : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2 span-all"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn pri sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
+  );
+  if (empty.length)
+    cards.push(
+      `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${t("s32.slots.free", { v: empty.join(", ") })}</h3><p>${t("slots.emptyDesc")}</p></div><button class="btn sm" data-new="${empty[0]}">${t("btn.newCareer")}</button></div>`
+    );
+  return `<div class="choices">${cards.join("")}</div>`;
+}
 export function slotSummary(s) {
   return `${$t("save.19", {
     age: s.age,
@@ -479,16 +527,8 @@ export function renderSlots() {
   app.innerHTML = `<div class="row between nowrap pt-4h"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><div class="row gap-1h">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div></div>
    ${storageOK ? "" : `<div class="say bad">${t("slots.storageOff")}</div>`}
    <div class="eyebrow">${t("slots.header", { n: SLOT_N })}</div>
-   <div class="choices">${rows
-     .map(([i, r]) =>
-       !r
-         ? `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${t("slots.empty", { i })}</h3><p>${t("slots.emptyDesc")}</p></div><button class="btn pri sm" data-new="${i}">${t("btn.newCareer")}</button></div>`
-         : r.from === "corrupt"
-           ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${t("slots.corrupt", { i })}</h3><p>${t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${t("slots.clear")}</button></div>`
-           : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2 span-all"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn team sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
-     )
-     .join("")}</div>
-   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn team sm ta-c">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
+   ${slotRowsHTML(rows)}
+   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line-ctl);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn sm ta-c">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
    ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${t("slots.tip")}</div><p class="small">${t("slots.tipInstall")}</p></div>`}`;
   rows.forEach(([i, r]) => {
     if (r && r.S) {
@@ -513,13 +553,10 @@ export function renderSlots() {
       (b.onclick = () => {
         const r = loadSlot(+b.dataset.go);
         if (!r || !r.S) return;
-        setS(r.S);
-        migrate();
-        if (r.from === "backup") {
+        if (late.openSafe(r.S) && r.from === "backup") {
           save();
           toast($t("save.20"));
         }
-        S.retired ? late.retireScreen() : renderMain();
       })
   );
   $$("[data-del]").forEach(

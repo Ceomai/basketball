@@ -171,7 +171,7 @@ test("emeklilik kariyeri koleksiyona ekler, ilk açılış gelir, yuvalar ekran�
   assert(/\(1\)/.test(await p.textContent("#legb")), "yuvalar ekranında sayı yok");
   await p.click("#legb");
   assert(await p.isVisible("[data-lp]"), "kart listesi yok");
-  await p.click("#leg-x");
+  await p.click("#shx");
   // ✕ ile kapatınca yuvalar ekranına döner (kariyer yokken ana ekran çizilmez)
   await p.click("#legb");
   await p.click("#shx");

@@ -30,8 +30,9 @@ import {
 } from "./data.js";
 import { leaguePool } from "./clubs.js";
 import { SKINS, drawKid, icon, portrait } from "./art.js";
-import { mapSVG } from "./map.js";
+import { fitMapLabels, mapSVG } from "./map.js";
 import { brandGen } from "./brand.js";
+import { inkOn } from "./theme.js";
 /* ================= DURUM ================= */
 export let S = null;
 export const fullName = () => `${S.first} ${S.last}`;
@@ -134,7 +135,7 @@ export function setTeamVars() {
   if (luma(a) < 70) a = t.c2;
   if (luma(a) < 70) a = "#ff6a2b";
   r.setProperty("--team", a);
-  r.setProperty("--team-ink", luma(a) > 150 ? "#0a0f18" : "#ffffff");
+  r.setProperty("--team-ink", inkOn(a)); // WCAG: koyu ve beyaz adaydan kontrastı yüksek olan
   r.setProperty("--team2", t.c2);
 }
 export const bestCar = () =>
@@ -272,10 +273,20 @@ export function phaseName() {
 }
 export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core.79") };
 
-/* ================= PANEL SİSTEMİ ================= */
+/* ================= PANEL SİSTEMİ =================
+   Kapatılabilir panel: ✕, arka plana dokunma, Esc, tutamaçtan/başlıktan aşağı sürükleme ve (web/PWA'da) tarayıcı
+   geri hareketi kapatır. Zorunlu panelde (noClose) bunların hiçbiri yok; geri hareketi "Bir seçim yap" der.
+   Açılınca odak panele gelir, Tab panel içinde döner; kapanınca odak paneli açan öğeye (hâlâ ekrandaysa) döner. */
+const SH = { opener: null, guard: false };
+const FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
 export function sheet(title, sub, body, o = {}) {
+  const wasOpen = !!$("#ovl .sheet");
+  if (!wasOpen) {
+    const ae = document.activeElement;
+    SH.opener = ae && ae !== document.body && !$("#ovl").contains(ae) ? ae : null;
+  }
   $("#ovl").innerHTML =
-    `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h">${o.icon || ""}<div class="minw-0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
+    `<div class="sheet-bg"><div class="sheet${o.noClose ? " locked" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}" tabindex="-1">${o.noClose ? "" : '<div class="grab" aria-hidden="true"></div>'}<div class="sheet-h">${o.icon || ""}<div class="minw-0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
   if (!o.noClose) {
     const cl = () => {
       closeSheet();
@@ -285,13 +296,120 @@ export function sheet(title, sub, body, o = {}) {
     $(".sheet-bg").onclick = e => {
       if (e.target.classList.contains("sheet-bg")) cl();
     };
+    sheetDrag($(".sheet"), cl);
+  }
+  sheetGuard();
+  const sh = $("#ovl .sheet");
+  try {
+    sh.focus({ preventScroll: true });
+  } catch (e) {
+    /* odak desteklenmiyor */
   }
   Bus.emit("sheet:open", $("#ovl"));
   return $("#shb");
 }
 export function closeSheet() {
+  const had = !!$("#ovl .sheet");
   $("#ovl").innerHTML = "";
   Bus.emit("sheet:close");
+  if (had && !$("#ovl .sheet")) {
+    const op = SH.opener;
+    SH.opener = null;
+    if (op && op.isConnected && typeof op.focus === "function")
+      try {
+        op.focus({ preventScroll: true });
+      } catch (e) {
+        /* yok */
+      }
+  }
+}
+/** Tutamaç ya da başlıktan aşağı sürükleyerek kapatma (yalnız kapatılabilir panel) */
+function sheetDrag(sh, close) {
+  if (!sh) return;
+  let y0 = null,
+    dy = 0,
+    t0 = 0;
+  const down = e => {
+    if (e.button > 0 || e.target.closest("button,a,input,textarea")) return;
+    y0 = e.clientY;
+    dy = 0;
+    t0 = Date.now();
+    sh.style.transition = "none";
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (_) {
+      /* yok */
+    }
+  };
+  const move = e => {
+    if (y0 == null) return;
+    dy = Math.max(0, e.clientY - y0);
+    sh.style.transform = dy ? `translateY(${dy}px)` : "";
+  };
+  const up = () => {
+    if (y0 == null) return;
+    y0 = null;
+    sh.style.transition = "";
+    const fast = dy > 30 && dy / Math.max(1, Date.now() - t0) > 0.6;
+    if (dy > 90 || fast) close();
+    else sh.style.transform = "";
+  };
+  for (const h of [sh.querySelector(".grab"), sh.querySelector(".sheet-h")]) {
+    if (!h) continue;
+    h.style.touchAction = "none";
+    h.addEventListener("pointerdown", down);
+    h.addEventListener("pointermove", move);
+    h.addEventListener("pointerup", up);
+    h.addEventListener("pointercancel", up);
+  }
+}
+/* Web/PWA geri hareketi: panel açılınca tek bir geçmiş kaydı eklenir; geri gelince uygulamadaki geri tuşu mantığı
+   (src/native.js nativeBack) çalışır. Uygulamada (Capacitor) geri tuşunu native.js dinler: çift işlem olmasın diye eklenmez. */
+function sheetGuard() {
+  if (SH.guard || late.isNative) return;
+  try {
+    history.pushState({ potaSheet: 1 }, "");
+    SH.guard = true;
+  } catch (e) {
+    /* geçmiş yok */
+  }
+}
+try {
+  window.addEventListener("popstate", () => {
+    if (!SH.guard || late.isNative) return;
+    SH.guard = false;
+    const r = late.nativeBack ? late.nativeBack() : "min";
+    if (r === "locked") sheetGuard(); // zorunlu panel açık kalır: geri hareketi tekrar yakalansın
+  });
+  document.addEventListener("keydown", e => {
+    const sh = $("#ovl .sheet");
+    if (!sh || $("#adov")) return;
+    if (e.key === "Escape") {
+      const x = $("#shx");
+      if (x) {
+        e.preventDefault();
+        x.click();
+      }
+    } else if (e.key === "Tab") {
+      const f = [...sh.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null || el === document.activeElement);
+      if (!f.length) return e.preventDefault();
+      const first = f[0],
+        last = f[f.length - 1],
+        a = document.activeElement;
+      if (!sh.contains(a)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && (a === first || a === sh)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && a === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+} catch (e) {
+  /* DOM yok */
 }
 export function fxHTML(list) {
   return `<div class="fx">${list.map(([t, c]) => `<span class="${c || ""}">${t}</span>`).join("")}</div>`;
@@ -341,22 +459,33 @@ export let F = {
 };
 export const HATC = ["#1d428a", "#c8102e", "#00875a", "#f0b323", "#5b2a86", "#ff4fa3", "#222222", "#e8e8e8"];
 export const HAIRC = ["#111111", "#2a1a10", "#7a4a22", "#e2c15a", "#c2502a"];
+const HAIR_STY = ["yok", "uzun", "afro", "orgu", "kel"];
+const swHTML = (list, cur, key) =>
+  list
+    .map(
+      (c, i) =>
+        `<button class="sw ${cur === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="${esc($t(key, { n: i + 1 }))}" aria-pressed="${cur === c}"></button>`
+    )
+    .join("");
 export function renderCreate() {
   S = null;
   setTeamVars();
   closeSheet();
+  const hairMode = HAIR_STY.includes(F.look.hatStyle);
+  // Üstte kimlik (ad, görünüm, pozisyon, numara); mod/zorluk/köken/senaryo "Gelişmiş seçenekler"de (seçimler korunur)
   app.innerHTML = `
   <div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("core.18")}</div><h1>${$t("core.19")}<br>${$t("core.20")}</h1></div><div class="tagx ta-r">İstanbul<small>${$t("core.21")}</small></div></div>
   <div class="row between"><div class="eyebrow">${$t("core.22", {
     slot: F.slot
   })}</div><button class="btn ghost sm" id="bkS">${$t("core.23")}</button></div>
   <div class="card">
-    <div class="grid2"><label class="small"><b>${$t("core.24")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}"></label><label class="small"><b>${$t("core.25")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}"></label></div>
+    <div class="grid2"><label class="small"><b>${$t("core.24")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}" aria-describedby="nerr"></label><label class="small"><b>${$t("core.25")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}" aria-describedby="nerr"></label></div>
+    <p class="small field-err" id="nerr" role="alert" hidden>${$t("core.34")}</p>
     <div class="grid2"><button class="btn ghost sm" id="npick">${$t("core.26")}</button><button class="btn ghost sm" id="nrnd">${$t("core.27")}</button></div>
     <div class="row nowrap" style="align-items:flex-start">
       <canvas id="pv" style="width:132px;height:160px;border-radius:var(--r-xl);flex-shrink:0"></canvas>
       <div style="display:flex;flex-direction:column;gap:var(--sp-2h);min-width:0">
-        <div><div class="eyebrow mb-1h">${$t("core.28")}</div><div class="opts" id="skin">${SKINS.map(c => `<button class="sw ${F.look.skin === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Ten rengi"></button>`).join("")}</div></div>
+        <div><div class="eyebrow mb-1h">${$t("core.28")}</div><div class="opts" id="skin">${swHTML(SKINS, F.look.skin, "s32.sw.skin")}</div></div>
         <div><div class="eyebrow mb-1h">${$t("core.29")}</div><div class="opts" id="hs">${[
           ["bere", $t("core.11")],
           ["kep", $t("core.12")],
@@ -368,23 +497,25 @@ export function renderCreate() {
           ["orgu", $t("sty.h.orgu")],
           ["kel", $t("sty.h.kel")]
         ]
-          .map(([v, t]) => `<button class="opt ${F.look.hatStyle === v ? "on" : ""}" data-v="${v}">${t}</button>`)
+          .map(([v, t]) => `<button class="opt ${F.look.hatStyle === v ? "on" : ""}" data-v="${v}" aria-pressed="${F.look.hatStyle === v}">${t}</button>`)
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow mb-1h">${["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
-    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow mb-1h">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
+    <div><div class="eyebrow mb-1h">${hairMode ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${swHTML(hairMode ? HAIRC : [...HATC, ...late.extraHatColors()], hairMode ? F.look.hair : F.look.hat, hairMode ? "s32.sw.hair" : "s32.sw.color")}</div></div>
+    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow mb-1h">${$t("core.16")}</div><div class="opts" id="hc2">${swHTML(HAIRC, F.look.hair, "s32.sw.hair")}</div></div>` : ""}
     <div><div class="eyebrow mb-1h">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
-      .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}"><span class="cc">${k}</span>${p.n}</button>`)
+      .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}" aria-pressed="${F.pos === k}"><span class="cc">${k}</span>${p.n}</button>`)
       .join("")}</div>
       <p class="small muted mt-1h">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
-    <div><div class="eyebrow mb-1h">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
+    <div><div class="eyebrow mb-1h">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}" aria-pressed="${F.num === n}">${n}</button>`).join("")}</div></div>
+  </div>
+  <details class="card adv" id="adv"${F.adv ? " open" : ""}><summary><span class="minw-0"><b>${$t("s32.adv")}</b><span class="small muted">${$t("s32.advD")}</span></span></summary><div class="stack">
     ${late.modePickerHTML(F.mode || "normal")}
     ${late.diffPickerHTML(F)}
     ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
     ${F.heir ? "" : late.scenarioPickerHTML(F.scenario || "")}
-  </div>
-  <button class="btn pri big" id="go">${$t("core.33")}</button>`;
+  </div></details>
+  <div class="cta-bar"><button class="btn pri big" id="go">${$t("core.33")}</button></div>`;
   // adlar ekrana basılır: işaretleme karakterleri alınmaz
   const keep = () => {
     F.first = $("#fn")
@@ -394,23 +525,41 @@ export function renderCreate() {
       .value.replace(/[<>"&]/g, "")
       .trim();
   };
-  const bind = (id, fn) => {
+  // Yerinde güncelleme: yalnız seçili düğme ve önizleme değişir (sayfa baştan yazılmaz, kaydırma/odak korunur)
+  const mark = (box, v) =>
+    box.querySelectorAll("button").forEach(x => {
+      const on = x.dataset.v === v;
+      x.classList.toggle("on", on);
+      x.setAttribute("aria-pressed", String(on));
+    });
+  const bind = (id, fn, inPlace) => {
     const el = $("#" + id);
     if (el)
       el.querySelectorAll("button").forEach(
         b =>
           (b.onclick = () => {
+            if (b.classList.contains("locked")) return toast(late.originLockText ? late.originLockText(b.dataset.v) : $t("s32.locked"));
             keep();
             fn(b.dataset.v);
-            renderCreate();
+            if (inPlace) {
+              mark(el, b.dataset.v);
+              drawPv();
+            } else renderCreate();
           })
       );
   };
   $("#bkS").onclick = late.renderSlots;
+  $("#adv").ontoggle = () => (F.adv = $("#adv").open);
   bind("mode", v => (F.mode = v));
   bind("dfx", v => late.diffSet(F, v)); // özel zorluk (src/bonds.js)
   bind("origin", v => (F.origin = v));
   bind("scn", v => (F.scenario = v || null)); // kariyer senaryosu (src/scenarios.js)
+  const clearErr = () => {
+    $("#nerr").hidden = true;
+    $("#fn").removeAttribute("aria-invalid");
+    $("#ln").removeAttribute("aria-invalid");
+  };
+  $("#fn").oninput = $("#ln").oninput = clearErr;
   $("#fn").onkeydown = e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -438,25 +587,39 @@ export function renderCreate() {
   cv.height = 160 * d;
   const c = cv.getContext("2d");
   c.scale(d, d);
-  const g = c.createLinearGradient(0, 0, 0, 160);
-  g.addColorStop(0, "#2a3a58");
-  g.addColorStop(1, "#141d2e");
-  c.fillStyle = g;
-  c.fillRect(0, 0, 132, 160);
-  drawKid(c, 66, 156, 1.0, F.look, { jersey: "#c8102e", trim: "#ffffff", number: F.num, mood: "mutlu" });
-  bind("skin", v => (F.look.skin = v));
+  const drawPv = () => {
+    const g = c.createLinearGradient(0, 0, 0, 160);
+    g.addColorStop(0, "#2a3a58");
+    g.addColorStop(1, "#141d2e");
+    c.fillStyle = g;
+    c.fillRect(0, 0, 132, 160);
+    drawKid(c, 66, 156, 1.0, F.look, { jersey: "#c8102e", trim: "#ffffff", number: F.num, mood: "mutlu" });
+  };
+  drawPv();
+  bind("skin", v => (F.look.skin = v), true);
   bind("hs", v => (F.look.hatStyle = v));
-  bind("hc", v => {
-    if (["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle)) F.look.hair = v;
-    else F.look.hat = v;
-  });
-  bind("hc2", v => (F.look.hair = v));
+  bind(
+    "hc",
+    v => {
+      if (HAIR_STY.includes(F.look.hatStyle)) F.look.hair = v;
+      else F.look.hat = v;
+    },
+    true
+  );
+  bind("hc2", v => (F.look.hair = v), true);
   bind("pos", v => (F.pos = v));
-  bind("num", v => (F.num = +v));
+  bind("num", v => (F.num = +v), true);
   $("#go").onclick = () => {
     keep();
     if (!F.first || !F.last) {
       toast($t("core.34"));
+      const bad = !F.first ? $("#fn") : $("#ln");
+      $("#nerr").hidden = false;
+      if (!F.first) $("#fn").setAttribute("aria-invalid", "true");
+      if (!F.last) $("#ln").setAttribute("aria-invalid", "true");
+      bad.scrollIntoView({ block: "center" });
+      if (late.tapGuard) late.tapGuard.delete($("#go")); // reddedilen basış çift dokunuş korumasına sayılmaz: düzeltip hemen basılabilir
+      bad.focus({ preventScroll: true });
       return;
     }
     startCareer();
@@ -618,8 +781,77 @@ export function startCareer() {
 }
 export function migrate() {
   late.normalizeState(S);
+  if (repairLeague() && !window.__SIM) setTimeout(() => toast($t("s32.rec.fixed")), 700);
   late.migrateStory();
   setTeamVars();
+}
+/** Kayıt tutarlılığı: kendi takım, lig tablosu, fikstür ve play-off rakibi takımlar tablosunda olmalı.
+    Eksik/bozuk kayıtta (yarım yazım, elle düzenlenmiş kod) lig ya da fikstür yeniden kurulur; kendi sıralama
+    satırı ve hafta korunur. Onarım yapıldıysa true. */
+export function repairLeague() {
+  if (!S || !S.team || !S.team.key) return false;
+  let fixed = false;
+  const T = (S.teams = S.teams && typeof S.teams === "object" ? S.teams : {});
+  const ok = k => typeof k === "string" && !!T[k] && typeof T[k] === "object";
+  if (!ok(S.team.key)) {
+    T[S.team.key] = S.team;
+    fixed = true;
+  }
+  const lg0 = Array.isArray(S.league) ? S.league : [];
+  let lg = lg0.filter((r, i) => r && ok(r.key) && lg0.findIndex(x => x && x.key === r.key) === i);
+  if (lg.length !== lg0.length) fixed = true;
+  let me = lg.find(r => r.key === S.team.key);
+  if (!me) {
+    lg.unshift((me = { key: S.team.key, w: 0, l: 0, pf: 0, pa: 0 }));
+    fixed = true;
+  }
+  for (const r of lg)
+    for (const f of ["w", "l", "pf", "pa"])
+      if (typeof r[f] !== "number" || !isFinite(r[f])) {
+        r[f] = 0;
+        fixed = true;
+      }
+  if (lg.length < 2) {
+    // rakipler kayıp: lig yeniden kurulur (kendi satırı korunur)
+    lg = [me, ...leagueTeams().map(t => ({ key: t.key, w: 0, l: 0, pf: 0, pa: 0 }))];
+    fixed = true;
+  }
+  S.league = lg;
+  const opps = lg.filter(r => r.key !== S.team.key).map(r => r.key);
+  const schedOk =
+    Array.isArray(S.sched) && S.sched.length > 0 && S.sched.every(f => f && ok(f.opp) && f.opp !== S.team.key);
+  if (!schedOk) {
+    const first = opps.map((k, i) => ({ opp: k, home: i % 2 === 0 })),
+      second = opps.map((k, i) => ({ opp: k, home: i % 2 !== 0 }));
+    S.sched = late.isQuick && late.isQuick() ? first : [...first, ...second];
+    fixed = true;
+  }
+  if (typeof S.week !== "number" || !isFinite(S.week) || S.week < 1) {
+    S.week = 1;
+    fixed = true;
+  }
+  if (!["regular", "semi", "final"].includes(S.phase)) {
+    S.phase = "regular";
+    fixed = true;
+  }
+  if (S.phase !== "regular") {
+    const others = standings()
+      .filter(r => r.key !== S.team.key)
+      .map(r => r.key);
+    if (!ok(S.playoffOpp) || S.playoffOpp === S.team.key) {
+      S.playoffOpp = others[0];
+      fixed = true;
+    }
+    const os = S._otherSemi;
+    if (
+      S.phase === "semi" &&
+      !(Array.isArray(os) && os.length === 2 && os.every(k => ok(k) && k !== S.playoffOpp && k !== S.team.key))
+    ) {
+      S._otherSemi = others.filter(k => k !== S.playoffOpp).slice(0, 2);
+      fixed = true;
+    }
+  }
+  return fixed;
 }
 
 /* ================= HİKAYE BÖLÜMLERİ ================= */
@@ -698,10 +930,18 @@ export function chapter(id, after) {
     after && after();
     return;
   }
+  // arka planda ana ekran olsun (oluşturma ekranı ya da boş sayfa görünmesin)
+  if (!$(".hud") && !$("#mview"))
+    try {
+      renderMain();
+    } catch (e) {
+      /* durum henüz hazır değil: panel yine açılır */
+    }
+  // başlık ve sezon panel başlığında: kartta tekrar edilmez
   sheet(
     T[0],
     seasonLabel(),
-    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.75">${T[0]} · ${seasonLabel()}</div><h2 style="font-size:var(--fs-num)">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
+    `<div class="chapter"><div class="hd"><h2 style="font-size:var(--fs-num)">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
     { noClose: true }
   );
   $("#chok").onclick = () => {
@@ -717,7 +957,7 @@ export function hudHTML() {
   const rs = late.rated().slice(-3);
   const form = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(1) : "–";
   return `<header class="hud">
-   <div class="hud-id"><div class="avatar" id="hav"></div><div class="minw-0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
+   <div class="hud-id"><button class="avatar" id="hav" aria-label="${esc($t("s32.portrait"))}"></button><div class="minw-0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
      "core.65",
      {
        age: S.age,
@@ -773,14 +1013,14 @@ export function renderMain() {
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
    <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.derbyWho(opp)) })}</div>` : ""}${late.serMainHTML()}
-   <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div>`
+   <div class="grid2"><button class="btn ghost" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div>`
   }${late.weekSummaryHTML()}${late.onboardHTML()}
   <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
   <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row gap-1h">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
+  fitMapLabels();
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   // portreye dokununca görünüm/stil (Ev → Stil)
   const hav = $("#hav");
-  hav.style.cursor = "pointer";
   hav.title = t("sty.title");
   hav.onclick = () => late.openLoc("ev", "stil");
   $$(".loc").forEach(g => {
@@ -827,11 +1067,62 @@ export function start(data) {
   }
   const r = resume ? late.loadSlot(+resume) : null;
   if (r && r.S) data = { S: r.S };
-  if (data && data.S) {
-    S = data.S;
-    migrate();
-    renderMain();
-  } else late.renderSlots();
+  if (data && data.S) openSafe(data.S);
+  else late.renderSlots();
+}
+/** Kariyeri aç (yuva, kayıt kodu, dil değişikliği sonrası devam). Açılış hata verirse: hata raporlanır, aynı yuvanın
+    yedeği denenir; o da açılmazsa yuva ekranı + açıklayıcı panel (boş ekran yok). Açıldıysa true. */
+export function openSafe(st, o = {}) {
+  const slot = st && st.saveSlot;
+  // açılış sırasında ilk kayıt yedeği ezebilir: yedek, denemeden ÖNCE okunur
+  let bak = null;
+  if (!o.noBak && slot && late.readKey)
+    try {
+      bak = late.readKey(late.slotKey(slot) + "-bak");
+    } catch (e) {
+      bak = null;
+    }
+  const tryOpen = x => {
+    try {
+      S = x;
+      migrate();
+      if (S.retired) late.retireScreen();
+      else renderMain();
+      return true;
+    } catch (e) {
+      console.error(e);
+      try {
+        late.reportError && late.reportError("open", (e && e.message) || String(e), e && e.stack);
+      } catch (_) {
+        /* raporlama yok */
+      }
+      return false;
+    }
+  };
+  if (tryOpen(st)) return true;
+  if (bak) {
+    bak.saveSlot = slot;
+    if (tryOpen(bak)) {
+      late.save();
+      toast($t("s32.rec.bak"));
+      return true;
+    }
+  }
+  S = null;
+  try {
+    closeSheet();
+  } catch (e) {
+    /* yok */
+  }
+  late.renderSlots();
+  sheet(
+    $t("s32.rec.title"),
+    $t("s32.rec.sub"),
+    `<div class="say bad">${$t("s32.rec.body")}</div><button class="btn pri" id="rec-ok">${$t("s32.rec.ok")}</button>`,
+    { noClose: true }
+  );
+  $("#rec-ok").onclick = () => late.renderSlots();
+  return false;
 }
 // Oyun modülleri dil yüklendikten sonra yüklenir; sayfa "load" olayı çoktan olmuş olabilir
 async function boot() {

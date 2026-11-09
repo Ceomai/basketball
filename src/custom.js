@@ -13,6 +13,7 @@ import { S, closeSheet, norm, sheet, tx } from "./core.js";
 import { SETTINGS, saveSettings } from "./systems.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
+import { THEME_TOKENS, hex6 } from "./theme.js";
 
 /* ---- Katalog ---- */
 const BASE_COLORS = ["#ffffff", "#141414", "#c8102e"];
@@ -339,7 +340,21 @@ export function applyTheme() {
   } catch (e) {
     /* DOM yok */
   }
+  syncBarColor();
   return th;
+}
+/** Tarayıcı/uygulama durum çubuğu rengi = üst şerit zemini (--bg2). 3 haneli hex Android'de hata verebildiği için
+    6 haneliye çevrilir. Tema ve yüksek kontrast değişince çağrılır. */
+export function syncBarColor() {
+  try {
+    const c = hex6(getComputedStyle(document.documentElement).getPropertyValue("--bg2")) || THEME_TOKENS["--bg2"];
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", c);
+    if (late.nativeBarColor) late.nativeBarColor(c);
+    return c;
+  } catch (e) {
+    return null;
+  }
 }
 setTimeout(applyTheme, 0); // başarımlar yüklendikten sonra
 

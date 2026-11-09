@@ -281,7 +281,7 @@ export function natMatch(cat, opp, label, after, auto = false) {
       );
       $("#nok").onclick = () => after(win, r);
     }
-  });
+  }).catch(late.matchFail);
 }
 export function camp(cat, title, after) {
   S.npc.natCoach = S.npc.natCoach || `${pick(LEAGUES.TR.first)} ${pick(LEAGUES.TR.last)}`;

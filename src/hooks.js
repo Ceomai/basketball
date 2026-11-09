@@ -144,10 +144,13 @@ Bus.on("screen:main", () => {
 });
 
 /* ---- "Bugün" paneli ---- */
+/** "Yeni" rozeti (nokta): ekran okuyucuya "yeni" diye okunur */
+export const newDot = () => `<span class="dot" aria-hidden="true"></span><span class="sr-only"> (${$t("s32.new")})</span>`;
 const anyNew = () => late.dailyOpen() || late.boxReady() || hookDue();
 export function todayButtonHTML() {
   if (!S || window.__SIM) return "";
-  return `<button class="btn ${anyNew() ? "team" : "ghost"}" id="today">${$t("today.btn")}${anyNew() ? " •" : ""}</button>`;
+  // yeni içerik: takım rengiyle değil, ghost düğme üzerinde rozetle (birincil yalnız "Maça hazırlan")
+  return `<button class="btn ghost has-dot" id="today">${$t("today.btn")}${anyNew() ? newDot() : ""}</button>`;
 }
 /** Görevler düğmesiyle aynı satırda (yer kaplamasın) */
 export function dayRowHTML(missionsBtn) {
@@ -162,11 +165,11 @@ export function todaySheet(back = late.renderMain) {
   sheet(
     $t("today.title"),
     $t("today.sub"),
-    `${late.dailyCardHTML()}${hk}<div class="card"><div class="row between"><div class="eyebrow">${$t("adp.box")}</div>${late.boxReady() ? `<span class="pill g">${$t("today.ready")}</span>` : ""}</div><button class="btn ${late.boxReady() ? "team" : "ghost"} sm" id="dbox">${late.boxReady() ? $t("adp.boxOpen") : $t("today.boxSee")}</button></div><button class="btn ghost" id="td-x">${$t("casino.13")}</button>`
+    `${late.dailyCardHTML()}${hk}<div class="card"><div class="row between"><div class="eyebrow">${$t("adp.box")}</div>${late.boxReady() ? `<span class="pill g">${$t("today.ready")}</span>` : ""}</div><button class="btn ghost sm has-dot" id="dbox">${late.boxReady() ? $t("adp.boxOpen") + newDot() : $t("today.boxSee")}</button></div>`,
+    { onClose: back } // kapatma yalnız ✕ (ayrı "Haritaya dön" düğmesi yok)
   );
   late.bindDailyCard(back);
   const g = $("#hk-go");
   if (g) g.onclick = () => hookSheet(back);
   $("#dbox").onclick = () => late.boxSheet(back);
-  $("#td-x").onclick = () => (closeSheet(), back && back());
 }

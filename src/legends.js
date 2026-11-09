@@ -13,8 +13,8 @@
    Görünümler: altın bere rengi (Şöhretler Müzesi'ne giren bir kart), 6/9/32 numaraları (3 kart), 99 numara (NBA görmüş bir kart). */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, ORDER, esc } from "./data.js";
-import { portrait } from "./art.js";
-import { S, closeSheet, fullName, news, norm, sheet } from "./core.js";
+import { icon, portrait } from "./art.js";
+import { S, fullName, news, norm, sheet } from "./core.js";
 import { late } from "./late.js";
 import { brandIsEuro, brandIsNba, brandText } from "./brand.js";
 
@@ -184,8 +184,14 @@ export function originPickerHTML(cur) {
   const c = originOpen(cur) ? cur : "istanbul";
   return `<div><div class="eyebrow mb-1h">${$t("org.title")}</div><div class="opts" id="origin">${ORIGINS.map(o => {
     const open = originOpen(o);
-    return `<button class="opt ${c === o ? "on" : ""}" data-v="${o}" ${open ? "" : "disabled"} style="${open ? "" : "opacity:.45"}">${open ? "" : "🔒 "}${$t(O_KEYS[o][0])}</button>`;
+    // kilitli seçenek dokunulabilir: nasıl açılacağını söyler (src/core.js renderCreate)
+    return `<button class="opt ${c === o ? "on" : ""}${open ? "" : " locked"}" data-v="${o}" aria-pressed="${c === o}"${open ? "" : ' aria-disabled="true"'}>${open ? "" : icon("lock")}${$t(O_KEYS[o][0])}</button>`;
   }).join("")}</div><p class="small muted mt-1h">${$t(O_KEYS[c][1])}</p></div>`;
+}
+/** Kilitli başlangıç hikâyesine dokununca: "Anadolu'dan gelen: 1 kariyer bitir" */
+export function originLockText(o) {
+  const u = UNLOCKS.find(x => x.id === "o:" + o);
+  return O_KEYS[o] ? `${$t(O_KEYS[o][0])}: ${u ? $t(u.req) : ""}` : "";
 }
 /** startCareer içinden (oğul kariyerinde uygulanmaz) */
 export function applyOrigin(o) {
@@ -243,12 +249,12 @@ export function legendsSheet(back) {
     );
   const ul = UNLOCKS.map(
     u =>
-      `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span>${U.has(u.id) ? "✓" : "🔒"} ${$t(U_NAME[u.id])}</span><span class="${U.has(u.id) ? "good" : "muted"}">${U.has(u.id) ? $t("leg.open") : $t(u.req)}</span></div>`
+      `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span class="row gap-1h nowrap">${U.has(u.id) ? "✓" : icon("lock")} ${$t(U_NAME[u.id])}</span><span class="${U.has(u.id) ? "good" : "muted"}">${U.has(u.id) ? $t("leg.open") : $t(u.req)}</span></div>`
   ).join("");
   sheet(
     $t("leg.title"),
     $t("leg.sub", { n: LEG.cards.length }),
-    `<div class="card"><div class="eyebrow">${$t("leg.unlocks")}</div>${ul}</div>${cards.length ? `<div class="choices">${cards.join("")}</div>` : `<p class="small muted">${$t("leg.empty")}</p>`}<button class="btn ghost" id="leg-x">${$t("casino.13")}</button>`,
+    `<div class="card"><div class="eyebrow">${$t("leg.unlocks")}</div>${ul}</div>${cards.length ? `<div class="choices">${cards.join("")}</div>` : `<p class="small muted">${$t("leg.empty")}</p>`}`,
     { onClose: () => (back ? back() : late.renderSlots()) } // yuvalar ekranından açılır: kapatınca kariyer olmadan ana ekran çizilmesin
   );
   const sorted = LEG.cards.slice().sort((a, b) => b.score - a.score);
@@ -260,7 +266,6 @@ export function legendsSheet(back) {
       /* eski kart görünüşü eksik olabilir */
     }
   });
-  $("#leg-x").onclick = () => (closeSheet(), back && back());
 }
 /** Emeklilik ekranı: koleksiyona eklendi + yeni açılanlar */
 export function legendRetireHTML() {

@@ -66,7 +66,11 @@ export function nativeBack() {
   if ($("#adov")) return "ad"; // reklam ekranı kendi butonuyla kapanır
   const x = $("#shx");
   if (x) return (x.click(), "close"); // kapatılabilir panel
-  if ($("#ovl").innerHTML.trim()) return "locked"; // zorunlu seçim paneli: geri tuşu yok sayılır
+  if ($("#ovl").innerHTML.trim()) {
+    // zorunlu seçim paneli: geri tuşu paneli kapatmaz, ama sessiz de kalmaz
+    late.toast($t("s32.locked"));
+    return "locked";
+  }
   // emekli kariyer: harita (oynanabilir hafta) yerine kariyer sonu ekranına dön; oradaysa uygulamayı küçült
   if (S && S.retired) return $("#nw") ? "min" : (late.retireScreen(), "retire");
   if (S && !$("#gostad") && !$("#mview")) return (late.renderMain(), "main"); // alt ekrandan haritaya dön
@@ -79,7 +83,12 @@ if (isNative) {
   // uygulama arka plana alınırken kaydet
   App.addListener("pause", () => S && late.save());
   StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-  StatusBar.setBackgroundColor({ color: THEME_TOKENS["--bg"] }).catch(() => {});
+  StatusBar.setBackgroundColor({ color: THEME_TOKENS["--bg2"] }).catch(() => {});
+}
+/** Durum çubuğu rengi temayla birlikte (src/custom.js applyTheme → syncBarColor); renk 6 haneli hex gelir */
+export function nativeBarColor(hex) {
+  if (!isNative || !hex) return;
+  StatusBar.setBackgroundColor({ color: hex }).catch(() => {});
 }
 
 /* ---- AdMob ----

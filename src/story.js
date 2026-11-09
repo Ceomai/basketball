@@ -348,14 +348,14 @@ export function quickWeek() {
     if (S.injury) simWithoutMe();
     else {
       const f = fixture();
-      playMatch({ opp: teamByKey(f.opp), home: f.home, comp: "lig", label: `${lgName()} · ${phaseName()}`, auto: true });
+      playMatch({ opp: teamByKey(f.opp), home: f.home, comp: "lig", label: `${lgName()} · ${phaseName()}`, auto: true }).catch(late.matchFail);
     }
   };
   const me = $("#qw-self");
   if (me)
     me.onclick = () => {
       closeSheet();
-      playMatch();
+      playMatch().catch(late.matchFail);
     };
 }
 

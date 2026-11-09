@@ -55,3 +55,36 @@ export function tokAlpha(name, a) {
   const n = parseInt(h, 16);
   return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
 }
+
+/** WCAG göreli parlaklık (#rgb / #rrggbb) */
+export function relLum(hex) {
+  let h = String(hex || "").replace("#", "");
+  if (h.length === 3) h = [...h].map(x => x + x).join("");
+  const n = parseInt(h, 16) || 0;
+  const ch = v => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * ch(n >> 16) + 0.7152 * ch((n >> 8) & 255) + 0.0722 * ch(n & 255);
+}
+/** WCAG kontrast oranı (1–21) */
+export function contrastRatio(a, b) {
+  const x = relLum(a),
+    y = relLum(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+/** Dolu zeminde okunur yazı rengi: koyu ve beyaz adaydan kontrastı yüksek olan */
+export function inkOn(bg, dark = "#0a0f18", light = "#ffffff") {
+  return contrastRatio(bg, dark) >= contrastRatio(bg, light) ? dark : light;
+}
+/** CSS renk değerini 6 haneli hex'e çevir (#abc, #aabbcc, rgb(...)); çevrilemezse null */
+export function hex6(v) {
+  const s = String(v || "").trim();
+  let m = /^#([0-9a-f]{3})$/i.exec(s);
+  if (m) return "#" + [...m[1]].map(x => x + x).join("").toLowerCase();
+  m = /^#([0-9a-f]{6})$/i.exec(s);
+  if (m) return "#" + m[1].toLowerCase();
+  m = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i.exec(s);
+  if (m) return "#" + [m[1], m[2], m[3]].map(x => (+x).toString(16).padStart(2, "0")).join("");
+  return null;
+}

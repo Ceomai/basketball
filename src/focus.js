@@ -46,7 +46,7 @@ export const focusSettingsHTML = () =>
    ${FOCUS_SYS.filter(k => !FOCUS_HARD_OFF.includes(k))
      .map(
        k =>
-         `<div class="act"><div><h3>${$t(`fo.s.${k}`)}</h3><p>${$t(`fo.s.${k}D`)}</p></div><button class="btn ${focusOff(k) ? "ghost" : "team"} sm" data-fo="${k}" aria-pressed="${!focusOff(k)}">${focusOff(k) ? $t("btn.off") : $t("btn.on")}</button></div>`
+         late.switchRow("fo", k, !focusOff(k), $t(`fo.s.${k}`), $t(`fo.s.${k}D`))
      )
      .join("")}`;
 export function bindFocusSettings(re) {

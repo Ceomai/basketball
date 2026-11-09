@@ -173,7 +173,7 @@ export function missionsButtonHTML() {
   if (!late.unlocked("gorev")) return "";
   const c = claimable(),
     o = openMissions();
-  return `<button class="btn ${c ? "team" : "ghost"}" id="msb">${$t("missions.27")} ${
+  return `<button class="btn ghost has-dot" id="msb">${$t("missions.27")} ${
     c
       ? $t("missions.25", {
           c: c
@@ -181,5 +181,5 @@ export function missionsButtonHTML() {
       : $t("missions.26", {
           o: o
         })
-  }</button>`;
+  }${c ? late.newDot() : ""}</button>`;
 }

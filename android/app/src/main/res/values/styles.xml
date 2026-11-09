@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -17,6 +17,9 @@
         <item name="android:windowBackground">@color/pota_bg</item>
         <item name="android:statusBarColor">@color/pota_bg</item>
         <item name="android:navigationBarColor">@color/pota_bg</item>
+        <!-- koyu tema sabit: sistem çubuğu simgeleri açık renk (API 27+; daha eskide yok sayılır) -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
     </style>
 
 

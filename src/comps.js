@@ -140,7 +140,7 @@ export function midweek(next) {
         apply(g, win, line);
         resultSheet(g, line, () => midweek(next));
       }
-    });
+    }).catch(late.matchFail);
   };
   const p = $("#mw-play");
   if (p) p.onclick = () => go(false);

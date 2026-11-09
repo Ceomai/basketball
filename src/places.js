@@ -466,11 +466,11 @@ export function locStad(I, tab = "mac") {
      ${late.adEnergyHTML()}${late.serPreHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
-      late.playMatch();
+      late.playMatch().catch(late.matchFail);
     };
     $("#qplay").onclick = () => {
       closeSheet();
-      late.playMatch({ opp, home: fx.home, comp: "lig", label: `${lgName()} · ${phaseName()}`, auto: true });
+      late.playMatch({ opp, home: fx.home, comp: "lig", label: `${lgName()} · ${phaseName()}`, auto: true }).catch(late.matchFail);
     };
     late.bindAdEnergy(() => locStad(I, "mac"));
     late.bindPrep(() => locStad(I, "mac"));

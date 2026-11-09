@@ -28,6 +28,15 @@ export const gauss = () => {
    Bus.on/emit: bildirim ("ekran açıldı", "sakatlık bitti").
    Bus.use/run: akışı durdurup sonra sürdürebilen ara katmanlar (ör. maç sonu basın toplantısı).
    Bus.offer/first: sırayla sorulan sağlayıcılar; ilk "true" dönen kazanır (ör. haftada tek bir hikâye paneli). */
+/** Olay yolu hatası: konsola yazılır ve hata raporlarına eklenir (src/errors.js) */
+function busError(e, err) {
+  console.error(e, err);
+  try {
+    if (typeof late.reportError === "function") late.reportError("bus", `${e}: ${(err && err.message) || err}`, err && err.stack);
+  } catch (_) {
+    /* raporlama da çalışmıyor */
+  }
+}
 export const Bus = {
   h: {},
   m: {},
@@ -41,7 +50,7 @@ export const Bus = {
       try {
         f(...a);
       } catch (err) {
-        console.error(e, err);
+        busError(e, err);
       }
     }
   },
@@ -51,10 +60,23 @@ export const Bus = {
   run(e, ctx, final) {
     const L = this.m[e] || [];
     let i = 0;
+    // her ara katman kendi try/catch'inde: biri hata verirse raporlanır ve akış sıradakiyle sürer
+    // (maç sonu akışı yarıda kalıp ekran 00:00'da donmasın). Aynı adımın next'i iki kez çağrılsa da tek sayılır.
     const next = () => {
       const f = L[i++];
-      if (f) f(ctx, next);
-      else final(ctx);
+      if (!f) return final(ctx);
+      let called = false;
+      const go = () => {
+        if (called) return;
+        called = true;
+        next();
+      };
+      try {
+        f(ctx, go);
+      } catch (err) {
+        busError(e, err);
+        go();
+      }
     };
     next();
   },
@@ -68,7 +90,7 @@ export const Bus = {
       try {
         if (f(...a)) return true;
       } catch (err) {
-        console.error(e, err);
+        busError(e, err);
       }
     }
     return false;
@@ -93,6 +115,11 @@ export const wait = ms => new Promise(r => setTimeout(r, ms));
 export const INK = "#141414";
 // son bildirimler (hafta özeti için; src/plan.js)
 export const TOAST_LOG = [];
+/** Bildirim süresi metin uzunluğuna göre: kısa metin 2,6 sn, uzun metin en az 4 sn (en fazla 7 sn) */
+export const toastMs = t => {
+  const n = String(t).length;
+  return n <= 50 ? 2600 : Math.min(7000, Math.max(4000, n * 55));
+};
 export function toast(t) {
   if (SIM()) return;
   TOAST_LOG.push(String(t));
@@ -102,10 +129,13 @@ export function toast(t) {
   $$(".toast").forEach(x => x.remove());
   const d = document.createElement("div");
   // panel/maç ekranı açıkken alttaki düğmelerin üstüne binmesin
-  d.className = document.querySelector(".sheet, #adov, #mview") ? "toast top" : "toast";
+  d.className = document.querySelector(".sheet, #adov, #mview, .cta-bar") ? "toast top" : "toast";
+  d.setAttribute("role", "status");
+  d.setAttribute("aria-live", "polite");
+  d.setAttribute("aria-atomic", "true");
   d.textContent = t;
   document.body.appendChild(d);
-  setTimeout(() => d.remove(), 2600);
+  setTimeout(() => d.remove(), toastMs(t));
 }
 // Türkçede ondalık virgül ve "B" (bin); İngilizcede nokta ve "K" ("B" orada milyar okunur)
 const dec = x => (LANG === "tr" ? x.replace(".", ",") : x);

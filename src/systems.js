@@ -88,6 +88,7 @@ export function applyA11y() {
   h.toggle("cb", !!SETTINGS.cb);
   h.toggle("fs-s", SETTINGS.fs === "s");
   h.toggle("hc", !!SETTINGS.hc);
+  if (late.syncBarColor) late.syncBarColor(); // yüksek kontrast üst şerit zeminini değiştirir
 }
 applyA11y();
 export const saveSettings = () => {
@@ -95,49 +96,60 @@ export const saveSettings = () => {
     localStorage.setItem("pota-settings", JSON.stringify(SETTINGS));
   } catch (e) {}
 };
+/** Aç/kapa ayarı: satır içi anahtar (role="switch"); etiket satırın başlığı */
+export const switchRow = (attr, k, on, label, desc) =>
+  `<div class="act swr"><div class="minw-0"><h3 id="swl-${attr}-${k}">${label}</h3><p>${desc}</p></div><button class="tgl" role="switch" aria-checked="${!!on}" aria-labelledby="swl-${attr}-${k}" data-${attr}="${k}"><span class="tgl-k" aria-hidden="true"></span></button></div>`;
 export function settingsSheet() {
-  const tog = (k, label, desc) =>
-    `<div class="act"><div><h3>${label}</h3><p>${desc}</p></div><button class="btn ${SETTINGS[k] ? "team" : "ghost"} sm" data-tg="${k}" aria-pressed="${!!SETTINGS[k]}">${SETTINGS[k] ? t("btn.on") : t("btn.off")}</button></div>`;
+  const tog = (k, label, desc) => switchRow("tg", k, SETTINGS[k], label, desc);
+  const togs = ks => ks.map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("");
+  const grp = k => `<div class="eyebrow set-g">${k}</div>`;
+  const y0 = $("#shb") && $("#shb").querySelector("[data-tg],[data-fs],[data-vol],[data-diff]") ? $("#shb").scrollTop : 0;
   sheet(
     t("settings.title"),
     t("settings.sub"),
-    `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts span-all">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
-   ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag", "notify", "errorReports"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
-   <div class="eyebrow mt-1">${t("settings.a11y")}</div>
+    `${grp(t("s32.g.sound"))}
+   ${togs(["sound", "music", "crowd", "haptic"])}
+   <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts span-all">${[
+     [0.35, t("settings.volLow")],
+     [0.7, t("settings.volMid")],
+     [1, t("settings.volHigh")]
+   ]
+     .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}" aria-pressed="${SETTINGS.vol === v}">${n}</button>`)
+     .join("")}</div></div>
+   ${grp(t("s32.g.look"))}
+   <div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts span-all">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}" aria-pressed="${LANG === k}">${n}</button>`).join("")}</div></div>
+   ${togs(["lowfx"])}
+   <div class="eyebrow set-g">${t("settings.a11y")}</div>
    <div class="act"><div><h3>${t("settings.fs")}</h3><p>${t("settings.fsDesc")}</p></div><div class="opts span-all">${[
      ["s", t("settings.fsS")],
      ["m", t("settings.fsM")],
      ["l", t("settings.fsL")],
      ["xl", t("settings.fsXL")]
    ]
-     .map(([v, n]) => `<button class="opt ${SETTINGS.fs === v ? "on" : ""}" data-fs="${v}">${n}</button>`)
+     .map(([v, n]) => `<button class="opt ${SETTINGS.fs === v ? "on" : ""}" data-fs="${v}" aria-pressed="${SETTINGS.fs === v}">${n}</button>`)
      .join("")}</div></div>
    ${tog("cb", t("settings.cb"), t("settings.cbDesc"))}
    ${tog("hc", t("settings.hc"), t("settings.hcDesc"))}
+   ${grp(t("s32.g.play"))}
    <div class="act"><div><h3>${t("settings.diff")}</h3><p>${t("settings.diffDesc")}</p></div><div class="opts span-all">${[
      ["kolay", t("settings.diffEasy")],
      ["normal", t("settings.diffNormal")],
      ["zor", t("settings.diffHard")]
    ]
-     .map(([v, n]) => `<button class="opt ${SETTINGS.diff === v ? "on" : ""}" data-diff="${v}">${n}</button>`)
+     .map(([v, n]) => `<button class="opt ${SETTINGS.diff === v ? "on" : ""}" data-diff="${v}" aria-pressed="${SETTINGS.diff === v}">${n}</button>`)
      .join("")}</div></div>
-   ${tog("autoPlan", t("settings.autoPlan"), t("settings.autoPlanDesc"))}
+   ${togs(["autoPlan", "notify", "backupNag"])}
    ${late.focusSettingsHTML()}
-   ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
-   <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts span-all">${[
-     [0.35, t("settings.volLow")],
-     [0.7, t("settings.volMid")],
-     [1, t("settings.volHigh")]
-   ]
-     .map(([v, n]) => `<button class="opt ${SETTINGS.vol === v ? "on" : ""}" data-vol="${v}">${n}</button>`)
-     .join("")}</div></div>
-   ${late.adsSettingsHTML()}
-   ${late.relSettingsHTML()}
-   ${late.cloudSettingsHTML()}
-   ${late.testSettingsHTML()}
+   ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn sm" id="st-inst">${t("btn.how")}</button></div>`}
    <div class="grid2"><button class="btn" id="st-exp">${t("settings.backup")}</button><button class="btn" id="st-help">${t("btn.guide")}</button></div>
-   <button class="btn ghost" id="st-tour">${t("settings.tour")}</button>`
+   <button class="btn ghost" id="st-tour">${t("settings.tour")}</button>
+   ${late.relSettingsHTML()}
+   ${togs(["errorReports"])}
+   ${late.adsSettingsHTML()}
+   ${late.cloudSettingsHTML()}
+   ${late.testSettingsHTML()}`
   );
+  if (y0) $("#shb").scrollTop = y0; // ayar değişince panel baştan çizilir: kaydırma yeri korunur
   $$("[data-tg]").forEach(
     b =>
       (b.onclick = () => {
@@ -520,8 +532,15 @@ export function simWithoutMe() {
   $("#nx").onclick = () => late.adsBetween(() => afterMatch(win));
 }
 export function updateLeague(win, opp, us, them) {
-  const mr = S.league.find(x => x.key === S.team.key),
-    ro = S.league.find(x => x.key === opp.key);
+  // bozuk/eksik kayıtta kendi takım ya da rakip lig tablosunda olmayabilir: satır eklenir, maç sonu akışı kesilmez
+  if (!Array.isArray(S.league)) S.league = [];
+  const row = k => {
+    let r = S.league.find(x => x.key === k);
+    if (!r) S.league.push((r = { key: k, w: 0, l: 0, pf: 0, pa: 0 }));
+    return r;
+  };
+  const mr = row(S.team.key),
+    ro = row(opp.key);
   mr.pf += us;
   mr.pa += them;
   ro.pf += them;

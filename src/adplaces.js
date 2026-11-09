@@ -9,7 +9,7 @@
    - box         Günlük menajer kutusu: günde bir ücretsiz, bir de reklamla (cihaz başına) */
 import { t as $t } from "./i18n/index.js";
 import { $, Bus, esc, fmt, isPro, pick, statName, STATS, toast } from "./data.js";
-import { S, closeSheet, norm, sheet, tx } from "./core.js";
+import { S, norm, sheet, tx } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
 import { ADS, adBtn, adsSave, rewardLeft, showRewarded } from "./ads.js";
@@ -211,7 +211,7 @@ function box() {
 export const boxReady = () => !!(S && RC.rewards.box && !window.__SIM && !box().free);
 export function boxButtonHTML() {
   if (!S || !RC.rewards.box || window.__SIM) return "";
-  return `<button class="btn ${boxReady() ? "team" : "ghost"} sm" id="dbox">${$t("adp.box")}${boxReady() ? " •" : ""}</button>`;
+  return `<button class="btn ghost sm has-dot" id="dbox">${$t("adp.box")}${boxReady() ? late.newDot() : ""}</button>`;
 }
 /** Kutu ödülü: küçük ve çeşitli; ilerlemeyi hızlandırmaktan çok güne bir sürpriz */
 function roll() {
@@ -248,9 +248,10 @@ export function boxSheet(after) {
         : !b.ad && canAd()
           ? adBtn("bx-ad", $t("adp.boxMore"), $t("ads.50"), "box")
           : `<p class="small">${$t("adp.boxDone")}</p>`
-    }<button class="btn ghost" id="bx-x">${$t("casino.13")}</button>`;
+    }`;
   const draw = msg => {
-    sheet($t("adp.box"), $t("adp.boxSub", { v: esc(S.npc.agent) }), body(msg));
+    // kapatma yalnız ✕ (ayrı "Haritaya dön" düğmesi yok)
+    sheet($t("adp.box"), $t("adp.boxSub", { v: esc(S.npc.agent) }), body(msg), { onClose: () => after && after() });
     const f = $("#bx-free");
     if (f)
       f.onclick = () => {
@@ -277,7 +278,6 @@ export function boxSheet(after) {
         Bus.emit("box", { ad: true });
         draw(m);
       };
-    $("#bx-x").onclick = () => (closeSheet(), after && after());
   };
   draw("");
 }
