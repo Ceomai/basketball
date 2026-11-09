@@ -2864,9 +2864,29 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
     const G = window.Game;
     G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
   });
-  await p.waitForSelector("[data-m='only']", { timeout: 6000 });
-  await p.click("[data-m='only']");
-  await p.waitForSelector("#mview .choices", { timeout: 60000 });
+  // karar anı rastgele: maç kararsız biterse yeni maç başlat (yavaş CI'da tek maça güvenme)
+  let gotChoice = false;
+  for (let k = 0; k < 4 && !gotChoice; k++) {
+    if (k > 0) {
+      await p.evaluate(() => {
+        const G = window.Game;
+        G.closeSheet();
+        G.renderMain();
+        G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+      });
+    }
+    await p.waitForSelector("[data-m='only']", { timeout: 8000 });
+    await p.click("[data-m='only']");
+    const g0 = await p.evaluate(() => window.Game.S.career.games);
+    const st = await p
+      .waitForFunction(g => (document.querySelector("#mview .choices") ? "c" : window.Game.S.career.games > g ? "end" : null), g0, {
+        timeout: 90000
+      })
+      .then(h => h.jsonValue())
+      .catch(() => "timeout");
+    gotChoice = st === "c";
+  }
+  assert(gotChoice, "karar anı gelmedi");
   const g = await p.evaluate(() => ({
     spd: document.querySelector("#spd [data-s]").getAttribute("aria-label"),
     grp: document.querySelector("#mview .choices").getAttribute("role"),
