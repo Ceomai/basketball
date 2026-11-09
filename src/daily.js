@@ -134,7 +134,7 @@ export async function playDaily(back = renderMain) {
   t.retry = false;
   persist();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("dly.title")} #${sc.no}</div><h2 id="dsc">${sc.us}–${sc.them}</h2><p class="small muted" id="dclk">${$t("dly.setup", { o: sc.opp, d: sc.them - sc.us })}</p></div><div id="dch"></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("dly.title")} #${sc.no}</div><h2 id="dsc">${sc.us}–${sc.them}</h2><p class="small muted" id="dclk">${$t("dly.setup", { o: sc.opp, d: sc.them - sc.us })}</p></div><div id="dch"></div><div id="stg"></div><div id="res"></div>`;
   const ch = $("#dch"),
     stg = $("#stg"),
     grid = [];
@@ -232,7 +232,7 @@ function showResult(back) {
     res = t.res,
     canRetry = res.r !== "w" && !t.ad && (ADS.adFree || rewardLeft() > 0);
   const el = $("#res") || app;
-  el.innerHTML = `<div class="card" style="margin-top:12px"><div class="eyebrow">${$t("dly.title")} #${scenario(t.day).no}</div><h2 class="${res.r === "w" ? "good" : res.r === "l" ? "bad" : ""}">${res.r === "w" ? $t("dly.won") : res.r === "t" ? $t("dly.ot") : $t("dly.lost")} · ${res.us}–${res.them}</h2><div style="font-size:1.6rem;letter-spacing:4px">${res.grid.map(x => (x ? "🟩" : "🟥")).join("")}</div><div class="kv"><span>${$t("dly.streakL")}</span><b>${DLY.streak}</b><span>${$t("dly.bestL")}</span><b>${DLY.best}</b><span>${$t("dly.winsL")}</span><b>${DLY.wins}/${DLY.played}</b></div>${res.r === "w" ? `<p class="small good">${$t("dly.reward")}</p>` : ""}<p class="small muted">${$t("dly.tomorrow")}</p>
+  el.innerHTML = `<div class="card mt-3"><div class="eyebrow">${$t("dly.title")} #${scenario(t.day).no}</div><h2 class="${res.r === "w" ? "good" : res.r === "l" ? "bad" : ""}">${res.r === "w" ? $t("dly.won") : res.r === "t" ? $t("dly.ot") : $t("dly.lost")} · ${res.us}–${res.them}</h2><div style="font-size:var(--fs-7xl);letter-spacing:4px">${res.grid.map(x => (x ? "🟩" : "🟥")).join("")}</div><div class="kv"><span>${$t("dly.streakL")}</span><b>${DLY.streak}</b><span>${$t("dly.bestL")}</span><b>${DLY.best}</b><span>${$t("dly.winsL")}</span><b>${DLY.wins}/${DLY.played}</b></div>${res.r === "w" ? `<p class="small good">${$t("dly.reward")}</p>` : ""}<p class="small muted">${$t("dly.tomorrow")}</p>
    <button class="btn pri" id="dl-share">${$t("dly.share")}</button>${canRetry ? adBtn("dl-retry", $t("dly.retry"), $t("dly.retrySub"), "daily_retry") : ""}<button class="btn ghost" id="dl-back">${$t("casino.13")}</button></div>`;
   $("#dl-share").onclick = share;
   $("#dl-back").onclick = back;
@@ -266,7 +266,7 @@ export function bindDailyCard(back) {
   if (s)
     s.onclick = () => {
       late.closeSheet();
-      app.innerHTML = `<div style="padding-top:12px"></div><div id="res"></div>`;
+      app.innerHTML = `<div class="pt-3"></div><div id="res"></div>`;
       showResult(back);
     };
   const sh = $("#dl-share2");

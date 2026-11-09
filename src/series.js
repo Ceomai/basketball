@@ -169,7 +169,7 @@ function dots(s) {
     const g = s.g[i],
       h = homeAt(s, i);
     const bg = g ? (g.win ? "var(--good)" : "var(--bad)") : "transparent";
-    return `<span title="${h ? $t("main.home") : $t("main.away")}" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid ${g ? bg : "var(--line2)"};background:${bg};font-size:.7rem;font-weight:800;color:${g ? "#fff" : "var(--muted)"}">${h ? $t("ser.h") : $t("ser.a")}</span>`;
+    return `<span title="${h ? $t("main.home") : $t("main.away")}" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:var(--r-round);border:1.5px solid ${g ? bg : "var(--line2)"};background:${bg};font-size:var(--fs-2xs);font-weight:800;color:${g ? "#fff" : "var(--muted)"}">${h ? $t("ser.h") : $t("ser.a")}</span>`;
   }).join("");
 }
 /** Maç öncesi (Stadyum → Maç) seri kartı */
@@ -190,7 +190,7 @@ export function serPreHTML() {
   const must = s.need > 1 && (s.l === s.need - 1 || s.w === s.need - 1);
   return `<div class="card fm" id="ser-card"><div class="row between"><div class="eyebrow">${roundName(s)} · ${bestOf(s)}</div><span class="pill ${home ? "g" : "l"}">${home ? $t("main.home") : $t("main.away")}</span></div>
    <div class="row between nowrap"><b>${esc(S.team.short)}</b><span class="big-num" id="ser-score">${s.w}–${s.l}</span><b>${esc((opp && opp.short) || "?")}</b></div>
-   <div class="row" style="gap:6px;justify-content:center">${dots(s)}</div>
+   <div class="row" style="gap:var(--sp-1h);justify-content:center">${dots(s)}</div>
    <div class="small">${state}${s.need > 1 ? ` · ${$t("ser.game", { n })}` : ""}${must ? ` · <b class="warn">${s.l === s.need - 1 && s.w === s.need - 1 ? $t("ser.decider") : s.l === s.need - 1 ? $t("ser.must") : $t("ser.close")}</b>` : ""}</div>
    ${s.mom ? `<div class="small ${s.mom > 0 ? "good" : "bad"}">${s.mom > 0 ? $t("ser.momUs") : $t("ser.momThem")}</div>` : ""}
    ${s.adapt ? `<div class="small warn">${$t("ser.adapt", { k: $t(`ser.cat.${s.adapt}`) })}</div>` : ""}
@@ -206,7 +206,7 @@ export function serMainHTML() {
 export function serListHTML() {
   const s = cur();
   if (!s || !s.g.length || s.need === 1) return "";
-  return `<div class="card" style="padding:8px 10px"><div class="eyebrow">${roundName(s)} · ${s.w}–${s.l}</div>${s.g
+  return `<div class="card" style="padding:var(--sp-2) var(--sp-2h)"><div class="eyebrow">${roundName(s)} · ${s.w}–${s.l}</div>${s.g
     .map(
       (g, i) =>
         `<div class="row between small"><span>${$t("ser.game", { n: i + 1 })} · ${g.home ? $t("main.home") : $t("main.away")}</span><b class="${g.win ? "good" : "bad"}">${g.us}–${g.them}</b></div>`

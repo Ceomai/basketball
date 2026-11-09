@@ -301,11 +301,10 @@ export function bindDecor(re) {
 const THEME_CSS = `
 html[data-theme=night]{--bg:#04050a;--bg2:#090b14;--card:#0e1120;--card2:#141a2e;--line:#1d2340;--line2:#2a3258;--gold:#a493ff;--hot:#7c5cff;--info:#6ea8ff}
 html[data-theme=retro]{--bg:#140a24;--bg2:#1c0f33;--card:#241445;--card2:#2e1a58;--line:#3d2470;--line2:#5a34a0;--gold:#ffd23f;--hot:#ff3fa4;--good:#3fffb0;--info:#3fd0ff;--team:#ff3fa4;--team-ink:#140a24}
-html[data-theme=minimal]{--bg:#101010;--bg2:#131313;--card:#161616;--card2:#1c1c1c;--line:#242424;--line2:#303030;--gold:#e8e8e8;--hot:#fafafa;--info:#c4c4c4;--muted:#9a9a9a;--team:#e8e8e8;--team-ink:#111}
-html[data-theme=minimal] .btn.pri{background:#e8e8e8;border-color:#e8e8e8;color:#111}
+html[data-theme=minimal]{--bg:#101010;--bg2:#131313;--card:#161616;--card2:#1c1c1c;--line:#242424;--line2:#303030;--gold:#e8e8e8;--hot:#fafafa;--info:#c4c4c4;--muted:#9a9a9a;--team:#e8e8e8;--team-ink:#111;--pri:#e8e8e8;--on-hot:#111}
 html[data-theme=minimal] .card{box-shadow:none}
-.celeb{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;animation:cbIn 1.5s ease forwards;z-index:3}
-.celeb b{font-family:var(--display);font-size:.9rem;letter-spacing:.8px;text-transform:uppercase;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 7px}
+.celeb{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:var(--sp-half);pointer-events:none;animation:cbIn 1.5s ease forwards;z-index:3}
+.celeb b{font-family:var(--display);font-size:var(--fs-base);letter-spacing:.8px;text-transform:uppercase;background:rgba(0,0,0,.55);color:#fff;border-radius:var(--r-sm);padding:1px var(--sp-2)}
 .celeb svg{animation:cbMove .5s ease-in-out 3 alternate}
 .cb-shimmy svg,.cb-dance svg{animation-name:cbShake}.cb-plane svg{animation-name:cbTilt}.cb-crown svg,.cb-buzz svg,.cb-and1 svg{animation-name:cbJump}
 @keyframes cbIn{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%)}}
@@ -315,12 +314,12 @@ html[data-theme=minimal] .card{box-shadow:none}
 @keyframes cbJump{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.1)}}
 #mstat:empty{display:none}
 .pulse{animation:pulse 1s ease-in-out infinite alternate;border-color:var(--bad)!important}
-@keyframes pulse{from{box-shadow:0 0 0 0 rgba(255,84,104,.6)}to{box-shadow:0 0 0 5px rgba(255,84,104,0)}}
-.cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.cbb{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:8px 4px;color:var(--text);cursor:pointer;min-width:0}
-.cbb b{font-family:var(--display);font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;text-align:center}
-.cbb.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)} .cbb:disabled{opacity:.45;cursor:default} .cbb span{text-align:center;font-size:.7rem}
-.ft.on{border-color:var(--gold)} .fti{font-size:1.4rem;color:var(--gold);width:26px;text-align:center}
+@keyframes pulse{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 60%,transparent)}to{box-shadow:0 0 0 5px transparent}}
+.cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2)}
+.cbb{display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--card2);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2) var(--sp-1);color:var(--text);cursor:pointer;min-width:0}
+.cbb b{font-family:var(--display);font-size:var(--fs-md);letter-spacing:.5px;text-transform:uppercase;text-align:center}
+.cbb.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)} .cbb:disabled{opacity:.45;cursor:default} .cbb span{text-align:center;font-size:var(--fs-2xs)}
+.ft.on{border-color:var(--gold)} .fti{font-size:var(--fs-6xl);color:var(--gold);width:26px;text-align:center}
 .ft:not(.on) .fti{color:var(--dim)} .ft:not(.on) h3{color:var(--muted)}
 `;
 (() => {

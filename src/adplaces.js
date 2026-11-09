@@ -164,7 +164,7 @@ export function bindSeasonAd() {
     }
     norm();
     save();
-    b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${msg}</div>`;
+    b.outerHTML = `<div class="say good">${msg}</div>`;
   };
 }
 
@@ -194,7 +194,7 @@ export function bindTrainAd(k, gain) {
     late.gainStat(k, gain);
     norm();
     save();
-    b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("adp.trainOk", { v: gain, k: statName(k) })}</div>`;
+    b.outerHTML = `<div class="say good">${$t("adp.trainOk", { v: gain, k: statName(k) })}</div>`;
   };
 }
 
@@ -242,7 +242,7 @@ function roll() {
 export function boxSheet(after) {
   const b = box();
   const body = msg =>
-    `${msg ? `<div class="say" style="border-left-color:var(--gold)">${msg}</div>` : ""}<p class="small muted">${$t("adp.boxInfo")}</p>${
+    `${msg ? `<div class="say gold">${msg}</div>` : ""}<p class="small muted">${$t("adp.boxInfo")}</p>${
       !b.free
         ? `<button class="btn pri" id="bx-free">${$t("adp.boxOpen")}</button>`
         : !b.ad && canAd()

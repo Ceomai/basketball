@@ -101,10 +101,10 @@ export function settingsSheet() {
   sheet(
     t("settings.title"),
     t("settings.sub"),
-    `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts" style="grid-column:1/-1">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
+    `<div class="act"><div><h3>${t("settings.lang")}</h3><p>${t("settings.langDesc")}</p></div><div class="opts span-all">${LANGS.map(([k, n]) => `<button class="opt ${LANG === k ? "on" : ""}" data-lang="${k}">${n}</button>`).join("")}</div></div>
    ${["sound", "music", "crowd", "haptic", "lowfx", "backupNag", "notify", "errorReports"].map(k => tog(k, t("settings." + k), t("settings." + k + "Desc"))).join("")}
-   <div class="eyebrow" style="margin-top:4px">${t("settings.a11y")}</div>
-   <div class="act"><div><h3>${t("settings.fs")}</h3><p>${t("settings.fsDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+   <div class="eyebrow mt-1">${t("settings.a11y")}</div>
+   <div class="act"><div><h3>${t("settings.fs")}</h3><p>${t("settings.fsDesc")}</p></div><div class="opts span-all">${[
      ["s", t("settings.fsS")],
      ["m", t("settings.fsM")],
      ["l", t("settings.fsL")],
@@ -114,7 +114,7 @@ export function settingsSheet() {
      .join("")}</div></div>
    ${tog("cb", t("settings.cb"), t("settings.cbDesc"))}
    ${tog("hc", t("settings.hc"), t("settings.hcDesc"))}
-   <div class="act"><div><h3>${t("settings.diff")}</h3><p>${t("settings.diffDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+   <div class="act"><div><h3>${t("settings.diff")}</h3><p>${t("settings.diffDesc")}</p></div><div class="opts span-all">${[
      ["kolay", t("settings.diffEasy")],
      ["normal", t("settings.diffNormal")],
      ["zor", t("settings.diffHard")]
@@ -124,7 +124,7 @@ export function settingsSheet() {
    ${tog("autoPlan", t("settings.autoPlan"), t("settings.autoPlanDesc"))}
    ${late.focusSettingsHTML()}
    ${isInstalled() ? "" : `<div class="act"><div><h3>${t("settings.install")}</h3><p>${t("settings.installDesc")}</p></div><button class="btn team sm" id="st-inst">${t("btn.how")}</button></div>`}
-   <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts" style="grid-column:1/-1">${[
+   <div class="act"><div><h3>${t("settings.volume")}</h3><p>${t("settings.volumeDesc")}</p></div><div class="opts span-all">${[
      [0.35, t("settings.volLow")],
      [0.7, t("settings.volMid")],
      [1, t("settings.volHigh")]
@@ -365,7 +365,7 @@ export function allStar(done) {
   sheet(
     $t("systems.20"),
     lgName(),
-    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.8">${$t("systems.21")}</div><h2 style="font-size:1.8rem">${esc(fullName())}</h2></div><div class="bd"><p>${$t("systems.22")}</p><div class="grid2"><button class="btn ghost" id="as-no">${$t("systems.23")}</button><button class="btn pri" id="as-go">${$t("systems.24")}</button></div></div></div>`,
+    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.8">${$t("systems.21")}</div><h2 style="font-size:var(--fs-8xl)">${esc(fullName())}</h2></div><div class="bd"><p>${$t("systems.22")}</p><div class="grid2"><button class="btn ghost" id="as-no">${$t("systems.23")}</button><button class="btn pri" id="as-go">${$t("systems.24")}</button></div></div></div>`,
     { noClose: true }
   );
   $("#as-no").onclick = () => {
@@ -376,7 +376,7 @@ export function allStar(done) {
   $("#as-go").onclick = async () => {
     closeSheet();
     arenaFor(null);
-    app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("systems.25")}</div><h2>${$t("systems.26")}</h2></div><div id="stg"></div><div id="res"></div>`;
+    app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("systems.25")}</div><h2>${$t("systems.26")}</h2></div><div id="stg"></div><div id="res"></div>`;
     const r = await mgShoot($("#stg"), {
       eff: clamp(eff("sut") + 15, 5, 100),
       shots: 7,
@@ -507,7 +507,7 @@ export function simWithoutMe() {
     $t("systems.41", {
       v: phaseName()
     }),
-    `<div class="row nowrap" style="gap:8px">${crestSVG(S.team, 36)}<span class="big-num">${us}–${them}</span>${crestSVG(opp, 36)}</div><div class="say">${win ? $t("systems.42") : $t("systems.43")}</div><p class="small muted">${$t(
+    `<div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${us}–${them}</span>${crestSVG(opp, 36)}</div><div class="say">${win ? $t("systems.42") : $t("systems.43")}</div><p class="small muted">${$t(
       "systems.44",
       {
         n: esc(S.injury.n),
@@ -840,7 +840,7 @@ export function startTour(step = 0) {
       pad = 6;
     const ring = document.createElement("div");
     ring.className = "tour";
-    ring.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border-radius:14px;box-shadow:0 0 0 2px var(--gold),0 0 0 9999px rgba(3,6,12,.72);z-index:45;pointer-events:none`;
+    ring.style.cssText = `position:fixed;left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border-radius:var(--r-2xl);box-shadow:0 0 0 2px var(--gold),0 0 0 9999px rgba(3,6,12,.72);z-index:45;pointer-events:none`;
     const card = document.createElement("div");
     card.className = "tour card";
     const below = r.bottom < innerHeight * 0.55;
@@ -901,7 +901,7 @@ export function installSheet() {
   sheet(
     $t("ads.15"),
     $t("systems.116"),
-    `${installEvt ? `<p>${$t("systems.117")}</p><button class="btn pri" id="in-go">${$t("systems.118")}</button>` : ios ? `<div class="card"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>${$t("systems.119")} <b>${$t("systems.120")}</b> ${$t("systems.121")}</li><li>${$t("systems.122")} <b>${$t("systems.123")}</b>${$t("systems.124")}</li><li>${$t("systems.125")} <b>${$t("systems.126")}</b>${$t("systems.127")}</li></ol></div>` : `<div class="card"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>${$t("systems.128")}</li><li><b>${$t("ads.15")}</b> ${$t("systems.129")} <b>${$t("systems.130")}</b>${$t("systems.124")}</li></ol></div>`}
+    `${installEvt ? `<p>${$t("systems.117")}</p><button class="btn pri" id="in-go">${$t("systems.118")}</button>` : ios ? `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("systems.119")} <b>${$t("systems.120")}</b> ${$t("systems.121")}</li><li>${$t("systems.122")} <b>${$t("systems.123")}</b>${$t("systems.124")}</li><li>${$t("systems.125")} <b>${$t("systems.126")}</b>${$t("systems.127")}</li></ol></div>` : `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("systems.128")}</li><li><b>${$t("ads.15")}</b> ${$t("systems.129")} <b>${$t("systems.130")}</b>${$t("systems.124")}</li></ol></div>`}
    <p class="small muted">${$t("systems.131")}</p>`
   );
   const g = $("#in-go");

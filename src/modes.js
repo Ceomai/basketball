@@ -35,5 +35,5 @@ const KEYS = {
 export const modeName = m => $t(KEYS[m || mode()][0]);
 /** Oluşturma ekranı seçicisi (F.mode) */
 export function modePickerHTML(cur) {
-  return `<div><div class="eyebrow" style="margin-bottom:6px">${$t("mode.title")}</div><div class="opts" id="mode">${MODES.map(m => `<button class="opt ${cur === m ? "on" : ""}" data-v="${m}">${$t(KEYS[m][0])}</button>`).join("")}</div><p class="small muted" style="margin-top:6px">${$t(KEYS[cur][1])}</p></div>`;
+  return `<div><div class="eyebrow mb-1h">${$t("mode.title")}</div><div class="opts" id="mode">${MODES.map(m => `<button class="opt ${cur === m ? "on" : ""}" data-v="${m}">${$t(KEYS[m][0])}</button>`).join("")}</div><p class="small muted mt-1h">${$t(KEYS[cur][1])}</p></div>`;
 }

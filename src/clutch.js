@@ -25,7 +25,7 @@ export function timeoutInit() {
 }
 export const timeoutBtnHTML = () =>
   M && M.toLeft != null
-    ? `<button class="opt ${M.oppRun >= 3 && M.toLeft > 0 ? "on pulse" : ""}" id="to-btn" style="padding:4px 9px" ${M.toLeft > 0 && !M.toReq ? "" : "disabled"}>${$t("cl.to", { n: M.toLeft })}</button>`
+    ? `<button class="opt ${M.oppRun >= 3 && M.toLeft > 0 ? "on pulse" : ""}" id="to-btn" style="padding:var(--sp-1) var(--sp-2)" ${M.toLeft > 0 && !M.toReq ? "" : "disabled"}>${$t("cl.to", { n: M.toLeft })}</button>`
     : "";
 export function bindTimeout(re) {
   const b = $("#to-btn");

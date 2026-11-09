@@ -192,7 +192,7 @@ document.addEventListener("visibilitychange", () => {
 /* ---- Ayarlar bölümü ---- */
 export function cloudSettingsHTML() {
   if (!cloudReady()) return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${$t("cloud.15")}</p></div></div>`;
-  return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2" style="grid-column:1/-1">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button><button class="btn ghost sm" id="cl-del" style="grid-column:1/-1">${$t("cloud.del")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
+  return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2 span-all">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button><button class="btn ghost sm span-all" id="cl-del">${$t("cloud.del")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
 }
 export function bindCloudSettings(re) {
   const b = (id, f) => {
@@ -218,7 +218,7 @@ export function bindCloudSettings(re) {
       sheet(
         $t("cloud.del"),
         $t("cloud.delSub"),
-        `<div class="say" style="border-left-color:var(--bad)">${$t("cloud.delWarn")}</div><div class="grid2"><button class="btn ghost" id="cd-no">${$t("rel.cancel")}</button><button class="btn pri" id="cd-yes">${$t("cloud.del")}</button></div>`
+        `<div class="say bad">${$t("cloud.delWarn")}</div><div class="grid2"><button class="btn ghost" id="cd-no">${$t("rel.cancel")}</button><button class="btn pri" id="cd-yes">${$t("cloud.del")}</button></div>`
       );
       $("#cd-no").onclick = () => (closeSheet(), re());
       $("#cd-yes").onclick = async () => {

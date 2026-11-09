@@ -78,7 +78,7 @@ export function crowdTick(usScored) {
 export function crowdLine() {
   if (!M || !M.live) return "";
   if (M.home)
-    return `<div class="row nowrap" style="gap:6px;align-items:center"><span class="small muted">${$t("md.crowd")}</span><div class="bar" style="flex:1"><i style="width:${M.hypeOn > 0 ? 100 : M.hype || 0}%;background:${M.hypeOn > 0 ? "var(--gold)" : "var(--hot)"}"></i></div>${M.hypeOn > 0 ? `<b class="small gold">+4</b>` : ""}</div>`;
+    return `<div class="row nowrap gap-1h ai-c"><span class="small muted">${$t("md.crowd")}</span><div class="bar f1"><i style="width:${M.hypeOn > 0 ? 100 : M.hype || 0}%;background:${M.hypeOn > 0 ? "var(--gold)" : "var(--hot)"}"></i></div>${M.hypeOn > 0 ? `<b class="small gold">+4</b>` : ""}</div>`;
   return M.loud ? `<div class="small warn">${$t("md.loud")}</div>` : "";
 }
 
@@ -112,8 +112,8 @@ export function preMatchHTML() {
     st = M.star;
   const bar = (v, c) => `<div class="bar"><i style="width:${v}%;background:${c}"></i></div>`;
   return `<div class="card fm"><div class="eyebrow">${$t("md.pre")}</div>
-   <div class="grid2" style="gap:10px"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:1.6rem">${(+me).toFixed(1)}</b></div>
-   <div style="text-align:right"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:1.6rem">${(+st.o).toFixed(1)}</b></div></div>
+   <div class="grid2 gap-2h"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:var(--fs-7xl)">${(+me).toFixed(1)}</b></div>
+   <div class="ta-r"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:var(--fs-7xl)">${(+st.o).toFixed(1)}</b></div></div>
    <div class="kv"><span>${$t("md.ref")}</span><b>${$t(`md.ref.${M.ref}`)}</b><span class="small muted" style="grid-column:1/-1;margin-top:-4px">${$t(`md.ref.${M.ref}.d`)}</span>
    <span>${$t("md.atm")}</span><b class="${M.home ? "good" : M.loud ? "warn" : ""}">${M.home ? $t("md.atmHome") : M.loud ? $t("md.atmLoud") : $t("md.atmAway")}</b>
    ${S.chem && S.chem.n ? `<span>${$t("md.chem", { n: esc(S.chem.n) })}</span><b>${Math.round(S.chem.v)}/100</b>` : ""}</div></div>`;
@@ -123,7 +123,7 @@ export function duelHTML() {
   if (!M || !M.star) return "";
   const won = M.pts > M.star.pts,
     tie = M.pts === M.star.pts;
-  return `<div class="card fm"><div class="eyebrow">${$t("md.duel")}</div><div class="row between nowrap"><div><b>${esc(S.last)}</b> <span class="big-num" style="font-size:1.5rem">${M.pts}</span></div><b class="${won ? "good" : tie ? "" : "bad"}">${won ? $t("md.won") : tie ? $t("md.tie") : $t("md.lost")}</b><div style="text-align:right"><span class="big-num" style="font-size:1.5rem">${M.star.pts}</span> <b>${esc(M.star.n)}</b></div></div>
+  return `<div class="card fm"><div class="eyebrow">${$t("md.duel")}</div><div class="row between nowrap"><div><b>${esc(S.last)}</b> <span class="big-num" style="font-size:var(--fs-h2)">${M.pts}</span></div><b class="${won ? "good" : tie ? "" : "bad"}">${won ? $t("md.won") : tie ? $t("md.tie") : $t("md.lost")}</b><div class="ta-r"><span class="big-num" style="font-size:var(--fs-h2)">${M.star.pts}</span> <b>${esc(M.star.n)}</b></div></div>
    ${S.chem && S.chem.n ? `<div class="small muted">${$t("md.chemEnd", { n: esc(S.chem.n), v: Math.round(S.chem.v), c: M.combo || 0 })}</div>` : ""}</div>`;
 }
 /** Maç sonu ödülleri (finishMatch içinden, bir kez) */
@@ -175,7 +175,7 @@ export function setPlay(el) {
       const sp = [me[0] + 14, me[1] + (me[1] < 98 ? 14 : -14)];
       late.courtMove(`o-${scr}`, sp[0], sp[1]); // perdeci yanına gelir
       const o = late.courtSlot(scr);
-      h += `<line x1="${o[0]}" y1="${o[1]}" x2="${sp[0]}" y2="${sp[1]}" stroke="#ffc54d" stroke-width="2.5" stroke-dasharray="5 3"/><rect x="${sp[0] - 7}" y="${sp[1] - 13}" width="14" height="4" fill="#ffc54d" stroke="#141414"/>`;
+      h += `<line x1="${o[0]}" y1="${o[1]}" x2="${sp[0]}" y2="${sp[1]}" style="stroke:var(--warn)" stroke-width="2.5" stroke-dasharray="5 3"/><rect x="${sp[0] - 7}" y="${sp[1] - 13}" width="14" height="4" style="fill:var(--warn)" stroke="#141414"/>`;
     }
     if (rt) {
       const [x, y] = late.courtZone(ROUTES[rt][1]);

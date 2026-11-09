@@ -41,7 +41,7 @@ const result = (title, txt, fx) => {
 async function stage(title, run) {
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${title}</div></div><div id="stg"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${title}</div></div><div id="stg"></div>`;
   const r = await run($("#stg"));
   $("#stg").innerHTML = "";
   return r;
@@ -264,7 +264,7 @@ export function h2hHTML() {
   const h = S && S.h2h;
   if (!h || !h.g || !S.rival) return "";
   return `<div class="card fm"><div class="eyebrow">${$t("sl.h2h", { v: esc(late.rivalName ? late.rivalName() : "") })}</div><div class="kv"><span>${$t("sl.h2hRec")}</span><b>${h.w}-${h.g - h.w}</b><span>${$t("sl.h2hPts")}</span><b>${(h.me / h.g).toFixed(1)} · ${(h.rv / h.g).toFixed(1)}</b></div>
-   <div class="row" style="gap:4px">${h.last.map(x => `<span class="pill ${x.w ? "w" : "l"}">${x.me}-${x.rv}</span>`).join("")}</div></div>`;
+   <div class="row gap-1">${h.last.map(x => `<span class="pill ${x.w ? "w" : "l"}">${x.me}-${x.rv}</span>`).join("")}</div></div>`;
 }
 
 /* ================= YAZ KAMPI ================= */
@@ -279,7 +279,7 @@ function campPhoto(loc) {
     `<g transform="translate(${x},${y})"><circle r="7" cy="-20" fill="${me ? sk : ["#f1c9a5", "#a8714b", "#d9a477", "#6e452c"][i % 4]}" stroke="#141414" stroke-width="1.2"/><rect x="-8" y="-13" width="16" height="18" rx="3" fill="${me ? "#ffc54d" : c1}" stroke="#141414" stroke-width="1.2"/><text y="0" text-anchor="middle" font-size="7" font-weight="900" font-family="Barlow Condensed" fill="${me ? "#141414" : c2}">${me ? S.num : (i * 7 + 3) % 99}</text>${me ? "" : `<path d="M-8 -6 L-13 ${i % 2 ? -18 : 0}" stroke="${["#f1c9a5", "#a8714b", "#d9a477"][i % 3]}" stroke-width="3" stroke-linecap="round"/>`}</g>`;
   const back = Array.from({ length: 6 }, (_, i) => guy(40 + i * 44, 64, false, i)).join(""),
     front = Array.from({ length: 5 }, (_, i) => (i === 2 ? guy(150, 96, true, 0) : guy(62 + i * 44, 96, false, i + 6))).join("");
-  return `<svg viewBox="0 0 300 130" width="100%" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px"><rect width="300" height="130" fill="#7ec8e3"/><path d="M0 70 L60 30 L110 60 L170 20 L240 62 L300 35 L300 130 L0 130 Z" fill="#5b8c5a"/><rect y="104" width="300" height="26" fill="#c98f53"/><rect x="70" y="6" width="160" height="18" rx="4" fill="${c1}" stroke="#141414"/><text x="150" y="19" text-anchor="middle" font-size="11" font-weight="900" font-family="Barlow Condensed" fill="${c2}">${esc(String(loc).toUpperCase())} ${S.year}</text>${back}${front}</svg>`;
+  return `<svg viewBox="0 0 300 130" width="100%" xmlns="http://www.w3.org/2000/svg" style="border-radius:var(--r-lg)"><rect width="300" height="130" fill="#7ec8e3"/><path d="M0 70 L60 30 L110 60 L170 20 L240 62 L300 35 L300 130 L0 130 Z" fill="#5b8c5a"/><rect y="104" width="300" height="26" fill="#c98f53"/><rect x="70" y="6" width="160" height="18" rx="4" fill="${c1}" stroke="#141414"/><text x="150" y="19" text-anchor="middle" font-size="11" font-weight="900" font-family="Barlow Condensed" fill="${c2}">${esc(String(loc).toUpperCase())} ${S.year}</text>${back}${front}</svg>`;
 }
 async function campDay(day, journal) {
   const opts = shuffle(CAMP.slice()).slice(0, 3);
@@ -392,7 +392,7 @@ async function summerCamp() {
   journal.push(mvp ? $t("cp.j.mvp") : $t("cp.j.noMvp"));
   save();
   S.campRoom = null;
-  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:6px">${campPhoto(loc)}</div><div class="card" style="gap:6px">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
+  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:var(--sp-1h)">${campPhoto(loc)}</div><div class="card gap-1h">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
   $("#cp-ok").onclick = renderMain;
 }
 function campSheet() {

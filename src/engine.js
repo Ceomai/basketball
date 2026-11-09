@@ -121,8 +121,8 @@ export async function playMatch(ctx) {
     foes = rosterNames(opp.city, 5),
     sur = S.last,
     PL = PLAYS[S.pos];
-  app.innerHTML = `<div id="bug"></div><div id="mstat" class="card" style="padding:10px 12px;gap:6px"></div>${AUTO ? "" : late.courtHTML()}<div id="mview"></div>
-   <div class="card"><div class="row between"><div class="eyebrow">${$t("engine.15")}</div><div class="row" style="gap:4px" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
+  app.innerHTML = `<div id="bug"></div><div id="mstat" class="card" style="padding:var(--sp-2h) var(--sp-3);gap:var(--sp-1h)"></div>${AUTO ? "" : late.courtHTML()}<div id="mview"></div>
+   <div class="card"><div class="row between"><div class="eyebrow">${$t("engine.15")}</div><div class="row gap-1" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
   updBug();
   if (!AUTO) late.courtStart(opp); // saha görünümü (src/court.js)
   late.matchdayStart(ctx, foes, mates); // hakem, seyirci, rakip yıldız, kimya (src/matchday.js)
@@ -132,7 +132,7 @@ export async function playMatch(ctx) {
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:4px 9px" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:4px 9px" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
+      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:var(--sp-1) var(--sp-2)" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:var(--sp-1) var(--sp-2)" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
     late.bindTimeout(renderSpd);
     $$("#spd [data-s]").forEach(
       b =>
@@ -167,8 +167,7 @@ export async function playMatch(ctx) {
   const banner = (t, good) => {
     late.sfx("whistle");
     const d = document.createElement("div");
-    d.className = "say";
-    d.style.borderLeftColor = good ? "var(--good)" : "var(--warn)";
+    d.className = good ? "say good" : "say warn";
     d.innerHTML = `<b>${t}</b>`;
     const mv = $("#mview");
     mv.prepend(d);
@@ -521,7 +520,7 @@ export async function playMatch(ctx) {
     const render = () => {
       late.courtFreeze(scn || (sp && sp.scn) || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
-        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment ? "" : `<div class="say" style="border-left-color:var(--gold)"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
+        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment ? "" : `<div class="say gold"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
           {
             q: M.q,

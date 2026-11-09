@@ -275,7 +275,7 @@ export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core
 /* ================= PANEL SİSTEMİ ================= */
 export function sheet(title, sub, body, o = {}) {
   $("#ovl").innerHTML =
-    `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h">${o.icon || ""}<div style="min-width:0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
+    `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-h">${o.icon || ""}<div class="minw-0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
   if (!o.noClose) {
     const cl = () => {
       closeSheet();
@@ -298,7 +298,7 @@ export function fxHTML(list) {
 }
 export function actHTML(a) {
   const dis = (a.slot && S.slot <= 0) || (a.price && S.money < a.price) || a.disabled;
-  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div style="min-width:0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [[$t("core.7"), "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || $t("core.8")}</button></div>`;
+  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div class="minw-0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [[$t("core.7"), "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || $t("core.8")}</button></div>`;
 }
 export function prodHTML(p) {
   const own = p.own,
@@ -346,7 +346,7 @@ export function renderCreate() {
   setTeamVars();
   closeSheet();
   app.innerHTML = `
-  <div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${$t("core.18")}</div><h1>${$t("core.19")}<br>${$t("core.20")}</h1></div><div class="tagx" style="text-align:right">İstanbul<small>${$t("core.21")}</small></div></div>
+  <div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("core.18")}</div><h1>${$t("core.19")}<br>${$t("core.20")}</h1></div><div class="tagx ta-r">İstanbul<small>${$t("core.21")}</small></div></div>
   <div class="row between"><div class="eyebrow">${$t("core.22", {
     slot: F.slot
   })}</div><button class="btn ghost sm" id="bkS">${$t("core.23")}</button></div>
@@ -354,10 +354,10 @@ export function renderCreate() {
     <div class="grid2"><label class="small"><b>${$t("core.24")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}"></label><label class="small"><b>${$t("core.25")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}"></label></div>
     <div class="grid2"><button class="btn ghost sm" id="npick">${$t("core.26")}</button><button class="btn ghost sm" id="nrnd">${$t("core.27")}</button></div>
     <div class="row nowrap" style="align-items:flex-start">
-      <canvas id="pv" style="width:132px;height:160px;border-radius:12px;flex-shrink:0"></canvas>
-      <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
-        <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.28")}</div><div class="opts" id="skin">${SKINS.map(c => `<button class="sw ${F.look.skin === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Ten rengi"></button>`).join("")}</div></div>
-        <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.29")}</div><div class="opts" id="hs">${[
+      <canvas id="pv" style="width:132px;height:160px;border-radius:var(--r-xl);flex-shrink:0"></canvas>
+      <div style="display:flex;flex-direction:column;gap:var(--sp-2h);min-width:0">
+        <div><div class="eyebrow mb-1h">${$t("core.28")}</div><div class="opts" id="skin">${SKINS.map(c => `<button class="sw ${F.look.skin === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Ten rengi"></button>`).join("")}</div></div>
+        <div><div class="eyebrow mb-1h">${$t("core.29")}</div><div class="opts" id="hs">${[
           ["bere", $t("core.11")],
           ["kep", $t("core.12")],
           ["kulak", $t("core.13")],
@@ -372,13 +372,13 @@ export function renderCreate() {
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
-    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow" style="margin-bottom:6px">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
-    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
+    <div><div class="eyebrow mb-1h">${["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? HAIRC : [...HATC, ...late.extraHatColors()]).map(c => `<button class="sw ${(["yok", "uzun", "afro", "orgu", "kel"].includes(F.look.hatStyle) ? F.look.hair : F.look.hat) === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Renk"></button>`).join("")}</div></div>
+    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow mb-1h">${$t("core.16")}</div><div class="opts" id="hc2">${HAIRC.map(c => `<button class="sw ${F.look.hair === c ? "on" : ""}" style="background:${c}" data-v="${c}" aria-label="Saç rengi"></button>`).join("")}</div></div>` : ""}
+    <div><div class="eyebrow mb-1h">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
       .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}"><span class="cc">${k}</span>${p.n}</button>`)
       .join("")}</div>
-      <p class="small muted" style="margin-top:6px">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
-    <div><div class="eyebrow" style="margin-bottom:6px">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
+      <p class="small muted mt-1h">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
+    <div><div class="eyebrow mb-1h">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}">${n}</button>`).join("")}</div></div>
     ${late.modePickerHTML(F.mode || "normal")}
     ${late.diffPickerHTML(F)}
     ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
@@ -530,7 +530,7 @@ export function namePicker() {
     sheet(
       $t("core.35"),
       $t("core.36"),
-      `<div class="card" style="text-align:center"><div class="eyebrow">${$t("core.37")}</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
+      `<div class="card ta-c"><div class="eyebrow">${$t("core.37")}</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
     <div class="eyebrow">${$t("core.24")}</div>${chips(NAME_FIRST, F.first, "nf")}<div class="eyebrow">${$t("core.25")}</div>${chips(NAME_LAST, F.last, "nl")}
     <div class="grid2"><button class="btn ghost" id="nr2">${$t("core.38")}</button><button class="btn pri" id="nok2">${$t("ads.47")}</button></div>`,
       { onClose: renderCreate }
@@ -701,7 +701,7 @@ export function chapter(id, after) {
   sheet(
     T[0],
     seasonLabel(),
-    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.75">${T[0]} · ${seasonLabel()}</div><h2 style="font-size:2rem">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
+    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.75">${T[0]} · ${seasonLabel()}</div><h2 style="font-size:var(--fs-num)">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
     { noClose: true }
   );
   $("#chok").onclick = () => {
@@ -717,7 +717,7 @@ export function hudHTML() {
   const rs = late.rated().slice(-3);
   const form = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(1) : "–";
   return `<header class="hud">
-   <div class="hud-id"><div class="avatar" id="hav"></div><div style="min-width:0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
+   <div class="hud-id"><div class="avatar" id="hav"></div><div class="minw-0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
      "core.65",
      {
        age: S.age,
@@ -729,8 +729,8 @@ export function hudHTML() {
    <div class="hud-stats">
     <div class="hs"><div class="k">${$t("core.67")}</div><div class="v">${S.energy}</div><div class="mt"><i style="width:${S.energy}%;background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
     <div class="hs"><div class="k">${$t("core.68")}</div><div class="v">${S.moral}</div><div class="mt"><i style="width:${S.moral}%;background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
-    <div class="hs"><div class="k">${$t("core.69")}</div><div class="v">${ovr()} <span class="muted" style="font-size:.8rem">· ${form}</span></div></div>
-    <div class="hs"><div class="k">${$t("core.70")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:.8rem">· ${kfmt(S.followers)}</span></div></div>
+    <div class="hs"><div class="k">${$t("core.69")}</div><div class="v">${ovr()} <span class="muted" style="font-size:var(--fs-sm)">· ${form}</span></div></div>
+    <div class="hs"><div class="k">${$t("core.70")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:var(--fs-sm)">· ${kfmt(S.followers)}</span></div></div>
    </div></header>`;
 }
 export function mapState() {
@@ -765,18 +765,18 @@ export function renderMain() {
       week: S.week,
       v2: tods[S.slot]
     }
-  )}</small></div><div class="tagx" style="text-align:right">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
+  )}</small></div><div class="tagx ta-r">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>
   ${
     S.brk
       ? late.breakCardHTML()
       : `<div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
-   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:.95rem;line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
+   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.derbyWho(opp)) })}</div>` : ""}${late.serMainHTML()}
    <div class="grid2"><button class="btn" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div>${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div>`
   }${late.weekSummaryHTML()}${late.onboardHTML()}
   <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
-  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row" style="gap:6px">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
+  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row gap-1h">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div>`;
   $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
   // portreye dokununca görünüm/stil (Ev → Stil)
   const hav = $("#hav");

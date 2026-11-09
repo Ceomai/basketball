@@ -191,7 +191,7 @@ export function feedbackSheet(context = "") {
     t("fb.title"),
     t("fb.sub"),
     `<div class="eyebrow">${t("fb.rate")}</div><div class="opts" id="fb-st">${[1, 2, 3, 4, 5].map(n => `<button class="opt" data-s="${n}">${"★".repeat(n)}</button>`).join("")}</div>
-     <div class="eyebrow">${t("fb.text")}</div><textarea id="fb-tx" rows="4" maxlength="600" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:inherit" placeholder="${esc(t("fb.ph"))}"></textarea>
+     <div class="eyebrow">${t("fb.text")}</div><textarea id="fb-tx" rows="4" maxlength="600" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:inherit" placeholder="${esc(t("fb.ph"))}"></textarea>
      <button class="btn pri" id="fb-go">${t("fb.send")}</button>`
   );
   $$("#fb-st [data-s]").forEach(
@@ -214,7 +214,7 @@ export function feedbackSheet(context = "") {
 }
 /** Ayarlar içindeki bölüm */
 export function testSettingsHTML() {
-  return `<div class="act"><div><h3>${t("test.title")}</h3><p>${TEL.consent ? t("test.onDesc", { n: TEL.events.length }) : t("test.offDesc")}</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ${TEL.consent ? "team" : "ghost"} sm" id="ts-tog">${TEL.consent ? t("btn.on") : t("btn.off")}</button>${TEL.consent ? `<button class="btn sm" id="ts-send">${t("test.send")}</button><button class="btn ghost sm" id="ts-fb">${t("fb.title")}</button><button class="btn ghost sm" id="ts-clear">${t("test.clear")}</button>` : ""}</div></div>`;
+  return `<div class="act"><div><h3>${t("test.title")}</h3><p>${TEL.consent ? t("test.onDesc", { n: TEL.events.length }) : t("test.offDesc")}</p></div><div class="grid2 span-all"><button class="btn ${TEL.consent ? "team" : "ghost"} sm" id="ts-tog">${TEL.consent ? t("btn.on") : t("btn.off")}</button>${TEL.consent ? `<button class="btn sm" id="ts-send">${t("test.send")}</button><button class="btn ghost sm" id="ts-fb">${t("fb.title")}</button><button class="btn ghost sm" id="ts-clear">${t("test.clear")}</button>` : ""}</div></div>`;
 }
 export function bindTestSettings(re) {
   const tg = $("#ts-tog");

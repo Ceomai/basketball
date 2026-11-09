@@ -129,7 +129,7 @@ export function goalsResultHTML() {
   const ok = R.filter(r => r.ok).length;
   return `<div class="card"><div class="row between"><div class="eyebrow">${$t("goal.title")}</div><span class="pill ${ok === R.length ? "w" : ok ? "g" : "l"}">${ok}/${R.length}</span></div>${R.map(
     r =>
-      `<div class="row between nowrap small" style="padding:3px 0"><span>${goalText(r)}</span><b class="${r.ok ? "good" : "bad"}">${r.ok ? $t("goal.done") : $t("goal.failed")}</b></div>`
+      `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span>${goalText(r)}</span><b class="${r.ok ? "good" : "bad"}">${r.ok ? $t("goal.done") : $t("goal.failed")}</b></div>`
   ).join(
     ""
   )}<p class="small muted">${ok === R.length ? $t("goal.allDone") : ok ? $t("goal.some") : $t("goal.noneDone")}</p></div>`;

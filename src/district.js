@@ -23,7 +23,7 @@ export function districtTabsHTML() {
   return `<div class="opts" id="dist" style="margin-bottom:6px;flex-wrap:nowrap">${["merkez", "kompleks"]
     .map(
       k =>
-        `<button class="opt ${d === k ? "on" : ""}" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:8px;padding-right:8px" data-dist="${k}">${$t(`dist.${k}`)}${k !== d && n ? " •" : ""}</button>`
+        `<button class="opt ${d === k ? "on" : ""}" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:var(--sp-2);padding-right:var(--sp-2)" data-dist="${k}">${$t(`dist.${k}`)}${k !== d && n ? " •" : ""}</button>`
     )
     .join("")}</div>`;
 }
@@ -71,7 +71,7 @@ function openEvent(i, re) {
   sheet(
     $t(`mev.${e.id}`),
     $t("mev.sub"),
-    `<div class="say" style="border-left-color:var(--gold)">${$t(`mev.${e.id}D`, { c: S.npc.coach, f: S.npc.friend })}</div><p class="small muted">${$t("mev.cost")}</p><div class="grid2"><button class="btn ghost" id="mev-no">${$t("mev.skip")}</button><button class="btn pri" id="mev-go" ${S.energy < 5 ? "disabled" : ""}>${$t("mev.join")}</button></div>`
+    `<div class="say gold">${$t(`mev.${e.id}D`, { c: S.npc.coach, f: S.npc.friend })}</div><p class="small muted">${$t("mev.cost")}</p><div class="grid2"><button class="btn ghost" id="mev-no">${$t("mev.skip")}</button><button class="btn pri" id="mev-go" ${S.energy < 5 ? "disabled" : ""}>${$t("mev.join")}</button></div>`
   );
   $("#mev-no").onclick = () => (closeSheet(), re());
   $("#mev-go").onclick = () => {
@@ -84,7 +84,7 @@ function openEvent(i, re) {
     sheet(
       $t(`mev.${e.id}`),
       $t("mev.sub"),
-      `<div class="say" style="border-left-color:var(--good)">${$t(`mev.${e.id}R`)}</div><button class="btn pri" id="mev-ok">${$t("goal.ok")}</button>`
+      `<div class="say good">${$t(`mev.${e.id}R`)}</div><button class="btn pri" id="mev-ok">${$t("goal.ok")}</button>`
     );
     $("#mev-ok").onclick = () => (closeSheet(), re());
   };

@@ -81,7 +81,7 @@ async function coach(i) {
   save();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("ac.name")}</div><h2>${$t("ac.coachH", { n: k.n })}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("ac.name")}</div><h2>${$t("ac.coachH", { n: k.n })}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgTiming($("#stg"), {
     eff: 55,
     title: $t("ac.coachH", { n: k.n }),

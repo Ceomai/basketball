@@ -101,7 +101,7 @@ function askConsent() {
     el.id = "acov";
     el.className = "sheet-bg";
     el.style.zIndex = "55";
-    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div style="min-width:0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")} ${$t("adp.consentStats")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
+    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div class="minw-0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")} ${$t("adp.consentStats")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
     document.body.appendChild(el);
     const done = v => {
       ADS.consent = v;
@@ -304,7 +304,7 @@ export function bindAdDouble(bonus) {
     if (ok) {
       tx($t("ads.51"), bonus);
       save();
-      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.29", {
+      b.outerHTML = `<div class="say good">${$t("ads.29", {
         bonus: fmt(bonus)
       })}</div>`;
     } else b.disabled = false;
@@ -379,7 +379,7 @@ export function bindAdHalf() {
       S.energy += 10;
       S.moral += 4;
       norm();
-      b.outerHTML = `<div class="say" style="border-left-color:var(--good)">${$t("ads.34")}</div>`;
+      b.outerHTML = `<div class="say good">${$t("ads.34")}</div>`;
     } else b.disabled = false;
   };
 }
@@ -393,7 +393,7 @@ export function adsSettingsHTML() {
       : `${$t("ads.36")} ${rewardLeft()}${$t("ads.56", {
           total: total
         })}`
-  }</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${relAdFreeLabel()}</button>`}</div></div>`;
+  }</p></div><div class="grid2 span-all"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${relAdFreeLabel()}</button>`}</div></div>`;
 }
 export function bindAdsSettings(re) {
   const c = $("#ad-cons");

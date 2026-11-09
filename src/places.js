@@ -163,7 +163,7 @@ export function locEv(I, tab = "vitrin") {
     $t("places.6", {
       city: S.city
     }),
-    `${tabsHTML(tabs, tab)}<div id="evc" style="display:flex;flex-direction:column;gap:10px"></div>`
+    `${tabsHTML(tabs, tab)}<div id="evc" class="stack"></div>`
   );
   $$(".tabs button").forEach(x => (x.onclick = () => locEv(I, x.dataset.t)));
   const c = $("#evc");
@@ -209,7 +209,7 @@ export function locEv(I, tab = "vitrin") {
       {
         age: S.age
       }
-    )}</div><div class="small muted">${esc(S.team.name)}</div></div><div style="text-align:right"><div class="eyebrow">${$t("match.58")}</div><div class="big-num">${ovr()}</div></div></div>
+    )}</div><div class="small muted">${esc(S.team.name)}</div></div><div class="ta-r"><div class="eyebrow">${$t("match.58")}</div><div class="big-num">${ovr()}</div></div></div>
      <div class="kv"><span>${$t("places.20")}</span><b>${esc(lgName())}</b><span>${$t("places.21")}</span><b>${isPro(S.stage) ? ROLE_N[S.role] : $t("places.12")}</b>${
        S.contract
          ? `<span>${$t("places.13")}</span><b>${$t("places.14", {
@@ -251,12 +251,12 @@ export function locEv(I, tab = "vitrin") {
          n: h.n
        }
      )}</span><b class="${h.rent ? "bad" : ""}">${h.rent ? "−" + fmt(h.rent) : fmt(0)}</b><span>${$t("places.40")}</span><b class="${up ? "bad" : ""}">${up ? "−" + fmt(up) : fmt(0)}</b>${inc ? `<span>${$t("places.36")}</span><b class="good">+${fmt(inc)}</b>` : ""}<span><b>${$t("places.41")}</b></span><b>${fmt(S.wage - tx_ - liv - h.rent - up + inc)}</b><span>${$t("match.90")}</span><b>${fmt(S.career.earned)}</b></div></div>
-     <div class="card"><div class="eyebrow">${$t("places.42")}</div><div class="tbl"><table><tr><th>${$t("places.43")}</th><th>${$t("places.44")}</th><th style="text-align:right">${$t("places.45")}</th></tr>${
+     <div class="card"><div class="eyebrow">${$t("places.42")}</div><div class="tbl"><table><tr><th>${$t("places.43")}</th><th>${$t("places.44")}</th><th class="ta-r">${$t("places.45")}</th></tr>${
        S.tx
          .slice(0, 15)
          .map(
            t =>
-             `<tr><td class="muted">${t.w}</td><td>${esc(t.d)}</td><td style="text-align:right" class="${t.a < 0 ? "bad" : "good"}">${t.a < 0 ? "" : "+"}${fmt(t.a)}</td></tr>`
+             `<tr><td class="muted">${t.w}</td><td>${esc(t.d)}</td><td class="ta-r ${t.a < 0 ? "bad" : "good"}">${t.a < 0 ? "" : "+"}${fmt(t.a)}</td></tr>`
          )
          .join("") || `<tr><td colspan="3" class="muted">${$t("places.37")}</td></tr>`
      }</table></div></div>`;
@@ -375,7 +375,7 @@ export function sparkHTML() {
   const xs = i => (n === 1 ? w / 2 : 12 + (i * (w - 24)) / (n - 1)),
     ys = v => h - 8 - ((v - 1) / 9) * (h - 16);
   const pts = rs.map((r, i) => `${xs(i).toFixed(1)},${ys(r.rating).toFixed(1)}`).join(" ");
-  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="${$t("rc.a11y.ratings")}"><line x1="0" x2="${w}" y1="${ys(6)}" y2="${ys(6)}" stroke="#24314a" stroke-dasharray="4 4"/><text x="2" y="${ys(6) - 3}" fill="#5d6b82" font-size="9">6.0</text><polygon points="${xs(0)},${h} ${pts} ${xs(n - 1)},${h}" fill="var(--team)" opacity=".15"/><polyline points="${pts}" fill="none" stroke="var(--team)" stroke-width="2.5"/>${rs.map((r, i) => `<circle cx="${xs(i)}" cy="${ys(r.rating)}" r="${i === n - 1 ? 4.5 : 3}" fill="${r.win ? "#36d38e" : "#ff5468"}"/>`).join("")}</svg><div class="row" style="gap:4px">${rs.map(r => `<span class="pill ${r.win ? "w" : "l"}">${r.us}-${r.them} · ${r.rating.toFixed(1)}</span>`).join("")}</div>`;
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="${$t("rc.a11y.ratings")}"><line x1="0" x2="${w}" y1="${ys(6)}" y2="${ys(6)}" stroke="#24314a" stroke-dasharray="4 4"/><text x="2" y="${ys(6) - 3}" style="fill:var(--dim)" font-size="9">6.0</text><polygon points="${xs(0)},${h} ${pts} ${xs(n - 1)},${h}" fill="var(--team)" opacity=".15"/><polyline points="${pts}" fill="none" stroke="var(--team)" stroke-width="2.5"/>${rs.map((r, i) => `<circle cx="${xs(i)}" cy="${ys(r.rating)}" r="${i === n - 1 ? 4.5 : 3}" style="fill:var(${r.win ? "--good" : "--bad"})"/>`).join("")}</svg><div class="row gap-1">${rs.map(r => `<span class="pill ${r.win ? "w" : "l"}">${r.us}-${r.them} · ${r.rating.toFixed(1)}</span>`).join("")}</div>`;
 }
 
 /* --- Stadyum --- */
@@ -402,12 +402,9 @@ export function locStad(I, tab = "mac") {
     ["tablo", $t("places.59")]
   ];
   if (S.tryout && !S.tryout.done) tabs.push(["secme", $t("places.60")]);
-  sheet(
-    I.n,
-    `${S.team.name} · ${S.city}`,
-    `${tabsHTML(tabs, tab)}<div id="stc" style="display:flex;flex-direction:column;gap:10px"></div>`,
-    { icon: crestSVG(S.team, 36) }
-  );
+  sheet(I.n, `${S.team.name} · ${S.city}`, `${tabsHTML(tabs, tab)}<div id="stc" class="stack"></div>`, {
+    icon: crestSVG(S.team, 36)
+  });
   $$(".tabs button").forEach(x => (x.onclick = () => locStad(I, x.dataset.t)));
   const c = $("#stc");
   if (tab === "kadro") late.rosterTab(c);
@@ -445,11 +442,11 @@ export function locStad(I, tab = "mac") {
       opp = teamByKey(fx.opp),
       row = S.league.find(r => r.key === opp.key),
       mr = S.league.find(r => r.key === S.team.key);
-    c.innerHTML = `<div class="card" style="text-align:center"><div class="eyebrow">${$t("places.72", {
+    c.innerHTML = `<div class="card ta-c"><div class="eyebrow">${$t("places.72", {
       v: phaseName(),
       week: S.week
     })}</div>
-     <div class="row nowrap" style="justify-content:space-around"><div>${crestSVG(S.team, 64)}<div style="font-weight:800">${esc(S.team.short)}</div><div class="small muted">${mr.w}-${mr.l}</div></div><div class="disp" style="font-size:1.6rem;color:var(--muted)">${$t("places.73")}</div><div>${crestSVG(opp, 64)}<div style="font-weight:800">${esc(opp.short)}</div><div class="small muted">${row.w}-${row.l}</div></div></div>
+     <div class="row nowrap" style="justify-content:space-around"><div>${crestSVG(S.team, 64)}<div style="font-weight:800">${esc(S.team.short)}</div><div class="small muted">${mr.w}-${mr.l}</div></div><div class="disp" style="font-size:var(--fs-7xl);color:var(--muted)">${$t("places.73")}</div><div>${crestSVG(opp, 64)}<div style="font-weight:800">${esc(opp.short)}</div><div class="small muted">${row.w}-${row.l}</div></div></div>
      <div style="font-weight:700">${esc(opp.name)}</div><div class="small muted">${
        fx.home
          ? $t("places.68", {
@@ -480,7 +477,7 @@ export function locStad(I, tab = "mac") {
   }
   if (tab === "idman" && S.injury) {
     c.innerHTML =
-      `<div class="say" style="border-left-color:var(--bad)">${$t("places.79")}</div>` +
+      `<div class="say bad">${$t("places.79")}</div>` +
       actHTML({
         id: "fizyo",
         ic: icon("kryo"),
@@ -597,7 +594,7 @@ export function locStad(I, tab = "mac") {
     c.innerHTML = `<div class="card"><div class="eyebrow">${esc(lgName())} · ${seasonLabel()}</div><div class="tbl"><table><tr><th>#</th><th>${$t("data.36")}</th><th>G</th><th>M</th><th>${$t("places.89")}</th></tr>${standings()
       .map((r, i) => {
         const t = teamByKey(r.key);
-        return `<tr class="${t.key === S.team.key ? "me" : ""}"><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${r.pf - r.pa > 0 ? "+" : ""}${r.pf - r.pa}</td></tr>`;
+        return `<tr class="${t.key === S.team.key ? "me" : ""}"><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:var(--r-2xs);background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${r.pf - r.pa > 0 ? "+" : ""}${r.pf - r.pa}</td></tr>`;
       })
       .join("")}</table></div><p class="small muted">${$t("places.90", {
       v: S.stage === "lise" ? $t("lc.toTour") : $t("lc.toPlayoff")
@@ -675,7 +672,7 @@ export async function runDrill([id, name, k, kind]) {
   S.energy -= 18;
   save();
   arenaFor(null);
-  app.innerHTML = `<div class="row between" style="padding-top:12px"><div><div class="eyebrow">${$t("places.93", {
+  app.innerHTML = `<div class="row between pt-3"><div><div class="eyebrow">${$t("places.93", {
     short: esc(S.team.short),
     n: POS[S.pos].n
   })}</div><h2>${name}</h2></div></div><div id="stg"></div><div id="res"></div>`;
@@ -685,12 +682,9 @@ export async function runDrill([id, name, k, kind]) {
   if (ratio > 0.6) S.rel.koc += 2;
   norm();
   save();
-  $("#res").innerHTML = `<div class="card" style="margin-top:12px"><div class="row between"><div><div class="eyebrow">${$t(
-    "places.98",
-    {
-      v: Math.round(ratio * 100)
-    }
-  )}</div><h2>${gain >= 1 ? $t("places.94") : gain >= 0.5 ? $t("places.95") : gain >= 0.1 ? $t("places.96") : $t("places.97")}</h2></div><div class="big-num ${gain >= 0.05 ? "good" : ""}">+${gain.toFixed(2)}</div></div><p class="small muted">${$t(
+  $("#res").innerHTML = `<div class="card mt-3"><div class="row between"><div><div class="eyebrow">${$t("places.98", {
+    v: Math.round(ratio * 100)
+  })}</div><h2>${gain >= 1 ? $t("places.94") : gain >= 0.5 ? $t("places.95") : gain >= 0.1 ? $t("places.96") : $t("places.97")}</h2></div><div class="big-num ${gain >= 0.05 ? "good" : ""}">+${gain.toFixed(2)}</div></div><p class="small muted">${$t(
     "prog.drillNow",
     {
       k: statName(k),
@@ -706,7 +700,7 @@ export async function runTryout() {
   save();
   const club = teamByKey(S.tryout.club);
   arenaFor(club);
-  app.innerHTML = `<div style="padding-top:12px" class="row nowrap">${crestSVG(club, 44)}<div><div class="eyebrow">${$t("places.60")}</div><h2>${esc(club.name)}</h2></div></div><div class="say" id="tsay">${$t("places.100")}</div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="row nowrap pt-3">${crestSVG(club, 44)}<div><div class="eyebrow">${$t("places.60")}</div><h2>${esc(club.name)}</h2></div></div><div class="say" id="tsay">${$t("places.100")}</div><div id="stg"></div><div id="res"></div>`;
   const shift = (tdOf(S.tryout.stage, club.cc) - TD()) / 2;
   const r1 = await mgShoot($("#stg"), { eff: clamp(eff("sut") - shift, 3, 100), shots: 3, title: $t("places.278"), def: false });
   $("#tsay").textContent = $t("places.101");
@@ -819,7 +813,7 @@ export function runQuiz(nq, done) {
         v: i + 1,
         nq: nq,
         correct: correct
-      })}</div><h3 style="text-transform:none;font-family:var(--body);font-weight:800;font-size:1rem;letter-spacing:0">${esc(Q.q)}</h3><div class="bar"><i id="qt" style="width:100%;transition:width 8s linear;background:var(--warn)"></i></div><div class="qopts">${Q.o.map(o => `<button class="qbtn" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>`
+      })}</div><h3 style="text-transform:none;font-family:var(--body);font-weight:800;font-size:var(--fs-xl);letter-spacing:0">${esc(Q.q)}</h3><div class="bar"><i id="qt" style="width:100%;transition:width 8s linear;background:var(--warn)"></i></div><div class="qopts">${Q.o.map(o => `<button class="qbtn" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>`
     );
     const card = b.lastElementChild; // bu soru kartı: panel kapanır ya da başka panel açılırsa sınav sessizce biter
     requestAnimationFrame(() => {
@@ -1211,7 +1205,7 @@ export async function photoSession(bg) {
   useSlot();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("places.184")}</div><h2>${bg === "arena" ? $t("places.182") : $t("places.183")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("places.184")}</div><h2>${bg === "arena" ? $t("places.182") : $t("places.183")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgPhoto($("#stg"), { title: bg === "arena" ? $t("places.185") : $t("places.186") + S.city, bg });
   const q = Math.max(0, r.score);
   const add = late.mediaGain((q / 100) * 0.05 * (S.items.telefon ? 1.3 : 1), ri(5, 30) / 5); // medya yorgunluğu (src/economy.js)
@@ -1228,7 +1222,7 @@ export async function photoSession(bg) {
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
     `<div class="post"><div class="ph"><i></i>${esc((S.first + S.last).toLocaleLowerCase(LOCALE))}${S.num}<span style="margin-left:auto;color:#888;font-weight:600">${esc(S.city)}</span></div>${r.img ? `<img src="${r.img}" alt="Paylaşılan fotoğraf">` : ""}<div class="pb"><div class="lk" id="lk">${$t("places.197")}</div><div><b>${esc((S.first + S.last).toLocaleLowerCase(LOCALE))}</b> ${bg === "arena" ? $t("places.195") : $t("places.196")} #${esc(S.team.short)}</div>${cms.map(x => `<div style="color:#555">${esc(x)}</div>`).join("")}</div></div>
-   <div class="card" style="margin-top:12px"><div class="kv"><span>${$t("places.198")}</span><b>${q}/100</b><span>${$t("places.199")}</span><b class="good">+${kfmt(add)}</b><span>${$t("data.37")}</span><b>${tr >= 0 ? "+" : ""}${tr}</b></div><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+   <div class="card mt-3"><div class="kv"><span>${$t("places.198")}</span><b>${q}/100</b><span>${$t("places.199")}</span><b class="good">+${kfmt(add)}</b><span>${$t("data.37")}</span><b>${tr >= 0 ? "+" : ""}${tr}</b></div><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
   const likes = Math.round(add * rnd(2.5, 4));
   let k = 0;
   const lk = $("#lk");
@@ -1296,7 +1290,7 @@ export function interview() {
       `<div class="eyebrow">${$t("places.217", {
         j: esc(j),
         v: i + 1
-      })}</div><div class="choices">${ans.map((a, k) => `<button class="choice" data-k="${k}"><span class="ct" style="font-size:1rem;text-transform:none;font-family:var(--body);font-weight:800">"${esc(a[0])}"</span></button>`).join("")}</div>`
+      })}</div><div class="choices">${ans.map((a, k) => `<button class="choice" data-k="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;font-family:var(--body);font-weight:800">"${esc(a[0])}"</span></button>`).join("")}</div>`
     );
     $$(".choice").forEach(
       x =>
@@ -1451,7 +1445,7 @@ export function locAile(I) {
         pay();
         closeSheet();
         arenaFor(null);
-        app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("places.232", {
+        app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("places.232", {
           home: esc(S.home)
         })}</div><h2>${$t("places.233", {
           dad: esc(S.npc.dad)

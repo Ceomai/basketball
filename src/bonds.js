@@ -700,7 +700,7 @@ export function diffPickerHTML(f) {
           )
           .join("")
       : ""
-  }<p class="small muted" style="margin-top:6px">${$t(d ? "bd.df.onD" : "bd.df.offD")}</p></div>`;
+  }<p class="small muted mt-1h">${$t(d ? "bd.df.onD" : "bd.df.offD")}</p></div>`;
 }
 export function diffSet(f, v) {
   if (v === "off") f.diff = null;
@@ -742,7 +742,7 @@ export function bondsCareerHTML() {
     out.push(
       `<div class="card" id="bd-rival"><div class="row between"><div class="eyebrow">${$t("bd.rc.t", { r: esc(rvName()) })}</div><b class="small">${status}</b></div><div class="box"><div><b>${h.g}</b><span class="eyebrow">${$t("bd.rc.g")}</span></div><div><b class="good">${h.w}</b><span class="eyebrow">${$t("bd.rc.w")}</span></div><div><b class="bad">${h.g - h.w}</b><span class="eyebrow">${$t("bd.rc.l")}</span></div><div><b>${cur[1]}-${cur[0] - cur[1]}</b><span class="eyebrow">${$t("bd.rc.now")}</span></div></div>${
         seasons.length
-          ? `<div class="row" style="gap:4px">${seasons.map(s => `<span class="pill ${b.duel[s][1] * 2 >= b.duel[s][0] ? "w" : "l"}">${$t("bd.rc.season", { n: s })} ${b.duel[s][1]}-${b.duel[s][0] - b.duel[s][1]}</span>`).join("")}</div>`
+          ? `<div class="row gap-1">${seasons.map(s => `<span class="pill ${b.duel[s][1] * 2 >= b.duel[s][0] ? "w" : "l"}">${$t("bd.rc.season", { n: s })} ${b.duel[s][1]}-${b.duel[s][0] - b.duel[s][1]}</span>`).join("")}</div>`
           : `<p class="small muted">${$t("bd.rc.none")}</p>`
       }</div>`
     );

@@ -66,11 +66,11 @@ export function albumSheet(onClose) {
     $t("al.title"),
     $t("al.sub", { n: A.length }),
     A.length
-      ? `<div style="display:flex;flex-direction:column;gap:10px">${A.slice()
+      ? `<div class="stack">${A.slice()
           .reverse()
           .map(
             a =>
-              `<div class="card" style="border-left:5px solid ${a.c1 || "var(--gold)"}"><div class="row between nowrap"><div class="eyebrow">${esc(a.s)} · ${$t("al.age", { v: a.age })}</div><span style="font-size:1.3rem">${ICON[a.kind] || "🏀"}</span></div><p style="margin:2px 0 0">${esc(a.text)}</p>${a.team ? `<div class="small muted">${esc(a.team)}</div>` : ""}</div>`
+              `<div class="card" style="border-left:5px solid ${a.c1 || "var(--gold)"}"><div class="row between nowrap"><div class="eyebrow">${esc(a.s)} · ${$t("al.age", { v: a.age })}</div><span style="font-size:var(--fs-5xl)">${ICON[a.kind] || "🏀"}</span></div><p style="margin:2px 0 0">${esc(a.text)}</p>${a.team ? `<div class="small muted">${esc(a.team)}</div>` : ""}</div>`
           )
           .join("")}</div>`
       : `<p class="small muted">${$t("al.empty")}</p>`,

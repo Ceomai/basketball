@@ -11,6 +11,7 @@
      Zenginsen kendi yarış atını alırsın: her yarışta koşar, kazanırsa ödül. */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, esc, fmt, pick, rnd } from "./data.js";
+import { tok } from "./theme.js";
 import { S, app, closeSheet, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
@@ -174,7 +175,7 @@ const spark = h => {
         `${((i / Math.max(1, h.length - 1)) * w).toFixed(1)},${(hh - ((v - mn) / Math.max(0.01, mx - mn)) * hh).toFixed(1)}`
     )
     .join(" ");
-  return `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}"><polyline points="${pts}" fill="none" stroke="${h[h.length - 1] >= h[0] ? "#36d38e" : "#ff5468"}" stroke-width="1.5"/></svg>`;
+  return `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}"><polyline points="${pts}" fill="none" style="stroke:var(${h[h.length - 1] >= h[0] ? "--good" : "--bad"})" stroke-width="1.5"/></svg>`;
 };
 const FEE = 0.01; // alım ve satımda komisyon
 const lot = s => Math.max(1, Math.round((15 * pm()) / mk().p[s.id])); // bir lot ≈ 15 × seviye
@@ -191,7 +192,7 @@ export function locBorsa(I) {
           ch = ((m.p[s.id] - prev) / prev) * 100,
           own = m.own[s.id] || 0,
           pl = own ? Math.round(own * m.p[s.id] - (m.cost[s.id] || 0)) : 0;
-        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: fmt(m.p[s.id]), n: own })}${late.stockInfo(s.id)}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2" style="grid-column:1/-1"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] * (1 + FEE) ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
+        return `<div class="act"><div><h3>${$t(`bs.s.${s.id}`)} <span class="${ch >= 0 ? "good" : "bad"}">${ch >= 0 ? "+" : ""}${ch.toFixed(1)}%</span></h3><p>${$t("bs.line", { p: fmt(m.p[s.id]), n: own })}${late.stockInfo(s.id)}${own ? ` · <b class="${pl >= 0 ? "good" : "bad"}">${pl >= 0 ? "+" : ""}${fmt(pl)}</b>` : ""}</p>${spark(h)}</div><div class="grid2 span-all"><button class="btn sm" data-sb="${s.id}" ${S.money < lot(s) * m.p[s.id] * (1 + FEE) ? "disabled" : ""}>${$t("bs.buy", { n: lot(s) })}</button><button class="btn ghost sm" data-ss="${s.id}" ${own ? "" : "disabled"}>${$t("bs.sell")}</button></div></div>`;
       }
     ).join("")}`
   );
@@ -284,12 +285,12 @@ export function locHipodrom(I) {
     I.n,
     $t("hp.sub"),
     `<div class="card fm"><div class="eyebrow">${$t("hp.card")}</div><p class="small muted">${$t("hp.note", { v: fmt(bet) })}</p>
-     <div class="row between nowrap" style="gap:8px"><div class="opts" id="hp-kind">${["win", "place"].map(k => `<button class="opt ${kind === k ? "on" : ""}" data-v="${k}">${$t(`hp.k.${k}`)}</button>`).join("")}</div>
+     <div class="row between nowrap gap-2"><div class="opts" id="hp-kind">${["win", "place"].map(k => `<button class="opt ${kind === k ? "on" : ""}" data-v="${k}">${$t(`hp.k.${k}`)}</button>`).join("")}</div>
      <div class="opts" id="hp-mul">${[1, 3, 10].map(m => `<button class="opt ${mul === m ? "on" : ""}" data-v="${m}" ${S.money < bet * m ? "disabled" : ""}>${fmt(bet * m)}</button>`).join("")}</div></div></div>
      <div class="choices">${field
        .map(
          (h, i) =>
-           `<button class="choice" data-hb="${i}" ${S.money < stake ? "disabled" : ""}><span class="ct" style="display:flex;align-items:center;gap:6px">${silkSVG(h)} ${esc(h.n)}${h.mine ? ` · <b class="gold">${$t("hp.mine")}</b>` : ""}</span><span class="cd">${$t("hp.line", { j: h.jockey, f: h.form })}</span><span class="od e">${(kind === "place" ? placeOdds(h) : h.odds).toFixed(1)}</span></button>`
+           `<button class="choice" data-hb="${i}" ${S.money < stake ? "disabled" : ""}><span class="ct" style="display:flex;align-items:center;gap:var(--sp-1h)">${silkSVG(h)} ${esc(h.n)}${h.mine ? ` · <b class="gold">${$t("hp.mine")}</b>` : ""}</span><span class="cd">${$t("hp.line", { j: h.jockey, f: h.form })}</span><span class="od e">${(kind === "place" ? placeOdds(h) : h.odds).toFixed(1)}</span></button>`
        )
        .join("")}</div>
      ${S.horse ? `<p class="small">${$t("hp.own", { n: S.horse.n, w: S.horse.wins || 0 })}</p>` : `<div class="act"><div><h3>${$t("hp.buyH")}</h3><p>${$t("hp.buyD", { v: fmt(horseCost) })}</p></div><button class="btn sm" id="hp-buy" ${S.money < horseCost ? "disabled" : ""}>${$t("hp.buy")}</button></div>`}`
@@ -412,8 +413,8 @@ function race(I, field, pickI, bet, kind = "win") {
     win = order[0];
   save();
   closeSheet();
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("hp.sub")}</div><h2>${$t("hp.live")}</h2></div>
-   <div class="card" style="padding:6px"><canvas id="hp-cv"></canvas><div id="hp-ord" class="row nowrap" style="gap:4px;justify-content:center;margin-top:6px"></div></div>
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("hp.sub")}</div><h2>${$t("hp.live")}</h2></div>
+   <div class="card" style="padding:var(--sp-1h)"><canvas id="hp-cv"></canvas><div id="hp-ord" class="row nowrap" style="gap:var(--sp-1);justify-content:center;margin-top:6px"></div></div>
    <div class="say" id="hp-com" style="min-height:40px">${$t("hp.c.start")}</div><div id="race"></div>`;
   const cv = $("#hp-cv"),
     dpr = Math.min(2, window.devicePixelRatio || 1),
@@ -534,7 +535,7 @@ function race(I, field, pickI, bet, kind = "win") {
       c.strokeText(field[i].no, x - 14 * s, y - 20 * s);
       c.fillText(field[i].no, x - 14 * s, y - 20 * s);
       if (i === pickI) {
-        c.strokeStyle = "#ffc54d";
+        c.strokeStyle = tok("--warn");
         c.lineWidth = 2;
         c.beginPath();
         c.arc(x + 6 * s, y - 14 * s, 9 * s, 0, Math.PI * 2);
@@ -544,7 +545,7 @@ function race(I, field, pickI, bet, kind = "win") {
     // canlı sıralama ve anlatım
     const ranked = field.map((h, i) => i).sort((a, b) => pos[b] - pos[a]);
     const ord = $("#hp-ord");
-    if (ord) ord.innerHTML = ranked.map(i => `<span style="${i === pickI ? "outline:2px solid #ffc54d;border-radius:50%" : ""}">${silkSVG(field[i], 10)}</span>`).join("");
+    if (ord) ord.innerHTML = ranked.map(i => `<span style="${i === pickI ? "outline:2px solid var(--warn);border-radius:var(--r-round)" : ""}">${silkSVG(field[i], 10)}</span>`).join("");
     if (lead !== lastLead && t > 0.8 && pos[lead] < L) {
       lastLead = lead;
       say($t("hp.c.lead", { n: `<b>${esc(field[lead].n)}</b>` }));
@@ -586,10 +587,10 @@ function result(I, field, order, pickI, bet, kind) {
     .slice(0, 3)
     .map(
       (i, r) =>
-        `<div class="row nowrap" style="gap:8px;align-items:center"><b class="${r ? "" : "gold"}" style="width:22px">${r + 1}.</b>${silkSVG(field[i])}<span>${esc(field[i].n)}</span><span class="small muted" style="margin-left:auto">${field[i].jockey}</span></div>`
+        `<div class="row nowrap gap-2 ai-c"><b class="${r ? "" : "gold"}" style="width:22px">${r + 1}.</b>${silkSVG(field[i])}<span>${esc(field[i].n)}</span><span class="small muted" style="margin-left:auto">${field[i].jockey}</span></div>`
     )
     .join("")}
-   <div class="say" style="border-left-color:${ok ? "var(--good)" : "var(--bad)"}">${ok ? $t(kind === "place" ? "hp.wonPlace" : "hp.won", { n: field[pickI].n, v: fmt(pay) }) : $t("hp.lost", { n: field[win].n })}</div>
+   <div class="say ${ok ? "good" : "bad"}">${ok ? $t(kind === "place" ? "hp.wonPlace" : "hp.won", { n: field[pickI].n, v: fmt(pay) }) : $t("hp.lost", { n: field[win].n })}</div>
    <div class="grid2"><button class="btn" id="hp-home">${$t("casino.13")}</button><button class="btn pri" id="hp-again">${$t("hp.again")}</button></div></div>`;
   $("#hp-again").onclick = () => {
     renderMain();

@@ -338,8 +338,8 @@ export function quickWeek() {
       week: S.week
     }),
     `<div class="card"><div class="eyebrow">${t("quick.did")}</div>${plan.length ? `<div class="kv">${plan.map(([a, b]) => `<span>${esc(a)}</span><b>${esc(b)}</b>`).join("")}</div>` : `<p class="small muted">${t("quick.full")}</p>`}</div>
-   <div class="card"><div class="eyebrow">${t("quick.next")}</div><div class="row nowrap" style="gap:10px">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? t("main.home") : t("main.away")} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">${t("quick.injured")}</p>` : `<p class="small muted">${t("quick.autoNote")}</p>`}</div>
-   ${big ? `<div class="say" style="border-left-color:var(--gold)"><b>${esc(big.label)}</b> ${t("big.invite")}</div>` : ""}
+   <div class="card"><div class="eyebrow">${t("quick.next")}</div><div class="row nowrap gap-2h">${crestSVG(opp, 40)}<div><b>${esc(opp.name)}</b><div class="small muted">${fx.home ? t("main.home") : t("main.away")} · ${phaseName()}</div></div></div>${S.injury ? `<p class="small bad">${t("quick.injured")}</p>` : `<p class="small muted">${t("quick.autoNote")}</p>`}</div>
+   ${big ? `<div class="say gold"><b>${esc(big.label)}</b> ${t("big.invite")}</div>` : ""}
    ${S.injury ? `<button class="btn pri" id="qw-sim">${t("quick.watch")}</button>` : `<div class="grid2"><button class="btn ${big ? "pri" : ""}" id="qw-self">${t("quick.self")}</button><button class="btn ${big ? "ghost" : "pri"}" id="qw-sim">${t("quick.sim")}</button></div>`}`,
     { noClose: true }
   );
@@ -687,7 +687,7 @@ export function pressConference(win, after) {
     }),
     `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("story.68", {
       j: esc(j)
-    })}</div><div class="say">"${q}"</div></div></div><div class="choices" id="pch">${A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:1rem;text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`,
+    })}</div><div class="say">"${q}"</div></div></div><div class="choices" id="pch">${A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`,
     { noClose: true }
   );
   const pl = LK.press();
@@ -721,8 +721,7 @@ export function pressConference(win, after) {
         if (k === "humble") S.press = { tone: "humble", quote };
         norm();
         save();
-        $("#pch").innerHTML =
-          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="pok">${$t("ads.25")}</button>`;
+        $("#pch").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="pok">${$t("ads.25")}</button>`;
         $("#pok").onclick = () => {
           closeSheet();
           after();
@@ -736,7 +735,7 @@ export function arcSheet(title, who, look, text, choices, after) {
   sheet(
     title,
     who,
-    `<div class="who"><div id="ap"></div><div class="say">${text}</div></div><div class="choices" id="ach">${choices.map((c, i) => `<button class="choice" data-arc="${i}"><span class="ct" style="font-size:1.02rem">${c.t}</span>${c.d ? `<span class="cd">${c.d}</span>` : ""}</button>`).join("")}</div>`,
+    `<div class="who"><div id="ap"></div><div class="say">${text}</div></div><div class="choices" id="ach">${choices.map((c, i) => `<button class="choice" data-arc="${i}"><span class="ct" style="font-size:var(--fs-xl)">${c.t}</span>${c.d ? `<span class="cd">${c.d}</span>` : ""}</button>`).join("")}</div>`,
     { noClose: true }
   );
   $("#ap").appendChild(portrait(look[0], look[1]));
@@ -746,8 +745,7 @@ export function arcSheet(title, who, look, text, choices, after) {
         const out = choices[+b.dataset.arc].do();
         norm();
         save();
-        $("#ach").innerHTML =
-          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="aok">${$t("ads.25")}</button>`;
+        $("#ach").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="aok">${$t("ads.25")}</button>`;
         $("#aok").onclick = () => {
           closeSheet();
           after && after();
@@ -1536,7 +1534,7 @@ export function storyOffers(offers) {
 export function derbyNote(opp) {
   if (isDerby(opp) && !isRivalDerby(opp)) return late.dbyNoteHTML(opp);
   return isDerby(opp)
-    ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("story.120")}</b> ${$t("story.121", {
+    ? `<div class="say bad"><b>${$t("story.120")}</b> ${$t("story.121", {
         v: esc(rivalName())
       })}</div>`
     : "";

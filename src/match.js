@@ -69,9 +69,9 @@ export function bugHTML() {
   const us = S.team,
     op = M.opp;
   const L = M.home ? [us, M.us, op, M.them] : [op, M.them, us, M.us];
-  return `<div class="bug"><div class="side"><span class="stripe" style="background:${L[0].c1}"></span><div style="min-width:0"><div class="ab">${esc(L[0].short)}</div><div class="full">${esc(L[0].name)}</div></div><div class="sc">${L[1]}</div></div>
+  return `<div class="bug"><div class="side"><span class="stripe" style="background:${L[0].c1}"></span><div class="minw-0"><div class="ab">${esc(L[0].short)}</div><div class="full">${esc(L[0].name)}</div></div><div class="sc">${L[1]}</div></div>
    <div class="mid"><div class="q">${$t("common.q", { n: M.q })}</div><div class="clk">${M.clock}</div></div>
-   <div class="side r"><span class="stripe" style="background:${L[2].c1}"></span><div style="min-width:0"><div class="ab">${esc(L[2].short)}</div><div class="full">${esc(L[2].name)}</div></div><div class="sc">${L[3]}</div></div></div>`;
+   <div class="side r"><span class="stripe" style="background:${L[2].c1}"></span><div class="minw-0"><div class="ab">${esc(L[2].short)}</div><div class="full">${esc(L[2].name)}</div></div><div class="sc">${L[3]}</div></div></div>`;
 }
 export function updBug() {
   const b = $("#bug");
@@ -452,7 +452,7 @@ export function finishMatch(win) {
     win ? $t("match.32") : $t("match.33"),
     `${phaseName()} · ${opp.name}`,
     `
-   <div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(S.team, 36)}<span class="big-num">${M.us}–${M.them}</span>${crestSVG(opp, 36)}</div><div style="text-align:right"><div class="eyebrow">${$t("match.36")}</div><div class="rating" style="color:${r >= 7 ? "var(--good)" : r >= 5 ? "var(--text)" : "var(--bad)"}">${r.toFixed(1)}</div></div></div>
+   <div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${M.us}–${M.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("match.36")}</div><div class="rating" style="color:${r >= 7 ? "var(--good)" : r >= 5 ? "var(--text)" : "var(--bad)"}">${r.toFixed(1)}</div></div></div>
    <div class="box"><div><b>${M.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${M.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${M.reb}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${M.blk + M.stl}</b><span class="eyebrow">${$t("match.37")}</span></div></div>
    <div class="who"><div id="cp"></div><div><div class="eyebrow">${$t("match.38", {
      coach: esc(S.npc.coach)
@@ -464,7 +464,7 @@ export function finishMatch(win) {
    })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}<span>${$t("pf.label")}</span><b class="${M.fo ? "bad" : ""}">${M.pf || 0}${M.fo ? ` · ${$t("pf.outShort")}` : ""}</b></div>
    ${
      inj
-       ? `<div class="say" style="border-left-color:var(--bad)"><b>${$t("match.34")}</b> ${$t("match.35", {
+       ? `<div class="say bad"><b>${$t("match.34")}</b> ${$t("match.35", {
            n: esc(inj.n),
            w: inj.w
          })}</div>`
@@ -691,7 +691,7 @@ export function eventSheet(ev, after) {
   sheet(
     ev.title,
     ev.who,
-    `<div class="who"><div id="ep"></div><div class="say">${ev.text}</div></div><div class="choices" id="ch">${ev.choices.map((x, i) => `<button class="choice" data-i="${i}"><span class="ct" style="font-size:1.05rem">${x.t}</span></button>`).join("")}</div>`,
+    `<div class="who"><div id="ep"></div><div class="say">${ev.text}</div></div><div class="choices" id="ch">${ev.choices.map((x, i) => `<button class="choice" data-i="${i}"><span class="ct" style="font-size:var(--fs-2xl)">${x.t}</span></button>`).join("")}</div>`,
     { noClose: true }
   );
   $("#ep").appendChild(portrait(ev.look[0], ev.look[1]));
@@ -702,7 +702,7 @@ export function eventSheet(ev, after) {
         norm();
         save();
         $("#ch").innerHTML =
-          `<div class="say" style="border-left-color:var(--warn)">${out}</div><button class="btn pri" id="ok">${$t("ads.25")}</button>`;
+          `<div class="say warn">${out}</div><button class="btn pri" id="ok">${$t("ads.25")}</button>`;
         $("#ok").onclick = after;
       })
   );
@@ -872,7 +872,7 @@ export function offerHTML(o, i) {
   const up = ORDER.indexOf(o.stage) > ORDER.indexOf(S.stage);
   const lab = o.stay ? $t("match.59") : o.uni ? $t("match.60") : up ? $t("match.61") : $t("match.62"),
     cls = o.stay ? "e" : o.uni ? "i" : up ? "m" : "i";
-  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:8px;font-size:1.08rem">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${isPro(o.stage) && !o.uni ? ` · ${late.offerFitNote(t)}` : ""}${buyoutFor(o) ? ` ${$t("match.133")} ${fmt(buyoutFor(o))}` : ""}${
+  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-2xl)">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${isPro(o.stage) && !o.uni ? ` · ${late.offerFitNote(t)}` : ""}${buyoutFor(o) ? ` ${$t("match.133")} ${fmt(buyoutFor(o))}` : ""}${
     o.wage
       ? ` ${$t("match.63", {
           wage: fmt(o.wage)
@@ -1134,7 +1134,7 @@ export function retireScreen() {
   closeSheet();
   const k = S.career;
   const legend = late.legacyScore(); // miras puanı: src/legacy.js
-  app.innerHTML = `<div style="padding-top:18px"><div class="eyebrow">${seasonLabel()}</div><h1>${$t("match.86")}</h1></div>
+  app.innerHTML = `<div class="pt-4h"><div class="eyebrow">${seasonLabel()}</div><h1>${$t("match.86")}</h1></div>
   <div class="card"><div class="who"><div id="rp"></div><div><h2>${esc(fullName())}</h2><p class="muted">${$t("match.87", {
     age: S.age,
     name: esc(S.team.name)

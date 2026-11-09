@@ -25,7 +25,7 @@ const ACTS = [
 const actOf = k => ACTS.find(a => a[0] === k);
 export const planRowHTML = () =>
   S && !S.brk && late.unlocked("plan")
-    ? `<div class="grid2" style="margin-top:6px"><button class="btn ghost sm" id="wplan">${$t("pl2.plan")}</button>${
+    ? `<div class="grid2 mt-1h"><button class="btn ghost sm" id="wplan">${$t("pl2.plan")}</button>${
         late.autoPlanAlways() // ayar: haftayı her zaman otomatik planla (src/autoplan.js)
           ? `<button class="btn ghost sm" id="wauto" ${S.slot > 0 ? "" : "disabled"}>${$t("ap.apply")}</button>`
           : `<button class="btn ghost sm" id="wrep" ${S.lastPlan && S.slot > 0 ? "" : "disabled"}>${$t("pl2.repeat")}</button>`
@@ -102,7 +102,7 @@ export function runPlan(plan) {
   sheet(
     $t("pl2.done"),
     $t("pl2.doneSub"),
-    `<div class="card" style="gap:6px">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("casino.13")}</button>`
+    `<div class="card gap-1h">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("casino.13")}</button>`
   );
   $("#pl-ok").onclick = renderMain;
 }

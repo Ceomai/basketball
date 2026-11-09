@@ -182,12 +182,10 @@ export const extraNumbers = () => [
 /* ---- Başlangıç hikâyesi seçici ve etkileri ---- */
 export function originPickerHTML(cur) {
   const c = originOpen(cur) ? cur : "istanbul";
-  return `<div><div class="eyebrow" style="margin-bottom:6px">${$t("org.title")}</div><div class="opts" id="origin">${ORIGINS.map(
-    o => {
-      const open = originOpen(o);
-      return `<button class="opt ${c === o ? "on" : ""}" data-v="${o}" ${open ? "" : "disabled"} style="${open ? "" : "opacity:.45"}">${open ? "" : "🔒 "}${$t(O_KEYS[o][0])}</button>`;
-    }
-  ).join("")}</div><p class="small muted" style="margin-top:6px">${$t(O_KEYS[c][1])}</p></div>`;
+  return `<div><div class="eyebrow mb-1h">${$t("org.title")}</div><div class="opts" id="origin">${ORIGINS.map(o => {
+    const open = originOpen(o);
+    return `<button class="opt ${c === o ? "on" : ""}" data-v="${o}" ${open ? "" : "disabled"} style="${open ? "" : "opacity:.45"}">${open ? "" : "🔒 "}${$t(O_KEYS[o][0])}</button>`;
+  }).join("")}</div><p class="small muted mt-1h">${$t(O_KEYS[c][1])}</p></div>`;
 }
 /** startCareer içinden (oğul kariyerinde uygulanmaz) */
 export function applyOrigin(o) {
@@ -245,7 +243,7 @@ export function legendsSheet(back) {
     );
   const ul = UNLOCKS.map(
     u =>
-      `<div class="row between nowrap small" style="padding:3px 0"><span>${U.has(u.id) ? "✓" : "🔒"} ${$t(U_NAME[u.id])}</span><span class="${U.has(u.id) ? "good" : "muted"}">${U.has(u.id) ? $t("leg.open") : $t(u.req)}</span></div>`
+      `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span>${U.has(u.id) ? "✓" : "🔒"} ${$t(U_NAME[u.id])}</span><span class="${U.has(u.id) ? "good" : "muted"}">${U.has(u.id) ? $t("leg.open") : $t(u.req)}</span></div>`
   ).join("");
   sheet(
     $t("leg.title"),

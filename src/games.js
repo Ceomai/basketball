@@ -1,6 +1,7 @@
 import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, ORDER, clamp, gauss, pick, rnd, shuffle, GOOD, BAD } from "./data.js";
+import { tok, tokAlpha } from "./theme.js";
 import { SKINS, drawBall, drawKid, ell, rr } from "./art.js";
 /* ================= MİNİ OYUN ALTYAPISI ================= */
 export const W = 360,
@@ -84,10 +85,10 @@ export function bigText(c, t, y = 130, col = "#ffffff", sz = 36) {
     h = fs + 18,
     x = W / 2 - w / 2;
   c.globalAlpha = 0.9;
-  rr(c, x, y - h + 6, w, h, 6, "#05080e", false);
+  rr(c, x, y - h + 6, w, h, 6, tok("--stage-bg"), false);
   c.globalAlpha = 1;
-  rr(c, x, y - h + 6, 5, h, 2, col === "#ffffff" ? "#8c99ae" : col, false);
-  c.fillStyle = col === "#ffffff" ? "#eef2f8" : col;
+  rr(c, x, y - h + 6, 5, h, 2, col === "#ffffff" ? tok("--muted") : col, false);
+  c.fillStyle = col === "#ffffff" ? tok("--text") : col;
   c.textAlign = "center";
   c.textBaseline = "middle";
   c.fillText(u, W / 2 + 2, y - h / 2 + 6);
@@ -98,8 +99,8 @@ export function hint(c, t, y = 30) {
   c.font = "700 13px Manrope,sans-serif";
   c.textAlign = "center";
   const w = c.measureText(t).width + 22;
-  rr(c, W / 2 - w / 2, y - 17, w, 26, 13, "rgba(5,8,14,.8)", false);
-  c.fillStyle = "#eef2f8";
+  rr(c, W / 2 - w / 2, y - 17, w, 26, 13, tokAlpha("--stage-bg", 0.8), false);
+  c.fillStyle = tok("--text");
   c.fillText(t, W / 2, y + 1);
   c.restore();
 }
@@ -462,11 +463,11 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         hint(c, $t("games.3"));
         if (def) {
           c.font = "700 11px Manrope";
-          c.fillStyle = "#8c99ae";
+          c.fillStyle = tok("--muted");
           c.textAlign = "left";
           c.fillText($t("games.4"), 14, 64);
           rr(c, 14, 70, 100, 6, 3, "#24314a", false);
-          rr(c, 14, 70, Math.max(4, 100 * st.pr), 6, 3, st.pr > 0.66 ? BAD() : st.pr > 0.33 ? "#ffc54d" : GOOD(), false);
+          rr(c, 14, 70, Math.max(4, 100 * st.pr), 6, 3, st.pr > 0.66 ? BAD() : st.pr > 0.33 ? tok("--warn") : GOOD(), false);
         }
         c.font = '800 15px "Barlow Condensed"';
         c.textAlign = "right";
@@ -475,12 +476,12 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         if (!def && X && X.press === 0) {
           c.font = '800 16px "Barlow Condensed"';
           c.textAlign = "left";
-          c.fillStyle = "#36d38e";
+          c.fillStyle = GOOD();
           c.fillText($t("ct.open").toLocaleUpperCase(), 14, 72); // sahada boştaydın: savunmacı yok
         }
       }
       if (st.ph === "done") {
-        bigText(c, st.msg, 140, st.ball.in ? "#ffc54d" : "#ffffff");
+        bigText(c, st.msg, 140, st.ball.in ? tok("--warn") : "#ffffff");
         if (st.t > 1.1) {
           n++;
           if (n >= shots) finish(stop, res, { made, pts, shots });
@@ -606,7 +607,7 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
       rr(c, bx + bw * st.nv - 3, by - 6, 6, 32, 3, "#ffffff", false);
       if (st.ph === "aim") hint(c, kind === "steal" ? $t("games.14") : kind === "dunk" ? $t("games.15") : $t("games.16"), 40);
       if (st.ph === "done") {
-        bigText(c, st.msg, 170, st.ball.in || st.ok ? "#ffc54d" : "#ffffff");
+        bigText(c, st.msg, 170, st.ball.in || st.ok ? tok("--warn") : "#ffffff");
         if (st.t > 1) {
           n++;
           if (n >= tries) finish(stop, res, { ok, tries });
@@ -744,7 +745,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
       st.mates.forEach((m, i) => {
         if (st.ph === "aim") {
           c.save();
-          c.strokeStyle = "#ffc54d";
+          c.strokeStyle = tok("--warn");
           c.lineWidth = 3;
           c.setLineDash([5, 5]);
           c.beginPath();
@@ -802,7 +803,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
       }
       if (st.ph === "done") {
         st.t2 += dt;
-        bigText(c, st.msg, 250, st.ok ? "#ffc54d" : "#ffffff");
+        bigText(c, st.msg, 250, st.ok ? tok("--warn") : "#ffffff");
         if (st.t2 > 1.1) {
           if (st.ok) ok++;
           n++;
@@ -924,7 +925,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
         c.beginPath();
         c.arc(st.ball.x, st.ball.y, 16, 0, 7);
         c.stroke();
-        c.strokeStyle = Math.abs(st.ring - 16) < st.tol ? "#ffc54d" : "#fff";
+        c.strokeStyle = Math.abs(st.ring - 16) < st.tol ? tok("--warn") : "#fff";
         c.lineWidth = 3;
         c.beginPath();
         c.arc(st.ball.x, st.ball.y, Math.max(1, st.ring), 0, 7);
@@ -932,7 +933,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
       }
       if (st.ph !== "done") hint(c, $t("games.25"));
       if (st.ph === "done") {
-        bigText(c, st.msg, 130, st.ok ? "#ffc54d" : "#ffffff");
+        bigText(c, st.msg, 130, st.ok ? tok("--warn") : "#ffffff");
         if (st.t > 1.1) {
           if (st.ok) ok++;
           n++;
@@ -1069,8 +1070,17 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       st.seq.forEach((k, i) => {
         const done = i < st.i,
           cur = i === st.i && st.ph === "go";
-        rr(c, x0 + i * (bw + gap), 56 - (cur ? 6 : 0), bw, bw, 10, done ? GOOD() : cur ? "#ffc54d" : "rgba(20,29,46,.9)", false);
-        c.fillStyle = done || cur ? "#05080e" : "#eef2f8";
+        rr(
+          c,
+          x0 + i * (bw + gap),
+          56 - (cur ? 6 : 0),
+          bw,
+          bw,
+          10,
+          done ? GOOD() : cur ? tok("--warn") : "rgba(20,29,46,.9)",
+          false
+        );
+        c.fillStyle = done || cur ? tok("--stage-bg") : tok("--text");
         c.font = '800 34px "Barlow Condensed"';
         c.textAlign = "center";
         c.fillText(AR[k], x0 + i * (bw + gap) + bw / 2, 56 - (cur ? 6 : 0) + 39);
@@ -1081,7 +1091,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
         hint(c, $t("games.30"), 28);
       }
       if (st.ph === "done") {
-        bigText(c, st.msg, 185, st.ok ? "#ffc54d" : "#ffffff", 30);
+        bigText(c, st.msg, 185, st.ok ? tok("--warn") : "#ffffff", 30);
         if (st.t > 1.2) {
           if (st.ok) ok++;
           n++;
@@ -1205,7 +1215,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
       drawHoopFront(c);
       if (st.ph === "push") {
         rr(c, 30, 70, 300, 14, 7, "#141d2e", false);
-        rr(c, 30, 70, 300 * st.pos, 14, 7, "#ff6a2b", false);
+        rr(c, 30, 70, 300 * st.pos, 14, 7, tok("--hot"), false);
         hint(c, $t("games.34"), 40);
         c.font = '800 13px "Barlow Condensed"';
         c.fillStyle = "#fff";
@@ -1221,7 +1231,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         hint(c, $t("games.35"), 40);
       }
       if (st.ph === "done") {
-        bigText(c, st.msg, 160, st.ok ? "#ffc54d" : "#fff");
+        bigText(c, st.msg, 160, st.ok ? tok("--warn") : "#fff");
         if (st.t > 1.1) {
           n++;
           if (n >= reps) finish(stop, res, { ok, reps });
@@ -1320,7 +1330,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
         hint(c, $t("games.39"));
       }
       if (st.ph === "done") {
-        bigText(c, st.msg, 140, st.ok ? "#ffc54d" : "#fff");
+        bigText(c, st.msg, 140, st.ok ? tok("--warn") : "#fff");
         if (st.t > 1.1) {
           n++;
           if (n >= reps) finish(stop, res, { ok, reps });
@@ -1406,7 +1416,7 @@ export function mgGym(el, { title = $t("games.41") }) {
         rr(c, 30, 96, 300, 6, 3, "#24314a", false);
         rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / GYM_T)), 6, 3, GOOD(), false);
       }
-      bigText(c, String(taps), 160, "#ffc54d", 52);
+      bigText(c, String(taps), 160, tok("--warn"), 52);
       if (!started) hint(c, $t("games.44"), H - 20);
       if (t >= GYM_T && !done) {
         done = true;
@@ -1540,7 +1550,7 @@ export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
         c.fillRect(0, 0, W, H);
         flash -= dt * 3;
       }
-      if (last) bigText(c, last, 150, "#ffc54d", 26);
+      if (last) bigText(c, last, 150, tok("--warn"), 26);
       if (shots === 0) hint(c, $t("games.54"), H - 14);
       if (shots >= 3 && flash <= 0) {
         setTimeout(() => finish(stop, res, { score: best, img: bestImg }), 500);

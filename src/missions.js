@@ -125,7 +125,7 @@ export function missionsHTML() {
   const allDaily = M.daily.every(m => m.claimed);
   return `<div class="card missions"><div class="row between"><div class="eyebrow">${$t("missions.19")}</div><span class="small muted">${$t("missions.20")}</span></div>${M.daily.map(m => row(m, false)).join("")}
    ${allDaily && !M.bonus ? `<button class="btn team sm" id="ms-bonus">${$t("missions.18")}</button>` : ""}
-   <div class="eyebrow" style="margin-top:6px">${$t("missions.21")}</div>${M.weekly.map(m => row(m, true)).join("")}</div>`;
+   <div class="eyebrow mt-1h">${$t("missions.21")}</div>${M.weekly.map(m => row(m, true)).join("")}</div>`;
 }
 export function bindMissions(re) {
   $$("[data-ms]").forEach(

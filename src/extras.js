@@ -142,7 +142,7 @@ export function boardSheet(g = "arcade", period = "w") {
    <div class="opts" id="gsel">${Object.entries(ARC_GAMES)
      .map(([k, v]) => `<button class="opt ${k === g ? "on" : ""}" data-g="${k}">${v.n}</button>`)
      .join("")}</div>
-   <div class="card"><div class="tbl"><table><tr><th>#</th><th>${$t("extras.10")}</th><th style="text-align:right">${$t("extras.11")}</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ` <span class="muted small">${$t("extras.6")}</span>` : ""}</td><td style="text-align:right">${r.s}</td></tr>`).join("")}</table></div></div>
+   <div class="card"><div class="tbl"><table><tr><th>#</th><th>${$t("extras.10")}</th><th class="ta-r">${$t("extras.11")}</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ` <span class="muted small">${$t("extras.6")}</span>` : ""}</td><td class="ta-r">${r.s}</td></tr>`).join("")}</table></div></div>
    <div class="card small"><div class="eyebrow">${$t("extras.12")}</div><div>${period === "w" ? $t("extras.7") : $t("extras.8")}</div><div class="muted">${$t("extras.13")} ${period === "w" ? "hafta" : $t("extras.9")} ${$t("extras.14")}</div></div>
    <button class="btn pri" id="bkE">${$t("extras.15")}</button>`
   );
@@ -273,7 +273,7 @@ export function natMatch(cat, opp, label, after, auto = false) {
       sheet(
         win ? $t("extras.24") : $t("extras.25"),
         label,
-        `<div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div style="text-align:right"><div class="eyebrow">${$t("extras.30")}</div><div class="rating">${r.toFixed(1)}</div></div></div>
+        `<div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("extras.30")}</div><div class="rating">${r.toFixed(1)}</div></div></div>
       <div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${S.career.natCaps}</b><span class="eyebrow">${$t("extras.32")}</span></div></div>
       <div class="say">${win ? pick([$t("extras.26"), $t("extras.27")]) : pick([$t("extras.28"), $t("extras.29")])}</div>
       <button class="btn pri" id="nok">${$t("ads.25")}</button>`,
@@ -288,7 +288,7 @@ export function camp(cat, title, after) {
   sheet(
     $t("extras.33"),
     title,
-    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? $t("extras.34") : cat + $t("extras.35")}</div><h2 style="font-size:1.8rem">${$t("extras.40")}</h2></div><div class="bd">
+    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? $t("extras.34") : cat + $t("extras.35")}</div><h2 style="font-size:var(--fs-8xl)">${$t("extras.40")}</h2></div><div class="bd">
    <p>${$t("extras.41", {
      natCoach: esc(S.npc.natCoach)
    })} ${cat === "A" ? $t("extras.34") : cat + $t("extras.35")} ${$t("extras.42", {

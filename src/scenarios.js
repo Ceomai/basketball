@@ -27,9 +27,9 @@ export const SCENARIOS = {
 };
 export function scenarioPickerHTML(cur) {
   const c = cur || "";
-  return `<div><div class="eyebrow" style="margin-bottom:6px">${$t("sc.title")}</div><div class="opts" id="scn">${["", ...Object.keys(SCENARIOS)]
+  return `<div><div class="eyebrow mb-1h">${$t("sc.title")}</div><div class="opts" id="scn">${["", ...Object.keys(SCENARIOS)]
     .map(k => `<button class="opt ${c === k ? "on" : ""}" data-v="${k}">${$t(`sc.${k || "none"}`)}</button>`)
-    .join("")}</div><p class="small muted" style="margin-top:6px">${$t(`sc.${c || "none"}D`)}</p></div>`;
+    .join("")}</div><p class="small muted mt-1h">${$t(`sc.${c || "none"}D`)}</p></div>`;
 }
 /** startCareer sonrasında (src/core.js): senaryo başlangıcını kur */
 export function scenarioSetup(id) {
@@ -122,7 +122,7 @@ export function familyTreeHTML() {
   return `<div class="card"><div class="eyebrow">${$t("sc.family")}</div>${rows
     .map(
       (r, i) =>
-        `<div class="row nowrap" style="gap:8px;align-items:center;padding-left:${i * 10}px"><span class="pill ${r.me ? "w" : ""}">${i + 1}</span><b>${esc(r.n)}</b><span class="small muted">${r.pos} · ${$t("sc.trophies", { n: r.tr })}${r.t ? ` · ${esc(r.t)}` : ""}</span></div>`
+        `<div class="row nowrap" style="gap:var(--sp-2);align-items:center;padding-left:${i * 10}px"><span class="pill ${r.me ? "w" : ""}">${i + 1}</span><b>${esc(r.n)}</b><span class="small muted">${r.pos} · ${$t("sc.trophies", { n: r.tr })}${r.t ? ` · ${esc(r.t)}` : ""}</span></div>`
     )
     .join("")}</div>`;
 }

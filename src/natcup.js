@@ -51,7 +51,7 @@ function fixturesHTML() {
   return T.games
     .map(
       g =>
-        `<div class="row between nowrap small" style="padding:4px 0"><span>${label(g)} · ${flag(g.cc)}</span><b class="${g.res ? (g.res.win ? "good" : "bad") : ""}">${g.res ? `${g.res.us}–${g.res.them}` : "–"}</b></div>`
+        `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span>${label(g)} · ${flag(g.cc)}</span><b class="${g.res ? (g.res.win ? "good" : "bad") : ""}">${g.res ? `${g.res.us}–${g.res.them}` : "–"}</b></div>`
     )
     .join("");
 }
@@ -89,12 +89,9 @@ function hub() {
      }
      ${T.freeAt === T.at ? "" : `<div class="act"><div><h3>${$t("pl2.free")}</h3><p>${$t("pl2.freeD")}</p></div><button class="btn team sm" id="nt-free">${$t("pl2.freeGo")}</button></div>`}
      <div class="grid2"><button class="btn pri" id="nt-play">${$t("quick.self")}</button><button class="btn" id="nt-sim">${$t("quick.sim")}</button></div>`;
-  sheet(
-    T.name,
-    `${$t("nt.day", { n: T.at + 1 })}`,
-    `${tabsHTML(tabs, T.tab, "nt")}<div style="display:flex;flex-direction:column;gap:10px">${body}</div>`,
-    { noClose: true }
-  );
+  sheet(T.name, `${$t("nt.day", { n: T.at + 1 })}`, `${tabsHTML(tabs, T.tab, "nt")}<div class="stack">${body}</div>`, {
+    noClose: true
+  });
   $$("[data-nt]").forEach(b => (b.onclick = () => ((T.tab = b.dataset.nt), hub())));
   $$("[data-np]").forEach(
     b =>

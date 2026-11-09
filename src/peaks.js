@@ -72,7 +72,7 @@ async function runContest(k, done) {
   arenaFor(null);
   const c = CONTESTS[k],
     e = clamp(eff(c.st) + 12, 5, 100);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${esc(eventName())}</div><h2>${$t(c.n)}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${esc(eventName())}</div><h2>${$t(c.n)}</h2></div><div id="stg"></div><div id="res"></div>`;
   let won, score;
   if (k === "three") {
     const r = await mgShoot($("#stg"), { eff: e, shots: 5, title: $t(c.n), dist: "three", def: false });
@@ -183,7 +183,7 @@ function midWindowSheet() {
     `<p>${S.role === "bench" ? $t("pk.trWhyBench") : S.rel.koc < 35 ? $t("pk.trWhyCoach") : $t("pk.trWhyStar")}</p><div class="choices">${offers
       .map(
         (o, i) =>
-          `<button class="choice" data-mt="${i}"><span class="ct" style="display:flex;align-items:center;gap:8px">${crestSVG(o.team, 26)}<span>${esc(o.team.name)}</span></span><span class="cd">${esc(o.team.city)} · ${ROLE_N[o.role]} · ${$t("match.63", { wage: fmt(o.wage) })} ${$t("match.64", { years: o.years })}</span><span class="od m">${$t("pk.trMove")}</span></button>`
+          `<button class="choice" data-mt="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2)">${crestSVG(o.team, 26)}<span>${esc(o.team.name)}</span></span><span class="cd">${esc(o.team.city)} · ${ROLE_N[o.role]} · ${$t("match.63", { wage: fmt(o.wage) })} ${$t("match.64", { years: o.years })}</span><span class="od m">${$t("pk.trMove")}</span></button>`
       )
       .join("")}</div><button class="btn ghost" id="mt-stay">${$t("pk.trStay")}</button>`,
     { noClose: true }

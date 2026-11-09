@@ -136,7 +136,7 @@ export function dbyResult(win) {
 /* ---- Stadyum: derbi notu ---- */
 export function dbyNoteHTML(opp) {
   const r = D().recs[opp.key];
-  return `<div class="say" id="dby-note" style="border-left-color:var(--bad)"><b>${$t("story.120")}</b> ${$t("dby.note", { t: esc(opp.name), c: esc(S.city) })}${r ? ` <span class="small">${$t("dby.h2h", { w: r.w, l: r.l })}</span>` : ""}</div>`;
+  return `<div class="say bad" id="dby-note"><b>${$t("story.120")}</b> ${$t("dby.note", { t: esc(opp.name), c: esc(S.city) })}${r ? ` <span class="small">${$t("dby.h2h", { w: r.w, l: r.l })}</span>` : ""}</div>`;
 }
 
 /* ---- Tribün: derbi ve seri atmosferi (src/matchday.js matchdayStart) ---- */
@@ -176,7 +176,7 @@ export function dbyPressSheet() {
     ]
       .map(
         k =>
-          `<button class="choice" data-dbp="${k}"><span class="ct" style="font-size:1rem;text-transform:none;letter-spacing:0">${$t(`dby.p.${k}`, { t: esc(opp.name) })}</span><span class="cd">${$t(`dby.p.${k}D`)}</span></button>`
+          `<button class="choice" data-dbp="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${$t(`dby.p.${k}`, { t: esc(opp.name) })}</span><span class="cd">${$t(`dby.p.${k}D`)}</span></button>`
       )
       .join("")}</div><button class="btn ghost" id="dby-skip">${$t("dby.skip")}</button>`,
     { noClose: true }
@@ -184,8 +184,7 @@ export function dbyPressSheet() {
   const done = txt => {
     norm();
     save();
-    $("#shb").innerHTML =
-      `<div class="say" style="border-left-color:var(--warn)">${txt}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`;
+    $("#shb").innerHTML = `<div class="say warn">${txt}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`;
     $("#dby-ok").onclick = () => {
       closeSheet();
       renderMain();
@@ -238,7 +237,7 @@ export function dbyCitySheet() {
   sheet(
     $t("dby.cityT", { c: S.city }),
     $t("dby.cityS", { t: p.n, us: p.us, them: p.them }),
-    `<div class="say" style="border-left-color:${p.win ? "var(--good)" : "var(--bad)"}">${$t(`dby.city.${k}`, { t: esc(p.n), c: esc(S.city), v: esc(S.last) })}</div><div class="small muted">${$t("dby.cityRec", { w: S.dby.w, l: S.dby.l })}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`,
+    `<div class="say ${p.win ? "good" : "bad"}">${$t(`dby.city.${k}`, { t: esc(p.n), c: esc(S.city), v: esc(S.last) })}</div><div class="small muted">${$t("dby.cityRec", { w: S.dby.w, l: S.dby.l })}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`,
     { noClose: true }
   );
   $("#dby-ok").onclick = () => {

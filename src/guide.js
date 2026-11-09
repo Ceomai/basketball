@@ -38,7 +38,7 @@ export function onboardHTML() {
   if (o.done || o.hide) return "";
   return `<div class="card" id="onb"><div class="row between"><div class="eyebrow">${$t("ob.title")}</div><button class="btn ghost sm" id="ob-x">${$t("ob.hide")}</button></div>${STEPS.map(
     s =>
-      `<div class="row nowrap small" style="gap:8px;padding:2px 0"><b class="${o[s] ? "good" : "muted"}">${o[s] ? "✓" : "○"}</b><span>${$t(`ob.${s}`)}</span></div>`
+      `<div class="row nowrap small" style="gap:var(--sp-2);padding:var(--sp-half) 0"><b class="${o[s] ? "good" : "muted"}">${o[s] ? "✓" : "○"}</b><span>${$t(`ob.${s}`)}</span></div>`
   ).join("")}<p class="small muted">${$t("ob.hint")}</p></div>`;
 }
 export function bindOnboard(re) {
@@ -82,6 +82,6 @@ export function placeTip(id) {
   if (b)
     b.insertAdjacentHTML(
       "afterbegin",
-      `<div class="say" style="border-left-color:var(--gold)"><b>${$t("tip.head")}</b> ${$t(`tip.${id}`)}</div>`
+      `<div class="say gold"><b>${$t("tip.head")}</b> ${$t(`tip.${id}`)}</div>`
     );
 }

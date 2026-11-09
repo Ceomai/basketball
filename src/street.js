@@ -71,7 +71,7 @@ async function tournament(prize) {
   S.energy -= 15;
   save();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("st.tour")}</div><h2>${$t("st.round")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("st.tour")}</div><h2>${$t("st.round")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r1 = await mgShoot($("#stg"), {
     eff: clamp(eff("sut") + 8, 5, 100),
     shots: 3,

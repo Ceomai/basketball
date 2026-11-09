@@ -654,7 +654,7 @@ export function locAvm(I, store = "sneaker") {
       shown.map(s => [s.id, s.n]),
       store,
       "s"
-    )}<div id="avc" style="display:flex;flex-direction:column;gap:10px"></div>`
+    )}<div id="avc" class="stack"></div>`
   );
   $$(".tabs button").forEach(x => (x.onclick = () => locAvm(I, x.dataset.s)));
   const c = $("#avc");
@@ -1048,7 +1048,7 @@ export function locMarket(I) {
     cats
       .map(
         ct =>
-          `<div class="eyebrow" style="margin-top:4px">${ct}</div><div class="pgrid">${MARKET.filter(m => m.cat === ct)
+          `<div class="eyebrow mt-1">${ct}</div><div class="pgrid">${MARKET.filter(m => m.cat === ct)
             .map(it => prodHTML({ id: it.id, ic: it.ic(), t: it.n, d: it.d + late.marketNote(it), price: late.marketPrice(it) }))
             .join("")}</div>`
       )
@@ -1108,11 +1108,7 @@ export function venueCard(id, title, sub, kind, on) {
 export function locEglence(I, tab = "arcade") {
   Bus.emit("place:open", "eglence");
   S.rec = Object.assign({ arcade: 0, reflex: 0, hockey: 0, rhythm: 0, bowling: 0 }, S.rec);
-  const b = sheet(
-    I.n,
-    $t("shops.9"),
-    `<div class="venues" id="vn"></div><div id="egc" style="display:flex;flex-direction:column;gap:10px"></div>`
-  );
+  const b = sheet(I.n, $t("shops.9"), `<div class="venues" id="vn"></div><div id="egc" class="stack"></div>`);
   const vn = $("#vn");
   vn.appendChild(
     venueCard(
@@ -1166,7 +1162,7 @@ export function locEglence(I, tab = "arcade") {
     }
     // gece kulübü ziyareti: koç ilişkisi -3, moral +3 (haftada bir kez)
     const nv = late.nightVisit("club");
-    if (nv) c.insertAdjacentHTML("beforeend", `<div class="say" style="border-left-color:var(--warn)">${nv}</div>`);
+    if (nv) c.insertAdjacentHTML("beforeend", `<div class="say warn">${nv}</div>`);
     const ix = ORDER.indexOf(S.stage),
       pp = Math.round(15 * (1 + ix)),
       vp = Math.round(120 * (1 + ix * 2)),
@@ -1348,7 +1344,7 @@ export async function arcadeRun(kind, paid) {
   arenaFor(null);
   Bus.emit("arcade:start", kind);
   const meta = ARCADE.find(g => g.id === kind) || { n: $t("shops.38"), rec: "rhythm" };
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("shops.37")}</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("shops.37")}</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el = $("#stg");
   let r;
   if (kind === "hoop") r = await late.mgArcade(el);

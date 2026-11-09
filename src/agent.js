@@ -258,7 +258,7 @@ async function shotSession() {
   S.prepKey = matchKey();
   late.closeSheet();
   late.arenaFor(null);
-  late.app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.shotS")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  late.app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.shotS")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await late.mgShoot($("#stg"), {
     eff: clamp(late.eff("sut") + 10, 5, 100),
     shots: 4,
@@ -280,7 +280,7 @@ async function focusGame() {
   S.prepKey = matchKey();
   late.closeSheet();
   late.arenaFor(null);
-  late.app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.focus")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  late.app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("m2.prepWeek")}</div><h2>${$t("m2.focus")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await late.mgTiming($("#stg"), { eff: 60, title: $t("m2.focus"), tries: 2, label: $t("m2.breath"), kind: "free" });
   const ok = r.ok >= 1;
   if (ok) {
@@ -366,7 +366,7 @@ function videoGame(re) {
   sheet(
     $t("prep.video"),
     $t("prep.watch"),
-    `<div class="big-num" id="vg" style="text-align:center;font-size:3rem;min-height:70px"></div><p class="small muted">${$t("prep.watchD")}</p>`,
+    `<div class="big-num" id="vg" style="text-align:center;font-size:var(--fs-display);min-height:70px"></div><p class="small muted">${$t("prep.watchD")}</p>`,
     {
       noClose: true
     }
@@ -388,7 +388,7 @@ function videoGame(re) {
       sheet(
         $t("prep.video"),
         $t("prep.repeat", { a: got.length, b: seq.length }),
-        `<div class="big-num" style="text-align:center;min-height:50px">${got.join(" ")}</div><div class="grid2">${MOVES.map(m => `<button class="btn" data-mv="${m}" style="font-size:1.6rem">${m}</button>`).join("")}</div>`,
+        `<div class="big-num" style="text-align:center;min-height:50px">${got.join(" ")}</div><div class="grid2">${MOVES.map(m => `<button class="btn" data-mv="${m}" style="font-size:var(--fs-7xl)">${m}</button>`).join("")}</div>`,
         { noClose: true }
       );
       $$("[data-mv]").forEach(
@@ -441,7 +441,7 @@ export function repOf(team) {
 export function repHTML(team, interest) {
   const r = repOf(team),
     line = interest > 0.7 ? "rep.hi" : interest > 0.5 ? "rep.mid" : interest > 0.38 ? "rep.lo" : "rep.edge";
-  return `<div class="who" id="repbox"><div id="rep"></div><div style="min-width:0"><div class="eyebrow">${$t("rep.title")}</div><b>${esc(r.n)}</b><div class="say">${$t(line, { t: esc(team.name) })}</div></div></div>`;
+  return `<div class="who" id="repbox"><div id="rep"></div><div class="minw-0"><div class="eyebrow">${$t("rep.title")}</div><b>${esc(r.n)}</b><div class="say">${$t(line, { t: esc(team.name) })}</div></div></div>`;
 }
 export function mountRep(team, interest) {
   const el = $("#rep");

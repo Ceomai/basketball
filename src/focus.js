@@ -41,7 +41,7 @@ export function focusSet(k, off) {
 
 /** Ayarlar paneli bölümü */
 export const focusSettingsHTML = () =>
-  `<div class="eyebrow" style="margin-top:4px">${$t("fo.title")}${focusCount() ? ` · ${$t("fo.offN", { n: focusCount() })}` : ""}</div>
+  `<div class="eyebrow mt-1">${$t("fo.title")}${focusCount() ? ` · ${$t("fo.offN", { n: focusCount() })}` : ""}</div>
    <p class="small muted">${$t("fo.sub")}</p>
    ${FOCUS_SYS.filter(k => !FOCUS_HARD_OFF.includes(k))
      .map(
@@ -66,7 +66,7 @@ export function focusLocSheet(id, I) {
   sheet(
     I.n,
     $t("fo.locSub"),
-    `<div class="say" style="border-left-color:var(--muted)">${$t("fo.locD", { n: $t(`fo.s.${k}`) })}</div><div class="grid2"><button class="btn ghost" id="fo-no">${$t("fo.keep")}</button><button class="btn pri" id="fo-on">${$t("fo.turnOn")}</button></div>`
+    `<div class="say muted">${$t("fo.locD", { n: $t(`fo.s.${k}`) })}</div><div class="grid2"><button class="btn ghost" id="fo-no">${$t("fo.keep")}</button><button class="btn pri" id="fo-on">${$t("fo.turnOn")}</button></div>`
   );
   $("#fo-no").onclick = () => (closeSheet(), late.renderMain());
   $("#fo-on").onclick = () => {

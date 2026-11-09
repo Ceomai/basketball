@@ -81,7 +81,7 @@ export function locSans(I, game = "rulet") {
   const b = sheet(
     I.n,
     $t("casino.17"),
-    `${tabsHTML(tabs, game, "g")}<div id="gc" style="display:flex;flex-direction:column;gap:12px"></div>`
+    `${tabsHTML(tabs, game, "g")}<div id="gc" style="display:flex;flex-direction:column;gap:var(--sp-3)"></div>`
   );
   $$(".tabs button").forEach(x => (x.onclick = () => locSans(I, x.dataset.g)));
   addScene(b, "sans", { rulet: $t("casino.44"), bj: $t("casino.45"), slot: $t("casino.46") }[game]);
@@ -89,11 +89,11 @@ export function locSans(I, game = "rulet") {
   b.insertAdjacentHTML("beforeend", late.cashierHTML());
   late.bindCashier(() => locSans(I, game));
   const nv = late.nightVisit("sans");
-  if (nv) b.insertAdjacentHTML("afterbegin", `<div class="say" style="border-left-color:var(--warn)">${nv}</div>`);
+  if (nv) b.insertAdjacentHTML("afterbegin", `<div class="say warn">${nv}</div>`);
 }
 export function roulette(I) {
   const c = $("#gc");
-  c.innerHTML = `${betBar()}<div class="felt"><div style="position:relative;width:min(280px,100%)"><canvas id="wh" style="width:100%;aspect-ratio:1"></canvas></div><div id="rmsg" class="disp" style="font-size:1.3rem">${$t("casino.24")}</div></div>
+  c.innerHTML = `${betBar()}<div class="felt"><div style="position:relative;width:min(280px,100%)"><canvas id="wh" style="width:100%;aspect-ratio:1"></canvas></div><div id="rmsg" class="disp" style="font-size:var(--fs-5xl)">${$t("casino.24")}</div></div>
    <div class="grid3">${[
      ["r", $t("casino.19"), "#c62828"],
      ["b", $t("casino.20"), "#212121"],
@@ -275,7 +275,7 @@ export function blackjack(I) {
       ? `<div class="cardx back"></div>`
       : `<div class="cardx ${cd.red ? "red" : ""}"><span>${cd.r}${cd.s}</span><span>${cd.r}${cd.s}</span></div>`;
   const render = msg => {
-    c.innerHTML = `${betBar()}<div class="felt"><div class="eyebrow" style="color:#cfe9da">${$t("casino.31")} ${over ? "· " + val(dh) : ""}</div><div class="hand">${dh.map((cd, i) => cardH(cd, !over && i === 1)).join("")}</div><div class="eyebrow" style="color:#cfe9da">${$t("casino.32")} ${ph.length ? val(ph) : "–"}</div><div class="hand">${ph.map(cd => cardH(cd)).join("")}</div><div class="disp" style="font-size:1.2rem">${msg || ""}</div></div>
+    c.innerHTML = `${betBar()}<div class="felt"><div class="eyebrow" style="color:#cfe9da">${$t("casino.31")} ${over ? "· " + val(dh) : ""}</div><div class="hand">${dh.map((cd, i) => cardH(cd, !over && i === 1)).join("")}</div><div class="eyebrow" style="color:#cfe9da">${$t("casino.32")} ${ph.length ? val(ph) : "–"}</div><div class="hand">${ph.map(cd => cardH(cd)).join("")}</div><div class="disp" style="font-size:var(--fs-4xl)">${msg || ""}</div></div>
      ${
        over
          ? `<button class="btn gold big" id="deal">${$t("casino.27", {
@@ -375,7 +375,7 @@ export function slots(I) {
     }
     return 0;
   };
-  c.innerHTML = `${betBar()}<div class="reels">${[0, 1, 2].map(i => `<div class="reel" id="r${i}">${SYM[i][1]()}</div>`).join("")}</div><div id="smsg" class="disp" style="font-size:1.25rem;text-align:center">${$t("casino.40")}</div><button class="btn gold big" id="spin">${$t(
+  c.innerHTML = `${betBar()}<div class="reels">${[0, 1, 2].map(i => `<div class="reel" id="r${i}">${SYM[i][1]()}</div>`).join("")}</div><div id="smsg" class="disp" style="font-size:var(--fs-4xl);text-align:center">${$t("casino.40")}</div><button class="btn gold big" id="spin">${$t(
     "casino.41",
     {
       BET: BET

@@ -31,12 +31,12 @@ const BEARD_N = { yok: "sty.b0", kirli: "sty.b1", keci: "sty.b2", sakal: "sty.b3
 export function styleTab(c, re) {
   const L = (S.styleDraft = S.styleDraft || { ...S.look });
   const opt = (id, list, cur, name) =>
-    `<div><div class="eyebrow" style="margin-bottom:6px">${name}</div><div class="opts" id="${id}">${list.map(([v, n, dis]) => `<button class="opt ${cur === v ? "on" : ""}" data-v="${v}" ${dis ? "disabled" : ""}>${n}</button>`).join("")}</div></div>`;
+    `<div><div class="eyebrow mb-1h">${name}</div><div class="opts" id="${id}">${list.map(([v, n, dis]) => `<button class="opt ${cur === v ? "on" : ""}" data-v="${v}" ${dis ? "disabled" : ""}>${n}</button>`).join("")}</div></div>`;
   const sw = (id, list, cur, name) =>
-    `<div><div class="eyebrow" style="margin-bottom:6px">${name}</div><div class="opts" id="${id}">${list.map(v => `<button class="sw ${cur === v ? "on" : ""}" style="background:${v}" data-v="${v}" aria-label="${v}"></button>`).join("")}</div></div>`;
+    `<div><div class="eyebrow mb-1h">${name}</div><div class="opts" id="${id}">${list.map(v => `<button class="sw ${cur === v ? "on" : ""}" style="background:${v}" data-v="${v}" aria-label="${v}"></button>`).join("")}</div></div>`;
   const young = S.age < 17;
   const changed = JSON.stringify(L) !== JSON.stringify(S.look);
-  c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start;gap:12px"><div id="stpv"></div><div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+  c.innerHTML = `<div class="card"><div class="row nowrap" style="align-items:flex-start;gap:var(--sp-3)"><div id="stpv"></div><div style="display:flex;flex-direction:column;gap:var(--sp-2h);min-width:0">
     ${opt(
       "st-hat",
       HATS.map(h => [h, $t(HAT_N[h])]),

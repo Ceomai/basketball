@@ -278,7 +278,7 @@ export function cchScreen(back) {
   if (window.__SIM) return;
   closeSheet();
   const C = S.cch;
-  const head = `<div style="padding-top:18px"><div class="eyebrow">${$t("cch.title")}</div><h1>${C ? esc(C.team.n) : $t("cch.pickTitle")}</h1></div>`;
+  const head = `<div class="pt-4h"><div class="eyebrow">${$t("cch.title")}</div><h1>${C ? esc(C.team.n) : $t("cch.pickTitle")}</h1></div>`;
   let body = "";
   if (!C) {
     const o = cchTeamOptions();
@@ -288,11 +288,11 @@ export function cchScreen(back) {
     ]
       .map(
         ([k, t, d]) =>
-          `<button class="choice" data-cch-team="${k}"><span class="ct" style="display:flex;align-items:center;gap:8px">${crest(t, 28)}${esc(t.n)}</span><span class="cd">${d}</span></button>`
+          `<button class="choice" data-cch-team="${k}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2)">${crest(t, 28)}${esc(t.n)}</span><span class="cd">${d}</span></button>`
       )
       .join("")}</div></div>`;
   } else {
-    const status = `<div class="card"><div class="row between nowrap">${crest(C.team, 40)}<div style="flex:1;min-width:0;padding:0 8px"><div class="eyebrow">${
+    const status = `<div class="card"><div class="row between nowrap">${crest(C.team, 40)}<div style="flex:1;min-width:0;padding:0 var(--sp-2)"><div class="eyebrow">${
       C.po || C.phase === "po"
         ? $t("cch.playoffs")
         : $t("cch.week", { n: Math.min(C.wk + (C.phase === "week" ? 1 : 0), CCH_WEEKS), m: CCH_WEEKS })
@@ -303,7 +303,7 @@ export function cchScreen(back) {
         opp = C.phase === "po" ? C.poOpp[C.po] : C.opps[C.wk];
       body =
         status +
-        `<div class="card"><div class="row nowrap" style="gap:8px">${crest(opp, 32)}<div><div class="eyebrow">${
+        `<div class="card"><div class="row nowrap gap-2">${crest(opp, 32)}<div><div class="eyebrow">${
           C.phase === "po" ? (C.po ? $t("cch.final") : $t("cch.semi")) : $t("cch.next")
         }</div><b>${esc(opp.n)}</b></div></div><h3 style="margin-top:8px">${$t(`cch.d.${id}`)}</h3><div class="choices">${[
           0, 1, 2
@@ -317,10 +317,10 @@ export function cchScreen(back) {
       const r = C.last;
       body =
         status +
-        `<div class="card" style="text-align:center"><div class="eyebrow">${esc(r.opp)}</div><h2 class="${r.win ? "gold" : ""}">${r.us} - ${r.them}</h2><p>${r.win ? $t("cch.win") : $t("cch.loss")}</p><button class="btn pri" id="cch-next">${$t("cch.continueBtn")}</button></div>`;
+        `<div class="card ta-c"><div class="eyebrow">${esc(r.opp)}</div><h2 class="${r.win ? "gold" : ""}">${r.us} - ${r.them}</h2><p>${r.win ? $t("cch.win") : $t("cch.loss")}</p><button class="btn pri" id="cch-next">${$t("cch.continueBtn")}</button></div>`;
     } else if (C.phase === "done") {
       body =
-        `<div class="card" style="text-align:center"><div class="eyebrow">${$t("cch.seasonOver")}</div><h2 class="gold">${$t(`cch.res.${C.res}`)}</h2><p>${$t(
+        `<div class="card ta-c"><div class="eyebrow">${$t("cch.seasonOver")}</div><h2 class="gold">${$t(`cch.res.${C.res}`)}</h2><p>${$t(
           "cch.summary",
           {
             w: C.w,

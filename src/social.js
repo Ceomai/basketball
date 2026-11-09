@@ -35,7 +35,7 @@ const mates = () => (late.roster ? late.roster().slice(0, 3) : []);
 export function arcMateHTML() {
   const m = mates(),
     cur = S.arcMate == null ? -1 : S.arcMate;
-  return `<div><div class="eyebrow" style="margin-bottom:6px">${$t("soc.withWho")}</div><div class="opts" id="amate"><button class="opt ${cur === -1 ? "on" : ""}" data-m="-1">${$t("soc.alone")}</button>${m.map((p, i) => `<button class="opt ${cur === i ? "on" : ""}" data-m="${i}">${p.n.split(" ")[0]}</button>`).join("")}</div><p class="small muted" style="margin-top:6px">${$t("soc.withD")}</p></div>`;
+  return `<div><div class="eyebrow mb-1h">${$t("soc.withWho")}</div><div class="opts" id="amate"><button class="opt ${cur === -1 ? "on" : ""}" data-m="-1">${$t("soc.alone")}</button>${m.map((p, i) => `<button class="opt ${cur === i ? "on" : ""}" data-m="${i}">${p.n.split(" ")[0]}</button>`).join("")}</div><p class="small muted mt-1h">${$t("soc.withD")}</p></div>`;
 }
 export function bindArcMate(re) {
   $$("#amate [data-m]").forEach(b => (b.onclick = () => ((S.arcMate = +b.dataset.m), re())));

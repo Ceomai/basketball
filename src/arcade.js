@@ -1,6 +1,7 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, INK, clamp, ri, shade, GOOD, BAD } from "./data.js";
+import { tok, tokAlpha } from "./theme.js";
 import { drawBall, drawKid, ell, rr } from "./art.js";
 import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos, setMgKind } from "./games.js";
 import { S, jersey } from "./core.js";
@@ -20,7 +21,7 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
     ux = dx / m,
     uy = dy / m,
     len = 34 + p * 110;
-  const col = p >= ideal[0] && p <= ideal[1] ? GOOD() : p < ideal[0] ? (p < ideal[0] * 0.6 ? BAD() : "#ffc54d") : BAD();
+  const col = p >= ideal[0] && p <= ideal[1] ? GOOD() : p < ideal[0] ? (p < ideal[0] * 0.6 ? BAD() : tok("--warn")) : BAD();
   const ex = x + ux * len,
     ey = y + uy * len;
   c.save();
@@ -52,10 +53,10 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
     gy = H / 2 - 70,
     gh = 140;
   rr(c, gx, gy, 12, gh, 6, "rgba(5,8,14,.75)", false);
-  c.fillStyle = "rgba(54,211,142,.35)";
+  c.fillStyle = tokAlpha("--good", 0.35);
   c.fillRect(gx, gy + gh * (1 - ideal[1]), 12, gh * (ideal[1] - ideal[0]));
   rr(c, gx, gy + gh * (1 - p), 12, Math.max(3, gh * p), 6, col, false);
-  c.fillStyle = "#eef2f8";
+  c.fillStyle = tok("--text");
   c.font = "700 11px Manrope";
   c.textAlign = "center";
   c.textBaseline = "alphabetic";
@@ -222,7 +223,7 @@ export function mgArcade(el) {
       c.fillStyle = "#7cfc9a";
       c.fillText(String(Math.max(0, Math.ceil(DUR - t))).padStart(2, "0"), W / 2 + 36, H - 38);
       c.font = "600 9px Manrope";
-      c.fillStyle = "#8c99ae";
+      c.fillStyle = tok("--muted");
       c.fillText($t("arcade.8"), W / 2 - 34, H - 28);
       c.fillText($t("arcade.9"), W / 2 + 36, H - 28);
       if (flash > 0) {
@@ -231,7 +232,7 @@ export function mgArcade(el) {
         flash -= dt * 2;
       }
       if (mt > 0) {
-        bigText(c, msg, 232, msgGood ? "#ffc54d" : "#ffffff");
+        bigText(c, msg, 232, msgGood ? tok("--warn") : "#ffffff");
         mt -= dt;
       }
       if (t < 4 && !drag) hint(c, $t("arcade.10"), 190);
@@ -323,7 +324,7 @@ export function mgReflex(el) {
         if (pulse[i] > 0) pulse[i] -= dt;
       });
       if (miss > 0) {
-        c.fillStyle = `rgba(255,84,104,${miss})`;
+        c.fillStyle = tokAlpha("--bad", miss);
         c.fillRect(0, 0, W, H);
         miss -= dt;
       }
@@ -549,7 +550,7 @@ export function mgHockey(el) {
       c.fillText(ai, W - 26, 226);
       c.fillText(me, W - 26, 284);
       if (mt > 0) {
-        bigText(c, msg, 256, msg === $t("arcade.17") ? "#ffc54d" : "#ffffff");
+        bigText(c, msg, 256, msg === $t("arcade.17") ? tok("--warn") : "#ffffff");
         mt -= dt;
       }
       if (t < 3) hint(c, $t("arcade.19"), H - 44);
@@ -698,7 +699,7 @@ export function mgRhythm(el, { title, karaoke }) {
         36
       );
       if (ft > 0) {
-        bigText(c, fb, 330, fb === $t("arcade.22") ? BAD() : "#ffc54d", 28);
+        bigText(c, fb, 330, fb === $t("arcade.22") ? BAD() : tok("--warn"), 28);
         ft -= dt;
       }
       if (t < 2.2) hint(c, $t("arcade.25"), H - 14);
@@ -911,7 +912,7 @@ export function mgBowling(el) {
         ell(c, ball.x, ball.y, 16 * ball.s, 16 * ball.s, "#3949ab");
       }
       if (mt > 0) {
-        bigText(c, msg, 250, "#ffc54d");
+        bigText(c, msg, 250, tok("--warn"));
         mt -= dt;
       }
       c.fillStyle = "#fff";

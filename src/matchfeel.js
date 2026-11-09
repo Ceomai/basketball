@@ -117,13 +117,13 @@ export function mfKeyHTML() {
   const when = k.q ? $t("mf.when", { q: k.q, c: k.clock }) : $t("mf.whenOt", { c: k.clock });
   return `<div class="card fm" id="mf-key"><div class="row between nowrap"><div class="eyebrow">${$t("mf.title")}</div><span class="small muted">${when}</span></div>
    <div><b>${$t(k.pts >= 3 ? "mf.three" : k.pts === 1 ? "mf.ft" : "mf.two", { n: who })}</b> <span class="muted">${$t("mf.score", { a: k.a, b: k.b })}</span></div>
-   <svg id="mf-svg" viewBox="0 0 360 196" style="width:100%;height:auto;display:block;border-radius:8px">${late.courtFloorSVG()}<g id="mf-p"></g></svg>
+   <svg id="mf-svg" viewBox="0 0 360 196" style="width:100%;height:auto;display:block;border-radius:var(--r-md)">${late.courtFloorSVG()}<g id="mf-p"></g></svg>
    <button class="btn ghost sm" id="mf-replay">${$t("mf.replay")}</button></div>`;
 }
 const POSS = ["PG", "SG", "SF", "PF", "C"];
 let mfTimers = [];
 const mfDot = (id, x, y, fill, me) =>
-  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .4s ease">${me ? `<circle r="11" fill="none" stroke="#ffc54d" stroke-width="2.4"/>` : ""}<circle r="7" fill="${fill}" stroke="#141414" stroke-width="1.3"/></g>`;
+  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .4s ease">${me ? `<circle r="11" fill="none" style="stroke:var(--warn)" stroke-width="2.4"/>` : ""}<circle r="7" fill="${fill}" stroke="#141414" stroke-width="1.3"/></g>`;
 /** Kritik anı küçük sahada yeniden oynat */
 export function mfReplay() {
   const k = mfPick(),
@@ -202,7 +202,7 @@ function mateEnergy(p) {
 }
 /** Benim enerjim 0..1 (enerji + kesintisiz süre) */
 export const mfMyEnergy = () => clamp(1 - (late.fatigue ? late.fatigue() : 0), 0, 1);
-const ringColor = v => (v >= 0.6 ? "#36d38e" : v >= 0.35 ? "#ffc54d" : "#ff5468");
+const ringColor = v => (v >= 0.6 ? "var(--good)" : v >= 0.35 ? "var(--warn)" : "var(--bad)");
 /** Saha noktalarına enerji halkası; kenardayken "dinleniyor" */
 export function mfRings(on) {
   const root = $("#crt-p");
@@ -227,7 +227,7 @@ export function mfRings(on) {
     }
     const v = mine ? mfMyEnergy() : mateEnergy(p),
       c = mine ? CIRC : 2 * Math.PI * 10.5;
-    r.setAttribute("stroke", ringColor(v));
+    r.style.stroke = ringColor(v);
     r.setAttribute("stroke-width", mine ? 2.2 : 1.6);
     r.setAttribute("opacity", mine ? 0.95 : 0.7);
     if (low) r.removeAttribute("stroke-dasharray");

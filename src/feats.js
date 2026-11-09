@@ -263,7 +263,7 @@ export function featsTab(c, re) {
   const list = FEATS.filter(f => f.cat === cat && featShown(f));
   const cosName = cos => (late.cosLabel ? late.cosLabel(cos) : cos);
   c.innerHTML = `<button class="btn ghost sm" id="ft-back">${$t("ft.back")}</button><div class="card"><div class="row between"><div class="eyebrow">${$t("ft.title")}</div><b class="gold">${featDone()}/${featTotal()}</b></div><div class="bar"><i style="width:${Math.round((featDone() / featTotal()) * 100)}%"></i></div><p class="small muted">${$t("ft.sub")}</p>
-    <div class="row" style="gap:6px;align-items:center"><span class="small muted">${$t("ft.titleNow")}</span><select id="ft-title" class="opt">${[
+    <div class="row gap-1h ai-c"><span class="small muted">${$t("ft.titleNow")}</span><select id="ft-title" class="opt">${[
       `<option value="">${$t("ft.noTitle")}</option>`,
       ...FEATS.filter(f => FEATS_ST.got[f.id]).map(
         f => `<option value="${f.id}" ${S.title === f.id ? "selected" : ""}>${esc(featName(f))}</option>`

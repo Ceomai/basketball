@@ -229,7 +229,7 @@ export async function careerCardSheet(onClose) {
   sheet(
     $t("card.title"),
     esc(fullName()),
-    `<img src="${cv.toDataURL("image/png")}" alt="${$t("card.title")}" style="width:100%;border-radius:14px;display:block">
+    `<img src="${cv.toDataURL("image/png")}" alt="${$t("card.title")}" style="width:100%;border-radius:var(--r-2xl);display:block">
      <div class="grid2"><button class="btn ghost" id="cc-dl">${$t("card.download")}</button><button class="btn pri" id="cc-share">${$t("card.share")}</button></div>`,
     onClose ? { onClose } : {}
   );

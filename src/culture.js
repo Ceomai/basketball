@@ -374,8 +374,8 @@ export function cuWelcomeSheet() {
   sheet(
     $t("cu.w.title", { city: S.city }),
     $t("cu.w.sub", { hi: cuT("greet"), country: (LEAGUES[cc] || LEAGUES.TR).n }),
-    `<p>${$t("cu.w.intro")}</p><ul id="cu-sig" style="margin:6px 0 10px;padding-left:18px">${sig.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` +
-      `<div class="card" style="padding:10px 12px;margin-bottom:10px"><div class="eyebrow">${$t("cu.w.know")}</div>${row("cu.w.words", cuT("words"))}${row("cu.w.ride", cuT("ride"))}${row("cu.w.match", cuT("matchday"))}${row("cu.w.fans", cuT("fans"))}</div>` +
+    `<p>${$t("cu.w.intro")}</p><ul id="cu-sig" style="margin:6px 0 10px;padding-left:var(--sp-4h)">${sig.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` +
+      `<div class="card" style="padding:var(--sp-2h) var(--sp-3);margin-bottom:10px"><div class="eyebrow">${$t("cu.w.know")}</div>${row("cu.w.words", cuT("words"))}${row("cu.w.ride", cuT("ride"))}${row("cu.w.match", cuT("matchday"))}${row("cu.w.fans", cuT("fans"))}</div>` +
       `<p class="small muted">${$t("cu.w.q")}</p>` +
       choices([
         ["a", esc(cuT("wA")), fxText(fxLab(F.a))],

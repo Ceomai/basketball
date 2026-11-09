@@ -1,6 +1,7 @@
 // Oyun modülleri. Modüller eski <script> sırasıyla yüklenir (bağımlılıklar yalnızca önceki modüllere doğru),
 // ardından "late" kaydı doldurulur ve oyun "load" olayında başlar (core.js).
 import { late } from "./late.js";
+import * as theme from "./theme.js";
 import * as data from "./data.js";
 import * as clubs from "./clubs.js";
 import * as art from "./art.js";
@@ -95,6 +96,7 @@ import * as release from "./release.js";
 import * as trcase from "./trcase.js";
 
 const MODULES = [
+  theme,
   data,
   clubs,
   art,

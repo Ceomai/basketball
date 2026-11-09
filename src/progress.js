@@ -36,7 +36,7 @@ export function gainsHTML() {
     .map(([k, v]) => `<span class="pill g">${statName(k)} +${v.toFixed(2)}</span>`);
   S.gainNow = null;
   if (!parts.length) return "";
-  return `<div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0"><span class="eyebrow" style="width:100%">${$t("prog.matchGain")}</span>${parts.join("")}</div>`;
+  return `<div class="row" style="gap:var(--sp-1h);flex-wrap:wrap;margin:6px 0"><span class="eyebrow" style="width:100%">${$t("prog.matchGain")}</span>${parts.join("")}</div>`;
 }
 /** Eşyaların antrenman çarpanı (spor eşyaları ilgili niteliğin antrenmanını hızlandırır; src/shops.js) */
 export function itemTrainMul(k) {

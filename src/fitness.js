@@ -66,7 +66,7 @@ async function workout() {
   save();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("fit.title")}</div><h2>${$t("fit.work")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("fit.title")}</div><h2>${$t("fit.work")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgGym($("#stg"), { title: $t("fit.work") });
   const g = Math.round(clamp(1.5 + (r.taps / 40) * 3, 1.5, 4.5) * 10) / 10;
   S.fit = clamp((S.fit ?? 65) + g, 0, 100);
@@ -83,7 +83,7 @@ async function rehab() {
   save();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("fit.rehab")}</div><h2>${$t("fit.rehab")}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("fit.rehab")}</div><h2>${$t("fit.rehab")}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgTiming($("#stg"), {
     eff: clamp(eff("guc") + 20, 5, 100),
     title: $t("fit.rehab"),

@@ -180,6 +180,6 @@ export function traitsHTML() {
   const t = Object.keys((S && S.traits) || {});
   const s = sig();
   if (!t.length && !s) return "";
-  return `<div class="row" style="gap:6px;flex-wrap:wrap">${t.map(k => `<span class="pill g">${$t(TRAITS[k].n)}</span>`).join("")}${s ? `<span class="pill w">${$t("sig.tag")}: ${$t(s.n)}</span>` : ""}</div>`;
+  return `<div class="row" style="gap:var(--sp-1h);flex-wrap:wrap">${t.map(k => `<span class="pill g">${$t(TRAITS[k].n)}</span>`).join("")}${s ? `<span class="pill w">${$t("sig.tag")}: ${$t(s.n)}</span>` : ""}</div>`;
 }
 export const traitNames = () => Object.keys((S && S.traits) || {}).map(k => $t(TRAITS[k].n));

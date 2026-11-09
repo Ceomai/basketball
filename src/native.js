@@ -14,6 +14,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { AdMob } from "@capacitor-community/admob";
 import { $, Bus } from "./data.js";
+import { THEME_TOKENS } from "./theme.js";
 import { S, closeSheet } from "./core.js";
 import { late } from "./late.js";
 import { REL_AD_REQUEST } from "./release.js";
@@ -78,7 +79,7 @@ if (isNative) {
   // uygulama arka plana alınırken kaydet
   App.addListener("pause", () => S && late.save());
   StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-  StatusBar.setBackgroundColor({ color: "#090d15" }).catch(() => {});
+  StatusBar.setBackgroundColor({ color: THEME_TOKENS["--bg"] }).catch(() => {});
 }
 
 /* ---- AdMob ----

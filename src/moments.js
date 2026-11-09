@@ -47,7 +47,7 @@ export function conditionsHTML(us) {
   const f = Math.round(fatigue() * 100);
   const dz = us && M.dz ? `<span class="pill">${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}</span>` : "";
   const ft = f >= 15 ? `<span class="pill ${f >= 50 ? "l" : ""}">${$t("cond.tired", { v: f })}</span>` : "";
-  return dz || ft ? `<div class="row" style="gap:6px;flex-wrap:wrap">${dz}${ft}</div>` : "";
+  return dz || ft ? `<div class="row" style="gap:var(--sp-1h);flex-wrap:wrap">${dz}${ft}</div>` : "";
 }
 export const conditionsHint = () => (M.dz === "zone" ? $t("cond.zoneHint") : $t("cond.manHint"));
 

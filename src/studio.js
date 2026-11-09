@@ -103,7 +103,7 @@ async function content(type) {
   save();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("sd.channel")}</div><h2>${$t(`sd.t.${type}`)}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("sd.channel")}</div><h2>${$t(`sd.t.${type}`)}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await mgPhoto($("#stg"), { title: $t(`sd.t.${type}`), bg: type === "vlog" ? "city" : "arena" });
   const q = clamp(Math.max(0, r.score) / 100, 0, 1);
   const last = (S.results || []).slice(-1)[0],

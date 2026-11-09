@@ -445,7 +445,7 @@ async function nightGame() {
   save();
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("vn.sl")}</div><h2>${$t("vn.slVs", { t: $t(`vn.sl.${opp}`) })}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("vn.sl")}</div><h2>${$t("vn.slVs", { t: $t(`vn.sl.${opp}`) })}</h2></div><div id="stg"></div><div id="res"></div>`;
   // her hafta farklı bir sokak düellosu: şut, top sürme, serbest atış yarışı
   const kind = ["shoot", "dribble", "free"][L.round % 3],
     hard = L.t[opp].s * 10;

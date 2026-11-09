@@ -119,7 +119,7 @@ function hookSheet(after) {
     sheet(
       $t("hk.title"),
       $t("hk.sub"),
-      `<div class="say" style="border-left-color:var(--gold)">${esc(r.txt)}</div><div class="kv">${r.out.map(([a, k]) => `<span>${esc(a)}</span><b class="${k === "p" ? "good" : "bad"}">${k === "p" ? "✓" : "–"}</b>`).join("")}</div><button class="btn pri" id="hk-ok">${$t("goal.ok")}</button>`,
+      `<div class="say gold">${esc(r.txt)}</div><div class="kv">${r.out.map(([a, k]) => `<span>${esc(a)}</span><b class="${k === "p" ? "good" : "bad"}">${k === "p" ? "✓" : "–"}</b>`).join("")}</div><button class="btn pri" id="hk-ok">${$t("goal.ok")}</button>`,
       { noClose: true }
     );
     $("#hk-ok").onclick = () => (closeSheet(), after && after());

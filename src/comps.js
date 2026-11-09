@@ -115,7 +115,7 @@ export function midweek(next) {
   sheet(
     $t("cp.midTitle"),
     compName(g),
-    `<div class="card"><div class="row nowrap" style="gap:10px">${crestSVG(S.team, 40)}<b>${esc(S.team.short)}</b><span class="vs">${$t("core.76")}</span>${crestSVG(opp, 40)}<b>${esc(opp.name)}</b></div><p class="small muted">${$t("cp.midD")}</p></div>${
+    `<div class="card"><div class="row nowrap gap-2h">${crestSVG(S.team, 40)}<b>${esc(S.team.short)}</b><span class="vs">${$t("core.76")}</span>${crestSVG(opp, 40)}<b>${esc(opp.name)}</b></div><p class="small muted">${$t("cp.midD")}</p></div>${
       S.injury
         ? `<button class="btn pri" id="mw-sim">${$t("cp.injured")}</button>`
         : `<div class="grid2"><button class="btn pri" id="mw-play">${$t("quick.self")}</button><button class="btn" id="mw-sim">${$t("quick.sim")}</button></div>`
@@ -274,7 +274,7 @@ function resultSheet(g, line, next) {
   sheet(
     r.win ? $t("match.32") : $t("match.33"),
     compName(g),
-    `<div class="row between nowrap"><div class="row nowrap" style="gap:8px">${crestSVG(S.team, 36)}<span class="big-num">${r.us}–${r.them}</span>${crestSVG(opp, 36)}</div>${line && line.r ? `<div class="rating">${line.r.toFixed(1)}</div>` : ""}</div>
+    `<div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${r.us}–${r.them}</span>${crestSVG(opp, 36)}</div>${line && line.r ? `<div class="rating">${line.r.toFixed(1)}</div>` : ""}</div>
     ${line ? `<div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("data.63")}</span></div></div>${late.gainsHTML()}` : `<p class="small muted">${$t("cp.withoutYou")}</p>`}
     <button class="btn pri" id="mw-ok">${$t("ads.25")}</button>`,
     { noClose: true }
@@ -313,9 +313,9 @@ export function playoffHTML() {
     f = P.res.final,
     [o1, o2] = P.other;
   const box = (a, b, r, mine) =>
-    `<div class="card" style="padding:8px 10px;${mine ? "border-color:var(--gold)" : ""}"><div class="row between nowrap"><b>${nm(a)}</b><span>${r ? (r.ser ? `${r.ser[0]}–${r.ser[1]}` : `${r.us}–${r.them}`) : "–"}</span><b>${nm(b)}</b></div>${r ? `<div class="small ${r.win ? "good" : "bad"}">${r.win ? nm(a) : nm(b)} ${$t("cp.adv")}</div>` : ""}</div>`;
+    `<div class="card" style="padding:var(--sp-2) var(--sp-2h);${mine ? "border-color:var(--gold)" : ""}"><div class="row between nowrap"><b>${nm(a)}</b><span>${r ? (r.ser ? `${r.ser[0]}–${r.ser[1]}` : `${r.us}–${r.them}`) : "–"}</span><b>${nm(b)}</b></div>${r ? `<div class="small ${r.win ? "good" : "bad"}">${r.win ? nm(a) : nm(b)} ${$t("cp.adv")}</div>` : ""}</div>`;
   const otherRes = P.otherWin ? { us: "", them: "", win: P.otherWin === o1 } : null;
-  return `<div class="eyebrow">${$t("cp.sf")}</div>${box(P.me, P.semi, s, true)}<div class="card" style="padding:8px 10px"><div class="row between nowrap"><b>${nm(o1)}</b><span>${otherRes ? "✓" : "–"}</span><b>${nm(o2)}</b></div>${P.otherWin ? `<div class="small">${nm(P.otherWin)} ${$t("cp.adv")}</div>` : ""}</div>
+  return `<div class="eyebrow">${$t("cp.sf")}</div>${box(P.me, P.semi, s, true)}<div class="card" style="padding:var(--sp-2) var(--sp-2h)"><div class="row between nowrap"><b>${nm(o1)}</b><span>${otherRes ? "✓" : "–"}</span><b>${nm(o2)}</b></div>${P.otherWin ? `<div class="small">${nm(P.otherWin)} ${$t("cp.adv")}</div>` : ""}</div>
   <div class="eyebrow">${$t("cp.f")}</div>${s && s.win ? box(P.me, P.otherWin || S.playoffOpp, f, true) : `<p class="small muted">${P.otherWin ? `${nm(P.otherWin)} ${$t("cp.inFinal")}` : $t("cp.tbd")}</p>`}${f ? `<p class="${f.win ? "good" : ""}"><b>${f.win ? $t("cp.poChamp") : $t("cp.poRunner")}</b></p>` : ""}${late.serListHTML()}`;
 }
 export function compsHTML() {
@@ -341,7 +341,7 @@ export function compsHTML() {
     h += `<div class="card"><div class="eyebrow">${$t("cp.cup", { v: (late.LEAGUES[S.team.cc] || late.LEAGUES.TR).n })}</div>${C.cup.rounds
       .map(
         (r, i) =>
-          `<div class="row between nowrap small" style="padding:3px 0"><span>${[$t("cp.qf"), $t("cp.sf"), $t("cp.f")][i]} · ${nm(r.opp)}</span><b class="${r.res ? (r.res.win ? "good" : "bad") : ""}">${r.res ? `${r.res.us}–${r.res.them}` : C.cup.out ? "–" : $t("cp.week", { w: r.week })}</b></div>`
+          `<div class="row between nowrap small" style="padding:var(--sp-1) 0"><span>${[$t("cp.qf"), $t("cp.sf"), $t("cp.f")][i]} · ${nm(r.opp)}</span><b class="${r.res ? (r.res.win ? "good" : "bad") : ""}">${r.res ? `${r.res.us}–${r.res.them}` : C.cup.out ? "–" : $t("cp.week", { w: r.week })}</b></div>`
       )
       .join("")}${C.cup.won ? `<p class="good"><b>${$t("cp.cupWon")}</b></p>` : ""}</div>`;
   return h || `<p class="small muted">${$t("cp.none")}</p>`;

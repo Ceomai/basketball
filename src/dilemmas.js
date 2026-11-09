@@ -102,7 +102,7 @@ function dilemma() {
   sheet(
     $t("dl.title"),
     $t("dl.sub"),
-    `<div class="say">${d.t()}</div><div class="choices">${d.c.map(([k], i) => `<button class="choice" data-dl="${i}"><span class="ct" style="font-size:1rem;text-transform:none">${$t(k)}</span></button>`).join("")}</div>`,
+    `<div class="say">${d.t()}</div><div class="choices">${d.c.map(([k], i) => `<button class="choice" data-dl="${i}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none">${$t(k)}</span></button>`).join("")}</div>`,
     { noClose: true }
   );
   $$("[data-dl]").forEach(

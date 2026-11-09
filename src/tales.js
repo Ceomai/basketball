@@ -40,7 +40,7 @@ function choose(title, sub, body, opts) {
 async function mini(title, run) {
   closeSheet();
   arenaFor(null);
-  app.innerHTML = `<div style="padding-top:12px"><div class="eyebrow">${$t("tl.story")}</div><h2>${title}</h2></div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("tl.story")}</div><h2>${title}</h2></div><div id="stg"></div><div id="res"></div>`;
   const r = await run($("#stg"));
   $("#stg").innerHTML = "";
   return r;
@@ -592,6 +592,6 @@ Bus.on("week:start", () => {
 
 /* ---------- Transfer gecesi: ailenin tepkileri (custom.js yeni forma anı) ---------- */
 export const transferNight = () =>
-  `<div class="card" style="gap:4px"><div class="eyebrow">${$t("tl.tn.t")}</div>${["mom", "dad", "friend", "agent"]
+  `<div class="card gap-1"><div class="eyebrow">${$t("tl.tn.t")}</div>${["mom", "dad", "friend", "agent"]
     .map(k => `<div class="small"><b>${esc(S.npc[k] || $t(`tl.tn.${k}N`))}:</b> "${$t(`tl.tn.${k}.${ri(1, 2)}`, { team: esc(S.team.name) })}"</div>`)
     .join("")}</div>`;

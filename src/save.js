@@ -476,8 +476,8 @@ export function renderSlots() {
   });
   const rows = [];
   for (let i = 1; i <= SLOT_N; i++) rows.push([i, loadSlot(i)]);
-  app.innerHTML = `<div style="padding-top:18px" class="row between nowrap"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><div class="row" style="gap:6px">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div></div>
-   ${storageOK ? "" : `<div class="say" style="border-left-color:var(--bad)">${t("slots.storageOff")}</div>`}
+  app.innerHTML = `<div class="row between nowrap pt-4h"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><div class="row gap-1h">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div></div>
+   ${storageOK ? "" : `<div class="say bad">${t("slots.storageOff")}</div>`}
    <div class="eyebrow">${t("slots.header", { n: SLOT_N })}</div>
    <div class="choices">${rows
      .map(([i, r]) =>
@@ -485,10 +485,10 @@ export function renderSlots() {
          ? `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${t("slots.empty", { i })}</h3><p>${t("slots.emptyDesc")}</p></div><button class="btn pri sm" data-new="${i}">${t("btn.newCareer")}</button></div>`
          : r.from === "corrupt"
            ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${t("slots.corrupt", { i })}</h3><p>${t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${t("slots.clear")}</button></div>`
-           : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2" style="grid-column:1/-1"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn team sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
+           : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2 span-all"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn team sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
      )
      .join("")}</div>
-   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn team sm" style="text-align:center">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
+   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn team sm ta-c">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
    ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${t("slots.tip")}</div><p class="small">${t("slots.tipInstall")}</p></div>`}`;
   rows.forEach(([i, r]) => {
     if (r && r.S) {
@@ -567,7 +567,7 @@ export function exportSheet() {
   sheet(
     $t("save.28"),
     $t("save.29"),
-    `<p class="small muted">${$t("save.31")}</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:10px;font-family:monospace;font-size:.7rem;-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">${$t("save.32")}</button><button class="btn pri" id="dlf">${$t("save.33")}</button></div>${S.bk && S.bk.ts ? `<p class="small muted">${$t("save.30")} ${new Date(S.bk.ts).toLocaleDateString(LOCALE)}</p>` : ""}`
+    `<p class="small muted">${$t("save.31")}</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:var(--fs-2xs);-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">${$t("save.32")}</button><button class="btn pri" id="dlf">${$t("save.33")}</button></div>${S.bk && S.bk.ts ? `<p class="small muted">${$t("save.30")} ${new Date(S.bk.ts).toLocaleDateString(LOCALE)}</p>` : ""}`
   );
   $("#dlf").onclick = () => downloadSave();
   $("#cpy").onclick = async () => {

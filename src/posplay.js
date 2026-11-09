@@ -282,7 +282,7 @@ function stripSVG(art, c, w) {
       hook: "M24 46 L300 46",
       tip: "M24 46 L300 46"
     }[art] || "M24 46 L300 46";
-  return `<svg viewBox="0 0 330 92" style="width:100%;height:auto;display:block;background:#c98f53;border-radius:10px" aria-hidden="true">
+  return `<svg viewBox="0 0 330 92" style="width:100%;height:auto;display:block;background:#c98f53;border-radius:var(--r-lg)" aria-hidden="true">
    <rect x="250" y="20" width="76" height="52" fill="${(S.team && S.team.c1) || "#1d428a"}" fill-opacity=".3" stroke="#fff" stroke-width="1.4"/>
    <circle cx="314" cy="46" r="6" fill="none" stroke="#ff6b2b" stroke-width="2.4"/>
    <path id="pp-path" d="${path}" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="5 4" opacity=".7"/>
@@ -368,8 +368,8 @@ export function ppMash(el, { eff: e, title, hint }) {
   const need = Math.round(clamp(16 - e / 10, 6, 14)), // dokunuş sayısı
     T = 2600;
   el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("pp.mg")}</div><h2>${title}</h2>
-   <div class="row nowrap" style="gap:8px;align-items:center"><span class="small" style="width:46px">${$t("pp.you")}</span><div class="bar" style="flex:1"><i id="pp-me" style="width:0%;background:var(--good)"></i></div></div>
-   <div class="row nowrap" style="gap:8px;align-items:center"><span class="small" style="width:46px">${$t("pp.opp")}</span><div class="bar" style="flex:1"><i id="pp-op" style="width:0%;background:var(--bad)"></i></div></div>
+   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.you")}</span><div class="bar f1"><i id="pp-me" style="width:0%;background:var(--good)"></i></div></div>
+   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.opp")}</span><div class="bar f1"><i id="pp-op" style="width:0%;background:var(--bad)"></i></div></div>
    <p class="small muted">${hint || ""}</p><button class="btn pri big" id="pp-go" data-pp="mash" data-rapid="1" style="touch-action:manipulation">${$t("pp.btnBox")}</button></div>`;
   return new Promise(res => {
     const t0 = performance.now();

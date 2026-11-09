@@ -24,7 +24,7 @@ function tableHTML() {
     .map((r, i) => {
       const t = teamByKey(r.key) || { name: r.key, c1: "#888" },
         d = r.pf - r.pa;
-      return `<tr class="${r.key === S.team.key ? "me" : ""}" ${i === PLAYOFF - 1 ? 'style="border-bottom:2px solid var(--gold)"' : ""}><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${d > 0 ? "+" : ""}${d}</td></tr>`;
+      return `<tr class="${r.key === S.team.key ? "me" : ""}" ${i === PLAYOFF - 1 ? 'style="border-bottom:2px solid var(--gold)"' : ""}><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:var(--r-2xs);background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${d > 0 ? "+" : ""}${d}</td></tr>`;
     })
     .join("")}</table></div><p class="small muted">${$t("lc.playoffLine", { n: PLAYOFF })}</p>`;
 }
@@ -57,7 +57,7 @@ function fixturesHTML() {
     .map(m => {
       const a = teamByKey(m.a) || { short: "?" },
         b = teamByKey(m.b) || { short: "?" };
-      return `<div class="row between small" style="padding:4px 0;border-top:1px solid var(--line)"><span>${esc(a.name || a.short)}</span><b>${m.sa}-${m.sb}</b><span style="text-align:right">${esc(b.name || b.short)}</span></div>`;
+      return `<div class="row between small" style="padding:var(--sp-1) 0;border-top:1px solid var(--line)"><span>${esc(a.name || a.short)}</span><b>${m.sa}-${m.sb}</b><span class="ta-r">${esc(b.name || b.short)}</span></div>`;
     })
     .join("");
   return `<div class="tbl"><table><tr><th>${$t("lc.wk")}</th><th></th><th>${$t("lc.opp")}</th><th>${$t("lc.result")}</th><th></th></tr>${rows}</table></div>
@@ -129,7 +129,7 @@ function leadersHTML() {
     return `<div class="card"><div class="eyebrow">${title}</div>${rows
       .map(
         ([x, i]) =>
-          `<div class="row between nowrap small" style="padding:4px 0;${x.me ? "color:var(--gold);font-weight:800" : ""}"><span>${i + 1}. ${esc(x.n)} <span class="muted">· ${esc(x.t.short || "")}</span></span><b>${f1(x.v)}</b></div>`
+          `<div class="row between nowrap small" style="padding:var(--sp-1) 0;${x.me ? "color:var(--gold);font-weight:800" : ""}"><span>${i + 1}. ${esc(x.n)} <span class="muted">· ${esc(x.t.short || "")}</span></span><b>${f1(x.v)}</b></div>`
       )
       .join("")}</div>`;
   };
@@ -157,11 +157,7 @@ export function leagueSheet(tab = "hedef") {
       po: () => late.playoffHTML(),
       kupa: () => late.compsHTML()
     }[tab] || tableHTML;
-  sheet(
-    $t("lc.title"),
-    `${esc(lgName())} · ${seasonLabel()}`,
-    `${tabsHTML(tabs, tab, "lc")}<div style="display:flex;flex-direction:column;gap:10px">${body()}</div>`
-  );
+  sheet($t("lc.title"), `${esc(lgName())} · ${seasonLabel()}`, `${tabsHTML(tabs, tab, "lc")}<div class="stack">${body()}</div>`);
   $$("[data-lc]").forEach(b => (b.onclick = () => leagueSheet(b.dataset.lc)));
 }
 export const leagueButtonHTML = () => `<button class="btn ghost sm" id="lgc">${$t("lc.title")}</button>`;
