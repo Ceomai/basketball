@@ -368,8 +368,8 @@ export function ppMash(el, { eff: e, title, hint }) {
   const need = Math.round(clamp(16 - e / 10, 6, 14)), // dokunuş sayısı
     T = 2600;
   el.innerHTML = `<div class="card sit"><div class="eyebrow">${$t("pp.mg")}</div><h2>${title}</h2>
-   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.you")}</span><div class="bar f1"><i id="pp-me" style="width:0%;background:var(--good)"></i></div></div>
-   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.opp")}</span><div class="bar f1"><i id="pp-op" style="width:0%;background:var(--bad)"></i></div></div>
+   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.you")}</span><div class="bar f1"><i id="pp-me" style="--w:0;background:var(--good)"></i></div></div>
+   <div class="row nowrap gap-2 ai-c"><span class="small" style="width:46px">${$t("pp.opp")}</span><div class="bar f1"><i id="pp-op" style="--w:0;background:var(--bad);transition:none"></i></div></div>
    <p class="small muted">${hint || ""}</p><button class="btn pri big" id="pp-go" data-pp="mash" data-rapid="1" style="touch-action:manipulation">${$t("pp.btnBox")}</button></div>`;
   return new Promise(res => {
     const t0 = performance.now();
@@ -385,7 +385,7 @@ export function ppMash(el, { eff: e, title, hint }) {
       if (!document.body.contains(el) || !$("#pp-go")) return end(false);
       const f = Math.min(1, (now - t0) / T);
       const op = $("#pp-op");
-      if (op) op.style.width = `${Math.round(f * 100)}%`;
+      if (op) op.style.setProperty("--w", String(Math.round(f * 100)));
       if (f >= 1) return end(n >= need);
       raf(tick);
     };
@@ -393,7 +393,7 @@ export function ppMash(el, { eff: e, title, hint }) {
     $("#pp-go").onclick = () => {
       n++;
       const me = $("#pp-me");
-      if (me) me.style.width = `${Math.min(100, Math.round((n / need) * 100))}%`;
+      if (me) me.style.setProperty("--w", String(Math.min(100, Math.round((n / need) * 100))));
       if (n >= need) end(true);
     };
   });

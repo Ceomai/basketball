@@ -148,13 +148,15 @@ export function arenaLights() {
   if (!M || !M.big) return;
   const svg = $("#crt");
   if (!svg || svg.querySelector("#lights")) return;
+  const still = late.motionReduced();
   svg.insertAdjacentHTML(
     "afterbegin",
     `<defs><radialGradient id="lg1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`
   );
   svg.insertAdjacentHTML(
     "beforeend",
-    `<g id="lights" style="pointer-events:none"><circle cx="90" cy="98" r="70" fill="url(#lg1)"><animate attributeName="cx" values="60;300;60" dur="5s" repeatCount="indefinite"/></circle><circle cx="270" cy="98" r="60" fill="url(#lg1)"><animate attributeName="cx" values="300;60;300" dur="6s" repeatCount="indefinite"/></circle></g>`
+    // ışıklar CSS transform ile gezer (index.html .arena-l*); düşük grafik ve "hareketi azalt"ta yerinde durur
+    `<g id="lights" style="pointer-events:none"><circle${still ? "" : ' class="arena-l1"'} cx="60" cy="98" r="70" fill="url(#lg1)"/><circle${still ? "" : ' class="arena-l2"'} cx="300" cy="98" r="60" fill="url(#lg1)"/></g>`
   );
   const cap = $("#crt-cap");
   if (cap) cap.innerHTML = `<b class="gold">${$t("sc.bigNight")}</b>`;

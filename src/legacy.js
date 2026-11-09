@@ -150,7 +150,7 @@ export function legacyTab(c, re) {
   c.innerHTML = `<div class="card"><div class="eyebrow">${$t("legacy.42")}</div><div class="row between nowrap"><h2 class="gold">${b.total}</h2><span class="pill g">${esc(tier[1])}</span></div>
      ${
        next
-         ? `<div class="bar"><i style="width:${Math.min(100, (b.total / next[0]) * 100)}%;background:var(--gold)"></i></div><p class="small muted">${$t(
+         ? `<div class="bar"><i style="--w:${Math.min(100, (b.total / next[0]) * 100)};background:var(--gold)"></i></div><p class="small muted">${$t(
              "legacy.35",
              {
                v: esc(next[1]),
@@ -181,7 +181,7 @@ export function legacyTab(c, re) {
      step: CLUB.step,
      majority: CLUB.majority
    })}</p>
-     <div class="bar"><i style="width:${lg.club}%;background:var(--team)"></i></div><div class="kv"><span>${$t("legacy.47")}</span><b>%${lg.club}${lg.club >= CLUB.majority ? $t("legacy.41") : ""}</b><span>${$t("legacy.48")}</span><b>${lg.club >= 100 ? "–" : fmt(CLUB.cost(lg.club / CLUB.step))}</b></div>
+     <div class="bar"><i style="--w:${lg.club};background:var(--team)"></i></div><div class="kv"><span>${$t("legacy.47")}</span><b>%${lg.club}${lg.club >= CLUB.majority ? $t("legacy.41") : ""}</b><span>${$t("legacy.48")}</span><b>${lg.club >= 100 ? "–" : fmt(CLUB.cost(lg.club / CLUB.step))}</b></div>
      <button class="btn team" id="lg-share" ${lg.club >= 100 || !pro || S.money < CLUB.cost(lg.club / CLUB.step) ? "disabled" : ""}>${$t(
        "legacy.49",
        {

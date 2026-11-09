@@ -189,6 +189,7 @@ export function roulette(I) {
         if (busy) return;
         if (chips() < BET) {
           toast($t("casino.25"));
+          late.hapticError();
           return;
         }
         busy = true;
@@ -206,6 +207,12 @@ export function roulette(I) {
         $("#rmsg").textContent = $t("casino.26");
         let lastSeg = -1;
         const step = t => {
+          // panel kapandıysa döngü durur: top yerine oturur, sonuç hemen kaydedilir
+          if (!$("#rmsg")) {
+            ang = target;
+            ballA = -Math.PI / 2;
+            return done();
+          }
           const p = Math.min(1, (t - T0) / DUR),
             e = 1 - Math.pow(1 - p, 3);
           const sg = Math.floor(ang / seg);
@@ -216,7 +223,7 @@ export function roulette(I) {
           ang = start + (target - start) * e;
           ballA = b0 + (bT - b0) * e;
           if (p >= 1) ballA = -Math.PI / 2;
-          if ($("#rmsg")) draw();
+          draw();
           if (p < 1) requestAnimationFrame(step);
           else done();
         };
@@ -301,6 +308,7 @@ export function blackjack(I) {
   const deal = () => {
     if (chips() < BET) {
       toast($t("casino.25"));
+      late.hapticError();
       return;
     }
     stake = BET;
@@ -387,6 +395,7 @@ export function slots(I) {
     if (busy) return;
     if (chips() < BET) {
       toast($t("casino.25"));
+      late.hapticError();
       return;
     }
     busy = true;

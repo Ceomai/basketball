@@ -44,7 +44,7 @@ export function locPerf(I) {
   sheet(
     I.n,
     $t("fit.sub"),
-    `<div class="card"><div class="row between"><div class="eyebrow">${$t("fit.title")}</div><b class="gold">${f.toFixed(1)}/100</b></div><div class="bar"><i style="width:${f}%"></i></div><p class="small muted">${$t("fit.fx", { e: maxEnergy(), i: Math.round((fitInjMul() - 1) * 100), s: Math.round(fitSave() * 100) })}</p></div>
+    `<div class="card"><div class="row between"><div class="eyebrow">${$t("fit.title")}</div><b class="gold">${f.toFixed(1)}/100</b></div><div class="bar"><i style="--w:${f}"></i></div><p class="small muted">${$t("fit.fx", { e: maxEnergy(), i: Math.round((fitInjMul() - 1) * 100), s: Math.round(fitSave() * 100) })}</p></div>
     <div class="card"><div class="eyebrow">${$t("fit.diet")}</div><div class="opts" id="diet">${Object.keys(DIETS)
       .map(d => `<button class="opt ${(S.diet || "dengeli") === d ? "on" : ""}" data-d="${d}">${$t(`fit.d.${d}`)}</button>`)
       .join(

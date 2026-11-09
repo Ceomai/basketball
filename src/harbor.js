@@ -55,7 +55,7 @@ export function locLiman(I) {
   } else {
     const ringCost = Math.round(60 * pm()),
       wedCost = Math.round(150 * pm());
-    body = `<div class="card"><div class="row between"><div class="eyebrow">${S.partner} · ${$t(`hb.s.${STAGES[st]}`)}</div><b class="${S.rel.partner >= 60 ? "good" : S.rel.partner < 30 ? "bad" : ""}">${S.rel.partner}/100</b></div><div class="bar"><i style="width:${S.rel.partner}%"></i></div><p class="small muted">${$t(`hb.next.${STAGES[st]}`, { d: S.dates || 0 })}</p></div>
+    body = `<div class="card"><div class="row between"><div class="eyebrow">${S.partner} · ${$t(`hb.s.${STAGES[st]}`)}</div><b class="${S.rel.partner >= 60 ? "good" : S.rel.partner < 30 ? "bad" : ""}">${S.rel.partner}/100</b></div><div class="bar"><i style="--w:${S.rel.partner}"></i></div><p class="small muted">${$t(`hb.next.${STAGES[st]}`, { d: S.dates || 0 })}</p></div>
     <div class="eyebrow">${$t("hb.dates")}</div>${DATES.filter(d => !d.need || d.need())
       .map(
         d =>
@@ -461,8 +461,13 @@ function race(I, field, pickI, bet, kind = "win") {
     return L * (u + amp[i] * Math.sin(Math.PI * u) * (1 - u) + amp2[i] * Math.sin(2 * Math.PI * u) * (1 - u)); // sonda hepsi sıfırlanır
   };
   const crowd = Array.from({ length: 160 }, () => ({ x: Math.random() * (L + 600), y: rnd(26, 58), c: pick(["#ef5350", "#ffca28", "#42a5f5", "#fff", "#66bb6a", "#ab47bc"]) }));
+  // gökyüzü gradyanı bir kez kurulur (her karede yeniden oluşturulmaz)
+  const sky = c.createLinearGradient(0, 0, 0, 70);
+  sky.addColorStop(0, "#5aa0e6");
+  sky.addColorStop(1, "#bfe1ff");
   let t0 = performance.now(),
     lastLead = -1,
+    lastOrd = "",
     said = { final: false },
     done = false;
   const say = s => {
@@ -470,16 +475,13 @@ function race(I, field, pickI, bet, kind = "win") {
     if (e) e.innerHTML = s;
   };
   const frame = now => {
-    if (!document.body.contains(cv)) return;
+    if (!cv.isConnected) return;
     const t = (now - t0) / 1000;
     const pos = field.map((h, i) => posAt(i, t));
     const lead = pos.indexOf(Math.max(...pos));
     const cam = Math.max(0, Math.min(L + 120 - W + 60, pos[lead] - 230));
     // gökyüzü ve tribün (paralaks)
-    const g = c.createLinearGradient(0, 0, 0, 70);
-    g.addColorStop(0, "#5aa0e6");
-    g.addColorStop(1, "#bfe1ff");
-    c.fillStyle = g;
+    c.fillStyle = sky;
     c.fillRect(0, 0, W, 70);
     c.fillStyle = "#37474f";
     c.fillRect(0, 22, W, 44);
@@ -565,7 +567,10 @@ function race(I, field, pickI, bet, kind = "win") {
     }
     // canlı sıralama ve anlatım
     const ranked = field.map((h, i) => i).sort((a, b) => pos[b] - pos[a]);
-    const ord = $("#hp-ord");
+    // sıralama şeridi yalnız sıra değişince yeniden yazılır
+    const ordKey = ranked.join(","),
+      ord = ordKey !== lastOrd ? $("#hp-ord") : null;
+    lastOrd = ordKey;
     if (ord) ord.innerHTML = ranked.map(i => `<span style="${i === pickI ? "outline:2px solid var(--warn);border-radius:var(--r-round)" : ""}">${silkSVG(field[i], 10)}</span>`).join("");
     if (lead !== lastLead && t > 0.8 && pos[lead] < L) {
       lastLead = lead;

@@ -203,7 +203,7 @@ export function ambLegacy() {
 }
 
 /* ---------- Arayüz ---------- */
-const bar = (v, c = "var(--gold)") => `<div class="bar"><i style="width:${clamp(v, 0, 100)}%;background:${c}"></i></div>`;
+const bar = (v, c = "var(--gold)") => `<div class="bar"><i style="--w:${clamp(v, 0, 100)};background:${c}"></i></div>`;
 /** Ev → Kariyer: Hedefler kartı (ilerleme özeti) */
 export function ambGoalsHTML() {
   if (!S || !(isPro(S.stage) || S.retired)) return "";

@@ -83,7 +83,7 @@ export function goalsHTML(withFx) {
   return G.list
     .map(g => {
       const st = goalState(g);
-      return `<div class="card"><div class="row between nowrap"><div class="eyebrow">${esc(giver(g))}</div><span class="pill ${st.ok ? "w" : ""}">${st.cur}</span></div><b>${goalText(g)}</b><div class="bar"><i style="width:${Math.round(st.pct * 100)}%;background:${st.ok ? "var(--good)" : "var(--gold)"}"></i></div>${withFx ? `<p class="small muted">${effectText(g)}</p>` : ""}</div>`;
+      return `<div class="card"><div class="row between nowrap"><div class="eyebrow">${esc(giver(g))}</div><span class="pill ${st.ok ? "w" : ""}">${st.cur}</span></div><b>${goalText(g)}</b><div class="bar"><i style="--w:${Math.round(st.pct * 100)};background:${st.ok ? "var(--good)" : "var(--gold)"}"></i></div>${withFx ? `<p class="small muted">${effectText(g)}</p>` : ""}</div>`;
     })
     .join("");
 }

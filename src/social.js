@@ -26,7 +26,7 @@ export function trustCardHTML() {
   const t = passTrust(),
     ss = S.ss || {},
     avg = ss.g ? ((ss.tch || 0) / ss.g).toFixed(1) : "-";
-  return `<div class="card"><div class="row between"><div class="eyebrow">${$t("soc.trust")}</div><b class="${t >= 60 ? "good" : t < 40 ? "bad" : ""}">${t}/100</b></div><div class="bar"><i style="width:${t}%"></i></div><p class="small muted">${$t("soc.trustD", { a: avg })}</p></div>`;
+  return `<div class="card"><div class="row between"><div class="eyebrow">${$t("soc.trust")}</div><b class="${t >= 60 ? "good" : t < 40 ? "bad" : ""}">${t}/100</b></div><div class="bar"><i style="--w:${t}"></i></div><p class="small muted">${$t("soc.trustD", { a: avg })}</p></div>`;
 }
 
 /* ---- Takım arkadaşıyla Oyun Kulübü ---- */

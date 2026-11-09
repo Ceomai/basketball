@@ -1,5 +1,5 @@
 {
- "date": "2026-11-09T21:43:34.192Z",
+ "date": "2026-11-09T22:18:42.108Z",
  "summary": {
   "geçti": 25
  },
@@ -9,175 +9,175 @@
    "name": "Yeni oyuncu: oluşturma ekranı, tanıtım turu, ilk iki hafta",
    "status": "geçti",
    "detail": "",
-   "ms": 4456
+   "ms": 4335
   },
   {
    "id": "U02",
    "name": "Geri dönen oyuncu: kayıt ekranından devam, Lig merkezi",
    "status": "geçti",
    "detail": "",
-   "ms": 2718
+   "ms": 1879
   },
   {
    "id": "U03",
    "name": "Eksik profil: yalnızca adla başlamaya çalışır, uyarı alır, düzeltir",
    "status": "geçti",
    "detail": "",
-   "ms": 1228
+   "ms": 1197
   },
   {
    "id": "U04",
    "name": "Uzun geçmişli oyuncu: 18 sezonluk kariyerin bütün Ev sekmeleri, albüm, kart, istatistik",
    "status": "geçti",
    "detail": "",
-   "ms": 966
+   "ms": 865
   },
   {
    "id": "U05",
    "name": "Sürekli oluşturup silen: 5 yuvayı doldurur, 3'ünü siler, yeniden oluşturur",
    "status": "geçti",
    "detail": "",
-   "ms": 2042
+   "ms": 1134
   },
   {
    "id": "U06",
    "name": "Birkaç saniyelik kullanıcı: açıp hemen kapatır (5 kez)",
    "status": "geçti",
    "detail": "",
-   "ms": 2013
+   "ms": 1969
   },
   {
    "id": "U07",
    "name": "Hızlı gezgin: haritada 60 rastgele mekan aç-kapat dokunuşu",
    "status": "geçti",
    "detail": "",
-   "ms": 20768
+   "ms": 5852
   },
   {
    "id": "U08",
    "name": "Hata yapıp düzelten: alamayacağı eşyaya dokunur, ayarları açıp kapatır, pazarlıktan vazgeçer",
    "status": "geçti",
    "detail": "",
-   "ms": 810
+   "ms": 758
   },
   {
    "id": "U09",
    "name": "Kötü bağlantı: oyun ortasında çevrimdışı kalır, oynamaya ve yeniden açmaya devam eder",
    "status": "geçti",
    "detail": "",
-   "ms": 2627
+   "ms": 2480
   },
   {
    "id": "U10",
    "name": "Kapat-aç: her haftadan sonra uygulamayı kapatıp açar (5 kez)",
    "status": "geçti",
    "detail": "",
-   "ms": 7071
+   "ms": 7442
   },
   {
    "id": "U11",
    "name": "Çok cihazlı oyuncu: A'dan kodla B'ye taşır, ikisinde ayrı ilerler",
    "status": "geçti",
    "detail": "",
-   "ms": 3100
+   "ms": 3060
   },
   {
    "id": "U12",
    "name": "Oturumu düşen oyuncu (bulut kayıt): bulut kapalıyken ayarlar 'yakında' der, ağ isteği yok",
    "status": "geçti",
    "detail": "kimlik doğrulama yok (uygulanamaz); bulut yapılandırılmamış, giriş düğmesi yok, istek yok",
-   "ms": 755
+   "ms": 751
   },
   {
    "id": "U13",
    "name": "Aynı kodu iki kez içe aktaran: iki ayrı yuva, ikisi de oynanır",
    "status": "geçti",
    "detail": "",
-   "ms": 1258
+   "ms": 1125
   },
   {
    "id": "U14",
    "name": "Maçı kendi oynayan: bütün karar anları ve mini oyunlar dokunuşla",
    "status": "geçti",
    "detail": "",
-   "ms": 42310
+   "ms": 37646
   },
   {
    "id": "U15",
    "name": "Reklam seven: enerji ve prim reklamlarını günlük sınıra kadar izler",
    "status": "geçti",
    "detail": "güvenlik tavanına (100) kadar ödül verildi, sonraki 2 reklam reddedildi",
-   "ms": 48930
+   "ms": 48898
   },
   {
    "id": "U16",
    "name": "Reklam reddeden: izin vermez, reklamı erken kapatır, oyuna devam eder",
    "status": "geçti",
    "detail": "",
-   "ms": 1702
+   "ms": 1880
   },
   {
    "id": "U17",
    "name": "Oyun Kulübü oyuncusu: fişleri bitene kadar oynar, eksiye düşmez",
    "status": "geçti",
    "detail": "kalan fiş 0",
-   "ms": 6992
+   "ms": 5198
   },
   {
    "id": "U18",
    "name": "Alışverişçi: parası yettiğince her şeyi alır, para eksiye düşmez",
    "status": "geçti",
    "detail": "{\"n\":3,\"money\":3780,\"items\":3}",
-   "ms": 765
+   "ms": 772
   },
   {
    "id": "U19",
    "name": "Erişilebilirlik kullanıcısı: 320 px, çok büyük yazı, renk körlüğü, kolay mod",
    "status": "geçti",
    "detail": "",
-   "ms": 1306
+   "ms": 1160
   },
   {
    "id": "U20",
    "name": "Dil değiştiren: TR → EN → TR, kariyer bozulmaz",
    "status": "geçti",
    "detail": "",
-   "ms": 3891
+   "ms": 3669
   },
   {
    "id": "U21",
    "name": "Emekli olup oğluyla devam eden: emeklilik, son bölüm, oğul kariyeri, ilk hafta",
    "status": "geçti",
    "detail": "",
-   "ms": 1305
+   "ms": 1113
   },
   {
    "id": "U22",
    "name": "Hızlı kariyer oyuncusu: 7 maçlık sezonun sonuna ulaşır",
    "status": "geçti",
    "detail": "",
-   "ms": 7297
+   "ms": 5382
   },
   {
    "id": "U23",
    "name": "Efsane modu oyuncusu: zor mod, miras dökümünde mod bonusu",
    "status": "geçti",
    "detail": "",
-   "ms": 1344
+   "ms": 1096
   },
   {
    "id": "U24",
    "name": "Oyun testi katılımcısı: izin verir, oynar, geri bildirim yazar, raporu indirir",
    "status": "geçti",
    "detail": "",
-   "ms": 1532
+   "ms": 1144
   },
   {
    "id": "U25",
    "name": "Eski cihaz: 4 kat yavaş işlemci, düşük grafik, 320 px",
    "status": "geçti",
-   "detail": "hafta 973 ms, ana ekran çizimi 103.2 ms (4x yavaşlatma)",
-   "ms": 2159
+   "detail": "hafta 1087 ms, ana ekran çizimi 47.8 ms (4x yavaşlatma)",
+   "ms": 2167
   }
  ]
 }

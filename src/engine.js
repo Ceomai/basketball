@@ -3,6 +3,7 @@ import { late } from "./late.js";
 import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, shuffle, statName, wait } from "./data.js";
 import { portrait } from "./art.js";
 import { buzz } from "./games.js";
+import { hapticSuccess, hapticTap, scrollMode } from "./motion.js";
 import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey } from "./core.js";
 import { arenaFor } from "./places.js";
 import { LK, M, PEN, addFeed, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
@@ -58,7 +59,7 @@ export function thumbAlign(el) {
       th = top ? top.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty("--mtop-h", `${Math.round(th)}px`);
     const h = el.getBoundingClientRect().height;
-    el.scrollIntoView({ block: h <= window.innerHeight - th - 24 ? "end" : "start", behavior: "smooth" });
+    el.scrollIntoView({ block: h <= window.innerHeight - th - 24 ? "end" : "start", behavior: scrollMode() });
   } catch (e) {
     /* eski tarayıcı */
   }
@@ -205,14 +206,22 @@ export async function playMatch(ctx) {
         }
       )} · ${$t("pf.short", { n: M.pf || 0, l: late.foulLimit() })}${late.liveLine()}</div>${late.crowdLine()}`;
   };
+  // oyuna giriş/çıkış bandı: tabelanın altında üste biner (düzeni kaydırmaz); yenisi gelince eskisi hemen çekilir
   const banner = (t, good) => {
     late.sfx("whistle");
+    const host = $(".mtop") || $("#mview");
+    if (!host) return;
+    host.querySelectorAll(".say.ban").forEach(x => x.remove());
     const d = document.createElement("div");
-    d.className = good ? "say good" : "say warn";
+    d.className = good ? "say good ban" : "say warn ban";
+    d.setAttribute("role", "status");
     d.innerHTML = `<b>${t}</b>`;
-    const mv = $("#mview");
-    mv.prepend(d);
-    setTimeout(() => d.remove(), 2600);
+    host.appendChild(d);
+    setTimeout(() => {
+      if (!d.isConnected) return;
+      d.classList.add("out");
+      setTimeout(() => d.remove(), 160);
+    }, 2440);
     buzz(good ? 20 : 10);
   };
   addFeed(
@@ -416,6 +425,8 @@ export async function playMatch(ctx) {
   );
   addFeed(`<b>${$t("engine.29")}</b> ${M.us}-${M.them}.`);
   if (!AUTO) {
+    if (win) hapticSuccess(); // galibiyet: başarı titreşimi; mağlubiyet/beraberlik: tek kısa
+    else hapticTap();
     const df = M.us - M.them;
     late.commentLine(Math.abs(df) <= 3 ? "close" : df <= -18 ? "blowout" : df >= 18 ? "rout" : df > 0 ? "win" : "loss"); // spiker (src/tales.js)
   }

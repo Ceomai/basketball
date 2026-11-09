@@ -2,6 +2,7 @@
 // ardından "late" kaydı doldurulur ve oyun "load" olayında başlar (core.js).
 import { late } from "./late.js";
 import * as theme from "./theme.js";
+import * as motion from "./motion.js";
 import * as data from "./data.js";
 import * as clubs from "./clubs.js";
 import * as art from "./art.js";
@@ -97,6 +98,7 @@ import * as trcase from "./trcase.js";
 
 const MODULES = [
   theme,
+  motion,
   data,
   clubs,
   art,

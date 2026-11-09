@@ -86,7 +86,10 @@ export function oppName() {
 export function addFeed(t) {
   M.feed.unshift({ t: `${$t("common.q", { n: M.q })} ${M.clock}`, x: t });
   const f = $("#feed");
-  if (f) f.innerHTML = M.feed.map(x => `<div><time>${x.t}</time><span>${x.x}</span></div>`).join("");
+  if (!f) return;
+  f.innerHTML = M.feed.map(x => `<div><time>${x.t}</time><span>${x.x}</span></div>`).join("");
+  // yalnız yeni (en üstteki) satır kısa bir kayma + belirme ile gelir (index.html .feed>div.fin)
+  if (f.firstElementChild) f.firstElementChild.className = "fin";
 }
 export const PEN = {
   pull: 6,
@@ -747,6 +750,7 @@ export function seasonEnd(playoff, champ, final) {
     tn = lgName(),
     label = seasonLabel();
   if (champ) {
+    if (!window.__SIM) late.hapticSuccess(); // şampiyonluk
     awards.push(
       $t("match.46", {
         tn: tn

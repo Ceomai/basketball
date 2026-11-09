@@ -49,6 +49,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Reklam kimliği (AdMob). Android 13+ için açıkça gerekir; Play Console → Uygulama içeriği → Reklam kimliği beyanı: "Evet, reklam". -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!-- Dokunsal geri bildirim (@capacitor/haptics; web yedeği navigator.vibrate). Ayarlar → Titreşim kapalıysa hiç kullanılmaz. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Eklentilerden birleşenler: POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, WAKE_LOCK (yerel bildirim),
          ACCESS_NETWORK_STATE (AdMob), BILLING (satın alma). Tam alarm (SCHEDULE_EXACT_ALARM) bilerek YOK: Play kısıtlar. -->
 </manifest>

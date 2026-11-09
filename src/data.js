@@ -131,7 +131,9 @@ export function toast(t) {
   if (TOAST_LOG.length > 60) TOAST_LOG.splice(0, 20);
   if (typeof late.inboxAdd === "function") late.inboxAdd(t, "toast"); // bildirim kutusu (src/inbox.js)
   if (typeof late.sfx === "function") late.sfx("notify");
-  $$(".toast").forEach(x => x.remove());
+  // ardışık bildirim: önceki 150 ms'de çekilir (duyurusu kapanır; sorgularda yenisi önce gelir), yenisi 180 ms'de gelir
+  const reduced = typeof late.motionReduced === "function" && late.motionReduced();
+  $$(".toast").forEach(x => toastOut(x, reduced || x.classList.contains("out")));
   const d = document.createElement("div");
   // maçta: skor tabelasının hemen altında ince şerit (karar başlığını ve seçenekleri örtmez, dokunuşu geçirir);
   // panel/reklam açıkken üstte; ana ekranda alttaki eylem çubuğunun üstünde
@@ -147,8 +149,17 @@ export function toast(t) {
   d.setAttribute("aria-live", "polite");
   d.setAttribute("aria-atomic", "true");
   d.textContent = t;
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), toastMs(t));
+  // yenisi eskilerin önüne eklenir: $(".toast") her zaman güncel bildirimi bulur
+  document.body.insertBefore(d, document.querySelector(".toast"));
+  setTimeout(() => d.classList.contains("out") || toastOut(d, reduced), toastMs(t));
+}
+/** Bildirimi kaldır: hemen (now) ya da 150 ms çıkış animasyonuyla */
+function toastOut(x, now) {
+  if (now) return x.remove();
+  x.classList.add("out");
+  x.removeAttribute("role");
+  x.removeAttribute("aria-live");
+  setTimeout(() => x.remove(), 160);
 }
 // Türkçede ondalık virgül ve "B" (bin); İngilizcede nokta ve "K" ("B" orada milyar okunur)
 const dec = x => (LANG === "tr" ? x.replace(".", ",") : x);

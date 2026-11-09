@@ -150,7 +150,9 @@ Bus.on("match:start", ctx => {
       check();
     });
   });
-  T.obs.observe(document.body, { childList: true, subtree: true });
+  // yalnız maç ekranı (#app: tabela, hız düğmeleri, #mview) izlenir; bildirimler/paneller tetiklemez. Rehber bitince
+  // (mtutEnd) gözlemci kapanır.
+  T.obs.observe(document.getElementById("app") || document.body, { childList: true, subtree: true });
 });
 Bus.on("match:end", () => mtutEnd());
 /** Mini oyun baloncuğu okunana kadar oyun beklesin mi (src/games.js loop) */

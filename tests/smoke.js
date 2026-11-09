@@ -10,6 +10,13 @@ const check = (ok, msg) => {
   console.log(`${ok ? "✓" : "✗"} ${msg}`);
 };
 
+/** Maç sonu "Devam" (#nx): bu maçta satır içi basın toplantısı varsa (rastgele; src/story.js pressInlineHTML) önce bir
+    cevap seçilir, sonra düğme görünür. Yalnız #nx beklemek ~1/3 olasılıkla zaman aşımına düşüyordu. */
+async function waitNx(p, timeout) {
+  await p.waitForSelector("#nx:visible, #pr-inl [data-press]", { timeout });
+  if (!(await p.$("#nx:visible"))) await p.click("#pr-inl [data-press]");
+  await p.waitForSelector("#nx:visible", { timeout: 5000 });
+}
 (async () => {
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
@@ -67,7 +74,7 @@ const check = (ok, msg) => {
   await p.waitForTimeout(200);
   check(!!(await p.$("#qw-sim")), "hafta özeti açıldı");
   await p.tap("#qw-sim");
-  await p.waitForSelector("#nx", { timeout: 20000 });
+  await waitNx(p, 20000);
   await p.tap("#nx");
   await p.waitForTimeout(300);
   for (const s of ["[data-press]", "#pok"]) {

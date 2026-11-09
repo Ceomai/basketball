@@ -49,8 +49,8 @@ export function locStudio(I) {
   sheet(
     I.n,
     $t("sd.sub"),
-    `<div class="card"><div class="row between"><div class="eyebrow">${$t("sd.channel")}</div><b class="gold">${$t("sd.level", { v: L })}</b></div><div class="bar"><i style="width:${Math.min(100, Math.round((c.xp / Math.max(1, nextXp)) * 100))}%"></i></div><p class="small muted">${$t("sd.info", { t: $t(`sd.t.${trend()}`), f: late.kfmt(S.followers) })}</p></div>
-    ${d ? `<div class="card"><div class="row between"><div class="eyebrow">${$t("sd.sponsorRel", { v: $t(`ag.b.${d.b}`) })}</div><b class="${(d.rel ?? 60) < 35 ? "bad" : "good"}">${Math.round(d.rel ?? 60)}/100</b></div><div class="bar"><i style="width:${d.rel ?? 60}%"></i></div><p class="small muted">${$t("sd.sponsorD")}</p><button class="btn team sm" id="sd-shoot" ${S.slot <= 0 || S.energy < 8 ? "disabled" : ""}>${$t("sd.shoot")}</button></div>` : ""}
+    `<div class="card"><div class="row between"><div class="eyebrow">${$t("sd.channel")}</div><b class="gold">${$t("sd.level", { v: L })}</b></div><div class="bar"><i style="--w:${Math.min(100, Math.round((c.xp / Math.max(1, nextXp)) * 100))}"></i></div><p class="small muted">${$t("sd.info", { t: $t(`sd.t.${trend()}`), f: late.kfmt(S.followers) })}</p></div>
+    ${d ? `<div class="card"><div class="row between"><div class="eyebrow">${$t("sd.sponsorRel", { v: $t(`ag.b.${d.b}`) })}</div><b class="${(d.rel ?? 60) < 35 ? "bad" : "good"}">${Math.round(d.rel ?? 60)}/100</b></div><div class="bar"><i style="--w:${d.rel ?? 60}"></i></div><p class="small muted">${$t("sd.sponsorD")}</p><button class="btn team sm" id="sd-shoot" ${S.slot <= 0 || S.energy < 8 ? "disabled" : ""}>${$t("sd.shoot")}</button></div>` : ""}
     <div class="eyebrow">${$t("sd.content")}</div><div class="choices">${TYPES.filter(t => t !== "sponsor" || d)
       .map(
         t =>
@@ -162,7 +162,7 @@ export function locFans(I) {
   sheet(
     I.n,
     $t("fz.sub"),
-    `<div class="card"><div class="row between"><div class="eyebrow">${$t("fz.rel")}</div><b class="gold">${S.rel.taraf}/100</b></div><div class="bar"><i style="width:${S.rel.taraf}%"></i></div></div>
+    `<div class="card"><div class="row between"><div class="eyebrow">${$t("fz.rel")}</div><b class="gold">${S.rel.taraf}/100</b></div><div class="bar"><i style="--w:${S.rel.taraf}"></i></div></div>
     <div class="act"><div><h3>${$t("fz.sign")}</h3><p>${$t("fz.signD")}</p></div><button class="btn team sm" id="fz-sign" ${S.slot <= 0 ? "disabled" : ""}>${$t("fz.go")}</button></div>
     <div class="act"><div><h3>${$t("fz.ultras")}</h3><p>${$t("fz.ultrasD")}</p></div><button class="btn team sm" id="fz-ultra" ${S.slot <= 0 || done ? "disabled" : ""}>${done ? $t("fz.done") : $t("fz.go")}</button></div>${late.fanExtraHTML()}`
   );

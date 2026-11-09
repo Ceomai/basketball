@@ -2,6 +2,7 @@ import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, INK, clamp, ri, shade, GOOD, BAD } from "./data.js";
 import { tok, tokAlpha } from "./theme.js";
+import { hapticError } from "./motion.js";
 import { drawBall, drawKid, ell, rr } from "./art.js";
 import { ARENA, CV, CX, H, W, bigText, buzz, finish, hint, info, loop, lvl, mkStage, ppos, setMgKind } from "./games.js";
 import { S, jersey } from "./core.js";
@@ -287,6 +288,7 @@ export function mgReflex(el) {
       } else {
         score = Math.max(0, score - 1);
         miss = 0.25;
+        hapticError();
         late.sfx("error");
       }
     };

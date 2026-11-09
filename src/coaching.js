@@ -256,7 +256,7 @@ function finish(res) {
 /* ---- arayüz ---- */
 const crest = (t, sz) => crestSVG({ key: t.key, c1: t.c1, c2: t.c2, short: t.short }, sz);
 const meter = (n, v, max, col) =>
-  `<div class="attr"><span>${n}</span><div class="bar"><i style="width:${Math.round((v / max) * 100)}%;background:${col}"></i></div><b>${Math.round(v)}</b></div>`;
+  `<div class="attr"><span>${n}</span><div class="bar"><i style="--w:${Math.round((v / max) * 100)};background:${col}"></i></div><b>${Math.round(v)}</b></div>`;
 /** Emeklilik ekranı kartı */
 export function cchCardHTML() {
   if (!S) return ""; // yalnız emeklilik ekranından çağrılır (S.retired çizimden sonra işaretlenir)

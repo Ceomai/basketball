@@ -33,6 +33,7 @@ import { SKINS, drawKid, icon, portrait } from "./art.js";
 import { fitMapLabels, mapSVG } from "./map.js";
 import { brandGen } from "./brand.js";
 import { inkOn } from "./theme.js";
+import { motionPlay, motionReduced } from "./motion.js";
 /* ================= DURUM ================= */
 export let S = null;
 export const fullName = () => `${S.first} ${S.last}`;
@@ -277,7 +278,7 @@ export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core
    Kapatılabilir panel: ✕, arka plana dokunma, Esc, tutamaçtan/başlıktan aşağı sürükleme ve (web/PWA'da) tarayıcı
    geri hareketi kapatır. Zorunlu panelde (noClose) bunların hiçbiri yok; geri hareketi "Bir seçim yap" der.
    Açılınca odak panele gelir, Tab panel içinde döner; kapanınca odak paneli açan öğeye (hâlâ ekrandaysa) döner. */
-const SH = { opener: null, guard: false };
+const SH = { opener: null, guard: false, ghost: null };
 const FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
 export function sheet(title, sub, body, o = {}) {
   const wasOpen = !!$("#ovl .sheet");
@@ -285,8 +286,12 @@ export function sheet(title, sub, body, o = {}) {
     const ae = document.activeElement;
     SH.opener = ae && ae !== document.body && !$("#ovl").contains(ae) ? ae : null;
   }
+  // panelden panele (açıkken ya da kapanış animasyonu sürerken): arka plan ve panel yeniden kaymaz, içerik çapraz geçer;
+  // kapanmakta olan panelin görüntüsü hemen kalkar (yeni panel çıkışı keser)
+  const swap = wasOpen || !!SH.ghost;
+  dropGhost();
   $("#ovl").innerHTML =
-    `<div class="sheet-bg"><div class="sheet${o.noClose ? " locked" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}" tabindex="-1">${o.noClose ? "" : '<div class="grab" aria-hidden="true"></div>'}<div class="sheet-h">${o.icon || ""}<div class="minw-0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
+    `<div class="sheet-bg${swap ? " swap" : ""}"><div class="sheet${o.noClose ? " locked" : ""}" role="dialog" aria-modal="true" aria-label="${esc(title)}" tabindex="-1">${o.noClose ? "" : '<div class="grab" aria-hidden="true"></div>'}<div class="sheet-h">${o.icon || ""}<div class="minw-0"><div class="eyebrow" id="shsub">${esc(sub || "")}</div><h2>${esc(title)}</h2></div>${o.noClose ? "" : `<button class="x" id="shx" aria-label="${$t("a11y.close")}">✕</button>`}</div><div class="sheet-b" id="shb">${body}</div></div></div>`;
   if (!o.noClose) {
     const cl = () => {
       closeSheet();
@@ -308,8 +313,49 @@ export function sheet(title, sub, body, o = {}) {
   Bus.emit("sheet:open", $("#ovl"));
   return $("#shb");
 }
+/** Kapanış animasyonundaki panel görüntüsünü hemen kaldır */
+function dropGhost() {
+  const g = SH.ghost;
+  SH.ghost = null;
+  if (g) g.remove();
+}
+/** Panel kapanışı: durum hemen kapanır (#ovl boşalır; testler ve akış beklemez); görsel olarak panelin kimliksiz,
+    dokunulmaz bir kopyası 180 ms aşağı kayıp söner. Sürükleyerek kapatmada bulunduğu yerden devam eder. */
+function sheetExit() {
+  const bg = $("#ovl .sheet-bg"),
+    sh = bg && bg.querySelector(".sheet");
+  if (!bg || !sh || motionReduced() || window.__SIM || typeof sh.animate !== "function") return;
+  dropGhost();
+  bg.className = "shg-bg";
+  sh.className = "shg";
+  bg.setAttribute("aria-hidden", "true");
+  bg.inert = true;
+  // kimlik ve veri öznitelikleri silinir: kopyadaki düğmeler sorgularda ve testlerde bulunmaz
+  for (const el of [bg, ...bg.querySelectorAll("*")]) {
+    el.removeAttribute("id");
+    for (const a of [...el.attributes]) if (a.name.startsWith("data-")) el.removeAttribute(a.name);
+  }
+  const from = sh.style.transform || "translateY(0px)",
+    dragged = /translateY\((?!0px)/.test(from);
+  document.body.insertBefore(bg, $("#ovl").nextSibling);
+  SH.ghost = bg;
+  const D = 180;
+  motionPlay(sh, [{ transform: from, opacity: 1 }, { transform: dragged ? "translateY(100%)" : "translateY(56px)", opacity: 0 }], {
+    key: "exit",
+    opts: { duration: D, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" }
+  });
+  const a = motionPlay(bg, [{ opacity: 1 }, { opacity: 0 }], { key: "exit", opts: { duration: D, easing: "linear", fill: "forwards" } });
+  const end = () => {
+    if (SH.ghost === bg) dropGhost();
+    else bg.remove();
+  };
+  if (a) a.onfinish = end;
+  else end();
+  setTimeout(end, D + 120); // animasyon olayı gelmezse (arka plan sekmesi) yine temizlenir
+}
 export function closeSheet() {
   const had = !!$("#ovl .sheet");
+  if (had) sheetExit();
   $("#ovl").innerHTML = "";
   Bus.emit("sheet:close");
   if (had && !$("#ovl .sheet")) {
@@ -967,8 +1013,8 @@ export function hudHTML() {
    )}</div></div>
    <div class="hud-money"><span class="eyebrow">${$t("core.66")}</span><b>${fmt(S.money)}</b></div></div>
    <div class="hud-stats">
-    <div class="hs"><div class="k">${$t("core.67")}</div><div class="v">${S.energy}</div><div class="mt"><i style="width:${S.energy}%;background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
-    <div class="hs"><div class="k">${$t("core.68")}</div><div class="v">${S.moral}</div><div class="mt"><i style="width:${S.moral}%;background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("core.67")}</div><div class="v">${S.energy}</div><div class="mt"><i style="--w:${S.energy};background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("core.68")}</div><div class="v">${S.moral}</div><div class="mt"><i style="--w:${S.moral};background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
     <div class="hs"><div class="k">${$t("core.69")}</div><div class="v">${ovr()} <span class="muted" style="font-size:var(--fs-sm)">· ${form}</span></div></div>
     <div class="hs"><div class="k">${$t("core.70")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:var(--fs-sm)">· ${kfmt(S.followers)}</span></div></div>
    </div></header>`;
@@ -989,6 +1035,7 @@ export function mapState() {
   };
 }
 export function renderMain() {
+  const wasMain = !!app.querySelector(".mainlay"); // ekran giriş animasyonu yalnız gerçek ekran değişiminde (src/music.js)
   closeSheet();
   norm();
   late.save();
@@ -1047,7 +1094,7 @@ export function renderMain() {
   $("#lgc").onclick = () => late.leagueSheet();
   const fbk = $("#fbk");
   if (fbk) fbk.onclick = () => late.feedbackSheet("main");
-  Bus.emit("screen:main");
+  Bus.emit("screen:main", { fresh: !wasMain });
   $("#rst").onclick = late.renderSlots;
   $("#opt").onclick = late.settingsSheet;
   const gdb = $("#gdb");

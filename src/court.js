@@ -18,6 +18,7 @@ import { M } from "./match.js";
 import { courtShoe } from "./custom.js";
 import { hex6, inkOn } from "./theme.js";
 import { late } from "./late.js";
+import { motionPlay, motionReduced, prefersReduce } from "./motion.js";
 
 // Yatay tam saha (28 × 15 m): biz sağdaki potaya, rakip soldakine hücum eder.
 const W = 360,
@@ -91,17 +92,38 @@ export function courtStart(opp) {
   g.innerHTML =
     POSS.map((p, i) => dot(`o-${p}`, W / 2 + 12 + (i % 3) * 14, 50 + i * 24, C.c1, p === S.pos, p === S.pos ? "★" : p)).join("") +
     POSS.map((p, i) => dot(`d-${p}`, W / 2 - 12 - (i % 3) * 14, 50 + i * 24, C.c2, false, "")).join("") +
-    `<g id="ball" style="transform:translate(${W / 2}px,98px);transition:transform .45s ease"><circle r="4" fill="#ff8a3d" stroke="#141414" stroke-width="1"/></g><g id="arrows"></g>`;
+    `<g id="ball" style="transform:translate(${W / 2}px,98px);transition:transform .45s ease"><g class="bl"><circle r="4" fill="#ff8a3d" stroke="#141414" stroke-width="1"/></g></g><g id="arrows"></g>`;
 }
 /** Dizilişteki hücum noktası (oyun kur ekranı için; sağa hücum) */
 export const courtSlot = p => SLOT[p] || SLOT.PG;
 export const courtZone = z => ZONE_XY[z] || ZONE_XY.top;
 export const courtMove = (id, x, y, ms) => mv(id, x, y, ms);
-function mv(id, x, y, ms) {
+function mv(id, x, y, ms, ease = "ease-in-out") {
   const e = $(`#${id}`);
   if (!e) return;
-  if (ms != null) e.style.transition = `transform ${Math.max(0, ms)}ms ease-in-out`;
+  if (prefersReduce()) ms = 0; // hareketi azalt: oyuncular ve top yeni yerine anında geçer
+  if (ms != null) e.style.transition = ms > 0 ? `transform ${ms}ms ${ease}` : "none";
   e.style.transform = `translate(${Math.max(6, Math.min(W - 6, x))}px,${Math.max(6, Math.min(H - 6, y))}px)`;
+}
+/** Şut yayı: dış <g> potaya doğrusal gider (x ve y), içteki top yukarı çıkıp iner (yükselişte ease-out, inişte ease-in).
+    Hareketi azalt / düşük grafikte yay yok: top düz (ya da anında) gider. */
+function arc(x, y, ms) {
+  const e = $("#ball");
+  if (!e) return;
+  const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(e.style.transform || ""),
+    d = m ? Math.hypot(x - +m[1], y - +m[2]) : 120;
+  mv("ball", x, y, ms, "linear");
+  if (!ms || motionReduced()) return;
+  const up = -Math.round(Math.min(42, 12 + d * 0.16));
+  motionPlay(
+    e.querySelector(".bl"),
+    [
+      { transform: "translateY(0)", easing: "cubic-bezier(.33,.66,.66,1)" },
+      { transform: `translateY(${up}px)`, offset: 0.5, easing: "cubic-bezier(.33,0,.66,.33)" },
+      { transform: "translateY(0)" }
+    ],
+    { key: "arc", opts: { duration: ms, easing: "linear" } }
+  );
 }
 function clearTimers() {
   if (C && C.timers) C.timers.forEach(clearTimeout);
@@ -176,7 +198,7 @@ export function courtPlay(r, on, dur) {
     // şutörün savunmacısı üstüne çıkar
     const sp = pos[shooter];
     mv(`${def}-${shooter}`, sp[0] + (h.x - sp[0]) * 0.12, sp[1] + (h.y - sp[1]) * 0.12, t2 * 0.5);
-    mv("ball", h.x, h.y, t2 * 0.6);
+    arc(h.x, h.y, t2 * 0.6);
     later(t2 * 0.6, () => {
       if (r.scored) {
         if (on) late.sfx && late.sfx("netSwish");
@@ -330,7 +352,7 @@ export function mgContext(s) {
 export function courtShot(good) {
   if (!C || !C.cur || !C.cur.s.us) return Promise.resolve();
   const n = $("#net-r");
-  mv("ball", HR.x, HR.y, 380);
+  arc(HR.x, HR.y, 380);
   return new Promise(r =>
     later(400, () => {
       if (good) late.sfx && late.sfx("netSwish");

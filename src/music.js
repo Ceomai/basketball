@@ -1,7 +1,8 @@
-import { $, Bus, SIM } from "./data.js";
+import { $, Bus, SIM, fmt } from "./data.js";
 import { S, app } from "./core.js";
 import { SETTINGS } from "./systems.js";
 import { AC, NOISE } from "./audio.js";
+import { MOTION, motionPlay, motionReduced } from "./motion.js";
 /* ================= MÜZİK =================
    Dosya yüklemeden Web Audio ile çalınan döngüsel müzik.
    - "menu": harita ve menülerde sakin, lo-fi bir groove (84 BPM)
@@ -203,35 +204,127 @@ document.addEventListener("visibilitychange", () => {
    - Sonuç kutularındaki sayılar sıfırdan sayarak gelir
    - Ekran geçişlerinde hafif kayma
    - Düşük grafik modu: daha düşük çözünürlük, animasyonsuz arayüz, 30 FPS mini oyunlar */
+/** "₺12.450", "-3", "1,250 pts" → {pre, n, sep, post}; ondalıklı ya da sayı olmayan metin null */
+function numParts(txt) {
+  const m = txt.match(/^([^\d\-−]*)([-−]?)(\d{1,3}(?:([.,])\d{3})+|\d+)([^\d]*)$/);
+  if (!m) return null;
+  const n = +m[3].replace(/[.,]/g, "") * (m[2] ? -1 : 1);
+  return { pre: m[1], sign: m[2] || "-", n, sep: m[4] || "", post: m[5] };
+}
+const numText = (p, v) => {
+  const a = String(Math.abs(Math.round(v))),
+    g = p.sep ? a.replace(/\B(?=(\d{3})+(?!\d))/g, p.sep) : a;
+  return p.pre + (v < 0 ? p.sign : "") + g + p.post;
+};
+/** Sayaç: from → to (ease-out cubic, ~550 ms; öğe ekrandan çıkınca durur) */
+function tween(el, from, to, f, D = 550) {
+  const t0 = performance.now();
+  const step = t => {
+    if (!el.isConnected) return;
+    const k = Math.min(1, (t - t0) / D),
+      e = 1 - Math.pow(1 - k, 3);
+    el.textContent = f(from + (to - from) * e);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  el.textContent = f(from);
+  requestAnimationFrame(step);
+}
+// panel sayaçlarının son gösterilen değeri (panel adı + sıra): değişmeyen sayı yeniden sayılmaz, değişen öncekinden sayar
+const CU = new Map();
 export function countUp(root) {
-  if (!root || SETTINGS.lowfx || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  root.querySelectorAll(".box b, .big-num").forEach(el => {
-    const txt = el.textContent.trim(),
-      m = txt.match(/^([^\d-]*)(-?\d+)([^\d]*)$/);
-    if (!m) return;
-    const to = +m[2];
-    if (Math.abs(to) < 2) return;
-    const t0 = performance.now(),
-      D = 550;
-    const f = t => {
-      const k = Math.min(1, (t - t0) / D),
-        e = 1 - Math.pow(1 - k, 3);
-      el.textContent = m[1] + Math.round(to * e) + m[3];
-      if (k < 1 && el.isConnected) requestAnimationFrame(f);
-    };
-    requestAnimationFrame(f);
+  if (!root) return;
+  const dlg = root.querySelector("[role=dialog]"),
+    scope = (dlg && dlg.getAttribute("aria-label")) || "";
+  const still = SETTINGS.lowfx || motionReduced();
+  root.querySelectorAll(".box b, .big-num").forEach((el, i) => {
+    const p = numParts(el.textContent.trim());
+    if (!p) return;
+    const key = `${scope}|${i}`,
+      prev = CU.get(key);
+    CU.set(key, p.n);
+    if (CU.size > 400) CU.delete(CU.keys().next().value);
+    if (still || prev === p.n) return;
+    const from = prev == null ? 0 : prev;
+    if (Math.abs(p.n - from) < 2) return;
+    tween(el, from, p.n, v => numText(p, v));
   });
+}
+/* ---- ana ekran sayaçları: para, enerji, moral ----
+   Önceki değerler ana ekran çiziminden bağımsız saklanır (kariyer kimliğine bağlı). Değer değişince öncekinden yeniye
+   ~500 ms sayılır ve kısa bir "+X"/"−X" etiketi yükselip söner (yalnız transform/opacity). Düşük grafik/hareketi
+   azalt'ta sayılmaz. */
+const HV = { cid: null, money: 0, energy: 0, moral: 0 };
+function hudFly(host, txt, up) {
+  if (!host) return;
+  const s = document.createElement("span");
+  s.className = `hfly ${up ? "up" : "dn"}`;
+  s.setAttribute("aria-hidden", "true");
+  s.textContent = txt;
+  host.appendChild(s);
+  const a = motionPlay(
+    s,
+    [
+      { opacity: 0, transform: "translateY(6px)" },
+      { opacity: 1, transform: "translateY(-6px)", offset: 0.25 },
+      { opacity: 1, transform: "translateY(-12px)", offset: 0.7 },
+      { opacity: 0, transform: "translateY(-18px)" }
+    ],
+    { key: "fly", opts: { duration: 900, easing: MOTION.out } }
+  );
+  if (a) a.onfinish = () => s.remove();
+  else s.remove();
+}
+export function hudCount() {
+  if (!S) return;
+  const cur = { money: S.money, energy: S.energy, moral: S.moral },
+    prev = HV.cid === S.cid ? { ...HV } : null;
+  Object.assign(HV, cur, { cid: S.cid });
+  if (!prev || SIM() || motionReduced()) return;
+  const mb = $(".hud-money b");
+  if (mb && Math.round(cur.money * 40) !== Math.round(prev.money * 40)) {
+    tween(mb, prev.money, cur.money, fmt);
+    const d = cur.money - prev.money;
+    hudFly(mb.parentElement, (d > 0 ? "+" : "") + fmt(d), d > 0);
+  }
+  [
+    ["energy", 1],
+    ["moral", 2]
+  ].forEach(([k, n]) => {
+    const hs = document.querySelector(`.hud-stats .hs:nth-child(${n})`),
+      d = cur[k] - prev[k];
+    if (!hs || !d) return;
+    const v = hs.querySelector(".v"),
+      bar = hs.querySelector(".mt i");
+    if (v) tween(v, prev[k], cur[k], x => String(Math.round(x)), 450);
+    if (bar) {
+      // çubuk önceki dolulukta başlar, bir sonraki karede yeni değere geçer (transform geçişi)
+      bar.style.setProperty("--w", String(prev[k]));
+      requestAnimationFrame(() => requestAnimationFrame(() => bar.isConnected && bar.style.setProperty("--w", String(cur[k]))));
+    }
+    hudFly(hs, (d > 0 ? "+" : "−") + Math.abs(d), d > 0);
+  });
+}
+/** Ana ekran girişi: yalnız başka bir ekrandan gelince; parçalar sırayla belirip 8 px yukarı kayar (WAAPI, yeniden
+    yerleşim zorlamadan). Alttaki sabit eylem çubuğunun ataları dönüştürülmez (sabit konum kapsayıcısı olmasın). */
+function enterMain() {
+  if (motionReduced()) return;
+  const parts = [$(".hud"), $(".mapcol"), ...app.querySelectorAll(".wkstick>:not(.actbar),.wkcol>:not(.wkstick)")].filter(Boolean);
+  parts.slice(0, 8).forEach((el, i) =>
+    motionPlay(el, [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], {
+      key: "enter",
+      opts: { duration: MOTION.med, delay: Math.min(i, 4) * 30, easing: MOTION.out, fill: "backwards" }
+    })
+  );
 }
 export function applyLowFx() {
   document.body.classList.toggle("lowfx", !!SETTINGS.lowfx);
 }
 // Olaylara bağlantı: panel açılınca sayılar canlanır; ekrana göre müzik teması değişir
 Bus.on("sheet:open", el => countUp(el));
-Bus.on("screen:main", () => {
+Bus.on("screen:main", o => {
   musicFor("menu");
-  app.classList.remove("enter");
-  void app.offsetWidth;
-  app.classList.add("enter");
+  if (o && o.fresh) enterMain();
+  hudCount();
 });
 Bus.on("screen:slots", () => musicFor("menu"));
 Bus.on("match:start", () => musicFor(null));

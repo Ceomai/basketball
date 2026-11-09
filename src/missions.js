@@ -120,7 +120,7 @@ export function missionsHTML() {
   const row = (m, weekly) => {
     const d = def(m.id),
       r = rewardOf(d.reward, weekly);
-    return `<div class="mrow"><div><b>${esc(d.n)}</b><div class="bar"><i style="width:${(m.p / d.goal) * 100}%;background:${m.done ? "var(--good)" : "var(--gold)"}"></i></div></div><button class="btn ${m.claimed ? "ghost" : m.done ? "pri" : "ghost"} sm" data-ms="${weekly ? "w" : "d"}:${m.id}" ${!m.done || m.claimed ? "disabled" : ""}>${m.claimed ? $t("missions.17") : `${m.p}/${d.goal} · ${rewardText(r)}`}</button></div>`;
+    return `<div class="mrow"><div><b>${esc(d.n)}</b><div class="bar"><i style="--w:${(m.p / d.goal) * 100};background:${m.done ? "var(--good)" : "var(--gold)"}"></i></div></div><button class="btn ${m.claimed ? "ghost" : m.done ? "pri" : "ghost"} sm" data-ms="${weekly ? "w" : "d"}:${m.id}" ${!m.done || m.claimed ? "disabled" : ""}>${m.claimed ? $t("missions.17") : `${m.p}/${d.goal} · ${rewardText(r)}`}</button></div>`;
   };
   const allDaily = M.daily.every(m => m.claimed);
   return `<div class="card missions"><div class="row between"><div class="eyebrow">${$t("missions.19")}</div><span class="small muted">${$t("missions.20")}</span></div>${M.daily.map(m => row(m, false)).join("")}

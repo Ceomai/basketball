@@ -2,6 +2,7 @@ import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, $$, Bus, ORDER, clamp, gauss, pick, rnd, shuffle, GOOD, BAD } from "./data.js";
 import { tok, tokAlpha } from "./theme.js";
+import { hapticPulse, hapticSuccess, hapticTap, scrollMode } from "./motion.js";
 import { SKINS, drawBall, drawKid, ell, rr } from "./art.js";
 /* ================= MİNİ OYUN ALTYAPISI ================= */
 export const W = 360,
@@ -20,7 +21,7 @@ export function mkStage(el, title) {
   CV.style.height = (w * H) / W + "px";
   CX.setTransform(CV.width / W, 0, 0, CV.height / H, 0, 0);
   try {
-    el.scrollIntoView({ block: "start", behavior: "smooth" });
+    el.scrollIntoView({ block: "start", behavior: scrollMode() });
   } catch (e) {}
 }
 export function ppos(e) {
@@ -62,12 +63,9 @@ export function clearInput() {
   if (CV) CV.onpointerdown = CV.onpointermove = CV.onpointerup = CV.onpointercancel = null;
   window.onkeydown = null;
 }
-export const buzz = ms => {
-  if (typeof late.SETTINGS !== "undefined" && !late.SETTINGS.haptic) return;
-  try {
-    navigator.vibrate && navigator.vibrate(ms);
-  } catch (_) {}
-};
+/** Mini oyun içi temas titreşimi (süreye göre hafif/orta/güçlü; Ayarlar → Titreşim kapalıysa yok). Anlamlı
+    anlar için src/motion.js hapticSuccess/hapticWarn/hapticError/hapticTap. */
+export const buzz = ms => hapticPulse(ms);
 export let CROWD = [];
 export function buildCrowd(home, away) {
   CROWD = Array.from({ length: 84 }, (_, i) => ({
@@ -422,7 +420,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
           pts += st.three ? 3 : 2;
           st.msg = st.three ? $t("games.1") : $t("games.2");
           st.sw = 1;
-          buzz(25);
+          hapticSuccess();
         }
         if (
           st.ph === "fly" &&
@@ -430,7 +428,10 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         ) {
           st.ph = "done";
           st.t = 0;
-          if (!st.ball.in) st.msg = $t("arcade.7");
+          if (!st.ball.in) {
+            st.msg = $t("arcade.7");
+            hapticTap();
+          }
         }
       }
       drawCrowd(c);
@@ -585,12 +586,15 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
           if (stepBall(st.ball, dt)) {
             ok++;
             st.msg = kind === "dunk" ? $t("games.11") : $t("games.12");
-            buzz(25);
+            hapticSuccess();
           }
           if (st.ph === "fly" && (st.t > 2.6 || st.ball.bounce >= 2 || st.ball.x > W + 30)) {
             st.ph = "done";
             st.t = 0;
-            if (!st.ball.in) st.msg = kind === "dunk" ? $t("games.13") : $t("arcade.7");
+            if (!st.ball.in) {
+              st.msg = kind === "dunk" ? $t("games.13") : $t("arcade.7");
+              hapticTap();
+            }
           }
         }
         const jy = kind === "dunk" && st.ph !== "aim" ? Math.max(0, Math.sin(Math.min(1, st.t * 1.6) * Math.PI)) * 90 : 0;
@@ -1203,12 +1207,15 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
           st.ok = true;
           ok++;
           st.msg = $t("games.33");
-          buzz(25);
+          hapticSuccess();
         }
         if (st.ph === "fly" && (st.t > 2.4 || st.ball.bounce >= 2)) {
           st.ph = "done";
           st.t = 0;
-          if (!st.ok) st.msg = $t("arcade.7");
+          if (!st.ok) {
+            st.msg = $t("arcade.7");
+            hapticTap();
+          }
         }
       }
       const px = 150 + st.pos * 90;

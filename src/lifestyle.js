@@ -136,7 +136,7 @@ export const comfortEnergy = () => Math.round(comfort() / 25);
 export const sponsorMul = () => 1 + comfort() / 200;
 export function comfortHTML() {
   const c = comfort();
-  return `<div class="card"><div class="row between"><div class="eyebrow">${$t("life.comfort")}</div><b class="gold">${c}/100</b></div><div class="bar"><i style="width:${c}%"></i></div><p class="small muted">${$t("life.comfortFx", { m: moraleBase(), e: comfortEnergy(), s: Math.round((sponsorMul() - 1) * 100) })}</p></div>`;
+  return `<div class="card"><div class="row between"><div class="eyebrow">${$t("life.comfort")}</div><b class="gold">${c}/100</b></div><div class="bar"><i style="--w:${c}"></i></div><p class="small muted">${$t("life.comfortFx", { m: moraleBase(), e: comfortEnergy(), s: Math.round((sponsorMul() - 1) * 100) })}</p></div>`;
 }
 
 /* ---- Eşyaların antrenman katkısı ---- */

@@ -314,13 +314,17 @@ function pressGame(re) {
     sheet(
       $t("prep.press"),
       $t("prep.qn", { n: i + 1 }),
-      `<div class="say">${$t(qs[i])}</div><div class="bar"><i id="pq-t" style="width:100%"></i></div><div class="choices">${ans.map(([k, t]) => `<button class="choice" data-pa="${k}"><span class="ct">${t}</span></button>`).join("")}</div>`,
+      `<div class="say">${$t(qs[i])}</div><div class="bar"><i id="pq-t"></i></div><div class="choices">${ans.map(([k, t]) => `<button class="choice" data-pa="${k}"><span class="ct">${t}</span></button>`).join("")}</div>`,
       { noClose: true }
+    );
+    // süre çubuğu: tek WAAPI animasyonu (transform; düşük grafik/hareketi azalt'ta da işler), sayaç yalnız süreyi tutar
+    late.motionPlay(
+      $("#pq-t"),
+      [{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }],
+      { functional: true, key: "timer", opts: { duration: 6000, easing: "linear", fill: "forwards" } }
     );
     tm = setInterval(() => {
       left -= 0.1;
-      const el = $("#pq-t");
-      if (el) el.style.width = `${Math.max(0, (left / 6) * 100)}%`;
       if (left <= 0) {
         i++;
         ask(); // süre doldu: cevapsız

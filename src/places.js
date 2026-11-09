@@ -221,7 +221,7 @@ export function locEv(I, tab = "vitrin") {
      <div class="card"><div class="eyebrow">${$t("places.24")}</div>${sparkHTML()}</div>
      <div class="card"><div class="eyebrow">${$t("places.25")}</div>${RELS.map(([k, n]) => {
        const v = k === "partner" && !S.partner ? 0 : S.rel[k];
-       return `<div class="attr"><span>${n}</span><div class="bar"><i style="width:${v}%;background:${v < 30 ? "var(--bad)" : "var(--info)"}"></i></div><b>${k === "partner" && !S.partner ? "–" : v}</b></div>`;
+       return `<div class="attr"><span>${n}</span><div class="bar"><i style="--w:${v};background:${v < 30 ? "var(--bad)" : "var(--info)"}"></i></div><b>${k === "partner" && !S.partner ? "–" : v}</b></div>`;
      }).join("")}${
        S.partner
          ? `<div class="small muted">${$t("places.18", {
@@ -232,7 +232,7 @@ export function locEv(I, tab = "vitrin") {
     $("#pp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   }
   if (tab === "yetenek") {
-    c.innerHTML = `<div class="card"><div class="row between"><div class="eyebrow">${$t("places.26")}</div><span class="pill">${$t("places.27")} ${TD()}</span></div>${STATS.map(([k, n]) => `<div class="attr"><span>${n}</span><div class="bar"><i style="width:${statVal(k)}%"></i></div><b>${stat1(k)}</b></div>`).join("")}
+    c.innerHTML = `<div class="card"><div class="row between"><div class="eyebrow">${$t("places.26")}</div><span class="pill">${$t("places.27")} ${TD()}</span></div>${STATS.map(([k, n]) => `<div class="attr"><span>${n}</span><div class="bar"><i style="--w:${statVal(k)}"></i></div><b>${stat1(k)}</b></div>`).join("")}
      <p class="small muted">${$t("places.28")} ${STATS.map(([k, n]) => `${n} ${Math.round(eff(k))}`).join(" · ")}.</p></div>
      <div class="card"><div class="eyebrow">${$t("places.29", {
        n: POS[S.pos].n
@@ -417,7 +417,7 @@ export function locStad(I, tab = "mac") {
         {
           w: S.injury.w
         }
-      )}</b><span>${$t("places.64")}</span><b>${esc(opp.name)}</b></div><div class="bar"><i style="width:${100 - (S.injury.w / S.injury.total) * 100}%;background:var(--good)"></i></div><p class="small muted">${$t("places.65")}</p></div>` +
+      )}</b><span>${$t("places.64")}</span><b>${esc(opp.name)}</b></div><div class="bar"><i style="--w:${100 - (S.injury.w / S.injury.total) * 100};background:var(--good)"></i></div><p class="small muted">${$t("places.65")}</p></div>` +
       actHTML({
         id: "fizyo",
         ic: icon("kryo"),
@@ -690,7 +690,7 @@ export async function runDrill([id, name, k, kind]) {
       k: statName(k),
       v: stat1(k)
     }
-  )}</p><div class="bar"><i style="width:${statVal(k)}%"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  )}</p><div class="bar"><i style="--w:${statVal(k)}"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
   late.bindTrainAd(k, gain);
   $("#bk").onclick = renderMain;
 }
@@ -813,13 +813,15 @@ export function runQuiz(nq, done) {
         v: i + 1,
         nq: nq,
         correct: correct
-      })}</div><h3 style="text-transform:none;font-family:var(--body);font-weight:800;font-size:var(--fs-xl);letter-spacing:0">${esc(Q.q)}</h3><div class="bar"><i id="qt" style="width:100%;transition:width 8s linear;background:var(--warn)"></i></div><div class="qopts">${Q.o.map(o => `<button class="qbtn" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>`
+      })}</div><h3 style="text-transform:none;font-family:var(--body);font-weight:800;font-size:var(--fs-xl);letter-spacing:0">${esc(Q.q)}</h3><div class="bar"><i id="qt" style="background:var(--warn)"></i></div><div class="qopts">${Q.o.map(o => `<button class="qbtn" data-o="${esc(o)}">${esc(o)}</button>`).join("")}</div></div>`
     );
     const card = b.lastElementChild; // bu soru kartı: panel kapanır ya da başka panel açılırsa sınav sessizce biter
-    requestAnimationFrame(() => {
-      const q = $("#qt");
-      if (q) q.style.width = "0%";
-    });
+    // süre çubuğu işlevseldir: düşük grafik ve "hareketi azalt"ta da akar (tek WAAPI animasyonu, yalnız transform)
+    late.motionPlay(
+      $("#qt"),
+      [{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }],
+      { functional: true, key: "timer", opts: { duration: 8000, easing: "linear", fill: "forwards" } }
+    );
     let over = false;
     const fin = pickd => {
       if (over || !card || !card.isConnected) return;
@@ -853,7 +855,7 @@ export function locOkul(I) {
         : `${S.uni || $t("map.2")} ${$t("places.133", {
             uniYear: S.uniYear
           })}`,
-      `<div class="card"><div class="attr"><span>${$t("places.15")}</span><div class="bar"><i style="width:${S.aka}%;background:var(--info)"></i></div><b>${S.aka}</b></div><p class="small muted">${isL ? $t("places.134") : $t("places.135")}</p></div>` +
+      `<div class="card"><div class="attr"><span>${$t("places.15")}</span><div class="bar"><i style="--w:${S.aka};background:var(--info)"></i></div><b>${S.aka}</b></div><p class="small muted">${isL ? $t("places.134") : $t("places.135")}</p></div>` +
         actHTML({
           id: "ders",
           ic: icon("book"),

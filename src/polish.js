@@ -11,20 +11,17 @@ import { S, jersey } from "./core.js";
 import { icon, portrait } from "./art.js";
 import { SETTINGS } from "./systems.js";
 import { late } from "./late.js";
+import { motionReduced } from "./motion.js";
 
 /* ---------- ortak ---------- */
+/** Süs animasyonu kapalı mı (düşük grafik ya da "hareketi azalt"): ortak yardımcı src/motion.js motionReduced */
 export function polReduced() {
-  let rm = false;
-  try {
-    rm = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
-  } catch (e) {
-    rm = false;
-  }
-  return !!SETTINGS.lowfx || rm;
+  return !!SETTINGS.lowfx || motionReduced();
 }
 
 /* ---------- 1) portre animasyonu ---------- */
-const PA = { timer: 0, frames: 0, cycle: 0, mood: "" };
+// cache: ifade → hazır tuval (göz kırpma her döngüde yeniden çizilmez; ana ekran her çizildiğinde boşalır)
+const PA = { timer: 0, frames: 0, cycle: 0, mood: "", cache: new Map(), paused: false, resume: null };
 export function polPortraitStop() {
   clearTimeout(PA.timer);
   PA.timer = 0;
@@ -36,8 +33,10 @@ export function polBaseMood(moral) {
 function paint(host, o) {
   const old = host.querySelector("canvas");
   if (!old || !S) return false;
-  const cv = portrait(S.look, { ...jersey(), ...o }, 42, 42, S.team.c1);
-  old.replaceWith(cv);
+  const k = o.mood + (o.blink ? "+b" : "");
+  let cv = PA.cache.get(k);
+  if (!cv) PA.cache.set(k, (cv = portrait(S.look, { ...jersey(), ...o }, 42, 42, S.team.c1)));
+  if (cv !== old) old.replaceWith(cv);
   PA.frames++;
   PA.mood = o.mood + (o.blink ? "+blink" : "");
   return true;
@@ -45,6 +44,9 @@ function paint(host, o) {
 export function polPortraitStart() {
   polPortraitStop();
   const host = $("#hav");
+  PA.cache.clear();
+  PA.paused = false;
+  PA.resume = null;
   if (!host || !S || window.__SIM || polReduced()) return false;
   PA.cycle = 0;
   const base = () => polBaseMood(S.moral);
@@ -52,6 +54,12 @@ export function polPortraitStart() {
   const step = () => {
     PA.timer = 0;
     if (!alive()) return polPortraitStop();
+    // sekme/uygulama arka plandayken durur; görünür olunca sürer (visibilitychange)
+    if (document.hidden) {
+      PA.paused = true;
+      PA.resume = schedule;
+      return;
+    }
     PA.cycle++;
     const m = base();
     // moral yüksekse her üçüncü döngüde kısa bir gülümseme
@@ -81,6 +89,15 @@ export function polPortraitState() {
   return { running: !!PA.timer, frames: PA.frames, mood: PA.mood };
 }
 Bus.on("screen:main", () => polPortraitStart());
+try {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden || !PA.paused) return;
+    PA.paused = false;
+    if (PA.resume && !PA.timer) PA.resume();
+  });
+} catch (e) {
+  /* DOM yok */
+}
 
 /* ---------- 2) harita atmosferi ---------- */
 /** Bu hafta yağmur var mı? Sezon + hafta + şehir tohumuna kararlı bağlı (~%20). */
@@ -119,11 +136,8 @@ export function polMapSVG(layer, tod, seed, base) {
         y = (i * 97 + seed) % 710;
       lines += `<line x1="${x}" y1="${y}" x2="${x - 5}" y2="${y + 14}"/>`;
     }
-    g += `<rect width="400" height="670" fill="#1b2a3c" opacity=".14"/><g class="pol-rain" stroke="#cfe3f3" stroke-opacity=".38" stroke-width="1" stroke-linecap="round">${
-      still
-        ? `<g>${lines}</g>`
-        : `<g>${lines}<animateTransform attributeName="transform" type="translate" from="0 -40" to="-14 0" dur=".55s" repeatCount="indefinite"/></g>`
-    }</g>`;
+    // yağış CSS transform ile (index.html .rain-a; kompozitörde, will-change), düşük grafik/hareketi azalt'ta statik
+    g += `<rect width="400" height="670" fill="#1b2a3c" opacity=".14"/><g class="pol-rain" stroke="#cfe3f3" stroke-opacity=".38" stroke-width="1" stroke-linecap="round"><g${still ? "" : ' class="rain-a"'}>${lines}</g></g>`;
   }
   return g ? `<g class="pol-atmos" pointer-events="none">${g}</g>` : "";
 }

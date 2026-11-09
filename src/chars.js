@@ -199,7 +199,7 @@ export function charactersHTML() {
   if (!c) return "";
   const ct = COACH_KEYS[coachType()];
   const row = k =>
-    `<div style="padding:var(--sp-1h) 0;border-top:1px solid var(--line)"><div class="row between nowrap"><b>${esc(c[k].n)}</b><span class="small muted">${roleLabel(k)}</span></div><div class="bar"><i style="width:${c[k].rel}%;background:${c[k].rel >= 60 ? "var(--good)" : c[k].rel <= 30 ? "var(--bad)" : "var(--gold)"}"></i></div><p class="small muted">${$t(EFFECT_KEYS[k])}</p></div>`;
+    `<div style="padding:var(--sp-1h) 0;border-top:1px solid var(--line)"><div class="row between nowrap"><b>${esc(c[k].n)}</b><span class="small muted">${roleLabel(k)}</span></div><div class="bar"><i style="--w:${c[k].rel};background:${c[k].rel >= 60 ? "var(--good)" : c[k].rel <= 30 ? "var(--bad)" : "var(--gold)"}"></i></div><p class="small muted">${$t(EFFECT_KEYS[k])}</p></div>`;
   return `<div class="card"><div class="eyebrow">${$t("ch.cardTitle")}</div><div class="row between nowrap"><b>${$t("goal.byCoach", { v: esc(S.npc.coach) })}</b><span class="pill g">${$t(ct[0])}</span></div><p class="small muted">${$t(ct[1])}</p>${["yildiz", "mentor", "dost"].map(row).join("")}</div>`;
 }
 // takım değişince yeni karakterlerle tanışma haberi

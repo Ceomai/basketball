@@ -46,7 +46,7 @@ export function timeoutCard(el) {
   if (!M.toLeft) return Promise.resolve();
   M.toLeft--;
   late.sfx && late.sfx("whistle");
-  late.buzz && late.buzz(40); // titreşim (ayarlardan kapatılabilir)
+  late.hapticWarn(); // mola düdüğü: uyarı titreşimi (ayarlardan kapatılabilir)
   const rec = late.osRecommend ? late.osRecommend() : "stop";
   const sets = [
     ["stop", $t("cl.stop"), $t("cl.stopD")],
@@ -130,7 +130,7 @@ export function lateCall(ourBall, diff, el, secLeft) {
   else if (ourBall && diff >= 1 && diff <= 3 && secLeft <= 35) kind = "lead";
   if (!kind) return Promise.resolve(null);
   M.lcTrail = kind === "trail"; // savunmayı seçtiysen aynı hücum için ikinci bir savunma kartı çıkmaz
-  late.buzz && late.buzz(25);
+  late.hapticWarn(); // son dakika kararı
   const opts =
     kind === "trail"
       ? [

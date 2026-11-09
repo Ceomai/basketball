@@ -92,6 +92,13 @@ const pro = (p, stage = "t1") =>
     S.money = 200000;
   }, stage);
 
+/** Maç sonu "Devam" (#nx): bu maçta satır içi basın toplantısı varsa (rastgele; src/story.js pressInlineHTML) önce bir
+    cevap seçilir, sonra düğme görünür. Yalnız #nx beklemek ~1/3 olasılıkla zaman aşımına düşüyordu. */
+async function waitNx(p, timeout) {
+  await p.waitForSelector("#nx:visible, #pr-inl [data-press]", { timeout });
+  if (!(await p.$("#nx:visible"))) await p.click("#pr-inl [data-press]");
+  await p.waitForSelector("#nx:visible", { timeout: 5000 });
+}
 test("ondalıklı nitelik ve genel puan; seviye çarpanı; gainStat taşıma", async () => {
   const p = await page();
   await career(p);
@@ -150,7 +157,7 @@ test("maç sonu ekranında gelişim, topla buluşma ve pas güveni; maç sonras�
     window.__b = Object.fromEntries(Object.keys(G.S.st).map(k => [k, window.__raw(k)]));
     G.playMatch({ ...{ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" }, auto: true });
   });
-  await p.waitForSelector("#nx", { timeout: 60000 });
+  await waitNx(p, 60000);
   const txt = await p.textContent("#ovl");
   assert(/Pas güveni/.test(txt) && /Topla buluşma/.test(txt), "pas güveni/buluşma yok");
   assert(/Bu maçtaki gelişimin/.test(txt), "maç gelişimi satırı yok");
@@ -533,7 +540,7 @@ test("maç sonu ekranında faul sayısı; faulle oyun dışı kalan oyuncu kenar
     const G = window.Game;
     G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
   });
-  await p.waitForSelector("#nx", { timeout: 60000 });
+  await waitNx(p, 60000);
   assert(/Faul/.test(await p.textContent("#ovl")), "faul satırı yok");
   return p;
 });
@@ -893,7 +900,7 @@ test("rakip yıldız düellosu maç sonunda; kazanınca başarım ve takipçi", 
     const G = window.Game;
     G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig", auto: true });
   });
-  await p.waitForSelector("#nx", { timeout: 60000 });
+  await waitNx(p, 60000);
   const t = await p.textContent("#ovl");
   assert(/Yıldız düellosu/.test(t), "düello kartı");
   const r = await p.evaluate(() => {
@@ -2289,12 +2296,12 @@ test("paket 3d: harita akşam pencere ışıkları, sabah tonu, haftaya bağlı 
     out.rainWeek = w;
     G.renderMain();
     out.rain = !!document.querySelector(".pol-rain");
-    out.anim = !!document.querySelector(".pol-rain animateTransform");
+    out.anim = !!document.querySelector(".pol-rain .rain-a"); // 3.4: SMIL yerine CSS transform animasyonu
     out.tint = !!document.querySelector(".pol-atmos > rect");
     out.wx = G.polWeather();
     G.SETTINGS.lowfx = true;
     G.renderMain();
-    out.lowAnim = !!document.querySelector(".pol-rain animateTransform");
+    out.lowAnim = !!document.querySelector(".pol-rain .rain-a");
     out.lowRain = !!document.querySelector(".pol-rain");
     G.SETTINGS.lowfx = false;
     let d = 1;

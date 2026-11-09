@@ -78,7 +78,7 @@ export function crowdTick(usScored) {
 export function crowdLine() {
   if (!M || !M.live) return "";
   if (M.home)
-    return `<div class="row nowrap gap-1h ai-c"><span class="small muted">${$t("md.crowd")}</span><div class="bar f1"><i style="width:${M.hypeOn > 0 ? 100 : M.hype || 0}%;background:${M.hypeOn > 0 ? "var(--gold)" : "var(--hot)"}"></i></div>${M.hypeOn > 0 ? `<b class="small gold">+4</b>` : ""}</div>`;
+    return `<div class="row nowrap gap-1h ai-c"><span class="small muted">${$t("md.crowd")}</span><div class="bar f1"><i style="--w:${M.hypeOn > 0 ? 100 : M.hype || 0};background:${M.hypeOn > 0 ? "var(--gold)" : "var(--hot)"}"></i></div>${M.hypeOn > 0 ? `<b class="small gold">+4</b>` : ""}</div>`;
   return M.loud ? `<div class="small warn">${$t("md.loud")}</div>` : "";
 }
 
@@ -110,7 +110,7 @@ export function preMatchHTML() {
   if (!M || !M.star) return "";
   const me = ovr(),
     st = M.star;
-  const bar = (v, c) => `<div class="bar"><i style="width:${v}%;background:${c}"></i></div>`;
+  const bar = (v, c) => `<div class="bar"><i style="--w:${v};background:${c}"></i></div>`;
   return `<div class="card fm"><div class="eyebrow">${$t("md.pre")}</div>
    <div class="grid2 gap-2h"><div><div class="small muted">${$t("md.you")}</div><b>${esc(S.last)}</b>${bar(me, "var(--good)")}<b class="big-num" style="font-size:var(--fs-7xl)">${(+me).toFixed(1)}</b></div>
    <div class="ta-r"><div class="small muted">${$t("md.star", { t: esc(M.opp.short) })}</div><b>${esc(st.n)}</b>${bar(st.o, "var(--bad)")}<b class="big-num" style="font-size:var(--fs-7xl)">${(+st.o).toFixed(1)}</b></div></div>

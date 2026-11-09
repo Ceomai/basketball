@@ -249,6 +249,7 @@ export function celebrate() {
   const k = celebOpen(S.celeb) ? S.celeb || "fist" : "fist";
   late.featCount && late.featCount("celeb");
   const host = $("#mcourt") || $("#mview");
+  // düşük grafikte yok; "hareketi azalt"ta yalnız belirip kaybolur (index.html reduce kuralı)
   if (!host || SETTINGS.lowfx) return;
   host.style.position = "relative";
   const d = document.createElement("div");
@@ -314,8 +315,10 @@ html[data-theme=minimal] .card{box-shadow:none}
 @keyframes cbTilt{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @keyframes cbJump{from{transform:translateY(0) scale(1)}to{transform:translateY(-12px) scale(1.1)}}
 #mstat:empty{display:none}
-.pulse{animation:pulse 1s ease-in-out infinite alternate;border-color:var(--bad)!important}
-@keyframes pulse{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 60%,transparent)}to{box-shadow:0 0 0 5px transparent}}
+/* dikkat halkası: ::after halka büyüyüp söner (transform/opacity), 3 kez; sonra durgun kenarlık kalır */
+.pulse{position:relative;border-color:var(--bad)!important}
+.pulse::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid var(--bad);pointer-events:none;opacity:0;animation:pulseRing .9s var(--ease-out) 3}
+@keyframes pulseRing{from{opacity:.75;transform:scale(1)}to{opacity:0;transform:scale(1.18)}}
 .cbgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2)}
 .cbb{display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);background:var(--card2);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2) var(--sp-1);color:var(--text);cursor:pointer;min-width:0}
 .cbb b{font-family:var(--display);font-size:var(--fs-md);letter-spacing:.5px;text-transform:uppercase;text-align:center}

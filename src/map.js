@@ -494,7 +494,7 @@ export function mapSVG(P) {
   (P.mev || []).forEach(m => {
     const Lc = (D2 ? LOCS2 : LOCS).find(l => l.id === m.loc);
     if (!Lc) return;
-    g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="${esc($t("a11y.mev"))}"><circle cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" style="fill:var(--warn)" stroke="#141414" stroke-width="2"><animate attributeName="r" values="12;15;12" dur="1.4s" repeatCount="indefinite"/></circle><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
+    g += `<g class="mev" data-mev="${m.i}" role="button" tabindex="0" aria-label="${esc($t("a11y.mev"))}"><circle class="mev-p" cx="${Lc.x + 34}" cy="${Lc.y - 46}" r="13" style="fill:var(--warn)" stroke="#141414" stroke-width="2"/><text x="${Lc.x + 34}" y="${Lc.y - 40}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="17" fill="#141414">!</text></g>`;
   });
   return g + "</svg>";
 }
