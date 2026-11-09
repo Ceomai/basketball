@@ -2054,7 +2054,11 @@ test("borsa: lot al, fiyat haftalık değişir, sat; hipodrom: bahis, yarış bi
   assert(r.own > 0 && r.changed && r.back, "borsa: " + JSON.stringify(r));
   assert(r.koc === 48, "hipodrom koç: " + r.koc);
   const m0 = await p.evaluate(() => window.Game.S.money);
+  // iki adım (aşama 3.3): at seç → "Bahis yap"; seçim tek başına bahis yatırmaz
   await p.click('[data-hb="0"]');
+  const sel = await p.evaluate(() => ({ m: window.Game.S.money, on: document.querySelector('[data-hb="0"]').getAttribute("aria-checked"), go: !document.querySelector("#hp-go").disabled }));
+  assert(sel.m === m0 && sel.on === "true" && sel.go, "hipodrom seçim: " + JSON.stringify(sel));
+  await p.click("#hp-go");
   await p.waitForSelector("#hp-again", { timeout: 10000 });
   const m1 = await p.evaluate(() => window.Game.S.money);
   assert(m1 !== m0, "bahis işlenmedi");
@@ -3093,9 +3097,10 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
     out.taraf = S.rel.taraf - t0;
     out.news = S.news[0].t;
     S.week++;
+    // aşama 3.3: yalnız bilgi veren şehir hikâyesi panel değil, bildirim + bildirim kutusu
     out.city = G.dbyCitySheet();
-    out.cityTxt = document.querySelector("#shb").textContent;
-    document.querySelector("#dby-ok").click();
+    out.cityTxt = (S.inbox && S.inbox.items[0] && S.inbox.items[0].t) || "";
+    out.citySheet = !!document.querySelector("#ovl .sheet");
     G.openLoc("ev", "kariyer");
     out.career = (document.querySelector("#dby-career") || {}).textContent || "";
     G.closeSheet();
@@ -3110,7 +3115,7 @@ test("paket 4b: derbi kimliği — ezeli rakip, derbi basını, tribün, şehir 
   assert(r.press && r.ok && !r.again, "derbi basını: " + JSON.stringify(r));
   assert(r.hype[0] >= 1.6 && r.hype[1] >= 50 && r.loud === true, "tribün: " + JSON.stringify(r));
   assert(r.taraf >= 5 && /Derbi bizim/.test(r.news), "sonuç: " + JSON.stringify(r));
-  assert(r.city && /korna|Fark büyük/.test(r.cityTxt), "şehir hikâyesi: " + r.cityTxt);
+  assert(r.city && !r.citySheet && /korna|Fark büyük/.test(r.cityTxt), "şehir hikâyesi: " + r.cityTxt);
   assert(/Derbiler/.test(r.career) && /1-0/.test(r.career) && /Ezeli rakip/.test(r.career), "kariyer: " + r.career);
   assert(r.fb === "Anadolu Efes" || r.fb === "Bakırköy Lacivertleri", "Fenerbahçe derbisi: " + r.fb);
   return p;
@@ -4625,7 +4630,8 @@ test("yayın 3.2: ekranlar — tek başlat düğmesi, gelişmiş seçenekler, sa
     out.empty = !!document.querySelector(".empty-st svg") && document.querySelector(".empty-st").textContent.includes(G.t("s32.ibx.hint"));
     G.closeSheet();
     G.renderMain();
-    out.onePri = document.querySelectorAll(".weekcard .btn.pri").length === 1 && !document.querySelector(".weekcard .btn.team");
+    // 3.3: hafta kartının birincil eylemleri alttaki yapışkan çubukta (#actbar); kart + çubukta tek birincil
+    out.onePri = document.querySelectorAll(".wkstick .btn.pri").length === 1 && !!document.querySelector("#actbar #gostad.pri") && !document.querySelector(".wkstick .btn.team");
     out.ink = getComputedStyle(document.documentElement).getPropertyValue("--team-ink").trim();
     out.toast = (() => {
       G.toast("kısa");
@@ -4666,6 +4672,72 @@ test("yayın 3.2: depolama dolunca kapatılana kadar kalan uyarı ve yedek eylem
     return out;
   });
   assert(r.bar && r.exp && r.closed, JSON.stringify(r));
+  return p;
+});
+
+test("yayın 3.3: oyun arayüzü — yapışkan eylem çubuğu, yapışkan tabela, mola, bilgi panelleri bildirim kutusunda", async () => {
+  const p = await page();
+  await career(p);
+  const inView = sel =>
+    p.evaluate(s => {
+      const e = document.querySelector(s);
+      if (!e) return false;
+      const r = e.getBoundingClientRect();
+      return r.top >= 0 && r.bottom <= innerHeight && r.height > 0;
+    }, sel);
+  const out = {};
+  for (const [w, h] of [[390, 844], [320, 568], [844, 390], [1024, 768]]) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.evaluate(() => window.Game.renderMain());
+    await p.waitForTimeout(150);
+    out[`${w}x${h}`] = (await inView("#gostad")) && (await inView("#quickw"));
+  }
+  await p.setViewportSize({ width: 390, height: 844 });
+  // panel açıkken çubuk panelin altında
+  out.under = await p.evaluate(() => {
+    window.Game.renderMain();
+    window.Game.openLoc("ev");
+    const b = document.querySelector("#gostad").getBoundingClientRect();
+    const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    const r = !document.querySelector("#actbar").contains(top);
+    window.Game.closeSheet();
+    return r;
+  });
+  // bilgi paneli (yeni açılan özellik) panel değil bildirim + kutu; "now" süzgeci yalnız zamana bağlı panelleri sorar
+  out.unl = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    G.renderMain();
+    S.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 };
+    S.week = 6;
+    const n0 = (S.inbox && S.inbox.items.length) || 0;
+    const tags = [];
+    G.Bus.first("week:sheet", o => (tags.push(o.tag), false));
+    const shown = G.Bus.first("week:sheet", 7);
+    return { shown, sheet: !!document.querySelector("#ovl .sheet"), added: S.inbox.items.length - n0, onlyNow: tags.every(t => t === "" || t === "now") && tags.includes("now") };
+  });
+  // maç: tabela yapışkan, mola tabelanın yanında, hız/önemli anlar ≥44 px, data-mode
+  await p.evaluate(() => {
+    window.Game.closeSheet();
+    window.Game.playMatch();
+  });
+  await p.waitForSelector("[data-m='key']", { timeout: 5000 });
+  out.modeFirst = await p.evaluate(() => document.querySelector("#mview").firstElementChild.id === "mode-card");
+  await p.click("[data-m='key']");
+  await p.waitForSelector("#mview .choice[data-k]", { timeout: 20000 });
+  await p.waitForTimeout(600);
+  out.bug = await inView("#bug .bug");
+  out.choices = await inView("#mview .choices");
+  out.ctl = await p.evaluate(() => {
+    const b = [...document.querySelectorAll("#spd .opt")];
+    return {
+      mode: !!document.querySelector("#spd [data-mode='key']") && !document.querySelector("#spd [data-k]"),
+      hit: b.length >= 4 && b.every(x => x.getBoundingClientRect().height >= 44),
+      to: !!document.querySelector(".mtop #mto #to-btn")
+    };
+  });
+  const ok = Object.entries(out).every(([k, v]) => (k === "unl" ? v.shown && !v.sheet && v.added >= 2 && v.onlyNow : k === "ctl" ? v.mode && v.hit && v.to : v === true));
+  assert(ok, JSON.stringify(out));
   return p;
 });
 

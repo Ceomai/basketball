@@ -100,7 +100,7 @@ function scenarioSheet() {
   $("#sc-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", scenarioSheet, 1);
+Bus.offer("week:sheet", scenarioSheet, 1, "now");
 /** Oluşturma ekranında senaryonun ilerleyişi (Ev → Genel) */
 export function scenarioHTML() {
   const s = S && S.scn;

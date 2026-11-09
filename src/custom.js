@@ -175,7 +175,7 @@ function newJersey() {
   $("#jy-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", newJersey, 4);
+Bus.offer("week:sheet", newJersey, 4, "now");
 
 /* ---- Kutlama ---- */
 // basit çöp adam pozları: [sol kol, sağ kol] uç noktaları (omuz 0,-14)

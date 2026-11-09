@@ -8,7 +8,7 @@
    - Derbi istatistiği (galibiyet/mağlubiyet, rakip başına, son derbi, en farklı galibiyet): Ev → Kariyer.
    Denge simülasyonunda (window.__SIM) panel açılmaz. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, esc, hash } from "./data.js";
+import { $, $$, Bus, esc, hash, toast } from "./data.js";
 import { S, closeSheet, fixture, fullName, news, norm, renderMain, sheet, teamByKey } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
@@ -217,7 +217,7 @@ export function dbyPressSheet() {
   return true;
 }
 // window.__TEST.quietSheets: testlerde rastgele haftaya düşen paneller kapalı (doğrudan çağrı çalışır)
-Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), 19);
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), 19, "now"); // derbi haftasına bağlı
 
 /* ---- Derbi sonrası şehir hikâyesi (sonraki hafta) ---- */
 export function dbyCitySheet() {
@@ -234,16 +234,11 @@ export function dbyCitySheet() {
   } else S.rel.taraf -= 1;
   norm();
   save();
-  sheet(
-    $t("dby.cityT", { c: S.city }),
-    $t("dby.cityS", { t: p.n, us: p.us, them: p.them }),
-    `<div class="say ${p.win ? "good" : "bad"}">${$t(`dby.city.${k}`, { t: esc(p.n), c: esc(S.city), v: esc(S.last) })}</div><div class="small muted">${$t("dby.cityRec", { w: S.dby.w, l: S.dby.l })}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`,
-    { noClose: true }
+  // yalnız bilgi veren panel: zorunlu panel yerine kısa bildirim (metin bildirim kutusunda kalır; aşama 3.3).
+  // Haftanın panel hakkını kullanır (true): diğer haftalık panellerin zamanlaması değişmez.
+  toast(
+    `${$t("dby.cityT", { c: S.city })} (${$t("dby.cityS", { t: p.n, us: p.us, them: p.them })}): ${$t(`dby.city.${k}`, { t: p.n, c: S.city, v: S.last })} ${$t("dby.cityRec", { w: S.dby.w, l: S.dby.l })}`
   );
-  $("#dby-ok").onclick = () => {
-    closeSheet();
-    renderMain();
-  };
   return true;
 }
 Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyCitySheet(), 18);

@@ -25,7 +25,11 @@ export function timeoutInit() {
 }
 export const timeoutBtnHTML = () =>
   M && M.toLeft != null
-    ? `<button class="opt ${M.oppRun >= 3 && M.toLeft > 0 ? "on pulse" : ""}" id="to-btn" style="padding:var(--sp-1) var(--sp-2)" ${M.toLeft > 0 && !M.toReq ? "" : "disabled"}>${$t("cl.to", { n: M.toLeft })}</button>`
+    ? (() => {
+        // uyarı durumu (rakip serisi) seçili durumdan farklı: --warn kenarlık + ünlem simgesi + nabız (.on kullanılmaz)
+        const warn = M.oppRun >= 3 && M.toLeft > 0;
+        return `<button class="opt to-btn${warn ? " warn pulse" : ""}" id="to-btn" ${M.toLeft > 0 && !M.toReq ? "" : "disabled"}>${warn ? `<svg class="to-ic" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3 2 21h20L12 3z" fill="currentColor"/><path d="M12 10v5M12 17.5v.5" stroke="var(--card)" stroke-width="2.2" stroke-linecap="round"/></svg>` : ""}${$t("cl.to", { n: M.toLeft })}${warn ? `<span class="sr-only"> · ${$t("cl.toRun", { n: M.oppRun })}</span>` : ""}</button>`;
+      })()
     : "";
 export function bindTimeout(re) {
   const b = $("#to-btn");
@@ -57,6 +61,7 @@ export function timeoutCard(el) {
           `<button class="choice" data-to="${k}"><span class="ct">${t}</span><span class="cd">${d}</span>${k === rec ? `<span class="od e">${$t("cl.rec")}</span>` : ""}</button>`
       )
       .join("")}</div></div>`;
+    if (late.thumbAlign) late.thumbAlign(el.firstElementChild); // seçenekler başparmak bölgesinde (src/engine.js)
     $$("[data-to]").forEach(
       b =>
         (b.onclick = () => {

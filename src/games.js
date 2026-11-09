@@ -38,7 +38,9 @@ export function loop(fn) {
       requestAnimationFrame(f);
       return;
     }
-    const dt = Math.min(0.033, (t - last) / 1000);
+    // ilk maç rehberi mini oyun baloncuğu açıkken oyun bekler (çizilir ama zaman akmaz; src/mtut.js)
+    const held = late.mtutHold && late.mtutHold();
+    const dt = held ? 1e-6 : Math.min(0.033, (t - last) / 1000);
     last = t;
     T += dt;
     fn(dt, T);
@@ -94,14 +96,29 @@ export function bigText(c, t, y = 130, col = "#ffffff", sz = 36) {
   c.fillText(u, W / 2 + 2, y - h / 2 + 6);
   c.restore();
 }
+/** Üst yönerge: ekranda en az 12 CSS px (dar ekranda tuval küçülür, yazı birimi büyür); sığmazsa iki satır */
 export function hint(c, t, y = 30) {
   c.save();
-  c.font = "700 13px Manrope,sans-serif";
+  const cw = (CV && CV.clientWidth) || W,
+    fs = Math.max(13, Math.ceil((12 * W) / cw));
+  c.font = `700 ${fs}px Manrope,sans-serif`;
   c.textAlign = "center";
-  const w = c.measureText(t).width + 22;
-  rr(c, W / 2 - w / 2, y - 17, w, 26, 13, tokAlpha("--stage-bg", 0.8), false);
+  let lines = [String(t)];
+  if (c.measureText(t).width > W - 40) {
+    const ws = String(t).split(" "),
+      half = c.measureText(t).width / 2;
+    let a = "",
+      i = 0;
+    while (i < ws.length - 1 && c.measureText(a + ws[i]).width < half) a += ws[i++] + " ";
+    lines = [a.trim(), ws.slice(i).join(" ")];
+  }
+  const lh = fs + 4,
+    w = Math.min(W - 12, Math.max(...lines.map(l => c.measureText(l).width)) + 22),
+    h = lh * lines.length + 8;
+  rr(c, W / 2 - w / 2, y - 17, w, h, 13, tokAlpha("--stage-bg", 0.8), false);
   c.fillStyle = tok("--text");
-  c.fillText(t, W / 2, y + 1);
+  c.textBaseline = "middle";
+  lines.forEach((l, k) => c.fillText(l, W / 2, y - 17 + 4 + lh / 2 + k * lh));
   c.restore();
 }
 export const HOOP = { x: 306, y: 200, r: 21 },

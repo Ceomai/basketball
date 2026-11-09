@@ -4031,5 +4031,7 @@ export default {
   "s32.g.sound": "Sound",
   "s32.g.look": "Display",
   "s32.g.play": "Gameplay",
-  "s32.portrait": "Look and style"
+  "s32.portrait": "Look and style",
+  "hp.pick": "Pick a horse first",
+  "hp.betGo": "Place bet {v} · {n}"
 };

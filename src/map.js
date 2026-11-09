@@ -502,7 +502,36 @@ export function mapSVG(P) {
 /* ---- Harita etiketleri okunur boyutta ----
    SVG genişliğe göre ölçeklendiği için 11 birimlik etiket dar ekranda ~9,8 px'e iner. Etiket (kutu + yazı) birlikte
    --lab-k ile büyütülür: ekranda en az 11 px ve yazı boyutu ayarına (html.fs-*) oranla; en fazla 1,6 kat. */
+/** Dikey telefonda harita yüksekliği gerçek ölçülerle: haritanın sayfadaki üst kenarı, alttaki yapışkan eylem çubuğu
+    (#actbar) ve altındaki kartın görünen ucu hesaba katılır. Ekran yetmezse yalnız üstteki gökyüzü kırpılır (en fazla %12),
+    daha kısa ekranda sayfa kayar. Yatay/geniş düzende harita doğal oranında kalır (index.html .mainlay). */
+function fitMapHeight() {
+  const svg = document.querySelector(".mapwrap svg");
+  if (!svg) return;
+  const root = document.documentElement,
+    hud = document.querySelector(".hud");
+  if (hud) root.style.setProperty("--hud-h", `${Math.round(hud.getBoundingClientRect().height)}px`);
+  const bar = document.querySelector("#actbar");
+  if (bar) root.style.setProperty("--actbar-h", `${Math.round(bar.getBoundingClientRect().height)}px`);
+  if (!matchMedia("(max-width:600px)").matches) {
+    svg.style.height = "";
+    return;
+  }
+  const w = svg.getBoundingClientRect().width;
+  if (!w) return;
+  const nat = (w * 670) / 400,
+    top = svg.getBoundingClientRect().top + (window.scrollY || 0),
+    barH = bar && getComputedStyle(bar).position === "fixed" ? bar.getBoundingClientRect().height : 0,
+    peek = 24, // altındaki kartın ucu görünsün (aşağıda içerik olduğu anlaşılır)
+    avail = window.innerHeight - top - barH - peek;
+  svg.style.height = `${Math.round(Math.max(nat * 0.88, Math.min(nat, avail)))}px`;
+}
 export function fitMapLabels() {
+  try {
+    fitMapHeight();
+  } catch (e) {
+    /* ölçüm yok */
+  }
   try {
     const svg = document.querySelector(".mapwrap svg"),
       wrap = document.querySelector(".mapwrap");

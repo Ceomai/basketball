@@ -25,6 +25,7 @@ const $q = s => document.querySelector(s);
 
 function clear() {
   document.querySelectorAll(".mt-hl").forEach(x => x.classList.remove("mt-hl"));
+  document.querySelectorAll(".mt-hold").forEach(x => x.classList.remove("mt-hold"));
   const b = $q("#mt-bub");
   if (b) b.remove();
   if (T) T.el = T.cur = null;
@@ -58,20 +59,54 @@ function show(id, el) {
       /* eski tarayıcı */
     }
   const r = el.getBoundingClientRect(),
-    top = id === "moment" || (id !== "mini" && r.top + r.height / 2 > innerHeight * 0.5); // seçenekler kapanmasın
+    top = r.top + r.height / 2 > innerHeight * 0.5; // hız/mola: hedefin karşı yarısında
   const b = document.createElement("div");
   b.id = "mt-bub";
-  b.className = "card mt-bub";
-  b.setAttribute("role", "dialog");
+  // karar anı: baloncuk kartın içinde, başlığın üstünde (durum başlığını, skoru ve seçenekleri örtmez; kart yeniden
+  // başparmak bölgesine hizalanır). Mini oyun: oyun alanının üstünde; baloncuk kapanana kadar oyun bekler (mtutHold).
+  b.className = `card mt-bub${id === "moment" ? " inl" : id === "mini" ? " ovr" : ""}`;
+  b.setAttribute("role", id === "moment" ? "note" : "dialog");
   b.setAttribute("aria-live", "polite");
   b.setAttribute("aria-label", $t("mt.title"));
-  b.style.cssText = top ? "top:calc(12px + env(safe-area-inset-top,0px))" : "bottom:calc(12px + env(safe-area-inset-bottom,0px))";
+  if (id === "mini") {
+    const cv = el.querySelector("canvas"),
+      cr = (cv || el).getBoundingClientRect();
+    b.style.top = `${Math.max(8, Math.round(cr.top + 12))}px`;
+    el.classList.add("mt-hold"); // baloncuk kapanana kadar oyun alanı ve düğmeler dokunuş almaz
+  } else if (id !== "moment")
+    b.style.cssText = top ? "top:calc(12px + env(safe-area-inset-top,0px))" : "bottom:calc(12px + env(safe-area-inset-bottom,0px))";
   const n = ORDER.length - T.todo.length + 1,
     last = T.todo.length === 1;
   b.innerHTML = `<div class="eyebrow">${$t("mt.title")} · ${n}/${ORDER.length}</div><h3>${$t(`mt.${id}`)}</h3><p class="small">${$t(`mt.${id}D`)}</p><div class="grid2"><button class="btn ghost sm" id="mt-skip">${$t("mt.skip")}</button><button class="btn pri sm" id="mt-next">${last ? $t("mt.done") : $t("mt.next")}</button></div>`;
-  document.body.appendChild(b);
+  if (id === "moment") {
+    el.prepend(b);
+    if (late.thumbAlign) late.thumbAlign(el);
+  } else {
+    document.body.appendChild(b);
+    if (id !== "mini") {
+      // hız/mola: hedefin hemen üstüne ya da altına; yapışkan skor tabelasını ve hedefi örtmez
+      const mt = document.querySelector(".mtop"),
+        minTop = (mt ? mt.getBoundingClientRect().bottom : 0) + 6,
+        bh = b.getBoundingClientRect().height;
+      const above = r.top - bh - 10,
+        below = r.bottom + 10;
+      const y = above >= minTop ? above : below + bh <= innerHeight - 6 ? below : null;
+      if (y != null) {
+        b.style.top = `${Math.round(y)}px`;
+        b.style.bottom = "auto";
+      }
+    }
+  }
   $q("#mt-skip").onclick = mtutEnd;
-  $q("#mt-next").onclick = next;
+  // mini oyun: "Anladım" oyunu başlatır; adım oyun bitince tamamlanır (hız/mola baloncuğu oyunun üstüne çıkmaz)
+  $q("#mt-next").onclick =
+    id === "mini"
+      ? () => {
+          T.miniGo = 1;
+          b.remove();
+          el.classList.remove("mt-hold");
+        }
+      : next;
   if (late.sfx) late.sfx("notify");
 }
 const ready = k => T.todo.includes(k) && !!$q(STEPS[k][1]);
@@ -118,5 +153,7 @@ Bus.on("match:start", ctx => {
   T.obs.observe(document.body, { childList: true, subtree: true });
 });
 Bus.on("match:end", () => mtutEnd());
+/** Mini oyun baloncuğu okunana kadar oyun beklesin mi (src/games.js loop) */
+export const mtutHold = () => !!(T && !T.miniGo && T.todo.includes("mini") && $q("#mview .stage canvas"));
 /** Rehber şu an açık mı (testler) */
 export const mtutActive = () => !!T;

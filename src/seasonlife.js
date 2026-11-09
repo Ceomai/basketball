@@ -247,7 +247,7 @@ function galaSheet() {
   })();
   return true;
 }
-Bus.offer("week:sheet", galaSheet, 2);
+Bus.offer("week:sheet", galaSheet, 2, "now");
 
 /* ================= RAKİPLE KARŞILAŞMA GEÇMİŞİ ================= */
 Bus.on("match:end", e => {
@@ -400,4 +400,4 @@ function campSheet() {
   summerCamp();
   return true;
 }
-Bus.offer("week:sheet", campSheet, 3);
+Bus.offer("week:sheet", campSheet, 3, "now");

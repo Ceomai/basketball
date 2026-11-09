@@ -180,8 +180,15 @@ html.hc :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .mt-hl{outline:3px solid var(--gold);outline-offset:3px;border-radius:var(--r-lg);animation:mtPulse 1s ease-in-out infinite alternate}
 @keyframes mtPulse{to{outline-color:color-mix(in srgb,var(--gold) 35%,transparent)}}
-.mt-bub{position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 32px));z-index:46;border-color:var(--gold);box-shadow:var(--shadow-2)}
-.mt-bub .grid2 .btn{min-height:40px}
+.mt-bub{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));margin-inline:auto;max-width:420px;z-index:46;border-color:var(--gold);box-shadow:var(--shadow-2);padding:var(--sp-2h) var(--sp-3);gap:var(--sp-1h)}
+.mt-bub .grid2 .btn{min-height:var(--hit)}
+.mt-bub h3{font-size:var(--fs-xl)}
+.mt-bub p{line-height:1.35}
+/* karar anı: kartın içinde, akışta (başlığı/skoru/seçenekleri örtmez) */
+.mt-bub.inl{position:static;margin:0;max-width:none;box-shadow:none;background:var(--card2)}
+/* mini oyun: oyun alanının üstünde; kapanana kadar oyun bekler ve dokunuş almaz (src/mtut.js mtutHold) */
+.stage.mt-hold canvas,.stage.mt-hold .mgctrl{pointer-events:none}
+.stage.mt-hold .mgctrl{opacity:.55}
 .act{display:grid;grid-template-columns:auto 1fr;gap:var(--sp-2h) var(--sp-3);align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:var(--sp-2h) var(--sp-3)}
 .act .ai{width:52px;height:52px;border-radius:var(--r-lg);background:radial-gradient(circle at 50% 35%,#24324b,#121a28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .act .ai svg{width:40px;height:40px}
@@ -213,7 +220,9 @@ tr.me td{background:rgba(255,255,255,.05);font-weight:800}
 .pill{display:inline-flex;align-items:center;font-family:var(--display);font-weight:700;letter-spacing:.8px;font-size:var(--fs-xs);text-transform:uppercase;border-radius:var(--r-xs);padding:var(--sp-half) var(--sp-2);background:var(--card2);color:var(--muted)}
 .pill.w{background:var(--good-bg);color:var(--good)} .pill.l{background:var(--bad-bg);color:var(--bad)} .pill.g{background:var(--gold-bg);color:var(--gold)}
 .toast.top{top:calc(12px + env(safe-area-inset-top,0px));bottom:auto}
-.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card2);border:1px solid var(--line2);border-left:4px solid var(--team);border-radius:var(--r-lg);padding:var(--sp-2h) var(--sp-3h);font-weight:700;z-index:40;max-width:calc(100% - 32px);box-shadow:var(--shadow-1)}
+/* maç içi bildirim: tabelanın altında ince şerit (src/data.js toast) */
+.toast.strip{bottom:auto;box-sizing:border-box;width:min(528px,calc(100% - 32px));max-width:none;padding:var(--sp-1) var(--sp-2h);font-size:var(--fs-sm);font-weight:700;line-height:1.3;border-left-width:3px;box-shadow:var(--shadow-sm);opacity:.96}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card2);border:1px solid var(--line2);border-left:4px solid var(--team);border-radius:var(--r-lg);padding:var(--sp-2h) var(--sp-3h);font-weight:700;z-index:40;max-width:calc(100% - 32px);box-shadow:var(--shadow-1);pointer-events:none}
 .say{background:var(--card2);border-radius:var(--r-xl);padding:var(--sp-2h) var(--sp-3);font-weight:600;font-size:var(--fs-base);border-left:3px solid var(--team)}
 .say.good{border-left-color:var(--good)} .say.bad{border-left-color:var(--bad)} .say.warn{border-left-color:var(--warn)} .say.gold{border-left-color:var(--gold)} .say.info{border-left-color:var(--info)} .say.muted{border-left-color:var(--muted)}
 .say.good,.say.bad,.say.warn,.say.gold,.say.info,.say.muted{color:inherit}
@@ -248,10 +257,43 @@ tr.me td{background:rgba(255,255,255,.05);font-weight:800}
 .bug .q{font-family:var(--display);font-weight:700;color:var(--warn);font-size:var(--fs-md);letter-spacing:1px}
 .bug .clk{font-family:var(--display);font-weight:700;font-size:var(--fs-3xl);font-variant-numeric:tabular-nums}
 .stripe{width:5px;align-self:stretch;border-radius:var(--r-xs);flex-shrink:0}
+/* maç üst bölgesi: skor tabelası + mola yapışkan ve kompakt (karar anında skor görünür kalır) */
+.mtop{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;gap:var(--sp-2);align-items:stretch;background:var(--bg);margin-inline:calc(-1*var(--sp-2));padding:var(--sp-2) var(--sp-2) var(--sp-1h);box-shadow:0 8px 12px -10px rgba(0,0,0,.7)}
+.mtop #bug{flex:1;min-width:0}
+.mtop .bug{margin-top:0}
+.mtop .bug .side{padding:var(--sp-1h) var(--sp-2);gap:var(--sp-1h)}
+.mtop .bug .sc{font-size:var(--fs-7xl)}
+.mtop .bug .mid{min-width:58px;padding:var(--sp-half) var(--sp-2)}
+.mtop .bug .clk{font-size:var(--fs-2xl)}
+@media (max-width:400px){.mtop .bug .full{display:none}.mtop .bug .side{padding:var(--sp-1h) var(--sp-1h);gap:var(--sp-1)}.mtop .bug .mid{min-width:52px;padding-inline:var(--sp-1)}.mtop .to-btn{padding-inline:var(--sp-2)}}
+#mto:empty{display:none}
+#mto{display:flex}
+.to-btn{min-height:var(--hit);min-width:var(--hit);padding:var(--sp-1) var(--sp-2h);border-radius:var(--r-xl);font-family:var(--display);letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+.to-btn.warn{border:2px solid var(--warn);background:var(--warn-bg);color:var(--warn)}
+.to-btn.warn.pulse{border-color:var(--warn)!important;animation-name:toPulse}
+.to-btn .to-ic{flex-shrink:0}
+@keyframes toPulse{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--warn) 60%,transparent)}to{box-shadow:0 0 0 6px transparent}}
+/* hız + önemli anlar: en az 44px, aralık ≥8px */
+.mctl{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;justify-content:space-between}
+.spd,.spd-g{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+.spd .opt{min-height:var(--hit);min-width:var(--hit);padding:var(--sp-1) var(--sp-2h)}
+/* karar/mola/mini oyun kartı: yapışkan tabelanın altında kalmasın (scroll-margin, src/engine.js thumbAlign) */
+#mview,#mview>*{scroll-margin-top:calc(var(--mtop-h,72px) + var(--sp-2));scroll-margin-bottom:var(--sp-3)}
+.mlay{display:flex;flex-direction:column;gap:inherit;min-width:0}
+/* maç öncesi: mod seçimi üstte, rakip/koşullar katlanabilir (src/engine.js modeChoice) */
+details.mpre>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);min-height:var(--hit);padding:0 var(--sp-3h);background:var(--card);border:1px solid var(--line);border-radius:var(--r-2xl);font-family:var(--display);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+details.mpre>summary::-webkit-details-marker{display:none}
+details.mpre>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-top:-4px}
+details.mpre[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+details.mpre[open]>summary{margin-bottom:var(--sp-2h)}
+details.mpre>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
+#mview{display:flex;flex-direction:column;gap:var(--sp-2h)}
+#mview:empty{display:none}
 .sit{display:flex;flex-direction:column;gap:var(--sp-3)}
 .choices{display:flex;flex-direction:column;gap:var(--sp-2)}
 .choice{display:grid;grid-template-columns:1fr auto;gap:var(--sp-half) var(--sp-2h);align-items:center;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:var(--r-xl);padding:var(--sp-3) var(--sp-3h);color:var(--text);cursor:pointer;font-family:var(--body)}
 .choice:active{transform:scale(.98)}
+.choice.sel{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel);background:var(--card2)}
 .choice .ct{font-family:var(--display);font-weight:700;font-size:var(--fs-4xl);text-transform:uppercase;letter-spacing:.5px}
 .choice .cd{font-size:var(--fs-sm);color:var(--muted);grid-column:1}
 .choice .od{grid-row:1/3;grid-column:2;font-family:var(--display);font-weight:700;letter-spacing:1px;font-size:var(--fs-sm);padding:var(--sp-1) var(--sp-2);border-radius:var(--r-sm)}
@@ -354,7 +396,7 @@ details.adv>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2
 .venue.on .vlab b{color:var(--gold)}
 .venue:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
 @media (max-width:380px){h1{font-size:var(--fs-h1-sm)}.reel{width:70px}}
-@media (prefers-reduced-motion:reduce){.app.enter>*,.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
+@media (prefers-reduced-motion:reduce){.app.enter>*,.app.enter .mapcol,.app.enter .wkstick>*,.app.enter .wkcol>*,.sheet,.sheet-bg,.cardx{animation:none}.btn,.loc .hl{transition:none}.reel.spin svg{animation-duration:.4s}}
 /* Reklam */
 .adbtn{display:flex;flex-direction:column;align-items:center;gap:var(--sp-half);position:relative;padding-top:var(--sp-4h)}
 .adbtn small{font-family:var(--body);font-size:var(--fs-2xs);font-weight:600;text-transform:none;letter-spacing:0;opacity:.75}
@@ -383,7 +425,8 @@ details.adv>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2
   /* harita alanı genişlikte tam doldurur (yanlarda boşluk yok). Yükseklik: maç kartı ekranda kalacak kadar; ekran
      yetmezse yalnızca üstteki gökyüzü/silüet kırpılır (en fazla %12, mekanlar ve etiketleri hep görünür), daha kısa ekranda sayfa kayar */
   .mapin{width:100%}
-  .mapwrap svg{--nat:calc((100vw - 48px) * 1.675);width:100%;height:clamp(calc(var(--nat) * .88),calc(100dvh - 320px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),var(--nat))}
+  /* yedek değer; asıl yükseklik src/map.js fitMapHeight ile ölçülerek verilir (harita üstü ≈190px + eylem çubuğu + kart ucu) */
+  .mapwrap svg{--nat:calc((100vw - 34px) * 1.675);width:100%;height:clamp(calc(var(--nat) * .88),calc(100dvh - 190px - var(--actbar-h,64px) - 24px - env(safe-area-inset-top,0px)),var(--nat))}
   .maphead{left:6px;right:6px;top:6px;gap:var(--sp-1)}
   .maphead .tagx{font-size:var(--fs-sm);padding:var(--sp-1) var(--sp-2);max-width:50%}
   .maphead .tagx small{font-size:max(var(--fs-min),var(--fs-3xs))}
@@ -392,7 +435,56 @@ details.adv>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2
   .weekcard .next{padding:var(--sp-half) 0;gap:var(--sp-2h)}
   .weekcard .btn{padding:var(--sp-2) var(--sp-3);min-height:var(--hit)}
 }
-@media (pointer:coarse){.app .weekcard .btn{min-height:var(--hit-coarse)}}
+@media (pointer:coarse){.app .weekcard .btn,.actbar .btn{min-height:var(--hit-coarse)}}
+/* ana ekran düzeni: dikeyde tek sütun (sarmalayıcılar .app ile aynı aralık), hafta kartının birincil eylemleri altta
+   yapışkan çubukta (başparmak bölgesi; panel açıkken panelin altında kalır, z-index < .sheet-bg) */
+.mainlay,.mapcol,.wkcol,.wkstick{display:flex;flex-direction:column;gap:inherit;min-width:0}
+.actbar{position:fixed;z-index:7;left:0;right:0;bottom:0;margin-inline:auto;box-sizing:border-box;width:100%;max-width:560px;padding:var(--sp-2) max(16px,env(safe-area-inset-right,0px)) calc(var(--sp-2) + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--bg2);border-top:1px solid var(--line);box-shadow:0 -8px 18px rgba(0,0,0,.35)}
+.actbar .btn{width:100%;min-height:var(--hit)}
+@media (min-width:600px){.actbar{border:1px solid var(--line);border-bottom:0;border-radius:var(--r-2xl) var(--r-2xl) 0 0}}
+/* giriş animasyonu (transform) çubuğun atalarında olmasın: dönüşümlü ata sabit konumun kapsayıcısı olur */
+.app.enter>.mainlay{animation:none}
+.app.enter .mapcol,.app.enter .wkstick>:not(.actbar),.app.enter .wkcol>:not(.wkstick){animation:enter .26s ease both}
+/* ana içerik çubuğun arkasında kalmasın: son öğenin altında çubuk kadar boşluk */
+.wkcol{padding-bottom:calc(var(--actbar-h,64px) + env(safe-area-inset-bottom,0px))}
+.wkcol>:last-child{margin-bottom:var(--sp-2)}
+.ptip>summary{display:flex;gap:var(--sp-1);cursor:pointer;list-style:none}
+.ptip>summary::-webkit-details-marker{display:none}
+.ptip>summary>b{flex-shrink:0}
+.ptip .ptip-t{min-width:0;font-weight:600}
+/* yatay telefon (Android 16 dikey kilidi yok sayar) ve geniş ekran: üst bilgi tek satır, harita solda, hafta kartı ve
+   eylem çubuğu sağda yapışkan; maçta saha solda, karar ve akış sağda */
+@media (orientation:landscape) and (max-height:560px),(min-width:900px){
+  .app:has(>.mainlay),.app:has(>.mlay){max-width:1100px}
+  .app:has(>.mainlay) .hud{flex-direction:row;align-items:center;gap:var(--sp-3)}
+  .app:has(>.mainlay) .hud-id{flex:0 1 auto;min-width:0;max-width:46%}
+  .app:has(>.mainlay) .hud-stats{flex:1;min-width:0}
+  .mainlay{display:grid;grid-template-columns:minmax(300px,calc((100dvh - var(--hud-h,64px) - 88px) / 1.675)) minmax(300px,420px);justify-content:center;align-items:start;column-gap:var(--sp-4)}
+  .wkcol{align-self:stretch;padding-bottom:0!important}
+  .wkstick{position:sticky;top:calc(var(--hud-h,64px) + env(safe-area-inset-top,0px) + var(--sp-2));z-index:2;max-height:calc(100dvh - var(--hud-h,64px) - env(safe-area-inset-top,0px) - var(--sp-7));overflow:auto;overscroll-behavior:contain}
+  /* çubuk hafta kartının altında; kart uzunsa yapışkan sütunun içinde altta sabit kalır */
+  .actbar{position:sticky;bottom:0;width:auto;max-width:none;margin:0;padding:var(--sp-2) 0 0;background:var(--bg);border:0;box-shadow:0 -10px 12px -6px var(--bg);border-radius:0}
+  .mlay:not(.noct){display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,1fr);grid-template-areas:"court stat" "court view" "court feed";grid-template-rows:auto auto 1fr;gap:var(--sp-2h) var(--sp-4);align-items:start}
+  .mlay:not(.noct)>#mcourt{grid-area:court;position:sticky;top:calc(var(--mtop-h,64px) + var(--sp-2))}
+  .mlay:not(.noct)>#mstat{grid-area:stat}
+  .mlay:not(.noct)>#mview{grid-area:view}
+  .mlay:not(.noct)>.mfeed{grid-area:feed}
+  /* panellerde ilk ziyaret ipucu tek satıra katlanır (dokununca açılır; src/guide.js) */
+  .ptip:not([open]) .ptip-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media (orientation:landscape) and (max-height:560px){
+  /* kısa yatay ekranda karar kartı sıkı (saha sütunu daha dar, seçenekler tek sütun ve kompakt) */
+  .mlay:not(.noct){grid-template-columns:minmax(0,.85fr) minmax(320px,1fr)}
+  .mlay #mview .choice{padding:var(--sp-2) var(--sp-3);min-height:var(--hit)}
+  .mlay #mview .choice .ct{font-size:var(--fs-2xl)}
+  .mlay #mview .sit{gap:var(--sp-2);padding:var(--sp-2h) var(--sp-3)}
+  .mlay #mview .sit h2{font-size:var(--fs-4xl)}
+  /* mini oyun sürerken tabela yapışmaz: dikey oyun alanı kısa ekrana sığsın (oyun kendi skorunu gösterir) */
+  .app:has(#mview .stage) .mtop{position:relative}
+  .app:has(#mview .stage) #mview,.app:has(#mview .stage) #mview>*{scroll-margin-top:var(--sp-2)}
+  .app:has(>.mainlay) .hud{padding-top:var(--sp-1h);padding-bottom:var(--sp-1h)}
+  .app:has(>.mainlay) .hs .mt{display:none}
+}
 /* küçük yardımcı sınıflar (şablonlardaki tekrar eden satır içi stillerin yerine; satır içi stil gibi önceliklidir) */
 .pt-3{padding-top:var(--sp-3)!important} .pt-4h{padding-top:var(--sp-4h)!important}
 .mt-1{margin-top:var(--sp-1)!important} .mt-1h{margin-top:var(--sp-1h)!important} .mt-3{margin-top:var(--sp-3)!important} .mb-1h{margin-bottom:var(--sp-1h)!important}

@@ -4030,5 +4030,7 @@ export default {
   "s32.g.sound": "Ses",
   "s32.g.look": "Görünüm",
   "s32.g.play": "Oynanış",
-  "s32.portrait": "Görünüm ve stil"
+  "s32.portrait": "Görünüm ve stil",
+  "hp.pick": "Önce bir at seç",
+  "hp.betGo": "Bahis yap {v} · {n}"
 };

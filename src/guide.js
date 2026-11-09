@@ -82,6 +82,7 @@ export function placeTip(id) {
   if (b)
     b.insertAdjacentHTML(
       "afterbegin",
-      `<div class="say gold"><b>${$t("tip.head")}</b> ${$t(`tip.${id}`)}</div>`
+      // yatay/kısa ekranda tek satıra katlanır (dokununca açılır; index.html .ptip)
+      `<details class="say gold ptip"${matchMedia("(orientation:landscape) and (max-height:560px),(min-width:900px)").matches ? "" : " open"}><summary><b>${$t("tip.head")}</b> <span class="ptip-t">${$t(`tip.${id}`)}</span></summary></details>`
     );
 }

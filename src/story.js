@@ -628,7 +628,8 @@ export function pressFollowUp(win) {
   }
   return "";
 }
-export function pressConference(win, after) {
+/** Basın toplantısı sorusu ve cevapları (derbi, rakip derbisi, play-off, öne çıkan performans) */
+function pressQA(win) {
   const derby = isRivalDerby(M.opp),
     R = S.rival,
     j = S.npc.journalist,
@@ -680,14 +681,50 @@ export function pressConference(win, after) {
           ["confident", $t("story.65")],
           ["bold", $t("story.66")]
         ];
+  return { q, A, derby, j };
+}
+/** Seçilen cevabın etkileri; sonuç metnini döndürür */
+function pressApply(k, P, win) {
+  const { A, derby } = P;
+  Bus.emit("press", { tone: k });
+  const quote = A.find(a => a[0] === k)[1].replace(/"/g, "");
+  let out;
+  if (k === "humble") {
+    S.rel.koc += 3;
+    S.rel.takim += 4;
+    S.rel.taraf += 1;
+    out = $t("story.69");
+  } else if (k === "confident") {
+    S.rel.taraf += 4;
+    S.followers = Math.round(S.followers * 1.02);
+    S.moral += 2;
+    out = $t("story.70");
+  } else {
+    S.rel.taraf += 8;
+    S.followers = Math.round(S.followers * 1.05);
+    S.rel.koc -= 4;
+    S.rel.takim -= 2;
+    if (!win && !derby) S.money -= Math.round((S.wage || 10) * 0.5);
+    out = !win && !derby ? $t("story.71") : $t("story.72");
+    S.press = { tone: "bold", quote: quote.length > 60 ? quote.slice(0, 57) + "…" : quote };
+  }
+  if (k === "humble") S.press = { tone: "humble", quote };
+  norm();
+  save();
+  return out;
+}
+const pressBody = P =>
+  `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("story.68", {
+    j: esc(P.j)
+  })}</div><div class="say">"${P.q}"</div></div></div><div class="choices" id="pch">${P.A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`;
+export function pressConference(win, after) {
+  const P = pressQA(win);
   sheet(
     $t("ads.13"),
     $t("story.67", {
       name: M.opp.name
     }),
-    `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("story.68", {
-      j: esc(j)
-    })}</div><div class="say">"${q}"</div></div></div><div class="choices" id="pch">${A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`,
+    pressBody(P),
     { noClose: true }
   );
   const pl = LK.press();
@@ -695,32 +732,7 @@ export function pressConference(win, after) {
   $$("[data-press]").forEach(
     b =>
       (b.onclick = () => {
-        Bus.emit("press", { tone: b.dataset.press });
-        const k = b.dataset.press,
-          quote = A.find(a => a[0] === k)[1].replace(/"/g, "");
-        let out;
-        if (k === "humble") {
-          S.rel.koc += 3;
-          S.rel.takim += 4;
-          S.rel.taraf += 1;
-          out = $t("story.69");
-        } else if (k === "confident") {
-          S.rel.taraf += 4;
-          S.followers = Math.round(S.followers * 1.02);
-          S.moral += 2;
-          out = $t("story.70");
-        } else {
-          S.rel.taraf += 8;
-          S.followers = Math.round(S.followers * 1.05);
-          S.rel.koc -= 4;
-          S.rel.takim -= 2;
-          if (!win && !derby) S.money -= Math.round((S.wage || 10) * 0.5);
-          out = !win && !derby ? $t("story.71") : $t("story.72");
-          S.press = { tone: "bold", quote: quote.length > 60 ? quote.slice(0, 57) + "…" : quote };
-        }
-        if (k === "humble") S.press = { tone: "humble", quote };
-        norm();
-        save();
+        const out = pressApply(b.dataset.press, P, win);
         $("#pch").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="pok">${$t("ads.25")}</button>`;
         $("#pok").onclick = () => {
           closeSheet();
@@ -728,6 +740,34 @@ export function pressConference(win, after) {
         };
       })
   );
+}
+/** Maç sonucu ile basın toplantısı tek ekranda (aşama 3.3): sonuç panelinin altında soru ve cevaplar; cevap verilince
+    "Devam" görünür. Önceki basın sözünün karşılığı (pressFollowUp) yeni cevaptan ÖNCE hesaplanır; maç sonrası ara katman
+    (match:after) bunu ve basın toplantısını yeniden yapmaz. Denge simülasyonunda eski akış (ayrı panel) aynen sürer. */
+export function pressInlineHTML(win) {
+  if (window.__SIM || !M || M.rating == null) return "";
+  M.pressFu = pressFollowUp(win);
+  M.pressChecked = 1;
+  if (!pressDue(win)) return "";
+  const P = (M.pressP = pressQA(win));
+  M.pressInl = 1;
+  return `<div class="card" id="pr-inl" role="region" aria-label="${esc($t("ads.13"))}"><div class="eyebrow">${$t("ads.13")}</div>${pressBody(P)}</div>`;
+}
+/** Satır içi basın toplantısını bağla; cevap verilince done() (sonuç panelindeki "Devam" düğmesi açılır) */
+export function bindPressInline(win, done) {
+  const box = $("#pr-inl");
+  if (!box || !M || !M.pressP) return false;
+  const pl = LK.press();
+  $("#pcp").appendChild(portrait(pl[0], pl[1]));
+  $$("#pr-inl [data-press]").forEach(
+    b =>
+      (b.onclick = () => {
+        const out = pressApply(b.dataset.press, M.pressP, win);
+        $("#pch").innerHTML = `<div class="say warn">${out}</div>`;
+        done();
+      })
+  );
+  return true;
 }
 
 /* ================= HİKÂYE ZİNCİRLERİ ================= */
@@ -1464,12 +1504,14 @@ Bus.on("injury:healed", inj => {
 // Maç sonrası: önceki basın sözlerinin karşılığı ve yeni basın toplantısı
 Bus.use("match:after", (ctx, next) => {
   const win = ctx.win,
-    fu = pressFollowUp(win);
+    inl = M && M.pressChecked, // sonuç panelinde zaten soruldu (pressInlineHTML)
+    fu = inl ? M.pressFu : pressFollowUp(win);
   if (fu) {
     news(fu);
     toast(fu);
   }
-  if (pressDue(win)) return pressConference(win, next);
+  if (inl && M.pressInl) return next();
+  if (!inl && pressDue(win)) return pressConference(win, next);
   if (isDerby(M.opp) && M.rating != null) {
     const d = derbyResult(win);
     toast(d.txt);

@@ -417,11 +417,13 @@ export function weeklyHooks() {
   }
   Bus.emit("week:start");
   save(); // hafta başı işleyicilerinin değişiklikleri (ücretler, gelirler, ilişkiler) yeniden açılışta kaybolmasın
-  // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur. Maç sonrası olay çıktıysa yalnız önemli
-  // paneller (öncelik < 20: hedefler, açılış, kamp, senaryo...) gelir; hikâye panelleri bir sonraki haftaya kalır
+  // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur. Arka arkaya en fazla 2 zorunlu panel (aşama 3.3):
+  // maç sonrası olay çıktıysa (sonuç + olay = 2) yalnız zamana bağlı, ertelenirse kaçacak paneller ("now": senaryo, gala,
+  // kamp, yeni forma, sezon ortası, ara transfer, derbi öncesi basın) gelir; hedefler, açılış, özellik, hikâye vb.
+  // koşulları sürdüğü için sonraki haftalarda gelir
   const quiet = S.evRecent;
   S.evRecent = 0;
-  Bus.first("week:sheet", quiet ? 20 : 999);
+  Bus.first("week:sheet", quiet ? o => o.tag === "now" : 999);
 }
 // sezon ortası (normalde 8., hızlı kariyerde 5. hafta): All-Star seçilen üst lig oyuncusu All-Star'a, diğer herkes
 // Yıldızlar Hafta Sonu beceri yarışmalarına (src/peaks.js); ardından milli takım penceresi
@@ -436,7 +438,8 @@ Bus.offer(
     else return false;
     return true;
   },
-  10
+  10,
+  "now"
 );
 
 /* Yerel hikâye ve mizah olayları artık veri olarak src/content/events.tr.js içinde. */

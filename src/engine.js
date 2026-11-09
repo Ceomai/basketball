@@ -49,17 +49,35 @@ export function stintPlan(role) {
   return P;
 }
 export const inStint = (plan, m) => plan.some(([a, b]) => m >= a && m < b);
+/** Maç kartını (karar, mod seçimi, çeyrek arası) başparmak bölgesine hizala: kart ekrana sığıyorsa alt kenarı ekranın
+    altına oturur (seçenekler altta, başlık üstte görünür); sığmıyorsa başlığı yapışkan tabelanın hemen altında kalır. */
+export function thumbAlign(el) {
+  if (!el) return;
+  try {
+    const top = document.querySelector(".mtop"),
+      th = top ? top.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty("--mtop-h", `${Math.round(th)}px`);
+    const h = el.getBoundingClientRect().height;
+    el.scrollIntoView({ block: h <= window.innerHeight - th - 24 ? "end" : "start", behavior: "smooth" });
+  } catch (e) {
+    /* eski tarayıcı */
+  }
+}
 export function modeChoice() {
   if (window.__SIM) return Promise.resolve("key");
   return new Promise(r => {
     const cur = S.matchMode || ""; // ilk maçta "son seçimin" rozeti yok
+    // mod seçimi üstte (başparmak bölgesine hizalı); rakip ve koşullar kartları altta, katlanabilir (kısa ekranda kapalı)
+    const pre = `${late.preMatchHTML()}${late.osPreHTML()}`,
+      roomy = window.matchMedia && matchMedia("(min-height:740px)").matches;
     $("#mview").innerHTML =
-      `${late.preMatchHTML()}${late.osPreHTML()}<div class="card sit"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
+      `<div class="card sit" id="mode-card"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
      <div class="choices">
       <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
       <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
       <button class="choice" data-m="only"><span class="ct">${$t("pl2.only")}</span><span class="cd">${$t("pl2.onlyD")}</span><span class="od ${cur === "only" ? "e" : "i"}">${cur === "only" ? $t("engine.6") : $t("pl2.fastest")}</span></button>
-     </div></div>`;
+     </div></div>${pre ? `<details class="mpre"${roomy ? " open" : ""}><summary>${$t("md.pre")}</summary><div class="stack">${pre}</div></details>` : ""}`;
+    thumbAlign($("#mode-card"));
     $$("[data-m]").forEach(
       b =>
         (b.onclick = () => {
@@ -140,8 +158,9 @@ export async function playMatch(ctx) {
     foes = rosterNames(opp.city, 5),
     sur = S.last,
     PL = PLAYS[S.pos];
-  app.innerHTML = `<div id="bug"></div><div id="mstat" class="card" style="padding:var(--sp-2h) var(--sp-3);gap:var(--sp-1h)"></div>${AUTO ? "" : late.courtHTML()}<div id="mview"></div>
-   <div class="card"><div class="row between"><div class="eyebrow">${$t("engine.15")}</div><div class="row gap-1" id="spd"></div></div><div class="feed" id="feed"></div></div>`;
+  // düzen: skor tabelası üstte yapışkan; yatay/geniş ekranda saha solda, durum + karar + akış sağda (index.html .mlay)
+  app.innerHTML = `<div class="mtop"><div id="bug"></div><div id="mto"></div></div><div class="mlay${AUTO ? " noct" : ""}"><div id="mstat" class="card" style="padding:var(--sp-2h) var(--sp-3);gap:var(--sp-1h)"></div>${AUTO ? "" : late.courtHTML()}<div id="mview"></div>
+   <div class="card mfeed"><div class="mctl"><div class="eyebrow">${$t("engine.15")}</div><div class="spd" id="spd"></div></div><div class="feed" id="feed"></div></div></div>`;
   updBug();
   if (!AUTO) late.courtStart(opp); // saha görünümü (src/court.js)
   late.matchdayStart(ctx, foes, mates); // hakem, seyirci, rakip yıldız, kimya (src/matchday.js)
@@ -151,7 +170,10 @@ export async function playMatch(ctx) {
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" style="padding:var(--sp-1) var(--sp-2)" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-k="1" style="padding:var(--sp-1) var(--sp-2)" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button>${late.timeoutBtnHTML()}`;
+      `<div class="spd-g" role="group" aria-label="${$t("engine.15")}">${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-mode="key" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button></div>`;
+    // mola ayrı ve belirgin: skor tabelasının yanında (yapışkan üst bölge, src/clutch.js)
+    const mto = $("#mto");
+    if (mto) mto.innerHTML = late.timeoutBtnHTML();
     late.bindTimeout(renderSpd);
     $$("#spd [data-s]").forEach(
       b =>
@@ -161,7 +183,7 @@ export async function playMatch(ctx) {
           renderSpd();
         })
     );
-    $("#spd [data-k]").onclick = () => {
+    $("#spd [data-mode]").onclick = () => {
       mode = mode === "key" ? "full" : "key";
       S.matchMode = mode;
       renderSpd();
@@ -539,7 +561,7 @@ export async function playMatch(ctx) {
     const render = () => {
       late.courtFreeze(scn || (sp && sp.scn) || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
-        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment ? "" : `<div class="say gold"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
+        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment || late.mtutActive() ? "" : `<div class="say gold"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
           "engine.53",
           {
             q: M.q,
@@ -551,9 +573,7 @@ export async function playMatch(ctx) {
             return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}" aria-label="${$t("a11y.odds", { v: l })}">${l}</span></button>`;
           })
           .join("")}</div></div>`;
-      try {
-        $("#mview").scrollIntoView({ block: "start", behavior: "smooth" });
-      } catch (e) {}
+      thumbAlign($("#mview .sit"));
     };
     // son hücumda kaçan şut: oyuncu isterse reklamla bir kez yeniden oynar (src/adplaces.js); maç durumu geri alınır
     const snap = late.retryAvailable(sp, AUTO) ? late.momentSnap() : null;
@@ -762,9 +782,7 @@ export async function playMatch(ctx) {
         late.bindMascot(); // maskot düellosu (src/tales.js)
         late.commentLine("half");
       }
-      try {
-        $("#mview").scrollIntoView({ block: "start", behavior: "smooth" });
-      } catch (e) {}
+      thumbAlign($("#mview > .card"));
       $("#qgo").onclick = () => {
         $("#mview").innerHTML = "";
         addFeed(

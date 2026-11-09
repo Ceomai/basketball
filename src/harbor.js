@@ -287,17 +287,37 @@ export function locHipodrom(I) {
     `<div class="card fm"><div class="eyebrow">${$t("hp.card")}</div><p class="small muted">${$t("hp.note", { v: fmt(bet) })}</p>
      <div class="row between nowrap gap-2"><div class="opts" id="hp-kind">${["win", "place"].map(k => `<button class="opt ${kind === k ? "on" : ""}" data-v="${k}">${$t(`hp.k.${k}`)}</button>`).join("")}</div>
      <div class="opts" id="hp-mul">${[1, 3, 10].map(m => `<button class="opt ${mul === m ? "on" : ""}" data-v="${m}" ${S.money < bet * m ? "disabled" : ""}>${fmt(bet * m)}</button>`).join("")}</div></div></div>
-     <div class="choices">${field
+     <div class="choices" role="radiogroup" aria-label="${$t("hp.card")}">${field
        .map(
          (h, i) =>
-           `<button class="choice" data-hb="${i}" ${S.money < stake ? "disabled" : ""}><span class="ct" style="display:flex;align-items:center;gap:var(--sp-1h)">${silkSVG(h)} ${esc(h.n)}${h.mine ? ` · <b class="gold">${$t("hp.mine")}</b>` : ""}</span><span class="cd">${$t("hp.line", { j: h.jockey, f: h.form })}</span><span class="od e">${(kind === "place" ? placeOdds(h) : h.odds).toFixed(1)}</span></button>`
+           `<button class="choice" role="radio" aria-checked="false" data-hb="${i}" ${S.money < stake ? "disabled" : ""}><span class="ct" style="display:flex;align-items:center;gap:var(--sp-1h)">${silkSVG(h)} ${esc(h.n)}${h.mine ? ` · <b class="gold">${$t("hp.mine")}</b>` : ""}</span><span class="cd">${$t("hp.line", { j: h.jockey, f: h.form })}</span><span class="od e">${(kind === "place" ? placeOdds(h) : h.odds).toFixed(1)}</span></button>`
        )
        .join("")}</div>
-     ${S.horse ? `<p class="small">${$t("hp.own", { n: S.horse.n, w: S.horse.wins || 0 })}</p>` : `<div class="act"><div><h3>${$t("hp.buyH")}</h3><p>${$t("hp.buyD", { v: fmt(horseCost) })}</p></div><button class="btn sm" id="hp-buy" ${S.money < horseCost ? "disabled" : ""}>${$t("hp.buy")}</button></div>`}`
+     ${S.horse ? `<p class="small">${$t("hp.own", { n: S.horse.n, w: S.horse.wins || 0 })}</p>` : `<div class="act"><div><h3>${$t("hp.buyH")}</h3><p>${$t("hp.buyD", { v: fmt(horseCost) })}</p></div><button class="btn sm" id="hp-buy" ${S.money < horseCost ? "disabled" : ""}>${$t("hp.buy")}</button></div>`}
+     <button class="btn pri" id="hp-go" disabled>${$t("hp.pick")}</button>`
   );
   $$("#hp-kind [data-v]").forEach(b => (b.onclick = () => ((S.hipKind = b.dataset.v), locHipodrom(I))));
   $$("#hp-mul [data-v]").forEach(b => (b.onclick = () => ((S.hipMul = +b.dataset.v), locHipodrom(I))));
-  $$("[data-hb]").forEach(b => (b.onclick = () => race(I, field, +b.dataset.hb, stake, kind)));
+  // iki adım: at seç (vurgulu) → alttaki yapışkan "Bahis yap" düğmesi bahsi yatırıp yarışı başlatır
+  let pickI = -1;
+  const go = $("#hp-go");
+  $$("[data-hb]").forEach(
+    b =>
+      (b.onclick = () => {
+        pickI = +b.dataset.hb;
+        $$("[data-hb]").forEach(x => {
+          x.classList.toggle("sel", x === b);
+          x.setAttribute("aria-checked", String(x === b));
+        });
+        go.disabled = S.money < stake;
+        go.textContent = $t("hp.betGo", { v: fmt(stake), n: field[pickI].n });
+      })
+  );
+  go.onclick = () => {
+    if (pickI < 0 || S.money < stake) return;
+    go.disabled = true;
+    race(I, field, pickI, stake, kind);
+  };
   const hb = $("#hp-buy");
   if (hb)
     hb.onclick = () => {
@@ -419,13 +439,14 @@ function race(I, field, pickI, bet, kind = "win") {
   const cv = $("#hp-cv"),
     dpr = Math.min(2, window.devicePixelRatio || 1),
     W = 360,
-    H = 210;
+    H = 268; // şeritler arası daha geniş (at numaraları okunur)
   cv.width = W * dpr;
   cv.height = H * dpr;
   cv.style.width = "100%";
   cv.style.aspectRatio = `${W}/${H}`;
   const c = cv.getContext("2d");
   c.scale(dpr, dpr);
+  const numFs = Math.max(14, Math.ceil((14 * W) / (cv.clientWidth || W)));
   const L = 1600, // pist uzunluğu (dünya birimi)
     T = window.__SIM ? 0.2 : 6.2, // kazananın süresi (sn)
     n = field.length;
@@ -503,7 +524,7 @@ function race(I, field, pickI, bet, kind = "win") {
     // bitiş çizgisi ve direği
     const fx = L - cam + 40;
     if (fx > -10 && fx < W + 10) {
-      for (let k = 0; k < 14; k++) {
+      for (let k = 0; k < Math.ceil((H - 82) / 9.5); k++) {
         c.fillStyle = k % 2 ? "#fff" : "#141414";
         c.fillRect(fx, 76 + k * 9.5, 4, 9.5);
       }
@@ -516,8 +537,8 @@ function race(I, field, pickI, bet, kind = "win") {
     // atlar: arka şeritten öne (derinlik)
     for (let i = 0; i < n; i++) {
       const lane = i,
-        y = 94 + lane * 18,
-        s = 0.74 + lane * 0.06,
+        y = 100 + lane * 26,
+        s = 0.8 + lane * 0.06,
         x = pos[i] - cam + 40;
       if (x < -60 || x > W + 60) continue;
       // gölge
@@ -529,11 +550,11 @@ function race(I, field, pickI, bet, kind = "win") {
       // numara
       c.fillStyle = "#fff";
       c.strokeStyle = "#141414";
-      c.lineWidth = 2;
-      c.font = '800 10px "Barlow Condensed"';
+      c.lineWidth = 3;
+      c.font = `800 ${numFs}px "Barlow Condensed"`; // ekranda en az 14 px
       c.textAlign = "center";
-      c.strokeText(field[i].no, x - 14 * s, y - 20 * s);
-      c.fillText(field[i].no, x - 14 * s, y - 20 * s);
+      c.strokeText(field[i].no, x - 16 * s, y - 20 * s);
+      c.fillText(field[i].no, x - 16 * s, y - 20 * s);
       if (i === pickI) {
         c.strokeStyle = tok("--warn");
         c.lineWidth = 2;

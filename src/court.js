@@ -16,6 +16,7 @@ import { mgRebound, mgShoot, setMgCtx } from "./games.js";
 import { S, eff } from "./core.js";
 import { M } from "./match.js";
 import { courtShoe } from "./custom.js";
+import { hex6, inkOn } from "./theme.js";
 import { late } from "./late.js";
 
 // Yatay tam saha (28 × 15 m): biz sağdaki potaya, rakip soldakine hücum eder.
@@ -63,12 +64,28 @@ function floor() {
 }
 /** Kritik an tekrarı için saha zemini (file id'si ayrı; src/matchfeel.js) */
 export const courtFloorSVG = () => floor().replace('id="net-r"', 'id="rp-net"');
+// oyuncu noktası: daire r=9, etiket 9.5 birim (320 px ekranda ≈7 px); etiket rengi zemine göre (koyu/beyaz).
+// Sen: beyaz + koyu çift halka (takım renginden ve uyarı renginden bağımsız)
 const dot = (id, x, y, fill, ring, label) =>
-  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="11" fill="none" style="stroke:var(--warn)" stroke-width="2.6"/>` : ""}${ring ? courtShoe() : ""}<circle r="7.5" fill="${fill}" stroke="${id[0] === "d" ? "#ffffff" : "#141414"}" stroke-width="${id[0] === "d" ? 1.8 : 1.4}" ${id[0] === "d" ? 'stroke-dasharray="3 2"' : ""}/><text y="3" text-anchor="middle" font-size="7" font-weight="800" font-family="Barlow Condensed" fill="#fff">${label}</text></g>`;
+  `<g id="${id}" style="transform:translate(${x}px,${y}px);transition:transform .45s ease">${ring ? `<circle r="14" fill="none" stroke="#141414" stroke-width="4.6"/><circle r="14" fill="none" stroke="#ffffff" stroke-width="2.4"/>` : ""}${ring ? courtShoe() : ""}<circle r="9" fill="${fill}" stroke="${id[0] === "d" ? "#ffffff" : "#141414"}" stroke-width="${id[0] === "d" ? 1.8 : 1.4}" ${id[0] === "d" ? 'stroke-dasharray="3 2"' : ""}/><text y="3.4" text-anchor="middle" font-size="9.5" font-weight="800" font-family="Barlow Condensed" fill="${inkOn(hex6(fill) || "#4a5568", "#141414", "#ffffff")}">${label}</text></g>`;
+// iki renk arası uzaklık (RGB, 0–441); eşik altında renkler sahada karışır
+const cdist = (a, b) => {
+  const x = parseInt((hex6(a) || "#000000").slice(1), 16),
+    y = parseInt((hex6(b) || "#000000").slice(1), 16);
+  return Math.hypot((x >> 16) - (y >> 16), ((x >> 8) & 255) - ((y >> 8) & 255), (x & 255) - (y & 255));
+};
+/** Rakip nokta rengi: bizim renge (ya da halka/uyarı rengine) yakınsa rakibin ikinci rengi, o da yakınsa nötr gri */
+export function courtOppColor(us, opp) {
+  const near = c => !hex6(c) || cdist(c, us) < 110 || cdist(c, "#ffc54d") < 70 || cdist(c, "#ffffff") < 60;
+  if (!opp) return "#4a5568";
+  if (!near(opp.c1)) return opp.c1;
+  if (opp.c2 && !near(opp.c2)) return opp.c2;
+  return cdist(us, "#4a5568") < 110 ? "#9aa5b8" : "#4a5568";
+}
 /** Maç başında: iki takım orta sahada */
 export function courtStart(opp) {
   clearTimers();
-  C = { c1: S.team.c1, c2: opp ? opp.c1 : "#4a5568", flow: [], right: null, timers: [] };
+  C = { c1: S.team.c1, c2: courtOppColor(S.team.c1, opp), flow: [], right: null, timers: [] };
   const g = $("#crt-p");
   if (!g) return;
   g.innerHTML =

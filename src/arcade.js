@@ -48,20 +48,21 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
   c.lineTo(ex - ax * 9, ey - ay * 9);
   c.closePath();
   c.fill();
-  // güç göstergesi
-  const gx = W - 30,
-    gy = H / 2 - 70,
+  // güç göstergesi: sağ kenardan içeride (Android kenar geri hareketiyle çakışmasın), kalın; potanın altında
+  const gw = 16,
+    gx = W - 46 - gw / 2,
+    gy = H / 2 + 16,
     gh = 140;
-  rr(c, gx, gy, 12, gh, 6, "rgba(5,8,14,.75)", false);
+  rr(c, gx, gy, gw, gh, 8, "rgba(5,8,14,.75)", false);
   c.fillStyle = tokAlpha("--good", 0.35);
-  c.fillRect(gx, gy + gh * (1 - ideal[1]), 12, gh * (ideal[1] - ideal[0]));
-  rr(c, gx, gy + gh * (1 - p), 12, Math.max(3, gh * p), 6, col, false);
+  c.fillRect(gx, gy + gh * (1 - ideal[1]), gw, gh * (ideal[1] - ideal[0]));
+  rr(c, gx, gy + gh * (1 - p), gw, Math.max(3, gh * p), 8, col, false);
   c.fillStyle = tok("--text");
   c.font = "700 11px Manrope";
   c.textAlign = "center";
   c.textBaseline = "alphabetic";
-  c.fillText(`%${Math.round(p * 100)}`, gx + 6, gy + gh + 16);
-  c.fillText($t("arcade.1"), gx + 6, gy - 6);
+  c.fillText(`%${Math.round(p * 100)}`, gx + gw / 2, gy + gh + 16);
+  c.fillText($t("arcade.1"), gx + gw / 2, gy - 6);
   c.restore();
   return col;
 }

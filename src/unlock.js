@@ -5,7 +5,7 @@
    - miras (vakıf, kulüp payı, Şöhretler Müzesi değerlendirmesi): 28 yaşında ya da emeklilikte
    Açılınca kısa bir panel çıkar. Eski kayıtlarda (S.unlocks yoksa) her şey zaten açık sayılır, bildirim çıkmaz. */
 import { t as $t } from "./i18n/index.js";
-import { $, Bus, isPro } from "./data.js";
+import { $, Bus, isPro, toast } from "./data.js";
 import { S, closeSheet, sheet } from "./core.js";
 import { late } from "./late.js";
 
@@ -48,13 +48,10 @@ function unlockSheet() {
   if (!fresh.length) return false;
   for (const k of fresh) S.unlocks[k] = 1;
   if (window.__SIM) return false;
-  sheet(
-    $t("unl.title"),
-    $t("unl.sub"),
-    `${fresh.map(k => `<div class="card"><b>${$t(TXT[k][0])}</b><p class="small">${$t(TXT[k][1])}</p></div>`).join("")}<button class="btn pri" id="unl-ok">${$t("goal.ok")}</button>`,
-    { noClose: true }
-  );
-  $("#unl-ok").onclick = () => closeSheet();
+  // yalnız bilgi veren panel: zorunlu panel yerine kısa bildirim + ayrıntılar bildirim kutusunda (aşama 3.3).
+  // Haftanın panel hakkını kullanır (true): diğer haftalık panellerin zamanlaması değişmez.
+  for (const k of fresh.slice().reverse()) late.inboxAdd(`${$t(TXT[k][0])}: ${$t(TXT[k][1])}`, "news");
+  toast(`${$t("unl.title")}: ${fresh.map(k => $t(TXT[k][0])).join(", ")}`);
   return true;
 }
 Bus.offer("week:sheet", unlockSheet, 6);

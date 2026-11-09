@@ -1,0 +1,10 @@
+{
+ "tr": {
+  "hp.pick": "Önce bir at seç",
+  "hp.betGo": "Bahis yap {v} · {n}"
+ },
+ "en": {
+  "hp.pick": "Pick a horse first",
+  "hp.betGo": "Place bet {v} · {n}"
+ }
+}

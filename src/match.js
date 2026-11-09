@@ -448,6 +448,8 @@ export function finishMatch(win) {
   norm();
   save();
   const coach = r >= 8 ? $t("match.28") : r >= 6.5 ? $t("match.29") : r >= 5 ? $t("match.30") : $t("match.31");
+  // basın toplantısı bu maçta varsa sonuç panelinin altında (tek ekran; src/story.js pressInlineHTML)
+  const pressHTML = late.pressInlineHTML(win);
   sheet(
     win ? $t("match.32") : $t("match.33"),
     `${phaseName()} · ${opp.name}`,
@@ -473,7 +475,7 @@ export function finishMatch(win) {
    ${late.reportHTML()}
    ${late.duelHTML()}
    ${late.gainsHTML()}
-   ${late.adDoubleHTML(bonus)}<button class="btn pri" id="nx">${$t("ads.25")}</button>`,
+   ${late.adDoubleHTML(bonus)}${pressHTML}<button class="btn pri" id="nx"${pressHTML ? " hidden" : ""}>${$t("ads.25")}</button>`,
     { noClose: true }
   );
   const cl = LK.coach();
@@ -481,6 +483,16 @@ export function finishMatch(win) {
   $("#cp").appendChild(portrait(cl[0], cl[1]));
   late.bindAdDouble(bonus);
   $("#nx").onclick = () => late.adsBetween(() => afterMatch(win));
+  if (pressHTML)
+    late.bindPressInline(win, () => {
+      const nx = $("#nx");
+      nx.hidden = false;
+      try {
+        nx.focus({ preventScroll: true });
+      } catch (e) {
+        /* odak yok */
+      }
+    });
 }
 // Maç sonrası: önce ara katmanlar (basın toplantısı, derbi), sonra lig akışı
 export function afterMatch(win) {

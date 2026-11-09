@@ -80,13 +80,18 @@ export const Bus = {
     };
     next();
   },
-  offer(e, f, prio = 50) {
-    (this.p[e] = this.p[e] || []).push({ f, prio });
+  // tag: "now" = zamana bağlı (ertelenirse kaçar) panel; sakin haftada da sorulur (src/extras.js weeklyHooks)
+  offer(e, f, prio = 50, tag = "") {
+    (this.p[e] = this.p[e] || []).push({ f, prio, tag });
     this.p[e].sort((a, b) => a.prio - b.prio);
   },
+  /** Öncelik sırasıyla sor; ilk true dönen kazanır. maxPrio sayı ya da ({prio, tag}) => bool süzgeci */
   first(e, maxPrio = 999, ...a) {
-    for (const { f, prio } of this.p[e] || []) {
-      if (prio >= maxPrio) break;
+    const ok = typeof maxPrio === "function" ? maxPrio : null;
+    for (const { f, prio, tag } of this.p[e] || []) {
+      if (ok) {
+        if (!ok({ prio, tag })) continue;
+      } else if (prio >= maxPrio) break;
       try {
         if (f(...a)) return true;
       } catch (err) {
@@ -128,8 +133,16 @@ export function toast(t) {
   if (typeof late.sfx === "function") late.sfx("notify");
   $$(".toast").forEach(x => x.remove());
   const d = document.createElement("div");
-  // panel/maç ekranı açıkken alttaki düğmelerin üstüne binmesin
-  d.className = document.querySelector(".sheet, #adov, #mview, .cta-bar") ? "toast top" : "toast";
+  // maçta: skor tabelasının hemen altında ince şerit (karar başlığını ve seçenekleri örtmez, dokunuşu geçirir);
+  // panel/reklam açıkken üstte; ana ekranda alttaki eylem çubuğunun üstünde
+  const bug = !document.querySelector(".sheet, #adov") && document.querySelector("#bug .bug"),
+    bar = document.querySelector("#actbar");
+  if (bug) {
+    d.className = "toast strip";
+    d.style.top = `${Math.max(0, Math.round(bug.getBoundingClientRect().bottom)) + 4}px`;
+  } else d.className = document.querySelector(".sheet, #adov, #mview, .cta-bar") ? "toast top" : "toast";
+  if (!bug && bar && d.className === "toast" && getComputedStyle(bar).position === "fixed")
+    d.style.bottom = `${Math.round(bar.getBoundingClientRect().height) + 12}px`;
   d.setAttribute("role", "status");
   d.setAttribute("aria-live", "polite");
   d.setAttribute("aria-atomic", "true");

@@ -206,4 +206,4 @@ function midWindowSheet() {
   };
   return true;
 }
-Bus.offer("week:sheet", midWindowSheet, 11);
+Bus.offer("week:sheet", midWindowSheet, 11, "now");
