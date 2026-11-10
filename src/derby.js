@@ -220,19 +220,33 @@ export function dbyPressSheet() {
 Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), PRIO.derbyPress, "now"); // derbi haftasına bağlı
 
 /* ---- Derbi sonrası şehir hikâyesi (sonraki hafta) ---- */
-export function dbyCitySheet() {
+/** Şehir hikâyesinin etkisi derbiden sonraki ilk hafta başında bir kez uygulanır (p.fx); panel yalnız gösterimdir.
+    Sakin haftada (src/extras.js weeklyHooks: yalnız "now" paneller) gösterim sonraki haftaya kalır, etki kaybolmaz. */
+export function dbyCityApply() {
   if (SIM() || !S || !S.dby || !S.dby.pend) return false;
   const p = S.dby.pend;
-  if (p.wk >= wi()) return false;
-  S.dby.pend = null;
-  if (wi() - p.wk > 3) return false; // eski kayıt: hikâye bayatladı
-  const big = Math.abs(p.us - p.them) >= 10;
-  const k = p.win ? (big ? "wBig" : "w") : big ? "lBig" : "l";
+  if (p.wk >= wi() || p.fx) return false;
+  p.fx = 1;
   if (p.win) {
     S.rel.taraf += 2;
     S.followers = Math.round(S.followers * 1.01);
   } else S.rel.taraf -= 1;
   norm();
+  return true;
+}
+Bus.on("week:start", () => !(window.__TEST && window.__TEST.quietSheets) && dbyCityApply());
+export function dbyCitySheet() {
+  if (SIM() || !S || !S.dby || !S.dby.pend) return false;
+  const p = S.dby.pend;
+  if (p.wk >= wi()) return false;
+  dbyCityApply(); // hafta başında uygulanmadıysa (doğrudan çağrı, eski kayıt)
+  S.dby.pend = null;
+  if (wi() - p.wk > 3) {
+    save();
+    return false; // eski kayıt: hikâye bayatladı (etkisi hafta başında uygulandı)
+  }
+  const big = Math.abs(p.us - p.them) >= 10;
+  const k = p.win ? (big ? "wBig" : "w") : big ? "lBig" : "l";
   save();
   // yalnız bilgi veren panel: zorunlu panel yerine kısa bildirim (metin bildirim kutusunda kalır; aşama 3.3).
   // Haftanın panel hakkını kullanır (true): diğer haftalık panellerin zamanlaması değişmez.

@@ -4024,5 +4024,6 @@ export default {
   "s32.portrait": "Görünüm ve stil",
   "hp.pick": "Önce bir at seç",
   "hp.betGo": "Bahis yap {v} · {n}",
-  "s35.fine": "Federasyon para cezası"
+  "s35.fine": "Federasyon para cezası",
+  "s4.slots.loading": "Kayıtlar yükleniyor… Cihazdaki kariyerlerin birkaç saniye içinde burada görünür."
 };

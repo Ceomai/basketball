@@ -4025,5 +4025,6 @@ export default {
   "s32.portrait": "Look and style",
   "hp.pick": "Pick a horse first",
   "hp.betGo": "Place bet {v} · {n}",
-  "s35.fine": "Federation fine"
+  "s35.fine": "Federation fine",
+  "s4.slots.loading": "Loading saves… Your careers on this device will appear here in a few seconds."
 };

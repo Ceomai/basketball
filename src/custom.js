@@ -301,7 +301,8 @@ export function bindDecor(re) {
 
 /* ---- Tema ---- */
 const THEME_CSS = `
-html[data-theme=night]{--bg:#04050a;--bg2:#090b14;--card:#0e1120;--card2:#141a2e;--line:#1d2340;--line2:#2a3258;--gold:#a493ff;--hot:#7c5cff;--info:#6ea8ff}
+/* gece: birincil düğme yazısı siyah (mor zeminde ≥4,5:1; #140a04 ile 4,49 kalıyordu, renk körü/yüksek kontrast dahil) */
+html[data-theme=night]{--bg:#04050a;--bg2:#090b14;--card:#0e1120;--card2:#141a2e;--line:#1d2340;--line2:#2a3258;--gold:#a493ff;--hot:#7c5cff;--info:#6ea8ff;--on-hot:#000}
 html[data-theme=retro]{--bg:#140a24;--bg2:#1c0f33;--card:#241445;--card2:#2e1a58;--line:#3d2470;--line2:#5a34a0;--gold:#ffd23f;--hot:#ff3fa4;--good:#3fffb0;--info:#3fd0ff;--team:#ff3fa4;--team-ink:#140a24}
 html[data-theme=minimal]{--bg:#101010;--bg2:#131313;--card:#161616;--card2:#1c1c1c;--line:#242424;--line2:#303030;--gold:#e8e8e8;--hot:#fafafa;--info:#c4c4c4;--muted:#9a9a9a;--team:#e8e8e8;--team-ink:#111;--pri:#e8e8e8;--on-hot:#111}
 html[data-theme=minimal] .card{box-shadow:none}

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pota Kariyeri</title>
 <meta name="description" content="İstanbul'dan dünyanın zirvesine basketbol kariyer simülasyonu">
-<meta name="theme-color" content="#090d15">
+<meta name="theme-color" content="#0e141f">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" href="./icons/favicon-64.png">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -476,7 +476,7 @@ details.adv>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2
   .app:has(>.mainlay) .hud{flex-direction:row;align-items:center;gap:var(--sp-3)}
   .app:has(>.mainlay) .hud-id{flex:0 1 auto;min-width:0;max-width:46%}
   .app:has(>.mainlay) .hud-stats{flex:1;min-width:0}
-  .mainlay{display:grid;grid-template-columns:minmax(300px,calc((100dvh - var(--hud-h,64px) - 88px) / 1.675)) minmax(300px,420px);justify-content:center;align-items:start;column-gap:var(--sp-4)}
+  .mainlay{display:grid;grid-template-columns:minmax(min(300px,calc(45% - 8px)),calc((100dvh - var(--hud-h,64px) - 88px) / 1.675)) minmax(min(300px,calc(55% - 8px)),420px);justify-content:center;align-items:start;column-gap:var(--sp-4)}
   .wkcol{align-self:stretch;padding-bottom:0!important}
   .wkstick{position:sticky;top:calc(var(--hud-h,64px) + env(safe-area-inset-top,0px) + var(--sp-2));z-index:2;max-height:calc(100dvh - var(--hud-h,64px) - env(safe-area-inset-top,0px) - var(--sp-7));overflow:auto;overscroll-behavior:contain}
   /* çubuk hafta kartının altında; kart uzunsa yapışkan sütunun içinde altta sabit kalır */
@@ -501,6 +501,34 @@ details.adv>summary:focus-visible{outline:2px solid var(--warn);outline-offset:2
   .app:has(#mview .stage) #mview,.app:has(#mview .stage) #mview>*{scroll-margin-top:var(--sp-2)}
   .app:has(>.mainlay) .hud{padding-top:var(--sp-1h);padding-bottom:var(--sp-1h)}
   .app:has(>.mainlay) .hs .mt{display:none}
+}
+/* ESKİ WEBVIEW GERİ DÖNÜŞLERİ (minSdk 23; WebView güncellenmemiş cihaz)
+   color-mix() yok (Chrome<111): yarı saydam zeminler varsayılan temanın rgba değerleriyle */
+@supports not (color:color-mix(in srgb,red,blue)){
+  :root{--good-bg:rgba(54,211,142,.15);--good-soft:rgba(54,211,142,.12);--bad-bg:rgba(255,84,104,.15);--bad-soft:rgba(255,84,104,.12);
+    --warn-bg:rgba(255,197,77,.15);--warn-soft:rgba(255,197,77,.12);--gold-bg:rgba(216,178,90,.15);--gold-soft:rgba(216,178,90,.12);--info-bg:rgba(88,166,255,.15)}
+  .tagx{border-color:rgba(216,178,90,.25)}
+  .ctip{background:rgba(255,197,77,.08)}
+  .qbtn.ok{background:rgba(54,211,142,.18)}
+  .venue.on{box-shadow:0 0 0 2px rgba(216,178,90,.35)}
+}
+/* clamp() yok (Chrome<79): çubuk doluluğu kırpmasız (taşan kısım .mt/.bar overflow:hidden ile gizli) */
+@supports not (width:clamp(1px,1px,1px)){.mt i,.bar i{transform:scaleX(calc(var(--w,100) / 100))}}
+/* :has() yok (Chrome<105): işlevsel kurallar sınıfla; sınıfları src/core.js hasFallback koyar (yalnız :has yoksa).
+   Ayrı kurallar: :has içeren seçici listesi eski tarayıcıda bütün kuralı geçersiz kılardı */
+.sheet-b.has-pri-end{scroll-padding-bottom:72px}
+.sheet-b.has-pri-end>:nth-last-child(2){margin-bottom:var(--sp-2)}
+@media (orientation:landscape) and (max-height:560px),(min-width:900px){
+  .app.has-mainlay,.app.has-mlay{max-width:1100px}
+  .app.has-mainlay .hud{flex-direction:row;align-items:center;gap:var(--sp-3)}
+  .app.has-mainlay .hud-id{flex:0 1 auto;min-width:0;max-width:46%}
+  .app.has-mainlay .hud-stats{flex:1;min-width:0}
+}
+@media (orientation:landscape) and (max-height:560px){
+  .app.has-stage .mtop{position:relative}
+  .app.has-stage #mview,.app.has-stage #mview>*{scroll-margin-top:var(--sp-2)}
+  .app.has-mainlay .hud{padding-top:var(--sp-1h);padding-bottom:var(--sp-1h)}
+  .app.has-mainlay .hs .mt{display:none}
 }
 /* küçük yardımcı sınıflar (şablonlardaki tekrar eden satır içi stillerin yerine; satır içi stil gibi önceliklidir) */
 .pt-3{padding-top:var(--sp-3)!important} .pt-4h{padding-top:var(--sp-4h)!important}

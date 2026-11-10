@@ -50,8 +50,9 @@ function unlockSheet() {
   if (window.__SIM) return false;
   // yalnız bilgi veren panel: zorunlu panel yerine kısa bildirim + ayrıntılar bildirim kutusunda (aşama 3.3).
   // Haftanın panel hakkını kullanır (true): diğer haftalık panellerin zamanlaması değişmez.
-  for (const k of fresh.slice().reverse()) late.inboxAdd(`${$t(TXT[k][0])}: ${$t(TXT[k][1])}`, "news");
-  toast(`${$t("unl.title")}: ${fresh.map(k => $t(TXT[k][0])).join(", ")}`);
+  // tek kayıt: özet bildirim kutuya düşmez, ayrıntılar tek haber kaydında (aynı bilgi iki kez okunmamış olmasın)
+  late.inboxAdd(`${$t("unl.title")}: ${fresh.map(k => `${$t(TXT[k][0])}: ${$t(TXT[k][1])}`).join(" · ")}`, "news");
+  toast(`${$t("unl.title")}: ${fresh.map(k => $t(TXT[k][0])).join(", ")}`, { noInbox: true });
   return true;
 }
 Bus.offer("week:sheet", unlockSheet, PRIO.unlock);

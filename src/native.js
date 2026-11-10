@@ -23,7 +23,11 @@ export const isNative = Capacitor.isNativePlatform();
 export const AD_FREE_ID = "adfree"; // mağazada tanımlanacak tek seferlik ürün kimliği
 
 /* ---- Kayıt yansısı ---- */
-if (isNative) Bus.on("save:write", (k, data) => Preferences.set({ key: k, value: data }).catch(() => {}));
+if (isNative) {
+  Bus.on("save:write", (k, data) => Preferences.set({ key: k, value: data }).catch(() => {}));
+  // silinen yuva yerel depoda kalırsa açılışta storageRestore onu geri getirirdi (src/save.js deleteSlot)
+  Bus.on("save:delete", k => Preferences.remove({ key: k }).catch(() => {}));
+}
 /** Yerel depodaki kayıt yuvaları (storageRestore bunları da karşılaştırır). */
 export const nativeAll = isNative
   ? async () => {
@@ -70,7 +74,7 @@ export function nativeBack() {
   if (x) return (x.click(), "close"); // kapatılabilir panel
   if ($("#ovl").innerHTML.trim()) {
     // zorunlu seçim paneli: geri tuşu paneli kapatmaz, ama sessiz de kalmaz
-    late.toast($t("s32.locked"));
+    late.toast($t("s32.locked"), { noInbox: true });
     return "locked";
   }
   // emekli kariyer: harita (oynanabilir hafta) yerine kariyer sonu ekranına dön; oradaysa uygulamayı küçült

@@ -291,7 +291,7 @@ export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core
    Kapatılabilir panel: ✕, arka plana dokunma, Esc, tutamaçtan/başlıktan aşağı sürükleme ve (web/PWA'da) tarayıcı
    geri hareketi kapatır. Zorunlu panelde (noClose) bunların hiçbiri yok; geri hareketi "Bir seçim yap" der.
    Açılınca odak panele gelir, Tab panel içinde döner; kapanınca odak paneli açan öğeye (hâlâ ekrandaysa) döner. */
-const SH = { opener: null, guard: false, ghost: null };
+const SH = { opener: null, guard: false, ghost: null, skipPop: false };
 const FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
 export function sheet(title, sub, body, o = {}) {
   const wasOpen = !!$("#ovl .sheet");
@@ -371,6 +371,7 @@ export function closeSheet() {
   if (had) sheetExit();
   $("#ovl").innerHTML = "";
   Bus.emit("sheet:close");
+  if (had && SH.guard) setTimeout(unguard, 0);
   if (had && !$("#ovl .sheet")) {
     const op = SH.opener;
     SH.opener = null;
@@ -424,8 +425,14 @@ function sheetDrag(sh, close) {
 }
 /* Web/PWA geri hareketi: panel açılınca tek bir geçmiş kaydı eklenir; geri gelince uygulamadaki geri tuşu mantığı
    (src/native.js nativeBack) çalışır. Uygulamada (Capacitor) geri tuşunu native.js dinler: çift işlem olmasın diye eklenmez. */
+const onGuard = () => !!(history.state && history.state.potaSheet);
 function sheetGuard() {
-  if (SH.guard || late.isNative) return;
+  // geri alma sürerken: popstate gelince yeniden kurulur. Denge simülasyonunda geçmiş kaydı tutulmaz.
+  if (SH.guard || late.isNative || SH.skipPop || window.__SIM) return;
+  if (onGuard()) {
+    SH.guard = true; // zaten panel kaydındayız (üst üste kayıt birikmesin)
+    return;
+  }
   try {
     history.pushState({ potaSheet: 1 }, "");
     SH.guard = true;
@@ -433,12 +440,38 @@ function sheetGuard() {
     /* geçmiş yok */
   }
 }
+/** Panel arayüzden (✕, arka plan, seçim) kapandıysa geçmiş kaydını geri al: yoksa ana ekranda ilk geri hareketi boşa
+    giderdi. Aynı anda yeni panel açıldıysa (kapat → aç) kayıt onda kalır. Gelen popstate yok sayılır (skipPop).
+    Yalnız panel kaydındayken (history.state.potaSheet) ve önceki geri alma bitmişken geri gidilir: sayfadan çıkılmaz. */
+function unguard() {
+  if (late.isNative || SH.skipPop || $("#ovl .sheet")) return;
+  SH.guard = false;
+  if (!onGuard()) return;
+  // popstate gelene kadar ikinci bir geri alma yapılmaz (iki geri sayfadan çıkarırdı; zamanlayıcıyla sıfırlanmaz:
+  // yoğun ana iş parçacığında popstate gecikebilir)
+  SH.skipPop = true;
+  try {
+    history.back();
+  } catch (e) {
+    SH.skipPop = false;
+  }
+}
 try {
   window.addEventListener("popstate", () => {
-    if (!SH.guard || late.isNative) return;
-    SH.guard = false;
+    if (late.isNative) return;
+    if (SH.skipPop) {
+      // arayüzden kapanışın geri alması: bu arada panel açıldı/kapandıysa kayıt duruma göre yeniden düzenlenir
+      SH.skipPop = false;
+      SH.guard = onGuard();
+      if ($("#ovl .sheet")) sheetGuard();
+      else if (SH.guard) unguard();
+      return;
+    }
+    if (!SH.guard) return;
+    SH.guard = onGuard(); // altta başka panel kaydı varsa panel kapanınca o da geri alınır (closeSheet → unguard)
     const r = late.nativeBack ? late.nativeBack() : "min";
-    if (r === "locked") sheetGuard(); // zorunlu panel açık kalır: geri hareketi tekrar yakalansın
+    // zorunlu panel ya da reklam ekranı açık kalır: geri hareketi tekrar yakalansın
+    if (r === "locked" || r === "ad") sheetGuard();
   });
   document.addEventListener("keydown", e => {
     const sh = $("#ovl .sheet");
@@ -598,7 +631,7 @@ export function renderCreate() {
       el.querySelectorAll("button").forEach(
         b =>
           (b.onclick = () => {
-            if (b.classList.contains("locked")) return toast(late.originLockText ? late.originLockText(b.dataset.v) : $t("s32.locked"));
+            if (b.classList.contains("locked")) return toast(late.originLockText ? late.originLockText(b.dataset.v) : $t("s32.locked"), { noInbox: true });
             keep();
             fn(b.dataset.v);
             if (inPlace) {
@@ -1013,6 +1046,32 @@ export function chapter(id, after) {
 
 /* ================= ANA EKRAN ================= */
 export const app = $("#app");
+/** :has() desteklemeyen eski WebView (Chrome<105): index.html'deki :has kurallarının işlevsel olanları "has-*"
+    sınıflarıyla (yapışkan alt düğme boşluğu, yatay düzen). Sınıflar DOM değişince (kare başına bir kez) güncellenir. */
+export function hasFallback() {
+  let no = true;
+  try {
+    no = !CSS.supports("selector(:has(a))");
+  } catch (e) {
+    /* CSS.supports yok: eski tarayıcı */
+  }
+  if (!no || typeof MutationObserver !== "function" || !app) return false;
+  let raf = 0;
+  const sync = () => {
+    raf = 0;
+    const shb = document.querySelector("#ovl .sheet-b"),
+      last = shb && shb.lastElementChild;
+    if (shb) shb.classList.toggle("has-pri-end", !!last && last.classList.contains("btn") && last.classList.contains("pri"));
+    const kids = [...app.children];
+    app.classList.toggle("has-mainlay", kids.some(c => c.classList.contains("mainlay")));
+    app.classList.toggle("has-mlay", kids.some(c => c.classList.contains("mlay")));
+    app.classList.toggle("has-stage", !!app.querySelector("#mview .stage"));
+  };
+  new MutationObserver(() => raf || (raf = requestAnimationFrame(sync))).observe(document.body, { childList: true, subtree: true });
+  sync();
+  return true;
+}
+hasFallback();
 export function hudHTML() {
   const rank = standings().findIndex(r => r.key === S.team.key) + 1;
   const rs = late.rated().slice(-3);

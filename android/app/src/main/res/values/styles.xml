@@ -15,7 +15,7 @@
         <item name="android:background">@null</item>
         <!-- Android 15+ kenardan kenara: sistem çubuklarının arkası koyu kalsın (beyaz şerit görünmesin) -->
         <item name="android:windowBackground">@color/pota_bg</item>
-        <item name="android:statusBarColor">@color/pota_bg</item>
+        <item name="android:statusBarColor">@color/pota_bar</item>
         <item name="android:navigationBarColor">@color/pota_bg</item>
         <!-- koyu tema sabit: sistem çubuğu simgeleri açık renk (API 27+; daha eskide yok sayılır) -->
         <item name="android:windowLightStatusBar">false</item>

@@ -165,11 +165,13 @@ export const toastMs = t => {
   const n = String(t).length;
   return n <= 50 ? 2600 : Math.min(7000, Math.max(4000, n * 55));
 };
-export function toast(t) {
+/** Kısa bildirim; metin bildirim kutusunda da kalır. o.noInbox: geçici uyarı ("Bir seçim yap", hata, kilit), kutuya
+    okunmamış kayıt olarak düşmez. */
+export function toast(t, o) {
   if (SIM()) return;
   TOAST_LOG.push(String(t));
   if (TOAST_LOG.length > 60) TOAST_LOG.splice(0, 20);
-  if (typeof late.inboxAdd === "function") late.inboxAdd(t, "toast"); // bildirim kutusu (src/inbox.js)
+  if (!(o && o.noInbox) && typeof late.inboxAdd === "function") late.inboxAdd(t, "toast"); // bildirim kutusu (src/inbox.js)
   if (typeof late.sfx === "function") late.sfx("notify");
   // ardışık bildirim: önceki 150 ms'de çekilir (duyurusu kapanır; sorgularda yenisi önce gelir), yenisi 180 ms'de gelir
   const reduced = typeof late.motionReduced === "function" && late.motionReduced();

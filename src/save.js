@@ -105,8 +105,21 @@ if (typeof document !== "undefined") {
   });
   window.addEventListener("pagehide", flushSave);
 }
-// önceki ana kayıt yedeğe ayrıştırılmadan kopyalanır; yalnız tam yazılmış görünen (yarım kalmamış) kopya alınır
+/* Önceki ana kayıt yedeğe yalnız sağlamsa kopyalanır (bozuk ana kayıt sağlam -bak'ı ezmesin). Bu oturumda bizim
+   yazdığımız kopya (LAST_WRITTEN, aynı dize) ayrıştırılmadan güvenilir; başka kaynaktan gelen (ilk kayıt, geri yükleme,
+   dışarıdan değişmiş) kopya bir kez ayrıştırılıp validSave ile denetlenir. */
+const LAST_WRITTEN = {};
 const looksWhole = raw => raw.charCodeAt(0) === 123 && raw.charCodeAt(raw.length - 1) === 125; // "{" … "}"
+export function prevIsSound(k, raw) {
+  if (!raw || !looksWhole(raw)) return false;
+  if (LAST_WRITTEN[k] === raw) return true;
+  try {
+    const o = JSON.parse(raw);
+    return validSave(o && o.v ? o.S : o);
+  } catch (e) {
+    return false;
+  }
+}
 export function save() {
   clearTimeout(saveTimer);
   saveTimer = 0;
@@ -124,8 +137,9 @@ export function save() {
   askPersist();
   const write = () => {
     const prev = localStorage.getItem(k);
-    if (prev && looksWhole(prev)) localStorage.setItem(k + "-bak", prev);
+    if (prevIsSound(k, prev)) localStorage.setItem(k + "-bak", prev);
     localStorage.setItem(k, data);
+    LAST_WRITTEN[k] = data;
     delete SAVE_MEM[k];
   };
   try {
@@ -176,14 +190,25 @@ export function loadSlot(i) {
   } catch (e) {}
   return corrupt ? { S: null, from: "corrupt" } : null;
 }
+/** Yuvayı her kopyasından sil: tarayıcı hafızası, IndexedDB ve (uygulamada) yerel depo ("save:delete" → native.js).
+    Silinecek yuvanın bekleyen yazımı atılır (silinen kayıt ikinci kopyalara geri yazılmasın); diğer yuvalarınki yazılır. */
 export function deleteSlot(i) {
-  flushSave();
-  delete SAVE_MEM[slotKey(i)];
+  const k = slotKey(i);
+  if (saveTimer && S && S.saveSlot !== i) save();
+  else {
+    clearTimeout(saveTimer);
+    saveTimer = 0;
+  }
+  delete mirrorPending[k];
+  flushMirror();
+  delete SAVE_MEM[k];
+  delete LAST_WRITTEN[k];
   try {
-    localStorage.removeItem(slotKey(i));
-    localStorage.removeItem(slotKey(i) + "-bak");
+    localStorage.removeItem(k);
+    localStorage.removeItem(k + "-bak");
   } catch (e) {}
-  idbDel(slotKey(i));
+  idbDel(k);
+  Bus.emit("save:delete", k);
 }
 export function migrateLegacy() {
   try {
@@ -270,6 +295,27 @@ export const parseSave = raw => {
     return null;
   }
 };
+/** Yerel depo (uygulamada Preferences) okuması açılışta zaman aşımına uğradıysa arka planda sürer (pending);
+    yuva ekranı bu sırada, tarayıcı hafızasında hiç kayıt yoksa "Kayıtlar yükleniyor" gösterir. */
+export const RESTORE = { pending: false };
+export const NATIVE_WAIT = 4000;
+/** Geç gelen yerel depo kopyası: yalnız eksik yuvalar geri yüklenir, mevcut (bu arada açılmış/başlatılmış) yuva ezilmez */
+export function restoreLateNative(nat) {
+  let n = 0;
+  for (let i = 1; i <= SLOT_N; i++) {
+    const k = slotKey(i);
+    const o = parseSave(nat && nat[k]);
+    if (!o || SAVE_MEM[k] || (S && S.saveSlot === i)) continue;
+    try {
+      if (localStorage.getItem(k)) continue;
+      const raw = typeof nat[k] === "string" ? nat[k] : JSON.stringify(nat[k]);
+      localStorage.setItem(k, raw);
+      idbPut(k, raw);
+      n++;
+    } catch (e) {}
+  }
+  return n;
+}
 export async function storageRestore() {
   // Üç kaynak: tarayıcı hafızası, IndexedDB ve (uygulamada) yerel depo. Her yuva için en yeni geçerli kayıt kazanır.
   let all = {};
@@ -277,10 +323,23 @@ export async function storageRestore() {
     await Promise.race([idbOpen(), new Promise(r => setTimeout(r, 1500))]);
     all = await idbAll();
   }
-  // yerel depo yanıt vermezse açılış takılmasın: 1,5 sn sonra onsuz devam
-  const nat = late.nativeAll
-    ? await Promise.race([late.nativeAll().catch(() => ({})), new Promise(r => setTimeout(() => r({}), 1500))])
-    : {};
+  // yerel depo yanıt vermezse açılış takılmasın: NATIVE_WAIT sonra onsuz devam, okuma arka planda sürer
+  let nat = {};
+  if (late.nativeAll) {
+    const rd = late.nativeAll().catch(() => ({}));
+    const r = await Promise.race([rd, new Promise(res => setTimeout(() => res(null), NATIVE_WAIT))]);
+    if (r) nat = r;
+    else {
+      RESTORE.pending = true;
+      rd.then(v => {
+        RESTORE.pending = false;
+        const m = restoreLateNative(v);
+        if (m) toast($t("save.4", { n: m }));
+        // yuva ekranı açıksa (panel yokken) yeniden çiz: yüklenen kariyerler görünsün
+        if (!S && $("#help0") && !$("#ovl").innerHTML.trim()) renderSlots();
+      });
+    }
+  }
   let n = 0;
   for (let i = 1; i <= SLOT_N; i++) {
     const k = slotKey(i);
@@ -501,6 +560,7 @@ export function renderSlots() {
   app.innerHTML = `<div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("app.tagline")}</div><h1>${$t("app.name")}</h1></div><div class="row gap-1h">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${$t("btn.guide")}</button></div></div>
    ${storageOK ? "" : `<div class="say bad">${$t("slots.storageOff")}</div>`}
    <div class="eyebrow">${$t("slots.header", { n: SLOT_N })}</div>
+   ${RESTORE.pending && !rows.some(([, r]) => r) ? `<div class="say" id="slot-loading" role="status">${$t("s4.slots.loading")}</div>` : ""}
    ${slotRowsHTML(rows)}
    <div class="card"><div class="eyebrow">${$t("slots.codeTitle")}</div><p class="small muted">${$t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line-ctl);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${$t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${$t("slots.paste")}</button><button class="btn sm" id="impb">${$t("slots.loadCode")}</button></div><label class="btn sm ta-c">${$t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
    ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${$t("slots.tip")}</div><p class="small">${$t("slots.tipInstall")}</p></div>`}`;

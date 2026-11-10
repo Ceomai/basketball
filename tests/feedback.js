@@ -2828,7 +2828,8 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
     };
   });
   assert(m.w <= 390 && m.bell && m.loc && m.hav, "ana ekran: " + JSON.stringify(m));
-  // kalıcı
+  // kalıcı (aşama 4: kapanan panelin geçmiş kaydı geri alınırken yeniden yükleme onu kesmesin; src/core.js unguard)
+  await p.waitForTimeout(150);
   await p.reload();
   await p.waitForTimeout(500);
   const k = await p.evaluate(() => document.documentElement.className);
@@ -4703,8 +4704,243 @@ test("yayın 3.3: oyun arayüzü — yapışkan eylem çubuğu, yapışkan tabel
       to: !!document.querySelector(".mtop #mto #to-btn")
     };
   });
-  const ok = Object.entries(out).every(([k, v]) => (k === "unl" ? v.shown && !v.sheet && v.added >= 2 && v.onlyNow : k === "ctl" ? v.mode && v.hit && v.to : v === true));
+  const ok = Object.entries(out).every(([k, v]) => (k === "unl" ? v.shown && !v.sheet && v.added === 1 && v.onlyNow : k === "ctl" ? v.mode && v.hit && v.to : v === true));
   assert(ok, JSON.stringify(out));
+  return p;
+});
+
+/* ---- yayın 4: bağımsız inceleme düzeltmeleri ---- */
+test("yayın 4: yatay küçük telefonda ana ekran yatay taşmaz, birincil düğmeler görünür", async () => {
+  const p = await page();
+  await career(p);
+  const out = {};
+  for (const [w, h] of [[568, 320], [640, 360], [844, 390], [1024, 768]]) {
+    await p.setViewportSize({ width: w, height: h });
+    await p.evaluate(() => window.Game.renderMain());
+    await p.waitForTimeout(150);
+    out[`${w}x${h}`] = await p.evaluate(() => {
+      const inX = s => {
+        const e = document.querySelector(s);
+        if (!e) return false;
+        const r = e.getBoundingClientRect();
+        return r.left >= 0 && r.right <= innerWidth + 0.5 && r.width > 0;
+      };
+      const lay = document.querySelector(".mainlay").getBoundingClientRect();
+      return document.documentElement.scrollWidth === innerWidth && inX(".mapcol") && inX("#gostad") && inX("#quickw") && lay.right <= innerWidth;
+    });
+  }
+  assert(Object.values(out).every(Boolean), JSON.stringify(out));
+  return p;
+});
+
+test("yayın 4: silinen yuva her kopyadan silinir; bekleyen yazımı geri yazılmaz, diğer yuvanınki yazılır", async () => {
+  const p = await page();
+  await career(p);
+  await p.waitForTimeout(1700); // ilk ikinci kopya (IndexedDB) yazılsın
+  const r = await p.evaluate(async () => {
+    const G = window.Game,
+      S = G.S,
+      w = [],
+      d = [];
+    G.Bus.on("save:write", k => w.push(k));
+    G.Bus.on("save:delete", k => d.push(k));
+    S.money = 111;
+    G.save(); // pota-slot-1 bekleyen ayna
+    S.saveSlot = 2;
+    G.save(); // pota-slot-2 bekleyen ayna
+    G.renderSlots();
+    G.deleteSlot(1);
+    await new Promise(res => setTimeout(res, 150));
+    const idb = await G.idbAll();
+    await G.storageRestore();
+    return {
+      w,
+      d,
+      ls: localStorage.getItem("pota-slot-1"),
+      bak: localStorage.getItem("pota-slot-1-bak"),
+      idb1: "pota-slot-1" in idb,
+      idb2: "pota-slot-2" in idb,
+      back: localStorage.getItem("pota-slot-1")
+    };
+  });
+  assert(!r.w.includes("pota-slot-1") && r.w.includes("pota-slot-2") && r.d.join() === "pota-slot-1", "ayna: " + JSON.stringify(r));
+  assert(r.ls === null && r.bak === null && !r.idb1 && r.idb2 && r.back === null, "kopyalar: " + JSON.stringify(r));
+  return p;
+});
+
+test("yayın 4: yerel depo geç gelince yalnız eksik yuvalar yüklenir; beklerken yuva ekranında 'Kayıtlar yükleniyor'", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game;
+    G.save();
+    const raw = localStorage.getItem("pota-slot-1");
+    const with$ = m => {
+      const o = JSON.parse(raw);
+      o.S.money = m;
+      o.ts = Date.now() + m;
+      return JSON.stringify(o);
+    };
+    G.renderSlots();
+    G.deleteSlot(1);
+    G.RESTORE.pending = true;
+    G.renderSlots();
+    const loading = !!document.querySelector("#slot-loading");
+    localStorage.setItem("pota-slot-3", with$(5));
+    const n = G.restoreLateNative({ "pota-slot-2": with$(7), "pota-slot-3": with$(9), "pota-slot-4": "{bozuk" });
+    G.RESTORE.pending = false;
+    G.renderSlots();
+    const money = i => JSON.parse(localStorage.getItem(`pota-slot-${i}`) || "null")?.S.money;
+    return { loading, n, m2: money(2), m3: money(3), m4: money(4), after: !!document.querySelector("#slot-loading"), go: !!document.querySelector("[data-go='2']") };
+  });
+  assert(r.loading && r.n === 1 && r.m2 === 7 && r.m3 === 5 && r.m4 === undefined && !r.after && r.go, JSON.stringify(r));
+  return p;
+});
+
+test("yayın 4: sakin haftada derbi şehir etkisi kaybolmaz, sezon hedefleri gelir", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    window.__TEST.quietSheets = 0;
+    S.goals = S.goals || { season: S.season, list: [], shown: false, result: null };
+    S.goals.shown = true;
+    S.dby = S.dby || { w: 0, l: 0 };
+    S.rel.taraf = 50;
+    S.followers = 10000;
+    S.dby.pend = { win: true, n: "Rakip", us: 90, them: 70, wk: G.weekNo(20) - 1 };
+    S.evRecent = 1; // maç sonrası olay: yalnız "now" paneller
+    G.weeklyHooks();
+    const fx = { taraf: S.rel.taraf, f: S.followers, pend: !!S.dby.pend };
+    G.closeSheet();
+    // bayat kayıt (3 haftadan eski, etkisi uygulanmamış): gösterilmez ama etki uygulanır
+    S.rel.taraf = 50;
+    S.dby.pend = { win: false, n: "Rakip", us: 60, them: 80, wk: G.weekNo(20) - 5 };
+    const stale = G.dbyCitySheet();
+    const st = { stale, taraf: S.rel.taraf, pend: S.dby.pend };
+    // sezon hedefleri sakin haftada da çıkar
+    S.week = 3;
+    S.goals.shown = false;
+    S.evRecent = 1;
+    G.weeklyHooks();
+    const goals = !!document.querySelector("#gl-ok");
+    window.__TEST.quietSheets = 1;
+    return { fx, st, goals };
+  });
+  assert(r.fx.taraf === 52 && r.fx.f === 10100, "derbi etkisi: " + JSON.stringify(r));
+  assert(r.st.stale === false && r.st.taraf === 49 && r.st.pend === null, "bayat: " + JSON.stringify(r));
+  assert(r.goals, "hedefler: " + JSON.stringify(r));
+  return p;
+});
+
+test("yayın 4: web geri — ✕ ile kapanan panel geçmiş kaydı bırakmaz; reklam açıkken geri koruması sürer", async () => {
+  const p = await page();
+  await career(p);
+  await toMain(p);
+  const h0 = await p.evaluate(() => history.length);
+  const rec = [];
+  for (let i = 0; i < 3; i++) {
+    await p.evaluate(() => window.Game.settingsSheet());
+    await p.waitForTimeout(80);
+    await p.click("#shx");
+    await p.waitForTimeout(250);
+    rec.push(await p.evaluate(() => [history.length, history.state && history.state.potaSheet]));
+  }
+  assert(rec.every(([n, st]) => n <= h0 + 1 && !st), "geçmiş: " + JSON.stringify({ h0, rec }));
+  // kapat → hemen aç: kayıt yeni panelde kalır, geri hareketi onu kapatır
+  await p.evaluate(() => {
+    const G = window.Game;
+    G.settingsSheet();
+    G.closeSheet();
+    G.settingsSheet();
+  });
+  await p.waitForTimeout(250);
+  const kept = await p.evaluate(() => !!(history.state && history.state.potaSheet) && !!document.querySelector("#ovl .sheet"));
+  // reklam ekranı açıkken geri: panel açık kalır, koruma yeniden kurulur
+  await p.evaluate(() => {
+    const d = document.createElement("div");
+    d.id = "adov";
+    document.body.appendChild(d);
+  });
+  await p.goBack();
+  await p.waitForTimeout(250);
+  const ad = await p.evaluate(() => ({ sheet: !!document.querySelector("#ovl .sheet"), guard: !!(history.state && history.state.potaSheet) }));
+  await p.evaluate(() => document.querySelector("#adov").remove());
+  await p.goBack();
+  await p.waitForTimeout(250);
+  const closed = await p.evaluate(() => !document.querySelector("#ovl .sheet") && !!window.Game.S);
+  assert(kept && ad.sheet && ad.guard && closed, JSON.stringify({ kept, ad, closed }));
+  return p;
+});
+
+test("yayın 4: geçici uyarılar bildirim kutusuna düşmez; yedek yalnız sağlam önceki kayıttan alınır", async () => {
+  const p = await page();
+  await career(p);
+  const r = await p.evaluate(() => {
+    const G = window.Game,
+      S = G.S;
+    G.renderMain();
+    const u0 = G.inboxUnread();
+    G.sheet("t", "s", "<p>x</p>", { noClose: true });
+    const back = G.nativeBack();
+    const toastShown = !!document.querySelector(".toast");
+    const u1 = G.inboxUnread();
+    G.closeSheet();
+    G.toast("kalıcı bildirim");
+    const u2 = G.inboxUnread();
+    // yedek: yapısı bozuk ana kayıt sağlam yedeği ezmez; başka kaynaktan gelen sağlam kayıt yedeğe alınır
+    const k = "pota-slot-1",
+      money = key => JSON.parse(localStorage.getItem(key)).S.money;
+    S.money = 111;
+    G.save();
+    S.money = 222;
+    G.save();
+    const b1 = money(k + "-bak");
+    localStorage.setItem(k, '{"v":9,"S":{"x":1}}');
+    S.money = 333;
+    G.save();
+    const b2 = money(k + "-bak");
+    const o = JSON.parse(localStorage.getItem(k));
+    o.S.money = 444;
+    localStorage.setItem(k, JSON.stringify(o));
+    S.money = 555;
+    G.save();
+    const b3 = money(k + "-bak");
+    return { back, toastShown, u0, u1, u2, b1, b2, b3 };
+  });
+  assert(r.back === "locked" && r.toastShown && r.u1 === r.u0 && r.u2 === r.u0 + 1, "uyarı: " + JSON.stringify(r));
+  assert(r.b1 === 111 && r.b2 === 111 && r.b3 === 444, "yedek: " + JSON.stringify(r));
+  return p;
+});
+
+test("yayın 4: gece teması + renk körü/yüksek kontrast birincil düğme kontrastı ≥4,5", async () => {
+  const p = await page();
+  await career(p);
+  await toMain(p);
+  const r = await p.evaluate(async () => {
+    const rgb = c => c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+    const lum = a => {
+      const f = v => ((v /= 255) <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+      return 0.2126 * f(a[0]) + 0.7152 * f(a[1]) + 0.0722 * f(a[2]);
+    };
+    const out = {};
+    const h = document.documentElement;
+    for (const m of ["", "cb", "hc"]) {
+      h.dataset.theme = "night";
+      h.classList.remove("cb", "hc");
+      if (m) h.classList.add(m);
+      await new Promise(res => setTimeout(res, 450)); // renk geçişi bitsin
+      const cs = getComputedStyle(document.querySelector("#gostad"));
+      const a = lum(rgb(cs.backgroundColor)),
+        b = lum(rgb(cs.color));
+      out[m || "-"] = +((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)).toFixed(3);
+    }
+    delete h.dataset.theme;
+    h.classList.remove("cb", "hc");
+    return out;
+  });
+  assert(Object.values(r).every(v => v >= 4.5), JSON.stringify(r));
   return p;
 });
 

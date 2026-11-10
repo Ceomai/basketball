@@ -98,7 +98,8 @@ function goalsSheet() {
   $("#gl-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", goalsSheet, PRIO.goals);
+// "now": ilk 5 hafta sınırlı; sakin haftada (maç sonrası olay çıkan hafta) da sorulur, yoksa hiç çıkmayabilirdi
+Bus.offer("week:sheet", goalsSheet, PRIO.goals, "now");
 
 /** Sezon sonu değerlendirmesi (seasonEnd içinden, teklifler oluşmadan önce) */
 export function evalGoals(playoff) {

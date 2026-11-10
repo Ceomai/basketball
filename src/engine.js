@@ -101,7 +101,7 @@ export function matchFail(e) {
     closeSheet();
     if (!S) return late.renderSlots();
     late.renderMain();
-    late.toast($t("s32.match.err"));
+    late.toast($t("s32.match.err"), { noInbox: true });
   } catch (e2) {
     console.error(e2);
     late.renderSlots();

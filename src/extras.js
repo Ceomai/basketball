@@ -415,8 +415,9 @@ export function weeklyHooks() {
   save(); // hafta başı işleyicilerinin değişiklikleri (ücretler, gelirler, ilişkiler) yeniden açılışta kaybolmasın
   // haftada en fazla bir panel; sağlayıcılar öncelik sırasıyla sorulur. Arka arkaya en fazla 2 zorunlu panel (aşama 3.3):
   // maç sonrası olay çıktıysa (sonuç + olay = 2) yalnız zamana bağlı, ertelenirse kaçacak paneller ("now": senaryo, gala,
-  // kamp, yeni forma, sezon ortası, ara transfer, derbi öncesi basın) gelir; hedefler, açılış, özellik, hikâye vb.
-  // koşulları sürdüğü için sonraki haftalarda gelir
+  // kamp, yeni forma, sezon hedefleri, sezon ortası, ara transfer, derbi öncesi basın) gelir; açılış, özellik, hikâye vb.
+  // koşulları sürdüğü için sonraki haftalarda gelir. Etkisi olan bilgi panelleri (derbi şehir hikâyesi) etkiyi
+  // panelden bağımsız uygular (src/derby.js dbyCityApply)
   const quiet = S.evRecent;
   S.evRecent = 0;
   Bus.first("week:sheet", quiet ? o => o.tag === "now" : 999);

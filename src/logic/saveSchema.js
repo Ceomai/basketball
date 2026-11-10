@@ -1,7 +1,7 @@
 /* ================= KAYIT ŞEMASI (DOM'suz) =================
    Kayıt sürüm geçişleri (MIGRATIONS), metin temizliği ve eksik alan onarımı. src/save.js bunları oyunun
    bağımlılıklarıyla (brandSave, createState, MY_LISE) çağırır; birim testleri eski kayıt örnekleriyle
-   (tests/fixtures/old-*.json) doğrudan çağırır (tests/unit/saveSchema.test.mjs). */
+   (tests/fixtures/old-*.json) doğrudan çağırır (tests/unit/logic.test.mjs). */
 /* ---- Kayıt şeması sürümleri ----
    Oyun durumunun yapısı değiştiğinde SAVE_V bir artırılır ve MIGRATIONS'a o sürüme taşıyan adım eklenir.
    Eski bir kayıt açılırken eksik adımlar sırayla uygulanır; her adım tek bir sürüm atlatır.
