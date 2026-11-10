@@ -198,7 +198,6 @@ export default {
   "coach.23": "Bu sistemde en çok {best} önemli. Uyum; koçun güvenini, süreni ve maç notunu etkiler.",
   "coach.24": "· uyum",
   "core.1": "Turnuva",
-  "core.2": "Final Four",
   "core.3": "Playoff",
   "core.4": "Normal sezon",
   "core.5": "{tour} · Yarı final",

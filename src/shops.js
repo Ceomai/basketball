@@ -644,7 +644,7 @@ export function locAvm(I, store = "sneaker") {
   const shown = STORES.filter(s => s.id !== "yatirim" || !late.focusOff("borsa")); // odak modu: yatırım (src/focus.js)
   if (!shown.some(s => s.id === store)) store = "sneaker";
   const S0 = STORES.find(s => s.id === store);
-  const b = sheet(
+  sheet(
     I.n,
     $t("shops.2", {
       n: S0.n,
@@ -1108,7 +1108,7 @@ export function venueCard(id, title, sub, kind, on) {
 export function locEglence(I, tab = "arcade") {
   Bus.emit("place:open", "eglence");
   S.rec = Object.assign({ arcade: 0, reflex: 0, hockey: 0, rhythm: 0, bowling: 0 }, S.rec);
-  const b = sheet(I.n, $t("shops.9"), `<div class="venues" id="vn"></div><div id="egc" class="stack"></div>`);
+  sheet(I.n, $t("shops.9"), `<div class="venues" id="vn"></div><div id="egc" class="stack"></div>`);
   const vn = $("#vn");
   vn.appendChild(
     venueCard(

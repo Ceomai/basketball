@@ -49,7 +49,6 @@ export function conditionsHTML(us) {
   const ft = f >= 15 ? `<span class="pill ${f >= 50 ? "l" : ""}">${$t("cond.tired", { v: f })}</span>` : "";
   return dz || ft ? `<div class="row" style="gap:var(--sp-1h);flex-wrap:wrap">${dz}${ft}</div>` : "";
 }
-export const conditionsHint = () => (M.dz === "zone" ? $t("cond.zoneHint") : $t("cond.manHint"));
 
 export function pickSpecial(us, clutch, diff, dn) {
   const situ = late.situSpecial(us, clutch, diff, dn);

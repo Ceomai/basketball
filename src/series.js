@@ -15,11 +15,14 @@ import { S, news, norm, renderMain, teamByKey } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
+import { SHOT_FIN, SHOT_MID, SHOT_PASS, SHOT_THREE } from "./logic/shots.js";
+import { seriesAdapt, seriesCount } from "./logic/career.js";
 
-const THREE = ["pull", "catch", "wing", "corner", "top3", "pp_flare"],
-  TWO = ["step", "pop", "mid", "float", "pp_self", "pp_hook"],
-  FIN = ["drive", "break", "lay", "post", "dunk", "putback", "fb_finish", "pp_curl", "pp_drop", "pp_back"],
-  PASS = ["pnr", "kick", "lob", "fb_pass", "duo", "set", "pp_roll", "pp_perim", "pp_out"];
+// temel kümeler + hızlı hücum, ikili/oyun kur ve pozisyon oyunu (pp_*) anahtarları
+const THREE = [...SHOT_THREE, "pp_flare"],
+  TWO = [...SHOT_MID, "pp_self", "pp_hook"],
+  FIN = [...SHOT_FIN, "fb_finish", "pp_curl", "pp_drop", "pp_back"],
+  PASS = [...SHOT_PASS, "fb_pass", "duo", "set", "pp_roll", "pp_perim", "pp_out"];
 /** Karar anahtarının türü (rakip uyarlaması için) */
 export const serCat = k =>
   THREE.includes(k) ? "three" : TWO.includes(k) ? "mid" : FIN.includes(k) ? "fin" : PASS.includes(k) ? "pass" : null;
@@ -85,16 +88,10 @@ export function serStep(win) {
   if (!s) return "done";
   if (s.w >= s.need || s.l >= s.need) return "done";
   s.g.push({ win: !!win, us: (M && M.us) || 0, them: (M && M.them) || 0, home: homeAt(s, s.w + s.l) });
-  if (win) s.w++;
-  else s.l++;
-  s.mom = win ? 1 : -1;
+  const done = seriesCount(s, win); // sayım: src/logic/career.js
   if (win && s.need > 1) S.moral += 4; // momentum
-  if (!win) {
-    const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
-    s.adapt = top && top[1] >= 2 ? top[0] : null;
-  } else s.adapt = null;
+  s.adapt = seriesAdapt(tally, win);
   tally = {};
-  const done = s.w >= s.need || s.l >= s.need;
   if (s.need > 1) {
     const opp = teamByKey(s.opp);
     news(

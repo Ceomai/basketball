@@ -11,7 +11,7 @@
    4) Football Manager tarzı maç raporu: isabetler (saha içi, üçlük, serbest atış), çeyrek skorları, skor akışı
       grafiği, katkılar. Maç sırasında canlı isabet satırı. */
 import { t as $t } from "./i18n/index.js";
-import { $, esc, pick, statName } from "./data.js";
+import { $, choiceButtons, esc, pick, pickChoice, statName } from "./data.js";
 import { mgRebound, mgShoot, setMgCtx } from "./games.js";
 import { S, eff } from "./core.js";
 import { M } from "./match.js";
@@ -19,13 +19,13 @@ import { courtShoe } from "./custom.js";
 import { hex6, inkOn } from "./theme.js";
 import { late } from "./late.js";
 import { motionPlay, motionReduced, prefersReduce } from "./motion.js";
+import { SHOT_FIN, SHOT_MID, SHOT_PASS, SHOT_THREE } from "./logic/shots.js";
 
 // Yatay tam saha (28 × 15 m): biz sağdaki potaya, rakip soldakine hücum eder.
 const W = 360,
   H = 196,
   HR = { x: 336, y: 98 }, // sağ pota (bizim hücum)
   HL = { x: 24, y: 98 }; // sol pota (rakibin hücumu)
-const HOOP = HR;
 // hücum dizilişi (sağa hücum koordinatları): PG tepe, SG üst kanat, SF alt kanat, PF dirsek, C alçak post
 const SLOT = { PG: [252, 98], SG: [284, 34], SF: [284, 162], PF: [292, 70], C: [318, 128] };
 const ZONE_XY = { corner: [334, 20], wing: [278, 40], top: [254, 98], mid: [286, 126], paint: [316, 98], post: [318, 128] };
@@ -227,13 +227,12 @@ export function courtPlay(r, on, dur) {
   later(t0, step);
   later(t0 + t1, shot);
 }
-export const courtTick = (ourBall, on) => courtPlay({ us: ourBall, scored: false }, on, 0);
 
 /* ---- Karar anı senaryosu ---- */
-const THREE = ["pull", "catch", "wing", "corner", "top3"],
-  TWO = ["step", "pop", "mid", "float"],
-  FIN = ["drive", "break", "lay", "post", "dunk", "putback"],
-  PASSK = ["pnr", "kick", "lob"];
+const THREE = SHOT_THREE,
+  TWO = SHOT_MID,
+  FIN = SHOT_FIN,
+  PASSK = SHOT_PASS;
 const ZONE_BY_POS = {
   PG: ["top", "top", "wing", "mid"],
   SG: ["wing", "corner", "top", "mid"],
@@ -368,13 +367,10 @@ export function courtShot(good) {
 
 /* ---- Kaçan şut: ribaund mücadelesi ve ikinci şans (kendin oynarken) ---- */
 export const isShotKey = k => THREE.includes(k) || TWO.includes(k) || FIN.includes(k);
-const choose = (el, head, h2, opts) =>
-  new Promise(res => {
-    el.innerHTML = `<div class="card sit"><div class="eyebrow">${head}</div><h2>${h2}</h2><div class="choices">${opts
-      .map(([k, t, d]) => `<button class="choice" data-rb="${k}"><span class="ct">${t}</span><span class="cd">${d}</span></button>`)
-      .join("")}</div></div>`;
-    [...el.querySelectorAll("[data-rb]")].forEach(b => (b.onclick = () => res(b.dataset.rb)));
-  });
+const choose = (el, head, h2, opts) => {
+  el.innerHTML = `<div class="card sit"><div class="eyebrow">${head}</div><h2>${h2}</h2><div class="choices">${choiceButtons(opts, "rb")}</div></div>`;
+  return pickChoice(el, "rb");
+};
 /** {txt, good} ya da null (top uzağa düştü, ribaund şansı yok) */
 export async function reboundPhase(el, sur) {
   if (!M) return null;

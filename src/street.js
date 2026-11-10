@@ -21,7 +21,8 @@ import {
   tx,
   useSlot,
   fullName,
-  seasonLabel
+  seasonLabel,
+  weekKey
 } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
@@ -29,7 +30,7 @@ import { arenaFor } from "./places.js";
 import { mgDribble, mgShoot } from "./games.js";
 
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 const st = () => (S.street = S.street || { rep: 0, wins: 0, played: 0, kids: 0, wk: "" });
 export function locSokak(I) {
   const s = st(),

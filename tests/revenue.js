@@ -1,43 +1,17 @@
 // Gelir katmanı testleri: uzaktan ayar, A/B, analitik, yeni ödüllü yerleşimler, kırılma anı geçiş reklamı.
 // Önce: npm run build && npm run build:single. Çalıştır: node tests/revenue.js
 const { chromium } = require("playwright");
-const fs = require("fs"),
-  path = require("path"),
-  http = require("http");
+const lib = require("./lib.js");
+const { assert } = lib;
+const path = require("path");
 const ROOT = path.resolve(__dirname, ".."),
   SINGLE = "file://" + path.join(ROOT, "dist-single", "index.html");
 const T = [];
 const test = (name, fn) => T.push({ name, fn });
-const assert = (c, m) => {
-  if (!c) throw new Error(m);
-};
 let browser, server, BASE;
-function serveDist() {
-  const dist = path.join(ROOT, "dist");
-  const types = {
-    ".html": "text/html",
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".png": "image/png"
-  };
-  return new Promise(res => {
-    server = http
-      .createServer((req, rsp) => {
-        let f = path.join(dist, decodeURIComponent(req.url.split("?")[0]));
-        if (f.endsWith("/")) f += "index.html";
-        if (!f.startsWith(dist) || !fs.existsSync(f)) {
-          rsp.writeHead(404);
-          return rsp.end();
-        }
-        rsp.writeHead(200, { "Content-Type": types[path.extname(f)] || "application/octet-stream" });
-        fs.createReadStream(f).pipe(rsp);
-      })
-      .listen(0, () => {
-        BASE = `http://localhost:${server.address().port}/`;
-        res();
-      });
-  });
+// dist/ sunucusu: tests/lib.js
+async function serveDist() {
+  ({ server, base: BASE } = await lib.serveDist());
 }
 async function page(url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });

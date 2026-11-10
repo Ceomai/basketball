@@ -23,7 +23,8 @@ import {
   roleAt,
   statName,
   tdOf,
-  toast
+  toast,
+  PRIO
 } from "./data.js";
 import { leaguePool } from "./clubs.js";
 import { portrait } from "./art.js";
@@ -45,13 +46,15 @@ import {
   sheet,
   standings,
   teamByKey,
-  tx
+  tx,
+  weekNo
 } from "./core.js";
 import { save } from "./save.js";
 import { drillGain } from "./places.js";
 import { LK, M, PEN, potential } from "./match.js";
 import { playMatch } from "./engine.js";
 import { chemAvg, dominance, rated, seasonAvg, seasonAvgOf, simWithoutMe } from "./systems.js";
+import { SHOT_MID, SHOT_THREE } from "./logic/shots.js";
 /* ================= HİKÂYE VE KARİYER DÖNGÜSÜ =================
    - Otomatik maç ve "Haftayı hızlı geç"
    - Kalıcı rakip oyuncu ve derbiler
@@ -68,8 +71,8 @@ export function autoChoose(opts) {
   return opts.map(o => ({ k: o.k, v: (o.k === "safe" ? o.e - 10 : o.e) + rnd(0, 10) })).sort((a, b) => b.v - a.v)[0].k;
 }
 export function autoResolve(k, sur) {
-  const P3 = ["pull", "catch", "wing", "corner", "top3"],
-    P2 = ["step", "pop", "mid", "float"];
+  const P3 = SHOT_THREE,
+    P2 = SHOT_MID;
   if (P3.includes(k) || P2.includes(k)) {
     const th = P3.includes(k),
       ok = coin(autoP(eff("sut") - (PEN[k] || 0) - (th ? 6 : 0)) * (th ? 0.85 : 1));
@@ -593,7 +596,7 @@ export function roleReview() {
 // Basın toplantısı: derbi ve finalde her zaman; diğer önemli maçlarda en az 4 hafta arayla (sezonda ~3-4 kez)
 export function pressDue(win) {
   if (M.rating == null || (M.auto && !isDerby(M.opp))) return false;
-  const now = S.season * 20 + S.week,
+  const now = weekNo(20),
     due = isDerby(M.opp) || S.phase === "final" || !S.pressLast || now - S.pressLast >= 4;
   if (!due) return false;
   let go = false;
@@ -704,7 +707,7 @@ function pressApply(k, P, win) {
     S.followers = Math.round(S.followers * 1.05);
     S.rel.koc -= 4;
     S.rel.takim -= 2;
-    if (!win && !derby) S.money -= Math.round((S.wage || 10) * 0.5);
+    if (!win && !derby) tx($t("s35.fine"), -Math.round((S.wage || 10) * 0.5), { kind: "plain" });
     out = !win && !derby ? $t("story.71") : $t("story.72");
     S.press = { tone: "bold", quote: quote.length > 60 ? quote.slice(0, 57) + "…" : quote };
   }
@@ -1495,8 +1498,8 @@ export const ARC_ONCE = {
 Bus.on("week:start", () => {
   if (S.buffs.injWk > 0) S.buffs.injWk--;
 });
-Bus.offer("week:sheet", roleReview, 20);
-Bus.offer("week:sheet", storyTick, 30);
+Bus.offer("week:sheet", roleReview, PRIO.roleReview);
+Bus.offer("week:sheet", storyTick, PRIO.storyTick);
 // Uzun sakatlık bitince dönüş hikâyesi
 Bus.on("injury:healed", inj => {
   if ((inj.total || 0) >= 3) S.arcQ.push("comeback");

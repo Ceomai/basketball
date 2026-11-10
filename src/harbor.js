@@ -12,13 +12,13 @@
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, esc, fmt, pick, rnd } from "./data.js";
 import { tok } from "./theme.js";
-import { S, app, closeSheet, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
+import { S, app, closeSheet, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
 const pm = () => PM[S.stage] || 1;
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 
 /* ---- Partner aşamaları ---- */
 export const pStage = () => (S && S.partner ? S.pstage || 0 : -1);

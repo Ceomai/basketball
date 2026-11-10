@@ -10,31 +10,21 @@
    Haftalık mizah köşesi (manşet), spikerin duruma özel esprileri, transfer gecesinde ailenin tepkileri.
    Haftalık panel: en fazla 3 haftada bir hikâye olayı (src/extras.js → week:sheet). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, esc, fmt, isPro, pick, ri, shuffle } from "./data.js";
-import { S, app, closeSheet, eff, fullName, news, norm, renderMain, resultView, sheet, tx } from "./core.js";
+import { $, Bus, choiceButtons, esc, fmt, isPro, pick, pickChoice, ri, shuffle, PRIO } from "./data.js";
+import { S, app, closeSheet, eff, fullName, news, norm, renderMain, resultView, sheet, tx, weekNo } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgDribble, mgShoot, mgTiming } from "./games.js";
 import { M } from "./match.js";
 import { late } from "./late.js";
 
-const wk = () => `${S.season}-${S.week}`;
-const widx = () => S.season * 40 + S.week;
+const widx = () => weekNo(40);
 const tl = () => (S.tales = S.tales || { last: -9, done: {}, sock: 0, pivot: 0, coffee: 0, trash: 0 });
 const nm = () => S.last;
 // seçim kartı (haftalık panel). İlk seçenek her zaman mini oyunsuz/güvenli olandır.
 function choose(title, sub, body, opts) {
-  return new Promise(res => {
-    sheet(
-      title,
-      sub,
-      `<p>${body}</p><div class="choices">${opts
-        .map(([k, t, d]) => `<button class="choice" data-tl="${k}"><span class="ct">${t}</span>${d ? `<span class="cd">${d}</span>` : ""}</button>`)
-        .join("")}</div>`,
-      { noClose: true }
-    );
-    $$("[data-tl]").forEach(b => (b.onclick = () => res(b.dataset.tl)));
-  });
+  sheet(title, sub, `<p>${body}</p><div class="choices">${choiceButtons(opts, "tl", false)}</div>`, { noClose: true });
+  return pickChoice(document, "tl");
 }
 // mini oyunu tam ekranda oynat, sonra sonuç kartı
 async function mini(title, run) {
@@ -481,7 +471,7 @@ function taleSheet() {
   });
   return true;
 }
-Bus.offer("week:sheet", taleSheet, 45);
+Bus.offer("week:sheet", taleSheet, PRIO.tale);
 
 /* ---------- 5 Devre arası maskot düellosu (engine.js quarterBreak) ---------- */
 export const mascotHTML = () =>

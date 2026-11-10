@@ -1,43 +1,18 @@
 // Oyuncu geri bildirimi turu: ondalıklı gelişim, ekonomi ve konfor, takım ilişkisi, kumarhane, stil, sponsor,
 // maç öncesi hazırlık, zorlu olaylar. Önce: npm run build:single. Çalıştır: node tests/feedback.js
 const { chromium } = require("playwright");
+const lib = require("./lib.js");
+const { assert, toMain } = lib;
 const fs = require("fs"),
-  path = require("path"),
-  http = require("http");
+  path = require("path");
 const ROOT = path.resolve(__dirname, ".."),
   SINGLE = "file://" + path.join(ROOT, "dist-single", "index.html");
 const T = [];
 const test = (name, fn) => T.push({ name, fn });
-const assert = (c, m) => {
-  if (!c) throw new Error(m);
-};
-let browser, server, BASE;
-function serveDist() {
-  const dist = path.join(ROOT, "dist");
-  const types = {
-    ".html": "text/html",
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".png": "image/png"
-  };
-  return new Promise(res => {
-    server = http
-      .createServer((req, rsp) => {
-        let f = path.join(dist, decodeURIComponent(req.url.split("?")[0]));
-        if (f.endsWith("/")) f += "index.html";
-        if (!f.startsWith(dist) || !fs.existsSync(f)) {
-          rsp.writeHead(404);
-          return rsp.end();
-        }
-        rsp.writeHead(200, { "Content-Type": types[path.extname(f)] || "application/octet-stream" });
-        fs.createReadStream(f).pipe(rsp);
-      })
-      .listen(0, () => {
-        BASE = `http://localhost:${server.address().port}/`;
-        res();
-      });
-  });
+let browser, server;
+// dist/ sunucusu: tests/lib.js
+async function serveDist() {
+  ({ server } = await lib.serveDist());
 }
 async function page(url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -3877,42 +3852,7 @@ test("uzun oyun: 20 hızlı hafta yeni sistemlerle hatasız", async () => {
       const b = document.querySelector("#qw-sim");
       if (b) b.click();
     });
-    for (let j = 0; j < 400; j++) {
-      const st = await p.evaluate(() => {
-        const $ = s => document.querySelector(s);
-        if ($("#gostad") && !$("#ovl").innerHTML.trim() && !$("#adov")) return "main";
-        const a = $("#adx");
-        if (a) return a.disabled ? "w" : (a.click(), "c");
-        const c = document.querySelector(
-          "[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig],#pk-no,#mt-stay,#hk-ok,#hk-a,#nt-sim,#nt-done,#mw-sim,#mw-ok,#jy-ok,[data-kn],[data-kd],#kd-ok,[data-an],[data-tl],[data-sl],#cp-ok,#wn-ok,#sc-ok,[data-amb-cap],[data-bd],#dby-ok,[data-dbp],[data-cu],[data-o]"
-        );
-        if (c) return (c.click(), "c");
-        for (const s of [
-          "#gl-ok",
-          "#unl-ok",
-          "#tr-ok",
-          "#chok",
-          "#nok",
-          "#ok",
-          "#nx",
-          "#qgo",
-          "#rok",
-          "#rb",
-          "#pok",
-          "#aok",
-          "#bn-later",
-          "#tr-skip",
-          "#ng-ok"
-        ]) {
-          const e = $(s);
-          if (e && !e.disabled) return (e.click(), "c");
-        }
-        return "w";
-      });
-      if (st === "main") break;
-      assert(j < 399, "hafta " + i + " takıldı");
-      await p.waitForTimeout(st === "w" ? 60 : 15);
-    }
+    assert((await toMain(p)) === "main", "hafta " + i + " takıldı"); // tek tıklayıcı listesi: tests/lib.js
   }
   return p;
 });

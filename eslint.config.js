@@ -10,7 +10,7 @@ const rules = {
   "no-self-assign": "error",
   "no-dupe-args": "error",
   "no-import-assign": "error",
-  "no-unused-vars": "off"
+  "no-unused-vars": ["warn", { args: "none", caughtErrors: "none" }]
 };
 module.exports = [
   { ignores: ["node_modules/**", "dist/**", "dist-single/**", "android/**", "ios/**"] },

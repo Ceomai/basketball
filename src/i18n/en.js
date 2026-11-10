@@ -43,7 +43,6 @@ export default {
   "slots.storageOff":
     "Browser storage is off (private tab or blocked site data). You can play, but progress is lost when the page closes. Copy your save code from inside the game to keep it.",
   "slots.header": "Career slots · up to {n}",
-  "slots.empty": "Slot {i} · empty",
   "slots.emptyDesc": "Start a new career.",
   "slots.corrupt": "Slot {i} · unreadable",
   "slots.corruptDesc": "The save is corrupted and no backup was found.",
@@ -200,8 +199,6 @@ export default {
   "cond.zone": "Opponent: zone defense",
   "cond.man": "Opponent: man-to-man",
   "cond.tired": "Fatigue {v}%",
-  "cond.zoneHint": "Zone defense packs the paint: outside shots and ball movement work better.",
-  "cond.manHint": "Man-to-man: one-on-one and inside play work better, outside shots are contested.",
   "cond.switch": "The opponent switched defenses:",
   "lc.goals": "Goals",
   "goal.title": "Season goals",
@@ -229,7 +226,6 @@ export default {
   "goal.noneDone": "No goals hit; the coach and agent aren't happy.",
   "goal.bonusTx": "Season goals bonus",
   "unl.title": "New unlocked",
-  "unl.sub": "More decisions open up as your career grows",
   "unl.program": "Season training program",
   "unl.programD": "Stadium → Training: focus on one attribute and it improves 30% faster.",
   "unl.sistem": "The coach's system",
@@ -579,7 +575,6 @@ export default {
   "life.comfortPlus": "+{v} comfort",
   "life.enWk": "weekly energy +{v}",
   "life.moWk": "weekly morale +{v}",
-  "life.comfortNow": "Comfort: {v}/100",
   "soc.touches": "Touches",
   "soc.trust": "Passing trust",
   "soc.trustD": "How willing your teammates are to pass to you: grows with team relationship and roster chemistry. High trust means more touches in games. Touches per game this season: {a}.",
@@ -1088,7 +1083,6 @@ export default {
   "hp.sub": "Horse racing",
   "hp.young": "You must be 18 to enter the racecourse.",
   "hp.note": "Bet unit {v}. Win: your horse must finish first. Top 3: lower odds, safer. Coming here lowers your coach relationship once a week.",
-  "hp.odds": "odds {v}",
   "hp.mine": "your horse",
   "hp.own": "Your horse {n}: {w} wins.",
   "hp.buyH": "Your own racehorse",
@@ -2170,9 +2164,6 @@ export default {
   "cl.toCalm": "The game is even; time to set the rhythm.",
   "cl.stop": "Stop the run",
   "cl.stopD": "Break their rhythm, regroup on defense.",
-  "cl.tempoD": "Push the pace, look for fast breaks.",
-  "cl.defD": "Tighten up on defense.",
-  "cl.ballD": "Give me the ball.",
   "cl.toFeed": "TIMEOUT",
   "cl.toFx.stop": "The opponent's run is over.",
   "cl.toFx.tempo": "The team speeds up.",
@@ -4033,5 +4024,6 @@ export default {
   "s32.g.play": "Gameplay",
   "s32.portrait": "Look and style",
   "hp.pick": "Pick a horse first",
-  "hp.betGo": "Place bet {v} · {n}"
+  "hp.betGo": "Place bet {v} · {n}",
+  "s35.fine": "Federation fine"
 };

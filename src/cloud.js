@@ -152,8 +152,12 @@ export async function syncAll() {
       rem = await pull(i),
       d = syncDecision(loc, rem);
     if (d === "upload") await push(i, loc.raw, loc.ts);
-    else if (d === "download") localStorage.setItem(`pota-slot-${i}`, rem.data);
-    else if (d === "ask" && (await askNewer(i, rem.ts))) localStorage.setItem(`pota-slot-${i}`, rem.data);
+    else if (d === "download" || (d === "ask" && (await askNewer(i, rem.ts))))
+      try {
+        localStorage.setItem(`pota-slot-${i}`, rem.data);
+      } catch (e) {
+        late.SAVE_MEM[`pota-slot-${i}`] = rem.data; // hafıza dolu: bu oturumda buluttaki kopyayla açılır (src/save.js)
+      }
   }
 }
 function askNewer(slot, ts) {

@@ -11,13 +11,13 @@
    6 Ayrıntılı zorluk (oluşturma ekranı "Özel"): sakatlık, para, maç zorluğu. Varsayılan (kapalı) davranışı değiştirmez.
    Denge simülasyonunda (window.__SIM) panel açılmaz ve maç gücüne dokunan etkiler çalışmaz. */
 import { t as $t } from "./i18n/index.js";
-import { $$, Bus, cOf, esc, fmt, isPro, pick, ri } from "./data.js";
-import { S, fixture, fullName, news, norm, resultView, sheet, standings, tx } from "./core.js";
+import { $$, Bus, cOf, esc, fmt, isPro, pick, ri, PRIO } from "./data.js";
+import { S, fixture, fullName, news, norm, resultView, sheet, standings, tx, weekNo } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
 const SIM = () => !!window.__SIM;
-const wi = () => S.season * 20 + S.week;
+const wi = () => weekNo(20);
 const sg = v => (v > 0 ? `+${v}` : `${v}`);
 const BD = () => {
   const b = (S.bonds = S.bonds || {});
@@ -121,7 +121,7 @@ export function bondsSpatSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsSpatSheet, 44);
+Bus.offer("week:sheet", bondsSpatSheet, PRIO.bondsSpat);
 
 Bus.on("week:start", () => {
   if (!S || !S.team || SIM() || S.week !== 1) return;
@@ -192,7 +192,7 @@ export function bondsMateSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsMateSheet, 43);
+Bus.offer("week:sheet", bondsMateSheet, PRIO.bondsMate);
 export function bondsByeSheet() {
   const b = BD();
   if (b.bye !== 1 || !S.rival) return false;
@@ -223,7 +223,7 @@ export function bondsByeSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsByeSheet, 30);
+Bus.offer("week:sheet", bondsByeSheet, PRIO.bondsBye);
 // senin emekliliğin: rakibin veda mesajı (haber + emeklilik ekranında kart)
 const myByeLine = () => {
   const h = S.h2h || { g: 0, w: 0 };
@@ -323,7 +323,7 @@ export function bondsMemSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsMemSheet, 46);
+Bus.offer("week:sheet", bondsMemSheet, PRIO.bondsMemory);
 
 /* ================= 3 AİLENİN BÜYÜMESİ ================= */
 const SIB_PATHS = ["school", "sport", "music"],
@@ -370,7 +370,7 @@ export function bondsSibSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsSibSheet, 41);
+Bus.offer("week:sheet", bondsSibSheet, PRIO.bondsSibling);
 Bus.on("week:start", () => {
   if (!S || SIM() || S.week !== 2) return;
   const s = S.bonds && S.bonds.sib;
@@ -453,7 +453,7 @@ export function bondsParentSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsParentSheet, 42);
+Bus.offer("week:sheet", bondsParentSheet, PRIO.bondsParent);
 
 /* ================= 4 KOÇ DEĞİŞİMİ ================= */
 /** Koç kovulur, yeni koç farklı bir oyun sistemiyle gelir */
@@ -542,7 +542,7 @@ export function bondsCoachSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && bondsCoachSheet(), 12);
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && bondsCoachSheet(), PRIO.bondsCoach);
 // "Uyum sağla": her antrenman yeni sisteme uyumu artırır (systemFit'e en fazla +4)
 Bus.on("train:done", () => {
   const cs = S && S.coachSys;
@@ -670,7 +670,7 @@ export function bondsAbroadSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", bondsAbroadSheet, 43);
+Bus.offer("week:sheet", bondsAbroadSheet, PRIO.bondsAbroad);
 
 /* ================= 6 AYRINTILI ZORLUK ================= */
 export const DIFF_OPTS = { inj: ["az", "normal", "cok"], money: ["bol", "normal", "kit"], match: ["kolay", "normal", "zor"] };

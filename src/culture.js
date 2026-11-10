@@ -13,8 +13,8 @@
    4) Şehir hayatı olayları: her bölge için 5 kısa olay (yemek, dil, taraftar, ulaşım, komşu); aynı mekanik
       etkiler, bölgeye özgü metin; bölgede tekrar etmez. Haftalık panel üzerinden (src/extras.js → week:sheet). */
 import { setTOverride, t as $t, tRaw } from "./i18n/index.js";
-import { $$, Bus, CITY_C, LEAGUES, cityTheme, esc, fmt, toast } from "./data.js";
-import { S, closeSheet, norm, renderMain, sheet, tx } from "./core.js";
+import { $$, Bus, CITY_C, LEAGUES, cityTheme, esc, fmt, toast, PRIO } from "./data.js";
+import { S, closeSheet, norm, renderMain, sheet, tx, weekNo } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -310,7 +310,7 @@ export function cuMapSVG(P, lit, d2) {
 }
 
 /* ---- durum ---- */
-const widx = () => S.season * 40 + S.week;
+const widx = () => weekNo(40);
 const cu = () => {
   if (!S.cu) S.cu = { at: S.city, seen: { [S.city]: 1, [S.home || "İstanbul"]: 1 }, ev: {}, last: -9 }; // memleket hiç "yeni" değildir
   S.cu.seen = S.cu.seen || {};
@@ -394,7 +394,7 @@ export function cuWelcomeSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", cuWelcomeSheet, 18);
+Bus.offer("week:sheet", cuWelcomeSheet, PRIO.cultureWelcome);
 
 /* ---- şehir hayatı olayları ---- */
 export const CU_ARCH = ["food", "lang", "fans", "ride", "home"];
@@ -457,4 +457,4 @@ function cuEventSheet() {
   if (!left.length) return false;
   return cuEvent(left[Math.floor(Math.random() * left.length)]);
 }
-Bus.offer("week:sheet", cuEventSheet, 48);
+Bus.offer("week:sheet", cuEventSheet, PRIO.cultureEvent);

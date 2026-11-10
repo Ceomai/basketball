@@ -7,7 +7,7 @@
    - Arayüz temaları: gece, retro arcade, minimal (başarımla ya da reklamsız paketle açılır).
    Açılabilir kozmetikler başarımlara bağlıdır (src/feats.js → cosOpen). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, esc, fmt, toast } from "./data.js";
+import { $, $$, Bus, esc, fmt, toast, PRIO } from "./data.js";
 import { icon } from "./art.js";
 import { S, closeSheet, norm, sheet, tx } from "./core.js";
 import { SETTINGS, saveSettings } from "./systems.js";
@@ -175,7 +175,7 @@ function newJersey() {
   $("#jy-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", newJersey, 4, "now");
+Bus.offer("week:sheet", newJersey, PRIO.newJersey, "now");
 
 /* ---- Kutlama ---- */
 // basit çöp adam pozları: [sol kol, sağ kol] uç noktaları (omuz 0,-14)

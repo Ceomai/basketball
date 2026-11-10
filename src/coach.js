@@ -5,8 +5,8 @@ import { t as $t } from "./i18n/index.js";
    Koç sistemi: her takımın bir oyun sistemi var (hızlı hücum, savunma, üçlük, post, paylaşım).
      Niteliklerinin sisteme uyumu süreni (koçun güveni), takımın gücünü ve maç notunu biraz etkiler.
      Uyum yeni bir kulüp seçerken de önemli bir bilgi. */
-import { $$, Bus, esc, hash, isPro, statName } from "./data.js";
-import { S } from "./core.js";
+import { $$, Bus, esc, hash, statName } from "./data.js";
+import { S, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -22,7 +22,7 @@ export const PROGRAMS = [
 export const program = () => (S && late.unlocked("program") && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
 /** Antrenman kazancı çarpanı */
 export function programMul(stat) {
-  const pg = S && S.programWk === `${S.season}-${S.week}` ? "denge" : program(); // yeni program gelecek hafta oturur
+  const pg = S && S.programWk === weekKey() ? "denge" : program(); // yeni program gelecek hafta oturur
   if (pg === "denge") return 1;
   if (pg === "toparlanma") return 0.8;
   return pg === stat ? 1.3 : 0.9;
@@ -39,7 +39,7 @@ export function bindProgram(re) {
   $$("[data-pg]").forEach(
     b =>
       (b.onclick = () => {
-        if (S.program !== b.dataset.pg) S.programWk = `${S.season}-${S.week}`;
+        if (S.program !== b.dataset.pg) S.programWk = weekKey();
         S.program = b.dataset.pg;
         save();
         re();

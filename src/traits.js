@@ -8,7 +8,7 @@
    İmza hareket: profesyonelde 150 kariyer sayısından sonra pozisyona göre üç hareketten biri seçilir.
    Maçta bir kez çıkar, başarı değeri +8; olursa tribün coşar, taraftar ve takipçi artar. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, isPro, statName } from "./data.js";
+import { $, $$, Bus, isPro, statName, PRIO } from "./data.js";
 import { S, closeSheet, eff, news, norm, sheet } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
@@ -142,7 +142,7 @@ function traitSheet() {
   $("#tr-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", traitSheet, 7);
+Bus.offer("week:sheet", traitSheet, PRIO.trait);
 function sigSheet() {
   if (!S || S.sig || !isPro(S.stage) || (S.career.pts || 0) < 150) return false;
   const list = BY_POS[S.pos] || BY_POS.SF;
@@ -173,7 +173,7 @@ function sigSheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", sigSheet, 8);
+Bus.offer("week:sheet", sigSheet, PRIO.signature);
 
 /** İstatistik ve kart için özellik rozetleri */
 export function traitsHTML() {

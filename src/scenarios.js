@@ -8,7 +8,7 @@
    - Ses: file sesi, ayakkabı gıcırtısı, tribün tezahüratı (seyirci heyecanı dolunca).
    - Salon: büyük maçlarda (derbi, zirve, final) sahaya ışık gösterisi. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, esc, pick } from "./data.js";
+import { $, $$, Bus, esc, pick, PRIO } from "./data.js";
 import { S, fullName, news, newSeasonLeague, norm, sheet, closeSheet } from "./core.js";
 import { WAGE } from "./logic/rules.js";
 import { M } from "./match.js";
@@ -100,7 +100,7 @@ function scenarioSheet() {
   $("#sc-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", scenarioSheet, 1, "now");
+Bus.offer("week:sheet", scenarioSheet, PRIO.scenario, "now");
 /** Oluşturma ekranında senaryonun ilerleyişi (Ev → Genel) */
 export function scenarioHTML() {
   const s = S && S.scn;

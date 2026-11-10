@@ -8,6 +8,7 @@
 
    A/B: her kurulum rastgele, anonim bir kimlik alır (kişisel veri değil). Deney kovası kimlik + deney adından
    türetilir, aynı cihazda hep aynı kalır. Analitik olaylarına kova bilgisi eklenir (src/analytics.js). */
+import { fnv1a } from "./logic/rng.js";
 export const RC_URL_NATIVE = "https://ceomai.github.io/basketball/remote-config.json";
 export const RC_DEFAULTS = {
   ads: {
@@ -61,12 +62,8 @@ export function installId() {
     return "000000000000";
   }
 }
-// FNV-1a: kimlik + deney adından kararlı kova
-function hash(s) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
-  return h;
-}
+// FNV-1a: kimlik + deney adından kararlı kova (src/logic/rng.js)
+const hash = fnv1a;
 export const VARIANTS = {}; // deney adı → kova ("A", "B", ...)
 /** Ham ayardan geçerli ayarı üret (varsayılanlar + ayar + bu cihazın deney kovaları) */
 export function rcBuild(raw) {

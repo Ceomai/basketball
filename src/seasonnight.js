@@ -12,7 +12,6 @@ let tab = "res";
 export function snReset() {
   tab = "res";
 }
-export const snTab = () => tab;
 
 function statsCard() {
   const h = S.hist && S.hist[S.hist.length - 1];

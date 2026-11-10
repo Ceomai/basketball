@@ -11,7 +11,7 @@
    - Lig merkezinde "Kupalar" sekmesi: Avrupa grubu puan durumu, kupa yolu, Süper Kupa. */
 import { t as $t } from "./i18n/index.js";
 import { $, Bus, EU_CC, esc, isPro, pick, rnd, shuffle } from "./data.js";
-import { S, crestSVG, fullName, lgName, news, norm, sheet, standings, teamByKey, tx } from "./core.js";
+import { S, crestSVG, fullName, news, norm, sheet, standings, teamByKey, tx } from "./core.js";
 import { save } from "./save.js";
 import { leaguePool } from "./clubs.js";
 import { late } from "./late.js";
@@ -158,8 +158,7 @@ function simGame(g, line) {
   apply(g, win, line || { us, them, pts: 0, ast: 0, reb: 0, r: 0, sim: true });
 }
 function apply(g, win, line) {
-  const C = S.comps,
-    opp = teamOf(g.opp);
+  const C = S.comps;
   g.done = true;
   if (!line.sim) {
     const k = S.career;

@@ -7,7 +7,7 @@
      hafta düğmeleri yerine "Maça hazırım" kartı çıkar. */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, TOAST_LOG, esc, fmt } from "./data.js";
-import { S, closeSheet, ovr, renderMain, sheet } from "./core.js";
+import { S, closeSheet, ovr, renderMain, sheet, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -42,7 +42,7 @@ export function bindPlanRow() {
 // otomatik öneri, kullanılmış dilimler için dolgu ile (panel her zaman 3 satır gösterir)
 const autoDraft = () => [...late.autoPlanPick(), "rest", "rest", "rest"].slice(0, 3);
 export function planSheet() {
-  const wk = `${S.season}-${S.week}`;
+  const wk = weekKey();
   if (late.autoPlanAlways() && S.planDraftW !== wk) S.planDraft = autoDraft(); // her hafta yeni öneri
   S.planDraftW = wk;
   const sel = (S.planDraft = S.planDraft || (S.lastPlan ? S.lastPlan.slice() : ["team", "family", "rest"]));

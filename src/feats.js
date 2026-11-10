@@ -6,7 +6,7 @@
    - Sayaçlar (basın, görev, kutlama...) kariyere özel: S.fx.
    - Denetim: maç sonu (o maçın anları), hafta başı, sezon sonu ve ilgili olaylarda. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, esc, fmt, isPro, toast } from "./data.js";
+import { $, $$, Bus, ORDER, esc, fmt, isPro, toast } from "./data.js";
 import { S } from "./core.js";
 import { M } from "./match.js";
 import { late } from "./late.js";
@@ -57,8 +57,7 @@ const FAM = [
   ["seas", () => S.season, [3, 5, 10, 15], [null, "minimal", null, null]]
 ];
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
-const STAGE_ORDER = ["lise", "uni", "t3", "t2", "t1", "euro", "nba"];
-const stageAt = st => STAGE_ORDER.indexOf(S.stage) >= STAGE_ORDER.indexOf(st) || (st === "uni" && !!S.uni);
+const stageAt = st => ORDER.indexOf(S.stage) >= ORDER.indexOf(st) || (st === "uni" && !!S.uni);
 const trophyType = ty => (C().trophies || []).some(t => t.type === ty);
 const seasonTrophies = () => {
   const p = late.seasonLabel ? late.seasonLabel() : "";

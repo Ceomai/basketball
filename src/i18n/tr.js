@@ -43,7 +43,6 @@ export default {
   "slots.storageOff":
     "Tarayıcı kaydı kapalı (gizli sekme ya da engellenmiş site verisi). Oynayabilirsin ama sayfa kapanınca ilerleme kaybolur. Oyun içinden kayıt kodunu kopyalayarak saklayabilirsin.",
   "slots.header": "Kariyer yuvaları · en fazla {n}",
-  "slots.empty": "Yuva {i} · boş",
   "slots.emptyDesc": "Yeni bir kariyer başlat.",
   "slots.corrupt": "Yuva {i} · okunamadı",
   "slots.corruptDesc": "Kayıt bozulmuş ve yedek bulunamadı.",
@@ -200,8 +199,6 @@ export default {
   "cond.zone": "Rakip: alan savunması",
   "cond.man": "Rakip: adam adama",
   "cond.tired": "Yorgunluk %{v}",
-  "cond.zoneHint": "Alan savunması boyalı alanı kapatır: dış şut ve top döndürme daha etkili.",
-  "cond.manHint": "Adam adama savunma: birebir ve içeri oyun daha etkili, dış şut zorlanır.",
   "cond.switch": "Rakip savunmasını değiştirdi:",
   "lc.goals": "Hedefler",
   "goal.title": "Sezon hedefleri",
@@ -229,7 +226,6 @@ export default {
   "goal.noneDone": "Hiçbir hedef tutmadı; koç ve menajer memnun değil.",
   "goal.bonusTx": "Sezon hedefleri primi",
   "unl.title": "Yeni açıldı",
-  "unl.sub": "Kariyerin ilerledikçe yeni kararlar senin",
   "unl.program": "Sezon antrenman programı",
   "unl.programD": "Stadyum → Antrenman: bir niteliğe odaklan, o nitelik %30 daha hızlı gelişsin.",
   "unl.sistem": "Koçun oyun sistemi",
@@ -578,7 +574,6 @@ export default {
   "life.comfortPlus": "+{v} konfor",
   "life.enWk": "haftalık enerji +{v}",
   "life.moWk": "haftalık moral +{v}",
-  "life.comfortNow": "Konfor: {v}/100",
   "soc.touches": "Topla buluşma",
   "soc.trust": "Pas güveni",
   "soc.trustD": "Takım arkadaşlarının sana pas verme isteği: takım ilişkisi ve kadro uyumuyla artar. Yüksekse maçta topla daha sık buluşursun. Bu sezon maç başına topla buluşma: {a}.",
@@ -1087,7 +1082,6 @@ export default {
   "hp.sub": "At yarışları",
   "hp.young": "Hipodroma 18 yaşından küçükler giremez.",
   "hp.note": "Bahis birimi {v}. Kazanan: atın birinci gelmeli. İlk 3: daha düşük oran, daha güvenli. Buraya gelmek koçla ilişkini haftada bir düşürür.",
-  "hp.odds": "oran {v}",
   "hp.mine": "senin atın",
   "hp.own": "Atın {n}: {w} galibiyet.",
   "hp.buyH": "Kendi yarış atın",
@@ -2169,9 +2163,6 @@ export default {
   "cl.toCalm": "Maç dengede, ritmi ayarlama vakti.",
   "cl.stop": "Seriyi kes",
   "cl.stopD": "Rakibin ritmini böl, savunmayı topla.",
-  "cl.tempoD": "Tempoyu artır, hızlı hücum ara.",
-  "cl.defD": "Savunmayı sıkılaştır.",
-  "cl.ballD": "Topu bana verin.",
   "cl.toFeed": "MOLA",
   "cl.toFx.stop": "Rakibin serisi kesildi.",
   "cl.toFx.tempo": "Takım hızlandı.",
@@ -4032,5 +4023,6 @@ export default {
   "s32.g.play": "Oynanış",
   "s32.portrait": "Görünüm ve stil",
   "hp.pick": "Önce bir at seç",
-  "hp.betGo": "Bahis yap {v} · {n}"
+  "hp.betGo": "Bahis yap {v} · {n}",
+  "s35.fine": "Federasyon para cezası"
 };

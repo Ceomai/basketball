@@ -8,7 +8,7 @@
    - Oyun kur: kilit anda kendi setini kur (perdeyi kim koyar, sen nereye koşarsın); sahada oklarla çizilir.
    Kendin oynarken gelen seçenekler (ikili kombinasyon, oyun kur) otomatik/simüle maçlarda yoktur (denge). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, esc, pick, ri } from "./data.js";
+import { $, $$, Bus, clamp, esc, ri } from "./data.js";
 import { S, eff, ovr } from "./core.js";
 import { M } from "./match.js";
 import { late } from "./late.js";

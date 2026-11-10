@@ -1,6 +1,6 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, Bus, EU_CC, LEAGUES, ORDER, STATS, cOf, esc, fmt, hash, isPro, pick, rnd, statName, toast } from "./data.js";
+import { $, $$, Bus, EU_CC, LEAGUES, STATS, cOf, esc, fmt, hash, isPro, pick, rnd, statName, toast, PRIO } from "./data.js";
 import { icon } from "./art.js";
 import {
   S,
@@ -17,9 +17,11 @@ import {
   setTeamVars,
   sheet,
   tabsHTML,
-  tx
+  tx,
+  weekNo
 } from "./core.js";
 import { save } from "./save.js";
+import { lcg } from "./logic/rng.js";
 import { openLoc } from "./places.js";
 import { M } from "./match.js";
 import { playMatch } from "./engine.js";
@@ -48,14 +50,8 @@ export const ARC_GAMES = {
   rhythm: { n: $t("shops.39"), lo: 20, hi: 58 },
   bowling: { n: $t("arcade.26"), lo: 9, hi: 27 }
 };
-export function seeded(seed) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
-export const weekId = () => S.season * 100 + S.week,
+export const seeded = lcg; // src/logic/rng.js
+export const weekId = () => weekNo(100),
   monthId = () => S.season * 100 + Math.ceil(S.week / 4);
 export function arcState() {
   S.arc = S.arc || { w: weekId(), m: monthId(), wb: {}, mb: {}, won: 0 };
@@ -126,8 +122,8 @@ export function arcResolve(period) {
   return out;
 }
 export function boardSheet(g = "arcade", period = "w") {
-  const b = arcBoard(g, period),
-    a = arcState();
+  const b = arcBoard(g, period);
+  arcState(); // durum nesnesi hazır olsun (S.arc)
   sheet(
     $t("extras.1"),
     `${S.city} · ${period === "w" ? $t("extras.2") : $t("extras.3")}`,
@@ -438,7 +434,7 @@ Bus.offer(
     else return false;
     return true;
   },
-  10,
+  PRIO.midSeason,
   "now"
 );
 

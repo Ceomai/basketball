@@ -6,7 +6,7 @@
    - aile hedefi: aile ilişkisi ve moral
    - hepsi tutarsa haftalık ücretin iki katı prim */
 import { t as $t } from "./i18n/index.js";
-import { $, Bus, clamp, esc, isPro } from "./data.js";
+import { $, Bus, clamp, esc, isPro, PRIO } from "./data.js";
 import { S, closeSheet, norm, sheet, standings, tx } from "./core.js";
 import { late } from "./late.js";
 
@@ -98,7 +98,7 @@ function goalsSheet() {
   $("#gl-ok").onclick = () => closeSheet();
   return true;
 }
-Bus.offer("week:sheet", goalsSheet, 5);
+Bus.offer("week:sheet", goalsSheet, PRIO.goals);
 
 /** Sezon sonu değerlendirmesi (seasonEnd içinden, teklifler oluşmadan önce) */
 export function evalGoals(playoff) {

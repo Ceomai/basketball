@@ -12,9 +12,9 @@
    - gec       Geç başlayan (3 kart): bütün nitelikler -3, 22 yaşına kadar antrenman kazancı %20 fazla
    Görünümler: altın bere rengi (Şöhretler Müzesi'ne giren bir kart), 6/9/32 numaraları (3 kart), 99 numara (NBA görmüş bir kart). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, ORDER, esc } from "./data.js";
+import { $$, Bus, ORDER, esc } from "./data.js";
 import { icon, portrait } from "./art.js";
-import { S, fullName, news, norm, sheet } from "./core.js";
+import { S, fullName, news, norm, sheet, tx } from "./core.js";
 import { late } from "./late.js";
 import { brandIsEuro, brandIsNba, brandText } from "./brand.js";
 
@@ -205,7 +205,7 @@ export function applyOrigin(o) {
     st.guc += 2;
     st.sav += 2;
     S.rel.aile += 10;
-    S.money = Math.max(10, S.money - 10);
+    tx($t("org.anadolu"), Math.max(10, S.money - 10) - S.money, { kind: "plain" });
   } else if (o === "sokak") {
     st.sut += 3;
     st.hiz += 3;
@@ -222,7 +222,6 @@ export function applyOrigin(o) {
 }
 export const originPotential = () => (S && S.origin === "gurbet" ? 1 : 0);
 export const originTrainMul = () => (S && S.origin === "gec" && S.age <= 22 ? 1.2 : 1);
-export const originName = o => $t((O_KEYS[o] || O_KEYS.istanbul)[0]);
 
 /* ---- Koleksiyon paneli ---- */
 const STAGE_N = () => [

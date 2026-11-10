@@ -7,7 +7,7 @@
       aran bozuksa ya da iyi oynayıp rolün küçük kalıyorsa ligdeki başka kulüpler seni ister. Aynı ligde transfer:
       lig tablosu ve fikstür bozulmaz (yeni takımın eski takımınla oynar). Kalırsan koç ve takım bunu takdir eder. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, cOf, clamp, esc, fmt, isPro, pick, ri, rnd, roleAt } from "./data.js";
+import { $, $$, Bus, cOf, clamp, esc, fmt, isPro, pick, ri, rnd, roleAt, PRIO } from "./data.js";
 import {
   S,
   ROLE_N,
@@ -206,4 +206,4 @@ function midWindowSheet() {
   };
   return true;
 }
-Bus.offer("week:sheet", midWindowSheet, 11, "now");
+Bus.offer("week:sheet", midWindowSheet, PRIO.midWindow, "now");

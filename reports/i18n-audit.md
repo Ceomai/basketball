@@ -1,6 +1,6 @@
 # i18n denetimi
 
-Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 TR / 119 EN olay · 895 olay metin alanı.
+Araç: `node tools/i18n-audit.js` · 5937 TR / 5937 EN arayüz anahtarı · 119 TR / 119 EN olay · 895 olay metin alanı.
 
 | Kategori | Bulgu |
 |---|---|
@@ -13,10 +13,10 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 | TR'de var, EN'de yok (elle yazılmış sözlük) | 0 |
 | EN'de var, TR'de yok | 0 |
 | Kodda kullanılan ama tanımsız anahtar | 0 |
-| Tanımlı ama koddan statik olarak erişilmeyen anahtar (dinamik kullanım olabilir; silinmedi) | 5 |
+| Tanımlı ama koddan statik olarak erişilmeyen anahtar (dinamik kullanım olabilir; silinmedi) | 0 |
 | Olası yazım hatası | 34 |
-| 390 px'te taşabilecek uzun düğme/başlık (>26 karakter) | 91 |
-| Hassas içerik adayı (bağlama bakılmalı) | 89 |
+| 390 px'te taşabilecek uzun düğme/başlık (>26 karakter) | 94 |
+| Hassas içerik adayı (bağlama bakılmalı) | 97 |
 | Gerçek kişi adı adayı | 0 |
 
 ## Yer tutucudan sonra Türkçe ek (ünlü uyumu bozulur) (0)
@@ -111,13 +111,8 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 ## Kodda kullanılan ama tanımsız anahtar (0)
 
 
-## Tanımlı ama koddan statik olarak erişilmeyen anahtar (dinamik kullanım olabilir; silinmedi) (5)
+## Tanımlı ama koddan statik olarak erişilmeyen anahtar (dinamik kullanım olabilir; silinmedi) (0)
 
-- `core.2` Final Four
-- `hp.odds` oran {v}
-- `cl.tempoD` Tempoyu artır, hızlı hücum ara.
-- `cl.defD` Savunmayı sıkılaştır.
-- `cl.ballD` Topu bana verin.
 
 ## Olası yazım hatası (34)
 
@@ -156,7 +151,7 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 - `cu.fr.e.lang.a` « !» → noktalama öncesi boşluk — Çık, yeniden "Bonjour !" diye gir
 - `ev:kr-yeni-genc.choices[1].out` «sende» → bağlaç de/da ayrı — İlk birebirde onu iki kez bloke ettin. Çocuk iyi ama daha sıra sende.
 
-## 390 px'te taşabilecek uzun düğme/başlık (>26 karakter) (91)
+## 390 px'te taşabilecek uzun düğme/başlık (>26 karakter) (94)
 
 - `settings.notifyDesc` EN 81 krk: In the app, at most one reminder a day: mission rewards, new missions, next game.
 - `test.not` EN 94 krk: Your name, phone number, location or device ID. Nothing leaves your device unless you send it.
@@ -201,6 +196,7 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 - `bd.rc.none` EN 39 krk: No duels yet: derbies are tallied here.
 - `amb.p.okulD` EN 107 krk: Build a covered, floodlit court in a public school's yard; let the kids take the first shot at the opening.
 - `dby.none` EN 31 krk: You haven't played a derby yet.
+- `s32.ad.none` EN 72 krk: No ad available right now, or you are offline. Try again a little later.
 - `ev:gurbetci.title` EN 27 krk: Turkish flags in the stands
 - `ev:kr-genc-rakip.title` EN 27 krk: Voice of the new generation
 - `ev:kr-erken-donus.title` EN 27 krk: Pressure to come back early
@@ -249,8 +245,10 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 - `bd.par.noMoney` TR 47 krk: Bütçen yetmedi ama her gün aradın; bu da yetti.
 - `bd.rc.none` TR 42 krk: Henüz düello yok: derbiler burada sayılır.
 - `amb.p.okulD` TR 103 krk: Bir devlet okulunun bahçesine kapalı zeminli, ışıklı bir saha yaptır; açılışta ilk şutu çocuklar atsın.
+- `s32.save.act` TR 31 krk: Kayıt kodunu kopyala / yedek al
+- `s32.ad.none` TR 62 krk: Şu an reklam yok ya da çevrimdışısın. Biraz sonra tekrar dene.
 
-## Hassas içerik adayı (bağlama bakılmalı) (89)
+## Hassas içerik adayı (bağlama bakılmalı) (97)
 
 - `casino.5` TR kumar «Bahis» — Bahis
 - `casino.14` TR kumar «Rulet» — Rulet
@@ -287,6 +285,8 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 - `cu.use.e.food.b` TR şiddet «bıçak» — {m} seni bir dolarlık dilim pizzacısına götürdü. "Çatal bıçak istersen bir daha seninle konuşmam."
 - `cu.usm.e.food.a` TR şiddet «bıçakla» — Çatal bıçakla saldır
 - `cu.c.ulm.1` TR dini «kilise» — Dünyanın en yüksek kilise kulesi
+- `rel.privacy` TR siyasi «politikası» — Gizlilik politikası
+- `hp.betGo` TR kumar «Bahis» — Bahis yap {v} · {n}
 - `casino.5` EN kumar «Bet» — Bet
 - `casino.14` EN kumar «Roulette» — Roulette
 - `casino.15` EN kumar «Blackjack» — Blackjack
@@ -340,6 +340,12 @@ Araç: `node tools/i18n-audit.js` · 5893 TR / 5893 EN arayüz anahtarı · 119 
 - `cu.usm.e.food.a` EN şiddet «knife» — Attack it with knife and fork
 - `cu.c.ulm.1` EN dini «church» — The world's tallest church spire
 - `cu.c.kla.3` EN uyuşturucu «Smoked» — Smoked fish
+- `rel.wipeWarn` EN kumar «slots» — All career slots, the legends collection, settings and on-device stats will be permanently deleted. To keep a copy first, use Settings → Back up.
+- `cloud.delWarn` EN kumar «slots» — All your cloud save slots and your cloud account will be deleted. Saves on this device stay.
+- `s32.rec.body` EN kumar «slots» — This career's save looks damaged or incomplete, and its backup copy could not be opened either. Your other slots are not affected. If you have a save code you can load it in the "Save code" section, or delete this slot and start a new career.
+- `s32.rec.ok` EN kumar «slots» — Back to slots
+- `s32.slots.free` EN kumar «slots» — Empty slots: {v}
+- `hp.betGo` EN kumar «bet» — Place bet {v} · {n}
 - `ev:mucize-icecek.choices[1].out` EN uyuşturucu «smoke» — The man vanished in a cloud of smoke.
 
 ## Gerçek kişi adı adayı (0)

@@ -1,12 +1,12 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, shuffle, statName, wait } from "./data.js";
+import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, statName, wait } from "./data.js";
 import { portrait } from "./art.js";
 import { buzz } from "./games.js";
 import { hapticSuccess, hapticTap, scrollMode } from "./motion.js";
 import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey } from "./core.js";
 import { arenaFor } from "./places.js";
-import { LK, M, PEN, addFeed, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
+import { LK, M, PEN, addFeed, feedRowHTML, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
 /* ================= MAÇ MOTORU (NSS tarzı akış) =================
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
@@ -107,6 +107,21 @@ export function matchFail(e) {
     late.renderSlots();
   }
 }
+// ana iş parçacığına kısa nefes: zamanlayıcı kısıtlamasına (arka plan sekmesi) takılmayan yollar
+export const yieldMain = () =>
+  globalThis.scheduler && typeof globalThis.scheduler.yield === "function"
+    ? globalThis.scheduler.yield()
+    : new Promise(r => {
+        const c = new MessageChannel();
+        c.port1.onmessage = () => r();
+        c.port2.postMessage(0);
+      });
+// simüle maçın sonunda: akış ve tabela tek seferde (M.silent kalkar; durum satırı ardından statLine ile)
+function drawSilent() {
+  M.silent = false;
+  const f = $("#feed");
+  if (f) f.innerHTML = M.feed.map(feedRowHTML).join("");
+}
 export async function playMatch(ctx) {
   if ((!ctx || ctx.comp === "lig") && late.offResume(true)) return; // yarıda kalmış sezon geçişi: önce teklifler
   closeSheet();
@@ -153,7 +168,8 @@ export async function playMatch(ctx) {
     goods: 0,
     tac: null,
     qs: [],
-    speed: S.matchSpeed || 1
+    speed: S.matchSpeed || 1,
+    silent: AUTO // simüle maç: akış/tabela/durum satırı DOM'a yazılmaz, sonda bir kez çizilir
   });
   const mates = ctx.comp === "nat" ? rosterNames(S.team.city, 4) : late.mateNames(4),
     foes = rosterNames(opp.city, 5),
@@ -193,6 +209,7 @@ export async function playMatch(ctx) {
   renderSpd();
   let on = false;
   const statLine = () => {
+    if (M.silent) return;
     $("#mstat").innerHTML =
       `<div class="row between nowrap"><span class="pill ${on ? "w" : ""}">${on ? $t("engine.17") : $t("engine.18")}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> ${$t(
         "engine.19",
@@ -209,7 +226,7 @@ export async function playMatch(ctx) {
   // oyuna giriş/çıkış bandı: tabelanın altında üste biner (düzeni kaydırmaz); yenisi gelince eskisi hemen çekilir
   const banner = (t, good) => {
     late.sfx("whistle");
-    const host = $(".mtop") || $("#mview");
+    const host = !M.silent && ($(".mtop") || $("#mview"));
     if (!host) return;
     host.querySelectorAll(".say.ban").forEach(x => x.remove());
     const d = document.createElement("div");
@@ -254,7 +271,8 @@ export async function playMatch(ctx) {
     // uygulama arka plandayken maç saati durur (telefon kilitlenince akış kaçmaz); öne gelince kaldığı yerden sürer
     while (!AUTO && document.hidden && $("#mstat")) await wait(300);
   };
-  let end = TOTAL;
+  let end = TOTAL,
+    nPoss = 0;
   while (t < end) {
     // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
     if (!AUTO && !$("#mstat")) return;
@@ -401,8 +419,11 @@ export async function playMatch(ctx) {
       }
     }
     await pace();
+    // simüle maç tek uzun görev olmasın: ~10 hücumda bir ana iş parçacığına nefes (sonucu/RNG sırasını değiştirmez)
+    if (AUTO && ++nPoss % 10 === 0) await yieldMain();
   }
   M.qs.push([M.us, M.them]);
+  if (M.silent) drawSilent();
   late.matchdayEnd();
   statLine(); // seyirci çubuğu ve canlı satır son haliyle
   M.q = 4;

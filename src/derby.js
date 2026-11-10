@@ -8,15 +8,15 @@
    - Derbi istatistiği (galibiyet/mağlubiyet, rakip başına, son derbi, en farklı galibiyet): Ev → Kariyer.
    Denge simülasyonunda (window.__SIM) panel açılmaz. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, esc, hash, toast } from "./data.js";
-import { S, closeSheet, fixture, fullName, news, norm, renderMain, sheet, teamByKey } from "./core.js";
+import { $, $$, Bus, esc, hash, toast, PRIO } from "./data.js";
+import { S, closeSheet, fixture, fullName, news, norm, renderMain, sheet, teamByKey, weekNo } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 import { brandRealOf } from "./brand.js";
 
 const SIM = () => !!window.__SIM;
-const wi = () => S.season * 20 + S.week;
+const wi = () => weekNo(20);
 // bilinen derbiler (her iki yönde)
 const PAIRS = [
   ["Fenerbahçe", "Anadolu Efes"],
@@ -217,7 +217,7 @@ export function dbyPressSheet() {
   return true;
 }
 // window.__TEST.quietSheets: testlerde rastgele haftaya düşen paneller kapalı (doğrudan çağrı çalışır)
-Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), 19, "now"); // derbi haftasına bağlı
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyPressSheet(), PRIO.derbyPress, "now"); // derbi haftasına bağlı
 
 /* ---- Derbi sonrası şehir hikâyesi (sonraki hafta) ---- */
 export function dbyCitySheet() {
@@ -241,7 +241,7 @@ export function dbyCitySheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyCitySheet(), 18);
+Bus.offer("week:sheet", () => !(window.__TEST && window.__TEST.quietSheets) && dbyCitySheet(), PRIO.derbyCity);
 
 /* ---- Ev → Kariyer: derbi istatistiği ---- */
 export function dbyCareerHTML() {

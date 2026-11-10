@@ -12,8 +12,8 @@
       küçük nitelik katkısı (ör. ayakkabı hız +2) aynen kalır.
    5) Yatırımlar kendini yaklaşık 55 haftada (4 normal sezon) öder; AVM'de haftalık gelir ve geri dönüş süresi yazar. */
 import { t as $t } from "./i18n/index.js";
-import { fmt, statName, toast } from "./data.js";
-import { S, norm, tx } from "./core.js";
+import { fmt, statName } from "./data.js";
+import { S, norm, tx, weekKey } from "./core.js";
 import { SHOP } from "./shops.js";
 import { late } from "./late.js";
 
@@ -21,7 +21,7 @@ import { late } from "./late.js";
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
 export const marketPrice = it => Math.max(it.p, Math.round(it.p * (PM[S && S.stage] || 1)));
 export const MKT_EN_CAP = 30;
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 function mk() {
   if (!S.mkt || S.mkt.w !== wk()) S.mkt = { w: wk(), en: 0, drinks: 0 };
   return S.mkt;
@@ -173,4 +173,3 @@ export function itemNote(it) {
   return out.length ? ` · ${out.join(" · ")}` : "";
 }
 export const houseComfort = h => HOUSE_C[h] || 0;
-export const comfortToast = () => toast($t("life.comfortNow", { v: comfort() }));

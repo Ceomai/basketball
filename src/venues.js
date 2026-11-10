@@ -8,8 +8,8 @@
    - Borsa: sektör haberleri (fiyatı haber oynatır; oyuncunun performansı değil), temettü, piyasa endeksi, risk profili.
    Hepsi tembel başlar (S alanları ilk kullanımda oluşur). */
 import { LANG, t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, esc, fmt, pick, ri, shuffle } from "./data.js";
-import { S, app, closeSheet, eff, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
+import { $, $$, Bus, clamp, esc, fmt, pick, ri, shuffle, PRIO } from "./data.js";
+import { S, app, closeSheet, eff, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgDribble, mgShoot, mgTiming } from "./games.js";
@@ -17,7 +17,7 @@ import { late } from "./late.js";
 
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
 const pm = () => PM[S.stage] || 1;
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 const fxc = (k, n = 1) => late.featCount && late.featCount(k, n);
 
 /* ================= STÜDYO ================= */
@@ -275,7 +275,7 @@ function familySheet() {
   );
   return true;
 }
-Bus.offer("week:sheet", familySheet, 40);
+Bus.offer("week:sheet", familySheet, PRIO.family);
 /** Varis kariyeri: çocuğun adı ve isteği (src/legacy.js → startHeir) */
 export const heirKid = () => (S && S.kid ? { n: S.kid.n, baller: !!S.kid.baller, g: S.kid.g || "m" } : null);
 export function kidHTML() {

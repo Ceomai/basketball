@@ -3,9 +3,10 @@
 // geçti / kaldı / engelli olarak kaydedilir: reports/data/audit-results.json. Önce: npm run build && npm run build:single
 // Performans ve çevrimdışı testleri dist/ (Pages/Android derlemesi) yerel HTTP sunucusundan açılır.
 const { chromium } = require("playwright");
+const lib = require("./lib.js");
+const { assert, toMain } = lib;
 const fs = require("fs"),
-  path = require("path"),
-  http = require("http");
+  path = require("path");
 const ROOT = path.resolve(__dirname, ".."),
   SINGLE = "file://" + path.join(ROOT, "dist-single", "index.html"),
   OUT = path.join(ROOT, "reports", "data");
@@ -16,34 +17,9 @@ const test = (id, cat, name, fn) => T.push({ id, cat, name, fn });
 
 /* ---------- yardımcılar ---------- */
 let browser, server, BASE;
-function serveDist() {
-  const dist = path.join(ROOT, "dist");
-  const types = {
-    ".html": "text/html",
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".png": "image/png",
-    ".svg": "image/svg+xml",
-    ".webmanifest": "application/manifest+json"
-  };
-  return new Promise(res => {
-    server = http
-      .createServer((req, rsp) => {
-        let f = path.join(dist, decodeURIComponent(req.url.split("?")[0]));
-        if (f.endsWith("/")) f += "index.html";
-        if (!f.startsWith(dist) || !fs.existsSync(f)) {
-          rsp.writeHead(404);
-          return rsp.end();
-        }
-        rsp.writeHead(200, { "Content-Type": types[path.extname(f)] || "application/octet-stream" });
-        fs.createReadStream(f).pipe(rsp);
-      })
-      .listen(0, () => {
-        BASE = `http://localhost:${server.address().port}/`;
-        res();
-      });
-  });
+// dist/ sunucusu: tests/lib.js
+async function serveDist() {
+  ({ server, base: BASE } = await lib.serveDist());
 }
 async function page(opts = {}, url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, ...(opts.ctx || {}) });
@@ -89,72 +65,10 @@ async function week(p) {
     const b = document.querySelector("#qw-sim");
     if (b) b.click();
   });
-  for (let i = 0; i < 400; i++) {
-    const st = await p.evaluate(() => {
-      const $ = s => document.querySelector(s);
-      if ($("#gostad") && !$("#ovl").innerHTML.trim() && !$("#adov") && !$("#acov")) return "main";
-      const a = $("#adx");
-      if (a) return a.disabled ? "wait" : (a.click(), "c");
-      const acn = $("#ac-yes");
-      if (acn) return (acn.click(), "c");
-      const c = document.querySelector("[data-press],[data-arc],#ch [data-i],[data-ce],[data-dl],[data-sig]");
-      if (c) return (c.click(), "c");
-      for (const s of [
-        "#gl-ok",
-        "#unl-ok",
-        "#tr-ok",
-        "#chok",
-        "#nok",
-        "#ok",
-        "#nx",
-        "#qgo",
-        "#rok",
-        "#rb",
-        "#pok",
-        "#aok",
-        "#bn-later",
-        "#tr-skip",
-        "#ng-ok",
-        "#pk-no",
-        "#mt-stay",
-        "#hk-ok",
-        "#jy-ok",
-        "[data-kn]",
-        "[data-kd]",
-        "#kd-ok",
-        "[data-an]",
-        "[data-tl]",
-        "[data-sl]",
-        "#cp-ok",
-        "#wn-ok",
-        "[data-amb-cap]",
-        "#dby-ok",
-        "[data-dbp]",
-        "[data-cu]",
-        "[data-bd]",
-        "#sc-ok",
-        "#hk-a",
-        "#nt-sim",
-        "#nt-done",
-        "#mw-sim",
-        "#mw-ok"
-      ]) {
-        const e = $(s);
-        if (e && !e.disabled) return (e.click(), "c");
-      }
-      const o = document.querySelector("[data-o]");
-      if (o) return (o.click(), "c");
-      return "wait";
-    });
-    if (st === "main") return true;
-    await p.waitForTimeout(st === "wait" ? 60 : 15);
-  }
-  return false;
+  // araya giren ekranlar: tek tıklayıcı listesi (tests/lib.js toMain)
+  return (await toMain(p)) === "main";
 }
 const S = (p, expr) => p.evaluate(expr);
-const assert = (c, m) => {
-  if (!c) throw new Error(m);
-};
 
 /* ================= İŞLEVSEL ================= */
 test("F01", "işlevsel", "Oluşturma ekranının bütün kontrolleri görünür", async () => {

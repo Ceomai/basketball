@@ -15,7 +15,7 @@ import { late } from "./late.js";
 // Raporların otomatik gideceği adres (ör. Google Apps Script web uygulaması). Boşsa yalnızca dosya paylaşılır.
 export const TELEMETRY_ENDPOINT = "";
 const KEY = "pota-telemetry",
-  MAX = 5000;
+  MAX = 1000; // olay günlüğü üst sınırı (her yazım tümünü JSON'a çevirir; büyük günlük her olayda maliyetliydi)
 export const TEL = (() => {
   try {
     return Object.assign(
@@ -30,11 +30,15 @@ let saveTimer = null;
 function persist() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(TEL));
-    } catch (e) {
-      TEL.events.splice(0, Math.floor(TEL.events.length / 3)); // yer yoksa en eski kayıtları at
-    }
+    // yer yoksa en eski kayıtları atıp yeniden dene (en çok 3 kez)
+    for (let i = 0; i < 4; i++)
+      try {
+        localStorage.setItem(KEY, JSON.stringify(TEL));
+        return;
+      } catch (e) {
+        if (i === 3 || !TEL.events.length) return;
+        TEL.events.splice(0, Math.max(1, Math.floor(TEL.events.length / 3)));
+      }
   }, 400);
 }
 const SESSION = { start: Date.now(), screen: "boot" };

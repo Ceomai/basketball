@@ -1,4 +1,4 @@
-import { LOCALE, t as $t, t } from "./i18n/index.js";
+import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import {
   $,
@@ -13,7 +13,6 @@ import {
   POS,
   RELS,
   STATS,
-  WAGE,
   clamp,
   esc,
   fmt,
@@ -108,14 +107,22 @@ export function norm() {
   S.aka = clamp(Math.round(S.aka), 0, 100);
   S.followers = Math.max(0, Math.round(S.followers));
 }
-export function tx(d, a) {
+/** Para hareketi: hesap dökümüne (S.tx) yazılır. o.kind: "earn" kazanç sesi çalar, "plain" çalmaz; verilmezse
+    eski davranış (açıklama metninden tahmin) sürer. */
+export function tx(d, a, o = {}) {
   if (!S) return; // açık kariyer yok (gecikmeli bir geri çağrı)
   a = Math.round(a);
-  if (a > 0 && /prim|bonus|ödül|Sponsor|Reklam|kazanc|prize|award|sponsor|\bad\b|earning/i.test(d)) late.sfx("coin");
+  const earn =
+    o.kind != null ? o.kind === "earn" : /prim|bonus|ödül|Sponsor|Reklam|kazanc|prize|award|sponsor|\bad\b|earning/i.test(d);
+  if (a > 0 && earn) late.sfx("coin");
   S.tx.unshift({ w: `S${S.season}·H${S.week}`, d, a });
   S.tx = S.tx.slice(0, 40);
   S.money += a;
   if (a > 0) S.career.earned += a;
+}
+/** İlişki değeri değişimi (yeni kod bunu kullanır; sınırlar norm() ile uygulanır) */
+export function addRel(k, v) {
+  if (S && S.rel) S.rel[k] = (S.rel[k] || 0) + v;
 }
 export function news(t) {
   S.news.unshift({ w: `S${S.season} H${S.week}`, t });
@@ -254,6 +261,12 @@ export function newSeasonLeague() {
   late.applyPainDebt(); // ağrı kesiciyle oynanan playoffun bedeli (src/dilemmas.js)
 }
 export const teamByKey = k => S.teams[k];
+/* ---- Hafta anahtarları ----
+   Kayıtta saklanan hafta işaretleri modüle göre farklı formüllerle yazılmış; eski kayıtlarla uyum için formüller
+   DEĞİŞMEZ, yalnız tek yerden üretilir. weekKey: "sezon-hafta" metni (ayraç "|" olan eski alanlar için sep);
+   weekNo(k): sezon × k + hafta (k = 20 bağlar/derbi/sakatlık, 30 ikilemler, 40 ekonomi/kültür/hikâyeler, 100 arcade). */
+export const weekKey = (sep = "-") => `${S.season}${sep}${S.week}`;
+export const weekNo = k => S.season * k + S.week;
 export function standings() {
   return S.league.slice().sort((a, b) => b.w - a.w || b.pf - b.pa - (a.pf - a.pa));
 }
@@ -514,6 +527,7 @@ const swHTML = (list, cur, key) =>
     )
     .join("");
 export function renderCreate() {
+  late.flushSave();
   S = null;
   setTeamVars();
   closeSheet();
@@ -774,6 +788,7 @@ export function startCareer() {
   Bus.emit("career:start", { pos: F.pos });
   const co = LEAGUES.TR;
   // durumun tek tanımı: src/state.js → createState
+  late.flushSave();
   S = late.createState(F, {
     posBonus: POS[F.pos].b,
     npc: {
@@ -1034,44 +1049,19 @@ export function mapState() {
     mev: late.mapEventsHere ? late.mapEventsHere() : []
   };
 }
-export function renderMain() {
-  const wasMain = !!app.querySelector(".mainlay"); // ekran giriş animasyonu yalnız gerçek ekran değişiminde (src/music.js)
-  closeSheet();
-  norm();
-  late.save();
-  setTeamVars();
-  window.scrollTo(0, 0);
-  const fx = fixture(),
-    opp = teamByKey(fx.opp),
-    tods = [$t("core.71"), $t("core.72"), $t("core.73"), $t("core.74")];
-  // düzen: dikeyde tek sütun + altta yapışkan eylem çubuğu; yatay telefon ve geniş ekranda harita solda, hafta kartı
-  // ve eylem çubuğu sağda yapışkan (index.html .mainlay)
-  app.innerHTML = `${hudHTML()}
-  <div class="mainlay"><div class="mapcol">${late.districtTabsHTML ? late.districtTabsHTML() : ""}<div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t(
+// harita sütunu (semt sekmeleri + harita): semt değişince yalnız bu kısım yeniden çizilir (renderMapCol)
+function mapColHTML() {
+  const tods = [$t("core.71"), $t("core.72"), $t("core.73"), $t("core.74")];
+  return `${late.districtTabsHTML ? late.districtTabsHTML() : ""}<div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t(
     "core.75",
     {
       v: seasonLabel(),
       week: S.week,
       v2: tods[S.slot]
     }
-  )}</small></div><div class="tagx ta-r">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div></div>
-  <div class="wkcol"><div class="wkstick">${
-    S.brk
-      ? late.breakCardHTML()
-      : `<div class="card weekcard"><div class="row between"><div class="eyebrow">${t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : t("main.schoolTeam")}</span>`}</div>
-   <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
-   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? t("main.home") : t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
-   ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${t("main.derby", { name: esc(late.derbyWho(opp)) })}</div>` : ""}${late.serMainHTML()}
-   ${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div><div class="actbar" id="actbar" role="group" aria-label="${esc(t("main.week", { n: S.slot }))}"><div class="grid2"><button class="btn ghost" id="quickw">${t("main.quickWeek")}</button><button class="btn pri" id="gostad">${t("main.prepare")}</button></div></div>`
-  }</div>${late.weekSummaryHTML()}${late.onboardHTML()}
-  <div class="card"><div class="row between"><div class="eyebrow">${t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${t("main.noNews")}</div>`}</div></div>
-  <div class="row between small muted"><span>${t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row gap-1h">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${t("main.settings")}</button><button class="btn ghost sm" id="rst">${t("main.saves")}</button></div></div></div></div>`;
-  fitMapLabels();
-  $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
-  // portreye dokununca görünüm/stil (Ev → Stil)
-  const hav = $("#hav");
-  hav.title = t("sty.title");
-  hav.onclick = () => late.openLoc("ev", "stil");
+  )}</small></div><div class="tagx ta-r">${esc(lgName())}<small>${levelName(S.stage)} · ${phaseName()}</small></div></div>${mapSVG(mapState())}</div></div>`;
+}
+function bindMapCol() {
   $$(".loc").forEach(g => {
     const go = () => late.openLoc(g.dataset.loc);
     g.onclick = go;
@@ -1082,9 +1072,51 @@ export function renderMain() {
       }
     };
   });
+  late.bindDistrict(renderMapCol, renderMain);
+}
+/** Semt sekmesi: ana ekranın tamamı yerine yalnız harita sütunu (sekmeler, harita, olay işaretleri) yenilenir */
+export function renderMapCol() {
+  const mc = app.querySelector(".mainlay .mapcol");
+  if (!mc || !S) return renderMain();
+  window.scrollTo(0, 0);
+  mc.innerHTML = mapColHTML();
+  fitMapLabels();
+  bindMapCol();
+  late.saveSoon(); // seçili semt kayıtta (S.district)
+}
+export function renderMain() {
+  const wasMain = !!app.querySelector(".mainlay"); // ekran giriş animasyonu yalnız gerçek ekran değişiminde (src/music.js)
+  closeSheet();
+  norm();
+  late.saveSoon(); // ertelenmiş kayıt: art arda çizimler tek yazıma iner; gizlenince/kapanınca hemen yazılır (src/save.js)
+  setTeamVars();
+  window.scrollTo(0, 0);
+  const fx = fixture(),
+    opp = teamByKey(fx.opp);
+  // düzen: dikeyde tek sütun + altta yapışkan eylem çubuğu; yatay telefon ve geniş ekranda harita solda, hafta kartı
+  // ve eylem çubuğu sağda yapışkan (index.html .mainlay)
+  app.innerHTML = `${hudHTML()}
+  <div class="mainlay"><div class="mapcol">${mapColHTML()}</div>
+  <div class="wkcol"><div class="wkstick">${
+    S.brk
+      ? late.breakCardHTML()
+      : `<div class="card weekcard"><div class="row between"><div class="eyebrow">${$t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${$t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : $t("main.schoolTeam")}</span>`}</div>
+   <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
+   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? $t("main.home") : $t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
+   ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${$t("main.derby", { name: esc(late.derbyWho(opp)) })}</div>` : ""}${late.serMainHTML()}
+   ${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div><div class="actbar" id="actbar" role="group" aria-label="${esc($t("main.week", { n: S.slot }))}"><div class="grid2"><button class="btn ghost" id="quickw">${$t("main.quickWeek")}</button><button class="btn pri" id="gostad">${$t("main.prepare")}</button></div></div>`
+  }</div>${late.weekSummaryHTML()}${late.onboardHTML()}
+  <div class="card"><div class="row between"><div class="eyebrow">${$t("main.news")}</div>${late.leagueButtonHTML()}</div><div class="news">${S.news.map(n => `<div><time>${esc(n.w)}</time><span>${esc(n.t)}</span></div>`).join("") || `<div class="small muted">${$t("main.noNews")}</div>`}</div></div>
+  <div class="row between small muted"><span>${$t("main.summary", { g: S.career.games, p: S.career.pts, t: S.career.trophies.length })}</span><div class="row gap-1h">${late.TEL.consent ? `<button class="btn ghost sm" id="fbk">${$t("fb.short")}</button>` : ""}${late.guideButtonHTML()}<button class="btn ghost sm" id="opt">${$t("main.settings")}</button><button class="btn ghost sm" id="rst">${$t("main.saves")}</button></div></div></div></div>`;
+  fitMapLabels();
+  $("#hav").appendChild(portrait(S.look, { ...jersey(), mood: S.moral > 45 ? "mutlu" : "uzgun" }, 42, 42, S.team.c1));
+  // portreye dokununca görünüm/stil (Ev → Stil)
+  const hav = $("#hav");
+  hav.title = $t("sty.title");
+  hav.onclick = () => late.openLoc("ev", "stil");
+  bindMapCol();
   const gs = $("#gostad");
   if (gs) gs.onclick = () => late.openLoc("stad", "mac");
-  late.bindDistrict && late.bindDistrict(renderMain);
   const qw = $("#quickw");
   if (qw) qw.onclick = late.quickWeek;
   late.bindPlanRow(); // hafta planı (src/plan.js)
@@ -1157,6 +1189,7 @@ export function openSafe(st, o = {}) {
       return true;
     }
   }
+  late.flushSave();
   S = null;
   try {
     closeSheet();

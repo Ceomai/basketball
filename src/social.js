@@ -9,7 +9,7 @@
       soğukkanlılık (Clutch özelliğine ilerleme) kazandırır. Oyunlar bir tık daha cömert (rulet renk ×2,1, slot çift ×1,8). */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, fmt, toast } from "./data.js";
-import { S, closeSheet, norm, renderMain, resultView, tx, useSlot } from "./core.js";
+import { S, norm, resultView, tx, useSlot, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -30,7 +30,7 @@ export function trustCardHTML() {
 }
 
 /* ---- Takım arkadaşıyla Oyun Kulübü ---- */
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 const mates = () => (late.roster ? late.roster().slice(0, 3) : []);
 export function arcMateHTML() {
   const m = mates(),
@@ -146,4 +146,3 @@ export function nightVisit(kind) {
   save();
   return $t(kind === "sans" ? "soc.casinoVisit" : "soc.clubVisit");
 }
-export const closeAndMain = () => (closeSheet(), renderMain());

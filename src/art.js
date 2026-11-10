@@ -1113,20 +1113,6 @@ export async function vitrineCanvas() {
   });
   // içerik
   const tro = late.S.career.trophies.map(t => ({ k: late.trophyIcon(t), label: t.label }));
-  const itemIcons = {
-    ayak1: ["sneaker", "#cfd8dc", "#1e88e5"],
-    ayak2: ["sneaker", late.S.team.c1, late.S.team.c2 === "#ffffff" ? "#141414" : late.S.team.c2],
-    top: ["ball"],
-    telefon: ["phone"],
-    konsol: ["console"],
-    kiyafet: ["hoodie", "#37474f"],
-    saat: ["watch"],
-    kulaklik: ["headphones"],
-    araba1: ["car", "#1e88e5", "hatch"],
-    araba2: ["car", "#eceff1", "suv"],
-    araba3: ["car", "#d0142c", "super"],
-    hoca: ["whistle"]
-  };
   const its = [
     ...late.SHOP.filter(it => late.S.items[it.id]).map(it => ({ svg: it.ic() })),
     ...(late.S.items.hoca ? [{ svg: icon("whistle") }] : [])

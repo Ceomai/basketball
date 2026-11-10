@@ -12,7 +12,7 @@
    motivasyon: o maçta bütün nitelikler +4). */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, fmt, pick } from "./data.js";
-import { S, app, closeSheet, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName } from "./core.js";
+import { S, app, closeSheet, news, norm, renderMain, resultView, sheet, tx, useSlot, fullName, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgPhoto } from "./games.js";
@@ -21,7 +21,7 @@ import { late } from "./late.js";
 const PM = { lise: 1, uni: 1.5, t3: 5, t2: 12, t1: 35, euro: 110, nba: 350 };
 const TYPES = ["train", "vlog", "challenge", "qa", "sponsor"];
 const MUL = { train: 1, vlog: 1.05, challenge: 1.4, qa: 0.9, sponsor: 0.8 };
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 const ch = () => (S.channel = S.channel || { xp: 0, posts: 0, wk: "", n: 0, gear: {} });
 export const chLevel = () => Math.min(10, Math.floor(Math.sqrt(ch().xp / 20)) + 1);
 const trend = () => TYPES.slice(0, 4)[(S.season * 7 + S.week * 3) % 4];

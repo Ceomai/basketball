@@ -14,7 +14,6 @@ import {
   STATS,
   WAGE,
   cOf,
-  cityTheme,
   clamp,
   esc,
   fmt,
@@ -26,7 +25,6 @@ import {
   ri,
   rnd,
   roleAt,
-  statName,
   tdOf,
   toast
 } from "./data.js";
@@ -57,12 +55,16 @@ import {
   sheet,
   standings,
   teamByKey,
-  tx
+  tx,
+  weekNo
 } from "./core.js";
 import { renderSlots, save } from "./save.js";
 import { HOUSING } from "./places.js";
 import { carUpkeep, itemWeekly } from "./shops.js";
 import { brandText } from "./brand.js";
+import { mulberry32, seedHash } from "./logic/rng.js";
+import { buyoutFee } from "./logic/career.js";
+import { SHOT_MID, SHOT_THREE } from "./logic/shots.js";
 /* ================= MAÇ ================= */
 export let M = null;
 export function bugHTML() {
@@ -74,22 +76,26 @@ export function bugHTML() {
    <div class="side r"><span class="stripe" style="background:${L[2].c1}"></span><div class="minw-0"><div class="ab">${esc(L[2].short)}</div><div class="full">${esc(L[2].name)}</div></div><div class="sc">${L[3]}</div></div></div>`;
 }
 export function updBug() {
+  if (M && M.silent) return; // simüle maç (AUTO): ekran sonda bir kez çizilir (src/engine.js drawSilent)
   const b = $("#bug");
   if (b) b.innerHTML = bugHTML();
   if (late.a11yScore) late.a11yScore(); // ekran okuyucu için canlı skor (src/a11y.js)
 }
 export const odds = e => (e >= 55 ? ["e", $t("match.1")] : e >= 32 ? ["m", $t("match.2")] : ["h", $t("match.3")]);
-export function oppName() {
-  const c = cOf(M.opp.city);
-  return `${pick(c.first)[0]}. ${pick(c.last)}`;
-}
+export const FEED_MAX = 40; // akışta (DOM + M.feed) tutulan en çok satır; eskiler düşer
+export const feedRowHTML = x => `<div><time>${x.t}</time><span>${x.x}</span></div>`;
 export function addFeed(t) {
   M.feed.unshift({ t: `${$t("common.q", { n: M.q })} ${M.clock}`, x: t });
+  if (M.feed.length > FEED_MAX) M.feed.length = FEED_MAX;
+  if (M.silent) return; // simüle maç: DOM'a sonda bir kez yazılır
   const f = $("#feed");
   if (!f) return;
-  f.innerHTML = M.feed.map(x => `<div><time>${x.t}</time><span>${x.x}</span></div>`).join("");
+  // yalnız yeni satır eklenir (eskiden her satırda tüm akış yeniden yazılıyordu: uzun maçta O(n²))
+  if (f.firstElementChild) f.firstElementChild.className = "";
+  f.insertAdjacentHTML("afterbegin", feedRowHTML(M.feed[0]));
   // yalnız yeni (en üstteki) satır kısa bir kayma + belirme ile gelir (index.html .feed>div.fin)
-  if (f.firstElementChild) f.firstElementChild.className = "fin";
+  f.firstElementChild.className = "fin";
+  while (f.childElementCount > FEED_MAX) f.lastElementChild.remove();
 }
 export const PEN = {
   pull: 6,
@@ -117,8 +123,8 @@ async function andOne(el, sur, dn, st, w) {
   return { good: true, w, st, txt: f.ok ? $t("match.12") : $t("match.13") };
 }
 export async function resolvePlay(k, el, sur, dn) {
-  const three = ["pull", "catch", "wing", "corner", "top3"],
-    mid = ["step", "pop", "mid", "float"];
+  const three = SHOT_THREE,
+    mid = SHOT_MID;
   if (three.includes(k) || mid.includes(k)) {
     const th = three.includes(k);
     const r = await mgShoot(el, {
@@ -586,7 +592,7 @@ export function afterMatchFlow(win) {
 }
 // window.__TEST.noEvents: duman testinde rastgele olaylar kapatılır
 // Rastgele olay: haftaların yaklaşık üçte birinde; aynı olay 4 sezon (60 hafta) içinde tekrar çıkmaz
-export const weekIndex = () => S.season * 20 + S.week;
+export const weekIndex = () => weekNo(20);
 export function maybeEvent(next) {
   if (!(window.__TEST && window.__TEST.noEvents) && Math.random() < 0.35) randomEvent(next);
   else next();
@@ -920,13 +926,9 @@ export function transition(avg, champ, head) {
     else if (S.buffs) S.buffs.offer = S.offArgs.buff;
   }
   const rnd0 = Math.random;
-  let seed = [...`${S.season}|${S.first}|${S.last}|${S.year}|${S.career.pts}|${S.career.games}`].reduce((h, c) => (Math.imul(h ^ c.charCodeAt(0), 2654435761) >>> 0), 7);
-  Math.random = () => {
-    seed = (seed + 0x6d2b79f5) >>> 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  // geçici yama bilinçli: teklif akışı (genOffers, takım havuzları, geç bağlı modüller) içindeki HER rastgele çağrı
+  // tohumlu olmalı; tek tek rng parametresi geçirmek kaçan bir çağrıda teklifleri yeniden açılışta değiştirirdi
+  Math.random = mulberry32(seedHash(`${S.season}|${S.first}|${S.last}|${S.year}|${S.career.pts}|${S.career.games}`));
   try {
     return transitionInner(avg, champ, head);
   } finally {
@@ -1071,13 +1073,7 @@ function transitionInner(avg, champ, head) {
   show();
 }
 // Sözleşme sürerken başka kulübe gitmek fesih bedeli ister; serbest kalma (üst lige) ve NBA çıkış maddesi bedelsiz yapar
-export function buyoutFor(o) {
-  if (o.stay || o.uni || !S.contract || !isPro(S.stage) || !isPro(o.stage)) return 0;
-  const cl = S.clauses || {},
-    up = ORDER.indexOf(o.stage) > ORDER.indexOf(S.stage);
-  if ((cl.release && up) || (cl.nbaout && o.stage === "nba")) return 0;
-  return Math.round(S.wage * 4 * Math.min(S.contract, 2));
-}
+export const buyoutFor = o => buyoutFee(o, S); // src/logic/career.js
 export function acceptOffer(o) {
   const fee = buyoutFor(o);
   if (fee) tx($t("match.134"), -fee);

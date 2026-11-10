@@ -151,7 +151,6 @@ export default {
   "casino.45": "Another card?",
   "casino.46": "Pull the lever, try your luck.",
   "core.1": "Tournament",
-  "core.2": "Final Four",
   "core.3": "Playoffs",
   "core.4": "Regular season",
   "core.5": "{tour} · Semifinal",

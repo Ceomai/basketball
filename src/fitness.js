@@ -8,7 +8,7 @@
      (zamanlama mini oyunu; başarılıysa iyileşme bir hafta kısalır, sakatlık başına bir kez), vücut ölçümü. */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, clamp, fmt } from "./data.js";
-import { S, app, closeSheet, eff, norm, renderMain, resultView, sheet, tx, useSlot } from "./core.js";
+import { S, app, closeSheet, eff, norm, renderMain, sheet, tx, useSlot } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgGym, mgTiming } from "./games.js";
@@ -104,4 +104,3 @@ export function fitHit(v) {
   if (!S) return;
   S.fit = clamp((S.fit ?? 65) - v, 0, 100);
 }
-export const fitResult = (title, txt) => resultView(title, txt);

@@ -10,6 +10,7 @@ import { PLAYS } from "./data.js";
 import { S } from "./core.js";
 import { late } from "./late.js";
 import { M } from "./match.js";
+import { SHOT_FIN, SHOT_MID, SHOT_PASS, SHOT_THREE } from "./logic/shots.js";
 
 const EXTRA = {
   PG: ["lay", "top3", "float", "corner", "mid"],
@@ -33,10 +34,10 @@ export function addPlays() {
 addPlays();
 /** Kaç seçenek gösterilsin (kilit an hariç): 3, bazen 4 (eski; pickOffOpts kullanılır) */
 export const optCount = () => (Math.random() < 0.25 ? 4 : 3);
-const THREE = ["pull", "catch", "wing", "corner", "top3"],
-  TWO = ["step", "pop", "mid", "float"],
-  FIN = ["drive", "break", "lay", "post", "dunk", "putback"],
-  PASSK = ["pnr", "kick", "lob"];
+const THREE = SHOT_THREE,
+  TWO = SHOT_MID,
+  FIN = SHOT_FIN,
+  PASSK = SHOT_PASS;
 /** Hücum seçenekleri: her kategoriden (üçlük, ikilik, bitiriş, pas) birer tane, kalan rastgele; 4, kilit anda 5 */
 export function pickOffOpts(opts, clutch) {
   const n = clutch ? 5 : 4;
@@ -112,7 +113,6 @@ export function situSpecial(us, clutch, diff, dn) {
 /* ---- Kişisel faul ---- */
 export const foulLimit = () => (S && S.stage === "nba" ? 6 : 5);
 const RISK = { steal: 0.3, block: 0.35, charge: 0.5 };
-export const foulRisky = k => k in RISK;
 /** Seçenek açıklamasına faul riski notu */
 export const foulNote = k => (k in RISK ? ` · ${$t("pf.risk")}` : "");
 /** Savunma anı sonrası: başarısız riskli hamle faul olabilir. Faul olduysa açıklama metni döner. */

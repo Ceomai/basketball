@@ -6,12 +6,12 @@
    - Bahis sitesi sponsorluğu: büyük para ya da taraftarın ve ailenin gözünde itibar (bir kez)
    - Kaptanlık: kabul et (koç ve takım güveni, yıldızla ilişki bozulur) ya da yıldıza bırak (bir kez) */
 import { t as $t } from "./i18n/index.js";
-import { $$, Bus, isPro, ri } from "./data.js";
-import { S, closeSheet, news, norm, sheet, tx } from "./core.js";
+import { $$, Bus, isPro, ri, PRIO } from "./data.js";
+import { S, closeSheet, news, norm, sheet, tx, weekNo } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
-const wk = () => S.season * 30 + S.week;
+const wk = () => weekNo(30);
 const once = k => !(S.dlDone || {})[k];
 const mark = k => ((S.dlDone = S.dlDone || {})[k] = S.season);
 const N = () => `${S.first} ${S.last}`;
@@ -119,7 +119,7 @@ function dilemma() {
   );
   return true;
 }
-Bus.offer("week:sheet", dilemma, 25);
+Bus.offer("week:sheet", dilemma, PRIO.dilemma);
 
 /** Yeni sezon başında ağrı kesici borcu: ertesi sezon sakatlık olarak gelir */
 export function applyPainDebt() {

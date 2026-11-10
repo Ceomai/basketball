@@ -62,10 +62,10 @@ const C = {
   stockFee: num("harbor.js", /const FEE = ([\d.]+)/),
   stocks: [...SRC("harbor.js").matchAll(/\{ id: "(\w+)", vol: ([\d.]+), base: (\d+) \}/g)].map(m => ({ id: m[1], vol: +m[2], base: +m[3] })),
   div: Function(`return ${SRC("venues.js").match(/const DIV = (\{[^}]+\})/)[1]}`)(),
-  pressMul: media("places.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 4\)/),
-  charityMul: media("places.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 5\)/),
-  photoK: num("places.js", /\(q \/ 100\) \* ([\d.]+) \* \(S\.items\.telefon/),
-  photoPhone: num("places.js", /S\.items\.telefon \? ([\d.]+) : 1/),
+  pressMul: media("loc/okul.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 4\)/),
+  charityMul: media("loc/medya.js", /S\.rel\.taraf \+= g;\s*\n\s*late\.mediaGain\(([\d.]+), 5\)/),
+  photoK: num("loc/medya.js", /\(q \/ 100\) \* ([\d.]+) \* \(S\.items\.telefon/),
+  photoPhone: num("loc/medya.js", /S\.items\.telefon \? ([\d.]+) : 1/),
   studioK: num("studio.js", /mediaGain\(([\d.]+) \* e, 20 \* e\)/),
   vipMul: media("shops.js", /late\.mediaGain\(([\d.]+), 6\);\s*\n\s*S\.moral \+= 12/),
   campMul: media("agent.js", /S\.rel\.taraf \+= 5;\s*\n\s*late\.mediaGain\(([\d.]+), 5\)/),
@@ -94,7 +94,7 @@ const L = {
   press: loc("places.js", /S\.followers \*= 1\.04/),
   charity: loc("places.js", /S\.followers \*= 1\.06/),
   photo: loc("places.js", /const add = Math\.round\(S\.followers \* \(q \/ 100\)/),
-  interview: loc("places.js", /S\.followers \*= 1 \+ fx\.taraf \/ 100/),
+  interview: loc("loc/medya.js", /S\.followers \*= 1 \+ fx\.taraf \/ 100/),
   studio: loc("studio.js", /const add = Math\.round\(S\.followers \* 0\.035/),
   chanInc: loc("studio.js", /L \* L \* 2 \* \(PM/),
   chanLvl: loc("studio.js", /export const chLevel/),
@@ -110,8 +110,8 @@ const L = {
   arcChem: loc("social.js", /m\.chem = Math\.min\(100, m\.chem \+ 6\)/),
   vip: loc("shops.js", /S\.followers \*= 1\.08;/),
   camp: loc("agent.js", /S\.followers = Math\.round\(S\.followers \* 1\.06\)/),
-  gift: loc("places.js", /gift = Math\.max\(50/),
-  giftAct: loc("places.js", /tx\(\$t\("places\.347"\), -gift\)/),
+  gift: loc("loc/aile.js", /gift = Math\.max\(50/),
+  giftAct: loc("loc/aile.js", /tx\(\$t\("places\.347"\), -gift\)/),
   program: loc("coach.js", /export function programMul/),
   programBind: loc("coach.js", /S\.program = b\.dataset\.pg/),
   adEnergy: loc("ads.js", /S\.energy \+= 30/),
@@ -123,7 +123,7 @@ const L = {
   trainGain: loc("logic/rules.js", /export function trainingGain/),
   levelMul: loc("core.js", /export const levelMul/),
   street: loc("street.js", /prize = Math\.round\(12/),
-  sponsor: loc("places.js", /const sp = Math\.max\(50, Math\.round\(fame\(\) \* fame\(\)/),
+  sponsor: loc("loc/okul.js", /const sp = Math\.max\(50, Math\.round\(fame\(\) \* fame\(\)/),
   fame: loc("core.js", /export function fame/),
   housing: loc("places.js", /export const HOUSING/),
   endWeek: loc("match.js", /S\.energy \+= 26 \+ h\.en/),
@@ -245,7 +245,6 @@ async function inGame() {
     for (const st of ["lise", "t3", "t1", "nba"]) {
       setStage(st);
       const R = (res.stages[st] = { prof: PROF[st] });
-      const s = S();
       // --- gelir ---
       const cut = (G.BAL.tax[st] || 0) + (G.isPro(st) ? G.BAL.agent : 0);
       R.wage = G.WAGE[st];

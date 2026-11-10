@@ -1,7 +1,7 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
 import { $, Bus, fmt, pick, toast } from "./data.js";
-import { S, closeSheet, norm, sheet, tx } from "./core.js";
+import { S, closeSheet, norm, sheet, tx, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { M } from "./match.js";
 import { settingsSheet } from "./systems.js";
@@ -358,7 +358,7 @@ export function bindAdDouble(bonus) {
   };
 }
 export function adEnergyHTML() {
-  const wk = `${S.season}-${S.week}`;
+  const wk = weekKey();
   if (S.adEnergyWk !== wk) {
     S.adEnergyWk = wk;
     S.adEnergyN = 0;

@@ -7,13 +7,14 @@
    - İlk kez bitirince kariyere küçük bir dokunuş: kazanırsan takipçi ve moral
    Bölümler: P1 hücum, P2 savunma (durduramazsan rakip sayı atar), P3 son hücum. */
 import { t as $t } from "./i18n/index.js";
-import { $, Bus, clamp, toast } from "./data.js";
+import { $, Bus, choiceButtons, clamp, pickChoice, toast } from "./data.js";
 import { S, app, norm, renderMain } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgBlock, mgDribble, mgShoot, mgTiming } from "./games.js";
 import { ADS, adBtn, rewardLeft, showRewarded } from "./ads.js";
 import { late } from "./late.js";
+import { mulberry32 } from "./logic/rng.js";
 
 const KEY = "pota-daily";
 const EPOCH = Date.UTC(2026, 10, 1); // 1 Kasım 2026 = Günün Maçı #1
@@ -36,17 +37,8 @@ const persist = () => {
     /* dolu */
   }
 };
-// mulberry32: aynı gün herkese aynı senaryo
-function rng(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+// mulberry32: aynı gün herkese aynı senaryo (src/logic/rng.js)
+const rng = mulberry32;
 const OPPS = [
   "Kartal Spor",
   "Liman Gücü",
@@ -98,15 +90,11 @@ const DEF = [
   ["safe", "dly.safe", "dly.safeD"]
 ];
 function choose(el, head, desc, opts) {
-  return new Promise(res => {
-    el.innerHTML = `<div class="card sit"><div class="eyebrow">${head}</div><p class="muted">${desc}</p><div class="choices">${opts
-      .map(
-        ([k, n, d]) =>
-          `<button class="choice" data-dk="${k}"><span class="ct">${$t(n)}</span><span class="cd">${$t(d)}</span></button>`
-      )
-      .join("")}</div></div>`;
-    el.querySelectorAll("[data-dk]").forEach(b => (b.onclick = () => res(b.dataset.dk)));
-  });
+  el.innerHTML = `<div class="card sit"><div class="eyebrow">${head}</div><p class="muted">${desc}</p><div class="choices">${choiceButtons(
+    opts.map(([k, n, d]) => [k, $t(n), $t(d)]),
+    "dk"
+  )}</div></div>`;
+  return pickChoice(el, "dk");
 }
 async function offense(stg, sc, k, rnd) {
   const e = clamp(sc.eff + 8, 5, 100);

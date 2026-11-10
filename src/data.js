@@ -1,5 +1,6 @@
 import { LANG, t as $t } from "./i18n/index.js";
-import { BAL, TDB, WAGE, roleFor, stageLevel } from "./logic/rules.js";
+import { BAL, STAGES, TDB, WAGE, isProStage, roleFor, stageLevel } from "./logic/rules.js";
+import { strHash } from "./logic/rng.js";
 export { BAL, TDB, WAGE };
 import { late } from "./late.js";
 import { brandTiers } from "./brand.js";
@@ -37,6 +38,40 @@ function busError(e, err) {
     /* raporlama da çalışmıyor */
   }
 }
+/** Haftalık panel ("week:sheet") sağlayıcılarının önceliği: küçük olan önce sorulur, ilk "true" dönen kazanır.
+    Eşit öncelikte kayıt (modül yükleme) sırası geçerlidir (tests/unit/prio.test.mjs bu eşleri listeler). */
+export const PRIO = Object.freeze({
+  scenario: 1,
+  gala: 2,
+  camp: 3,
+  newJersey: 4,
+  goals: 5,
+  unlock: 6,
+  trait: 7,
+  signature: 8,
+  rehab: 9,
+  midSeason: 10,
+  midWindow: 11,
+  bondsCoach: 12,
+  cultureWelcome: 18,
+  derbyCity: 18,
+  derbyPress: 19,
+  roleReview: 20,
+  dilemma: 25,
+  bondsBye: 30,
+  storyTick: 30,
+  charEvent: 35,
+  family: 40,
+  bondsSibling: 41,
+  bondsParent: 42,
+  bondsMate: 43,
+  bondsAbroad: 43,
+  bondsSpat: 44,
+  tale: 45,
+  bondsMemory: 46,
+  cultureEvent: 48,
+  backupNudge: 90
+});
 export const Bus = {
   h: {},
   m: {},
@@ -108,15 +143,20 @@ export const GOOD = () => tok("--good");
 export const BAD = () => tok("--bad");
 export const esc = s =>
   String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-export const hash = s => {
-  let h = 2166136261;
-  for (const ch of String(s)) {
-    h ^= ch.charCodeAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  return Math.abs(h);
-};
+export const hash = strHash; // tek kaynak: src/logic/rng.js
 export const wait = ms => new Promise(r => setTimeout(r, ms));
+/** Seçim kartı düğmeleri (Hikâye anı, Günün Maçı, ribaund): opts = [[anahtar, başlık, açıklama], ...] → data-<attr>.
+    cdAlways false ise boş açıklamanın <span class="cd"> öğesi hiç yazılmaz. */
+export const choiceButtons = (opts, attr, cdAlways = true) =>
+  opts
+    .map(
+      ([k, t, d]) =>
+        `<button class="choice" data-${attr}="${k}"><span class="ct">${t}</span>${cdAlways || d ? `<span class="cd">${d}</span>` : ""}</button>`
+    )
+    .join("");
+/** root içindeki data-<attr> düğmelerinden ilk tıklananın anahtarı */
+export const pickChoice = (root, attr) =>
+  new Promise(res => root.querySelectorAll(`[data-${attr}]`).forEach(b => (b.onclick = () => res(b.dataset[attr]))));
 export const INK = "#141414";
 // son bildirimler (hafta özeti için; src/plan.js)
 export const TOAST_LOG = [];
@@ -453,10 +493,10 @@ export function cityTheme(city) {
 }
 
 /* ================= KARİYER BASAMAKLARI ================= */
-export const ORDER = ["lise", "uni", "t3", "t2", "t1", "euro", "nba"];
+export const ORDER = STAGES; // kademe sırasının tek kaynağı: src/logic/rules.js
 // Lig zorluğu: o ligde "yerinde" bir oyuncunun genel puanı yaklaşık TDB+45'tir; bu durumda maçta etkin değer ~45 olur.
 export const SC = { lise: 52, uni: 60, t3: 66, t2: 72, t1: 78, euro: 80, nba: 108 }; // skor ölçeği
-export const isPro = st => ORDER.indexOf(st) >= 2;
+export const isPro = isProStage;
 // Lig seviyesi ve rol: kurallar logic/rules.js'te, burada ülke çarpanı eklenir
 export function tdOf(stage, cc) {
   return stageLevel(stage, (LEAGUES[cc] || LEAGUES.TR).pr);

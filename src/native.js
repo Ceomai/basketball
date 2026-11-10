@@ -15,7 +15,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { AdMob } from "@capacitor-community/admob";
 import { $, Bus } from "./data.js";
 import { THEME_TOKENS } from "./theme.js";
-import { S, closeSheet } from "./core.js";
+import { S } from "./core.js";
 import { late } from "./late.js";
 import { REL_AD_REQUEST } from "./release.js";
 
@@ -29,7 +29,9 @@ export const nativeAll = isNative
   ? async () => {
       const out = {};
       const { keys } = await Preferences.keys();
-      for (const k of keys.filter(k => /^pota-slot-\d$/.test(k))) out[k] = (await Preferences.get({ key: k })).value;
+      const ks = keys.filter(k => /^pota-slot-\d$/.test(k));
+      const vals = await Promise.all(ks.map(k => Preferences.get({ key: k }).then(r => r.value)));
+      ks.forEach((k, i) => (out[k] = vals[i]));
       return out;
     }
   : null;
@@ -81,7 +83,10 @@ if (isNative) {
     if (nativeBack() === "min") App.minimizeApp();
   });
   // uygulama arka plana alınırken kaydet
-  App.addListener("pause", () => S && late.save());
+  App.addListener("pause", () => {
+    if (S) late.save();
+    late.flushMirror(); // ertelenmiş yerel depo/IndexedDB yazımı arka plana geçerken hemen (src/save.js)
+  });
   StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
   StatusBar.setBackgroundColor({ color: THEME_TOKENS["--bg2"] }).catch(() => {});
 }

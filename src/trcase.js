@@ -70,26 +70,50 @@ export function trcWrap(el) {
   return changed;
 }
 let queued = false;
-function scan() {
+// değişen kökler (MutationRecord hedefleri): tarama tüm belge yerine yalnız bunların içinde/üstünde yapılır
+const dirty = new Set();
+function visit(el) {
+  if (el.closest("svg")) return;
+  const t = el.textContent;
+  if (el.__trc === t) return; // değişmemiş
+  trcWrap(el);
+  el.__trc = el.textContent;
+}
+function scan(all) {
   queued = false;
+  const roots = [...dirty];
+  dirty.clear();
   if (LANG !== "en" || !document.body) return;
-  for (const el of document.querySelectorAll(SEL)) {
-    if (el.closest("svg")) continue;
-    const t = el.textContent;
-    if (el.__trc === t) continue; // değişmemiş
-    trcWrap(el);
-    el.__trc = el.textContent;
+  if (all === true) {
+    for (const el of document.querySelectorAll(SEL)) visit(el);
+    return;
+  }
+  const seen = new Set();
+  const once = el => {
+    if (seen.has(el)) return;
+    seen.add(el);
+    visit(el);
+  };
+  for (const r of roots) {
+    if (!r.isConnected) continue;
+    const up = r.closest(SEL); // metni değişen öğe büyük harfli bir alanın içinde olabilir
+    if (up) once(up);
+    for (const el of r.querySelectorAll(SEL)) once(el);
   }
 }
 if (typeof window !== "undefined" && typeof MutationObserver !== "undefined" && LANG === "en") {
-  const mo = new MutationObserver(() => {
+  const mo = new MutationObserver(recs => {
+    for (const m of recs) {
+      const n = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+      if (n) dirty.add(n);
+    }
     if (queued) return;
     queued = true;
     setTimeout(scan, 120); // maç animasyonu gibi sık değişimlerde seyrek tarama
   });
   const start = () => {
     mo.observe(document.body, { childList: true, subtree: true, characterData: true });
-    scan();
+    scan(true);
   };
   if (document.body) start();
   else document.addEventListener("DOMContentLoaded", start);

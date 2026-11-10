@@ -11,6 +11,12 @@ import * as games from "./games.js";
 import * as core from "./core.js";
 import * as save from "./save.js";
 import * as places from "./places.js";
+import * as locEv from "./loc/ev.js";
+import * as locStad from "./loc/stad.js";
+import * as locOkul from "./loc/okul.js";
+import * as locMedya from "./loc/medya.js";
+import * as locAile from "./loc/aile.js";
+import * as locKafe from "./loc/kafe.js";
 import * as casino from "./casino.js";
 import * as shops from "./shops.js";
 import * as arcade from "./arcade.js";
@@ -107,6 +113,13 @@ const MODULES = [
   core,
   save,
   places,
+  // mekân ekranları (src/loc/)
+  locEv,
+  locStad,
+  locOkul,
+  locMedya,
+  locAile,
+  locKafe,
   casino,
   shops,
   arcade,

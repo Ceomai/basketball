@@ -140,6 +140,7 @@ const wipeLocal = () => {
 };
 export async function relWipeAll() {
   if (late.cloudDeleteAll && late.signedIn && late.signedIn()) await late.cloudDeleteAll();
+  late.dropPendingSaves(); // ertelenmiş kayıt yazımı silinen veriyi geri yazmasın (src/save.js)
   wipeLocal();
   // sayfa yenilenirken bellekteki modüller (telemetri vb.) kendi anahtarını yeniden yazmasın: en son biz sileriz
   document.addEventListener("visibilitychange", wipeLocal);

@@ -5,7 +5,7 @@
 import { t as $t } from "./i18n/index.js";
 import { $, $$, fmt } from "./data.js";
 import { portrait } from "./art.js";
-import { HAIRC, HATC, S, jersey, norm, tx } from "./core.js";
+import { HAIRC, HATC, S, jersey, norm, tx, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -97,7 +97,7 @@ export function styleTab(c, re) {
     tx($t("sty.title"), -styleFee());
     S.look = { ...L };
     S.styleDraft = null;
-    const wk = `${S.season}-${S.week}`;
+    const wk = weekKey();
     if (S.styleWk !== wk) {
       S.styleWk = wk;
       S.moral += 3;

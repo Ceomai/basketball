@@ -1,95 +1,20 @@
-import { LOCALE, t as $t, t } from "./i18n/index.js";
+import { LOCALE, t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, Bus, SIM, esc, toast } from "./data.js";
+import { $, $$, Bus, SIM, esc, toast, PRIO } from "./data.js";
 import { icon, portrait } from "./art.js";
 import { brandSave } from "./brand.js";
+import { SAVE_V as SCHEMA_V, cleanStrings, normalizeSchema, upgradeSchema } from "./logic/saveSchema.js";
 import { F, MY_LISE, S, app, closeSheet, renderCreate, setS, setTeamVars, sheet } from "./core.js";
 /* ================= KAYIT SİSTEMİ =================
    5 kariyer yuvası. Her yazımda bir önceki sağlam kayıt yedeğe alınır; ana kayıt bozulursa yedekten açılır.
    Tarayıcı kaydı kapalıysa ya da depolama doluysa oyuncu uyarılır ve kayıt kodu ile ilerlemesini taşıyabilir. */
 export const SLOT_N = 5,
-  SAVE_V = 5,
+  SAVE_V = SCHEMA_V,
   LEGACY_KEY = "pota-kariyeri-v3";
-/* ---- Kayıt şeması sürümleri ----
-   Oyun durumunun yapısı değiştiğinde SAVE_V bir artırılır ve MIGRATIONS'a o sürüme taşıyan adım eklenir.
-   Eski bir kayıt açılırken eksik adımlar sırayla uygulanır; her adım tek bir sürüm atlatır.
-   Eksik alanları varsayılanla dolduran normalizeState() ise her açılışta çalışır (yapı değiştirmez). */
-export const MIGRATIONS = {
-  // 5: sezon 14 maça çıktı, haftalık ücret yarı ölçeğe indi
-  5: s => {
-    if (!s.wk14) {
-      s.wk14 = 1;
-      if (s.wage > 20) s.wage = Math.round(s.wage / 2);
-    }
-  }
-};
-/** Kayıttaki metinlerden işaretleme karakterlerini temizle: başkasından gelen kayıt kodu ya da yedek dosyası
-    (ad, takım, haber metni içine gömülü HTML/JS) ekrana basılınca çalışmasın. Oyunun kendi metinlerinde < > yoktur. */
-export function cleanStrings(o, depth = 0) {
-  if (!o || typeof o !== "object" || depth > 12) return o;
-  for (const k of Object.keys(o)) {
-    const v = o[k];
-    if (typeof v === "string") {
-      if (/[<>]/.test(v)) o[k] = v.replace(/[<>]/g, "");
-    } else if (v && typeof v === "object") cleanStrings(v, depth + 1);
-  }
-  return o;
-}
-export function upgradeSave(s, from) {
-  cleanStrings(s); // bütün yükleme yolları buradan geçer: yuva, yedek, IndexedDB, kayıt kodu, dosya
-  brandSave(s); // eski kayıtlardaki gerçek kulüp/lig adları → kurgusal (anahtarlar değişmez; src/brand.js)
-  for (let v = (from || 3) + 1; v <= SAVE_V; v++) if (MIGRATIONS[v]) MIGRATIONS[v](s);
-  s.schema = SAVE_V;
-  return s;
-}
-export function normalizeState(s) {
-  // eksik alanlar (yarım kayıt, eski sürüm, elle düzenlenmiş kod): yeni kariyerin varsayılanlarıyla tamamlanır
-  const def = late.createState(
-    { first: s.first || "Oyuncu", last: s.last || "", pos: s.pos || "SF", num: s.num || 7, look: s.look || {} },
-    { posBonus: {}, npc: {} }
-  );
-  for (const k of Object.keys(def)) if (k !== "unlocks" && (s[k] === undefined || s[k] === null)) s[k] = def[k];
-  // Bozuk ya da eksik alanları onar (depolama hatası, yarım yazılmış kayıt, eski sürüm): oyun hiçbir kayıtta çökmemeli.
-  // Tür onarımı alan atamalarından ÖNCE: npc/rel/st sayı ya da dizi gelirse s.npc[k] = ... TypeError verirdi.
-  for (const k of ["hist", "tx", "news", "arcQ", "results", "league", "sched"]) if (!Array.isArray(s[k])) s[k] = [];
-  for (const k of ["items", "teams", "arcs", "chapters", "clauses", "evSeen", "npc", "rel", "st"])
-    if (!s[k] || typeof s[k] !== "object" || Array.isArray(s[k])) s[k] = {};
-  for (const k of ["mom", "dad", "friend", "rival", "agent", "journalist", "coach"])
-    if (typeof s.npc[k] !== "string" || !s.npc[k]) s.npc[k] = "-";
-  for (const k of ["koc", "takim", "taraf", "aile", "ark", "partner"])
-    if (typeof s.rel[k] !== "number" || !isFinite(s.rel[k])) s.rel[k] = 50;
-  for (const [k, v] of [
-    ["money", 30],
-    ["energy", 85],
-    ["moral", 65],
-    ["followers", 140],
-    ["aka", 55],
-    ["wage", 2],
-    ["contract", 0]
-  ])
-    if (typeof s[k] !== "number" || !isFinite(s[k])) s[k] = v;
-  for (const k of ["sut", "pas", "hiz", "guc", "sav"]) if (typeof s.st[k] !== "number" || !isFinite(s.st[k])) s.st[k] = 20;
-  if (s.missions && (typeof s.missions !== "object" || !Array.isArray(s.missions.daily) || !Array.isArray(s.missions.weekly)))
-    s.missions = null;
-  if (s.legacy && (typeof s.legacy !== "object" || typeof s.legacy.found !== "object" || !s.legacy.found)) s.legacy = null;
-  // kademeli açılıştan önceki kayıtlar: her şey açık ve görülmüş sayılır (toplu bildirim çıkmaz)
-  if (!s.unlocks || typeof s.unlocks !== "object") s.unlocks = { program: 1, sistem: 1, gorev: 1, miras: 1 };
-  s.buffs = s.buffs || { train: 0, motive: 0, offer: 0 };
-  s.rec = s.rec || { arcade: 0, reflex: 0 };
-  s.news = s.news || [];
-  s.teams = s.teams || {};
-  s.arcs = s.arcs || {};
-  s.arcQ = s.arcQ || [];
-  if (s.career && typeof s.career !== "object") s.career = null;
-  s.career = s.career || { games: 0, pts: 0, ast: 0, reb: 0, blk: 0, wins: 0, trophies: [], mvps: 0, earned: 0 };
-  if (!Array.isArray(s.career.trophies)) s.career.trophies = [];
-  if (s.team && s.team.key === "lise|İstanbul|0") {
-    s.team.name = MY_LISE;
-    s.team.short = "MMS";
-    if (s.teams[s.team.key]) Object.assign(s.teams[s.team.key], { name: MY_LISE, short: "MMS" });
-  }
-  return s;
-}
+export { MIGRATIONS, cleanStrings } from "./logic/saveSchema.js";
+// kayıt şeması: src/logic/saveSchema.js (DOM'suz); burada oyunun bağımlılıklarıyla bağlanır
+export const upgradeSave = (s, from) => upgradeSchema(s, from, brandSave);
+export const normalizeState = s => normalizeSchema(s, late.createState, MY_LISE);
 export const slotKey = i => `pota-slot-${i}`;
 export let storageOK = true,
   storageWarned = false;
@@ -133,7 +58,58 @@ export function readKey(k) {
     return null;
   }
 }
+/* ---- Ertelenmiş yazım ----
+   Ana ekran her çizildiğinde (panel kapanışı dahil) kayıt hemen yazılmaz: SAVE_DEBOUNCE ms içinde gelen
+   çizimler tek yazıma iner (saveSoon). Sayfa gizlenince/kapanınca (visibilitychange, pagehide, uygulama pause)
+   bekleyen yazım hemen yapılır; açık save() çağrıları her zaman anında yazar.
+   İkinci kopyalar (IndexedDB, uygulamada yerel depo) MIRROR_DEBOUNCE ms ertelenir; localStorage senkron kalır. */
+export const SAVE_DEBOUNCE = 400,
+  MIRROR_DEBOUNCE = 1500;
+let saveTimer = 0,
+  mirrorTimer = 0;
+const mirrorPending = {};
+export function saveSoon() {
+  if (!S || !S.saveSlot || SIM()) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, SAVE_DEBOUNCE);
+}
+export function flushSave() {
+  if (saveTimer) save();
+  flushMirror();
+}
+export function flushMirror() {
+  clearTimeout(mirrorTimer);
+  mirrorTimer = 0;
+  for (const k of Object.keys(mirrorPending)) {
+    const data = mirrorPending[k];
+    delete mirrorPending[k];
+    idbPut(k, data);
+    Bus.emit("save:write", k, data); // uygulamada yerel depoya da yansıtılır (native.js)
+  }
+}
+/** Bekleyen yazımları at (cihaz verisi silinirken silinen kayıt geri yazılmasın: src/release.js) */
+export function dropPendingSaves() {
+  clearTimeout(saveTimer);
+  saveTimer = 0;
+  clearTimeout(mirrorTimer);
+  mirrorTimer = 0;
+  for (const k of Object.keys(mirrorPending)) delete mirrorPending[k];
+}
+const mirror = (k, data) => {
+  mirrorPending[k] = data;
+  if (!mirrorTimer) mirrorTimer = setTimeout(flushMirror, MIRROR_DEBOUNCE);
+};
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushSave();
+  });
+  window.addEventListener("pagehide", flushSave);
+}
+// önceki ana kayıt yedeğe ayrıştırılmadan kopyalanır; yalnız tam yazılmış görünen (yarım kalmamış) kopya alınır
+const looksWhole = raw => raw.charCodeAt(0) === 123 && raw.charCodeAt(raw.length - 1) === 125; // "{" … "}"
 export function save() {
+  clearTimeout(saveTimer);
+  saveTimer = 0;
   if (!S || !S.saveSlot || SIM()) return;
   if (!storageOK) {
     if (!storageWarned) {
@@ -144,17 +120,11 @@ export function save() {
   }
   const k = slotKey(S.saveSlot),
     data = JSON.stringify({ v: SAVE_V, ts: Date.now(), S });
-  idbPut(k, data);
-  Bus.emit("save:write", k, data); // uygulamada yerel depoya da yansıtılır (native.js)
+  mirror(k, data);
   askPersist();
   const write = () => {
     const prev = localStorage.getItem(k);
-    if (prev) {
-      try {
-        const p = JSON.parse(prev);
-        if (validSave(p.v ? p.S : p)) localStorage.setItem(k + "-bak", prev);
-      } catch (_) {}
-    }
+    if (prev && looksWhole(prev)) localStorage.setItem(k + "-bak", prev);
     localStorage.setItem(k, data);
     delete SAVE_MEM[k];
   };
@@ -207,6 +177,7 @@ export function loadSlot(i) {
   return corrupt ? { S: null, from: "corrupt" } : null;
 }
 export function deleteSlot(i) {
+  flushSave();
   delete SAVE_MEM[slotKey(i)];
   try {
     localStorage.removeItem(slotKey(i));
@@ -306,7 +277,10 @@ export async function storageRestore() {
     await Promise.race([idbOpen(), new Promise(r => setTimeout(r, 1500))]);
     all = await idbAll();
   }
-  const nat = late.nativeAll ? await late.nativeAll().catch(() => ({})) : {};
+  // yerel depo yanıt vermezse açılış takılmasın: 1,5 sn sonra onsuz devam
+  const nat = late.nativeAll
+    ? await Promise.race([late.nativeAll().catch(() => ({})), new Promise(r => setTimeout(() => r({}), 1500))])
+    : {};
   let n = 0;
   for (let i = 1; i <= SLOT_N; i++) {
     const k = slotKey(i);
@@ -474,7 +448,7 @@ export function backupNudge() {
   };
   return true;
 }
-Bus.offer("week:sheet", backupNudge, 90);
+Bus.offer("week:sheet", backupNudge, PRIO.backupNudge);
 
 /* ================= KAYIT EKRANI ================= */
 /** Yuva listesi: hiç kariyer yoksa tek büyük "Kariyere başla"; varsa kariyerler ve boş yuvalar tek satırda */
@@ -482,15 +456,15 @@ export function slotRowsHTML(rows) {
   const empty = rows.filter(([, r]) => !r).map(([i]) => i);
   const used = rows.filter(([, r]) => r);
   if (!used.length && empty.length)
-    return `<button class="btn pri big" data-new="${empty[0]}">${t("s32.slots.start")}</button>`;
+    return `<button class="btn pri big" data-new="${empty[0]}">${$t("s32.slots.start")}</button>`;
   const cards = used.map(([i, r]) =>
     r.from === "corrupt"
-      ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${t("slots.corrupt", { i })}</h3><p>${t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${t("slots.clear")}</button></div>`
-      : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2 span-all"><button class="btn ghost sm" data-del="${i}">${t("btn.delete")}</button><button class="btn pri sm" data-go="${i}">${r.S.retired ? t("btn.view") : t("btn.continue")}</button></div></div>`
+      ? `<div class="act"><div class="ai">${icon("door")}</div><div><h3>${$t("slots.corrupt", { i })}</h3><p>${$t("slots.corruptDesc")}</p></div><button class="btn bad sm" data-del="${i}">${$t("slots.clear")}</button></div>`
+      : `<div class="act"><div class="ai" data-pp="${i}"></div><div><h3>${esc(r.S.first + " " + r.S.last)}</h3><p>${slotSummary(r.S)}${r.from === "backup" ? ` · <span class="warn">${$t("slots.fromBackup")}</span>` : ""}</p></div><div class="grid2 span-all"><button class="btn ghost sm" data-del="${i}">${$t("btn.delete")}</button><button class="btn pri sm" data-go="${i}">${r.S.retired ? $t("btn.view") : $t("btn.continue")}</button></div></div>`
   );
   if (empty.length)
     cards.push(
-      `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${t("s32.slots.free", { v: empty.join(", ") })}</h3><p>${t("slots.emptyDesc")}</p></div><button class="btn sm" data-new="${empty[0]}">${t("btn.newCareer")}</button></div>`
+      `<div class="act"><div class="ai">${icon("plus")}</div><div><h3>${$t("s32.slots.free", { v: empty.join(", ") })}</h3><p>${$t("slots.emptyDesc")}</p></div><button class="btn sm" data-new="${empty[0]}">${$t("btn.newCareer")}</button></div>`
     );
   return `<div class="choices">${cards.join("")}</div>`;
 }
@@ -524,12 +498,12 @@ export function renderSlots() {
   });
   const rows = [];
   for (let i = 1; i <= SLOT_N; i++) rows.push([i, loadSlot(i)]);
-  app.innerHTML = `<div class="row between nowrap pt-4h"><div><div class="eyebrow">${t("app.tagline")}</div><h1>${t("app.name")}</h1></div><div class="row gap-1h">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${t("btn.guide")}</button></div></div>
-   ${storageOK ? "" : `<div class="say bad">${t("slots.storageOff")}</div>`}
-   <div class="eyebrow">${t("slots.header", { n: SLOT_N })}</div>
+  app.innerHTML = `<div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("app.tagline")}</div><h1>${$t("app.name")}</h1></div><div class="row gap-1h">${late.legendsButtonHTML()}<button class="btn ghost sm" id="help0">${$t("btn.guide")}</button></div></div>
+   ${storageOK ? "" : `<div class="say bad">${$t("slots.storageOff")}</div>`}
+   <div class="eyebrow">${$t("slots.header", { n: SLOT_N })}</div>
    ${slotRowsHTML(rows)}
-   <div class="card"><div class="eyebrow">${t("slots.codeTitle")}</div><p class="small muted">${t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line-ctl);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${t("slots.paste")}</button><button class="btn sm" id="impb">${t("slots.loadCode")}</button></div><label class="btn sm ta-c">${t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
-   ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${t("slots.tip")}</div><p class="small">${t("slots.tipInstall")}</p></div>`}`;
+   <div class="card"><div class="eyebrow">${$t("slots.codeTitle")}</div><p class="small muted">${$t("slots.codeDesc")}</p><textarea id="imp" rows="3" style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line-ctl);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:16px" placeholder="${$t("slots.codePh")}" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="grid2"><button class="btn ghost sm" id="pst">${$t("slots.paste")}</button><button class="btn sm" id="impb">${$t("slots.loadCode")}</button></div><label class="btn sm ta-c">${$t("slots.loadFile")}<input type="file" id="impf" accept=".pota,.txt,text/plain" hidden></label></div>
+   ${isInstalled() ? "" : `<div class="card"><div class="eyebrow">${$t("slots.tip")}</div><p class="small">${$t("slots.tipInstall")}</p></div>`}`;
   rows.forEach(([i, r]) => {
     if (r && r.S) {
       const el = $(`[data-pp="${i}"]`);

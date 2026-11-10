@@ -25,14 +25,6 @@ export const LOCS2 = [
   { id: "hipodrom", x: 300, y: 474 },
   { id: "liman", x: 200, y: 600 }
 ];
-export const HOUSE_NAMES = {
-  oda: $t("map.14"),
-  yurt: $t("map.15"),
-  daire: $t("map.16"),
-  lux: $t("map.17"),
-  villa: $t("map.18"),
-  malikane: $t("map.19")
-};
 // ev adları çağrı anında: kiralık ev türü bulunulan şehre göre değişir (src/culture.js)
 const HOUSE_N = {
   oda: () => $t("map.14"),
@@ -175,8 +167,6 @@ export function stadiumSVG(x, y, P, lit) {
   const tc = P.team || { c1: "#c8102e", c2: "#ffffff", short: "???" };
   const st = P.stage;
   const ink = luma(tc.c1) < 60 ? tc.c2 : tc.c1;
-  const sign = (t, w = 96, dy = 44) =>
-    `<g class="lab"><rect x="${x - w / 2}" y="${y + dy}" width="${w}" height="16" rx="3" fill="#06090f" stroke="${ink}" stroke-opacity=".5"/><text x="${x}" y="${y + dy + 12}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="11" letter-spacing="1.2" fill="${ink}">${esc(t)}</text></g>`;
   if (st === "lise" || st === "uni" || st === "t3") {
     const w = st === "t3" ? 150 : 126;
     return (
@@ -257,7 +247,6 @@ export function mapSVG(P) {
   const roof = lit ? shade(sty.roof, -40) : sty.roof,
     wallC = lit ? shade(sty.wall, -70) : sty.wall;
   const silh = lit ? "#0f1730" : shade(sty.roof, -10);
-  const tc = P.team || { c1: "#c8102e", c2: "#fff", short: "???" };
   let g = `<svg viewBox="0 0 400 670" preserveAspectRatio="xMidYMax slice" role="img" aria-label="${esc($t("rc.a11y.map", { city: P.city }))}" xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient>
   <radialGradient id="glow"><stop offset="0" stop-color="#fff2c4" stop-opacity=".9"/><stop offset="1" stop-color="#fff2c4" stop-opacity="0"/></radialGradient></defs>

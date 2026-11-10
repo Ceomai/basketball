@@ -5,7 +5,7 @@ import { t as $t } from "./i18n/index.js";
    - Takım seç (eski takımın ya da memleket kulübü) → 8 hafta, her hafta bir koçluk kararı
      (rotasyon, taktik, genç oyuncu, basın) → maç simüle → ilk 4 play-off (yarı final + final).
    - Miras puanı: şampiyon 60, finalist 35, yarı finalist 20, diğer 5 (+ galibiyet başına 1), toplam en çok 180. */
-import { $, $$, Bus, esc, pick } from "./data.js";
+import { $, $$, Bus, clamp, esc, pick } from "./data.js";
 import { S, app, closeSheet, crestSVG } from "./core.js";
 import { allClubs } from "./clubs.js";
 import { save } from "./save.js";
@@ -47,7 +47,6 @@ const ORDER = [
   ["you1", "you2"],
   ["pre1", "pre2"]
 ];
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const norm = str => +(1 + ((str || 1) - 1) * 0.5).toFixed(3); // güç farkını yumuşat: büyük kulüp de kararlara muhtaç
 
 function LG() {

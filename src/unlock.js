@@ -5,7 +5,7 @@
    - miras (vakıf, kulüp payı, Şöhretler Müzesi değerlendirmesi): 28 yaşında ya da emeklilikte
    Açılınca kısa bir panel çıkar. Eski kayıtlarda (S.unlocks yoksa) her şey zaten açık sayılır, bildirim çıkmaz. */
 import { t as $t } from "./i18n/index.js";
-import { $, Bus, isPro, toast } from "./data.js";
+import { $, Bus, isPro, toast, PRIO } from "./data.js";
 import { S, closeSheet, sheet } from "./core.js";
 import { late } from "./late.js";
 
@@ -54,7 +54,7 @@ function unlockSheet() {
   toast(`${$t("unl.title")}: ${fresh.map(k => $t(TXT[k][0])).join(", ")}`);
   return true;
 }
-Bus.offer("week:sheet", unlockSheet, 6);
+Bus.offer("week:sheet", unlockSheet, PRIO.unlock);
 
 /* ---- Yenilikler: güncellemeden sonra bir kez, neyin değiştiğini kısaca anlatır ---- */
 export const WHATSNEW = "2026.11b";

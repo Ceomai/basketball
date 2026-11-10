@@ -7,7 +7,7 @@
      dilimi harcamaz ama küçük enerji ister. Hafta bitince kaybolur. Haritayı her hafta kontrol etmek için bir sebep. */
 import { t as $t } from "./i18n/index.js";
 import { $, $$, Bus, shuffle } from "./data.js";
-import { S, closeSheet, norm, sheet } from "./core.js";
+import { S, closeSheet, norm, sheet, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -27,10 +27,11 @@ export function districtTabsHTML() {
     )
     .join("")}</div>`;
 }
-export function bindDistrict(re) {
-  $$("#dist [data-dist]").forEach(b => (b.onclick = () => ((S.district = b.dataset.dist), re())));
+/** reMap: semt sekmesi (yalnız harita yenilenir); reMain: olay sonrası (HUD değerleri değişir) tüm ana ekran */
+export function bindDistrict(reMap, reMain = reMap) {
+  $$("#dist [data-dist]").forEach(b => (b.onclick = () => ((S.district = b.dataset.dist), reMap())));
   $$(".mev").forEach(g => {
-    const go = () => openEvent(+g.dataset.mev, re);
+    const go = () => openEvent(+g.dataset.mev, reMain);
     g.onclick = e => (e.stopPropagation(), go());
     g.onkeydown = e => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), go());
   });
@@ -47,7 +48,7 @@ const EVENTS = [
   { id: "hastane", loc: "aile", fx: () => ((S.rel.taraf += 3), (S.moral += 3), (S.rel.aile += 2)) },
   { id: "olcum", loc: "performans", fx: () => (S.fit = Math.min(100, (S.fit ?? 65) + 2)) }
 ];
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 Bus.on("week:start", () => {
   if (!S || window.__SIM) return;
   if (S.mapEv && S.mapEv.w === wk()) return;

@@ -9,7 +9,7 @@
    - box         Günlük menajer kutusu: günde bir ücretsiz, bir de reklamla (cihaz başına) */
 import { t as $t } from "./i18n/index.js";
 import { $, Bus, esc, fmt, isPro, pick, statName, STATS, toast } from "./data.js";
-import { S, norm, sheet, tx } from "./core.js";
+import { S, norm, sheet, tx, weekKey } from "./core.js";
 import { M } from "./match.js";
 import { save } from "./save.js";
 import { ADS, adBtn, adsSave, rewardLeft, showRewarded } from "./ads.js";
@@ -170,7 +170,7 @@ export function bindSeasonAd() {
 
 /* ---- Antrenman kazancı 2 katı (places.js → runDrill) ---- */
 const trainWeek = () => {
-  const wk = `${S.season}-${S.week}`;
+  const wk = weekKey();
   if (S.adTrainWk !== wk) {
     S.adTrainWk = wk;
     S.adTrainN = 0;
@@ -209,10 +209,6 @@ function box() {
   return b;
 }
 export const boxReady = () => !!(S && RC.rewards.box && !window.__SIM && !box().free);
-export function boxButtonHTML() {
-  if (!S || !RC.rewards.box || window.__SIM) return "";
-  return `<button class="btn ghost sm has-dot" id="dbox">${$t("adp.box")}${boxReady() ? late.newDot() : ""}</button>`;
-}
 /** Kutu ödülü: küçük ve çeşitli; ilerlemeyi hızlandırmaktan çok güne bir sürpriz */
 function roll() {
   const r = Math.random();

@@ -9,8 +9,8 @@
    - Taktisyen: sistem uyumuna iki kat önem verir.
    Haftalık küçük bir ihtimalle bu karakterlerle iki seçenekli bir olay yaşanır (Kadro sekmesinde ilişkiler görünür). */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, esc, hash, pick } from "./data.js";
-import { S, closeSheet, news, norm, sheet, tx } from "./core.js";
+import { $$, Bus, clamp, esc, hash, pick, PRIO } from "./data.js";
+import { S, closeSheet, news, norm, sheet, tx, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { late } from "./late.js";
 
@@ -159,8 +159,8 @@ const EV = [
 const nameOf = who => (who === "koc" ? S.npc.coach : (chars() || {})[who] ? chars()[who].n : "");
 function charEvent() {
   if (!S || !S.team || window.__SIM || S.injury || S.week < 3 || S.season === 1 || S.phase !== "regular") return false;
-  if (S.charWeek === `${S.season}|${S.week}` || Math.random() > 0.12 || !chars()) return false;
-  S.charWeek = `${S.season}|${S.week}`;
+  if (S.charWeek === weekKey("|") || Math.random() > 0.12 || !chars()) return false;
+  S.charWeek = weekKey("|");
   const ct = coachType(),
     pool = EV.filter(e => !e.type || e.type === ct),
     e = pick(pool),
@@ -183,7 +183,7 @@ function charEvent() {
   );
   return true;
 }
-Bus.offer("week:sheet", charEvent, 35);
+Bus.offer("week:sheet", charEvent, PRIO.charEvent);
 
 /* ---- Kadro sekmesindeki kart ---- */
 const ROLE_KEYS = { yildiz: "ch.role.yildiz", mentor: "ch.role.mentor", dost: "ch.role.dost", koc: "ch.role.koc" };

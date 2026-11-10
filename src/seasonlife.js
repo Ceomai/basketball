@@ -8,15 +8,15 @@
    - Rakiple karşılaşma geçmişi (ezeli rakibinin takımına karşı).
    - Yaz kampı: 3 gün, her gün bir etkinlik (mini oyunlu ya da hızlı), son gün kamp turnuvası; tek dokunuşla geçilebilir. */
 import { t as $t } from "./i18n/index.js";
-import { $, $$, Bus, clamp, esc, fmt, isPro, pick, ri, shuffle } from "./data.js";
-import { S, app, closeSheet, eff, fullName, gainStat, levelMul, news, norm, renderMain, resultView, sheet, tx, useSlot } from "./core.js";
+import { $, $$, Bus, clamp, esc, fmt, isPro, pick, ri, shuffle, PRIO } from "./data.js";
+import { S, app, closeSheet, eff, fullName, gainStat, levelMul, news, norm, renderMain, resultView, sheet, tx, useSlot, weekKey } from "./core.js";
 import { save } from "./save.js";
 import { arenaFor } from "./places.js";
 import { mgDribble, mgShoot, mgTiming } from "./games.js";
 import { M } from "./match.js";
 import { late } from "./late.js";
 
-const wk = () => `${S.season}-${S.week}`;
+const wk = () => weekKey();
 const pm = () => (late.ecoPm ? late.ecoPm() : 1);
 const media = (p, f) => (late.mediaGain ? late.mediaGain(p, f) : 0);
 function ask(title, sub, body, opts, noClose = true) {
@@ -209,7 +209,7 @@ function rehabSheet() {
   });
   return true;
 }
-Bus.offer("week:sheet", rehabSheet, 9);
+Bus.offer("week:sheet", rehabSheet, PRIO.rehab);
 
 /* ================= SEZON SONU ÖDÜL GECESİ ================= */
 Bus.on("season:end", () => {
@@ -247,7 +247,7 @@ function galaSheet() {
   })();
   return true;
 }
-Bus.offer("week:sheet", galaSheet, 2, "now");
+Bus.offer("week:sheet", galaSheet, PRIO.gala, "now");
 
 /* ================= RAKİPLE KARŞILAŞMA GEÇMİŞİ ================= */
 Bus.on("match:end", e => {
@@ -400,4 +400,4 @@ function campSheet() {
   summerCamp();
   return true;
 }
-Bus.offer("week:sheet", campSheet, 3, "now");
+Bus.offer("week:sheet", campSheet, PRIO.camp, "now");
