@@ -274,18 +274,18 @@ export function fixture() {
   return S.phase === "regular" ? S.sched[clamp(S.week, 1, S.sched.length) - 1] : { opp: S.playoffOpp, home: late.serHome() }; // seri ev/deplasman sırası (src/series.js)
 }
 export function phaseName() {
-  const tour = S.stage === "lise" ? $t("core.1") : $t("core.3");
+  const tour = S.stage === "lise" ? $t("phase.tournament") : $t("common.playoffs");
   return S.phase === "regular"
-    ? $t("core.4")
+    ? $t("phase.regularSeason")
     : S.phase === "semi"
-      ? $t("core.5", {
+      ? $t("phase.semifinal", {
           tour: tour
         })
-      : $t("core.6", {
+      : $t("phase.final", {
           tour: tour
         });
 }
-export const ROLE_N = { star: $t("core.77"), rot: $t("core.78"), bench: $t("core.79") };
+export const ROLE_N = { star: $t("role.starting5"), rot: $t("role.rotation"), bench: $t("role.bench") };
 
 /* ================= PANEL SİSTEMİ =================
    Kapatılabilir panel: ✕, arka plana dokunma, Esc, tutamaçtan/başlıktan aşağı sürükleme ve (web/PWA'da) tarayıcı
@@ -508,12 +508,12 @@ export function fxHTML(list) {
 }
 export function actHTML(a) {
   const dis = (a.slot && S.slot <= 0) || (a.price && S.money < a.price) || a.disabled;
-  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div class="minw-0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [[$t("core.7"), "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || $t("core.8")}</button></div>`;
+  return `<div class="act">${a.ic ? `<div class="ai">${a.ic}</div>` : "<span></span>"}<div class="minw-0"><h3>${a.t}</h3><p>${a.d}</p>${fxHTML([...(a.slot ? [[$t("main.timeSlot1"), "t"]] : []), ...(a.fx || [])])}</div><button class="btn ${a.cls || "team"} sm" data-act="${a.id}" ${dis ? "disabled" : ""}>${a.btn || $t("main.do")}</button></div>`;
 }
 export function prodHTML(p) {
   const own = p.own,
     dis = own || (p.slot && S.slot <= 0) || (p.price && S.money < p.price) || p.disabled;
-  return `<div class="prod${own ? " own" : ""}"><div class="ic">${p.ic}</div><h3>${p.t}</h3><p>${p.d}</p>${p.fx ? fxHTML(p.fx) : ""}<button class="btn ${own ? "ghost" : p.cls || "team"} sm" data-act="${p.id}" ${dis ? "disabled" : ""}>${own ? $t("core.9") : p.btn || (p.price ? fmt(p.price) : $t("core.10"))}</button></div>`;
+  return `<div class="prod${own ? " own" : ""}"><div class="ic">${p.ic}</div><h3>${p.t}</h3><p>${p.d}</p>${p.fx ? fxHTML(p.fx) : ""}<button class="btn ${own ? "ghost" : p.cls || "team"} sm" data-act="${p.id}" ${dis ? "disabled" : ""}>${own ? $t("main.owned") : p.btn || (p.price ? fmt(p.price) : $t("common.select"))}</button></div>`;
 }
 export function bindActs(map, tag) {
   $$("[data-act]").forEach(
@@ -528,7 +528,7 @@ export function bindActs(map, tag) {
 export function resultView(title, text, fx) {
   if (!$("#shb")) return; // panel bu arada kapandıysa (geri tuşu, başka ekran) sonuç sessizce düşer
   $("#shb").innerHTML =
-    `<div class="say">${text}</div>${fx ? fxHTML(fx) : ""}<button class="btn pri" id="rb">${$t("casino.13")}</button>`;
+    `<div class="say">${text}</div>${fx ? fxHTML(fx) : ""}<button class="btn pri" id="rb">${$t("common.backMap")}</button>`;
   $("#rb").onclick = () => {
     closeSheet();
     renderMain();
@@ -567,24 +567,24 @@ export function renderCreate() {
   const hairMode = HAIR_STY.includes(F.look.hatStyle);
   // Üstte kimlik (ad, görünüm, pozisyon, numara); mod/zorluk/köken/senaryo "Gelişmiş seçenekler"de (seçimler korunur)
   app.innerHTML = `
-  <div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("core.18")}</div><h1>${$t("core.19")}<br>${$t("core.20")}</h1></div><div class="tagx ta-r">İstanbul<small>${$t("core.21")}</small></div></div>
-  <div class="row between"><div class="eyebrow">${$t("core.22", {
+  <div class="row between nowrap pt-4h"><div><div class="eyebrow">${$t("create.basketballCareer")}</div><h1>${$t("create.pota")}<br>${$t("create.kariyeri")}</h1></div><div class="tagx ta-r">İstanbul<small>${$t("create.careerStarts")}</small></div></div>
+  <div class="row between"><div class="eyebrow">${$t("create.slotNewCareer", {
     slot: F.slot
-  })}</div><button class="btn ghost sm" id="bkS">${$t("core.23")}</button></div>
+  })}</div><button class="btn ghost sm" id="bkS">${$t("create.backSlots")}</button></div>
   <div class="card">
-    <div class="grid2"><label class="small"><b>${$t("core.24")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}" aria-describedby="nerr"></label><label class="small"><b>${$t("core.25")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}" aria-describedby="nerr"></label></div>
-    <p class="small field-err" id="nerr" role="alert" hidden>${$t("core.34")}</p>
-    <div class="grid2"><button class="btn ghost sm" id="npick">${$t("core.26")}</button><button class="btn ghost sm" id="nrnd">${$t("core.27")}</button></div>
+    <div class="grid2"><label class="small"><b>${$t("create.firstName")}</b><input type="text" id="fn" maxlength="14" placeholder="Ali" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next" value="${esc(F.first)}" aria-describedby="nerr"></label><label class="small"><b>${$t("create.lastName")}</b><input type="text" id="ln" maxlength="16" placeholder="Yılmaz" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" value="${esc(F.last)}" aria-describedby="nerr"></label></div>
+    <p class="small field-err" id="nerr" role="alert" hidden>${$t("create.enterFirstLast")}</p>
+    <div class="grid2"><button class="btn ghost sm" id="npick">${$t("create.pickList")}</button><button class="btn ghost sm" id="nrnd">${$t("create.randomName")}</button></div>
     <div class="row nowrap" style="align-items:flex-start">
       <canvas id="pv" style="width:132px;height:160px;border-radius:var(--r-xl);flex-shrink:0"></canvas>
       <div style="display:flex;flex-direction:column;gap:var(--sp-2h);min-width:0">
-        <div><div class="eyebrow mb-1h">${$t("core.28")}</div><div class="opts" id="skin">${swHTML(SKINS, F.look.skin, "s32.sw.skin")}</div></div>
-        <div><div class="eyebrow mb-1h">${$t("core.29")}</div><div class="opts" id="hs">${[
-          ["bere", $t("core.11")],
-          ["kep", $t("core.12")],
-          ["kulak", $t("core.13")],
-          ["band", $t("core.14")],
-          ["yok", $t("core.15")],
+        <div><div class="eyebrow mb-1h">${$t("create.skin")}</div><div class="opts" id="skin">${swHTML(SKINS, F.look.skin, "s32.sw.skin")}</div></div>
+        <div><div class="eyebrow mb-1h">${$t("create.head")}</div><div class="opts" id="hs">${[
+          ["bere", $t("common.beanie")],
+          ["kep", $t("common.cap")],
+          ["kulak", $t("common.headphones")],
+          ["band", $t("common.headband")],
+          ["yok", $t("common.hair")],
           ["uzun", $t("sty.h.uzun")],
           ["afro", $t("sty.h.afro")],
           ["orgu", $t("sty.h.orgu")],
@@ -594,13 +594,13 @@ export function renderCreate() {
           .join("")}</div></div>
       </div>
     </div>
-    <div><div class="eyebrow mb-1h">${hairMode ? $t("core.16") : $t("core.17")}</div><div class="opts" id="hc">${swHTML(hairMode ? HAIRC : [...HATC, ...late.extraHatColors()], hairMode ? F.look.hair : F.look.hat, hairMode ? "s32.sw.hair" : "s32.sw.color")}</div></div>
-    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow mb-1h">${$t("core.16")}</div><div class="opts" id="hc2">${swHTML(HAIRC, F.look.hair, "s32.sw.hair")}</div></div>` : ""}
-    <div><div class="eyebrow mb-1h">${$t("core.30")}</div><div class="opts" id="pos">${Object.entries(POS)
+    <div><div class="eyebrow mb-1h">${hairMode ? $t("common.hairColor") : $t("common.accessoryColor")}</div><div class="opts" id="hc">${swHTML(hairMode ? HAIRC : [...HATC, ...late.extraHatColors()], hairMode ? F.look.hair : F.look.hat, hairMode ? "s32.sw.hair" : "s32.sw.color")}</div></div>
+    ${F.look.hatStyle === "band" ? `<div><div class="eyebrow mb-1h">${$t("common.hairColor")}</div><div class="opts" id="hc2">${swHTML(HAIRC, F.look.hair, "s32.sw.hair")}</div></div>` : ""}
+    <div><div class="eyebrow mb-1h">${$t("create.position")}</div><div class="opts" id="pos">${Object.entries(POS)
       .map(([k, p]) => `<button class="opt ${F.pos === k ? "on" : ""}" data-v="${k}" aria-pressed="${F.pos === k}"><span class="cc">${k}</span>${p.n}</button>`)
       .join("")}</div>
-      <p class="small muted mt-1h">${$t("core.31")} ${{ PG: $t("core.80"), SG: $t("core.81"), SF: $t("core.82"), PF: $t("core.83"), C: $t("core.84") }[F.pos]}</p></div>
-    <div><div class="eyebrow mb-1h">${$t("core.32")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}" aria-pressed="${F.num === n}">${n}</button>`).join("")}</div></div>
+      <p class="small muted mt-1h">${$t("create.positionDetermines")} ${{ PG: $t("create.pickRollAlley"), SG: $t("create.catchShootStep"), SF: $t("create.wingShotFast"), PF: $t("create.pickPopPost"), C: $t("create.hookShotAlley") }[F.pos]}</p></div>
+    <div><div class="eyebrow mb-1h">${$t("create.jerseyNumber")}</div><div class="opts" id="num">${[0, 1, 3, 7, 8, 10, 11, 13, 23, 24, 30, 33, 77, ...late.extraNumbers()].map(n => `<button class="opt ${F.num === n ? "on" : ""}" data-v="${n}" aria-pressed="${F.num === n}">${n}</button>`).join("")}</div></div>
   </div>
   <details class="card adv" id="adv"${F.adv ? " open" : ""}><summary><span class="minw-0"><b>${$t("s32.adv")}</b><span class="small muted">${$t("s32.advD")}</span></span></summary><div class="stack">
     ${late.modePickerHTML(F.mode || "normal")}
@@ -608,7 +608,7 @@ export function renderCreate() {
     ${F.heir ? "" : late.originPickerHTML(F.origin || "istanbul")}
     ${F.heir ? "" : late.scenarioPickerHTML(F.scenario || "")}
   </div></details>
-  <div class="cta-bar"><button class="btn pri big" id="go">${$t("core.33")}</button></div>`;
+  <div class="cta-bar"><button class="btn pri big" id="go">${$t("create.startCareer")}</button></div>`;
   // adlar ekrana basılır: işaretleme karakterleri alınmaz
   const keep = () => {
     F.first = $("#fn")
@@ -705,7 +705,7 @@ export function renderCreate() {
   $("#go").onclick = () => {
     keep();
     if (!F.first || !F.last) {
-      toast($t("core.34"));
+      toast($t("create.enterFirstLast"));
       const bad = !F.first ? $("#fn") : $("#ln");
       $("#nerr").hidden = false;
       if (!F.first) $("#fn").setAttribute("aria-invalid", "true");
@@ -784,11 +784,11 @@ export function namePicker() {
     `<div class="opts">${arr.map(n => `<button class="opt ${cur === n ? "on" : ""}" data-${k}="${esc(n)}">${esc(n)}</button>`).join("")}</div>`;
   const draw = () => {
     sheet(
-      $t("core.35"),
-      $t("core.36"),
-      `<div class="card ta-c"><div class="eyebrow">${$t("core.37")}</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
-    <div class="eyebrow">${$t("core.24")}</div>${chips(NAME_FIRST, F.first, "nf")}<div class="eyebrow">${$t("core.25")}</div>${chips(NAME_LAST, F.last, "nl")}
-    <div class="grid2"><button class="btn ghost" id="nr2">${$t("core.38")}</button><button class="btn pri" id="nok2">${$t("ads.47")}</button></div>`,
+      $t("create.pickName"),
+      $t("create.noKeyboardNeeded"),
+      `<div class="card ta-c"><div class="eyebrow">${$t("create.selected")}</div><h2 id="npv">${esc((F.first || "—") + " " + (F.last || "—"))}</h2></div>
+    <div class="eyebrow">${$t("create.firstName")}</div>${chips(NAME_FIRST, F.first, "nf")}<div class="eyebrow">${$t("create.lastName")}</div>${chips(NAME_LAST, F.last, "nl")}
+    <div class="grid2"><button class="btn ghost" id="nr2">${$t("create.random")}</button><button class="btn pri" id="nok2">${$t("common.ok")}</button></div>`,
       { onClose: renderCreate }
     );
     $$("[data-nf]").forEach(
@@ -851,7 +851,7 @@ export function startCareer() {
     F.heir = null;
   }
   news(
-    $t("core.85", {
+    $t("create.joinedRoster", {
       v: fullName(),
       name: S.team.name
     })
@@ -960,27 +960,27 @@ export function chapter(id, after) {
   const ln = lgName();
   const T = {
     lise1: [
-      $t("core.39"),
-      $t("core.40"),
-      $t("core.41", {
+      $t("chapter.chapter1"),
+      $t("chapter.modaSeaside"),
+      $t("chapter.istanbulEveryEvening16", {
         coach: S.npc.coach,
         name: S.team.name
       })
     ],
-    lise2: [$t("core.42"), $t("core.43"), $t("core.44")],
+    lise2: [$t("chapter.chapter2"), $t("chapter.championshipYear"), $t("chapter.secondYearHigh")],
     uni: [
-      $t("core.45"),
-      $t("core.46"),
-      $t("core.47", {
+      $t("chapter.chapter3"),
+      $t("chapter.campus"),
+      $t("chapter.anotherYearGrowth", {
         name: S.team.name,
         ln: ln
       })
     ],
-    tryout: [$t("core.48"), $t("core.49"), `${S.tryout ? teamByKey(S.tryout.club).name : $t("core.50")} ${$t("core.51")}`],
+    tryout: [$t("chapter.clubTryouts"), $t("chapter.phoneCall"), `${S.tryout ? teamByKey(S.tryout.club).name : $t("chapter.club")} ${$t("chapter.holdingTryoutsInvited")}`],
     pro: [
-      $t("core.52"),
-      $t("core.53"),
-      $t("core.54", {
+      $t("chapter.chapter4"),
+      $t("chapter.firstProSigning"),
+      $t("chapter.signedFirst", {
         name: S.team.name,
         city: S.city,
         n: (LEAGUES[S.team.cc] || LEAGUES.TR).n,
@@ -990,32 +990,32 @@ export function chapter(id, after) {
       })
     ],
     t2: [
-      $t("core.55"),
-      $t("core.56"),
-      $t("core.86", {
+      $t("chapter.chapter5"),
+      $t("chapter.oneStep"),
+      $t("chapter.biggerArenasTougher", {
         ln: ln,
         city: S.city
       })
     ],
     t1: [
-      $t("core.57"),
-      $t("core.58"),
-      $t("core.87", {
+      $t("chapter.chapter6"),
+      $t("chapter.topFlight"),
+      $t("chapter.playingBestCountry", {
         ln: ln
       })
     ],
     euro: [
-      $t("core.59"),
-      $t("core.60"),
-      $t("core.61", {
+      $t("chapter.chapter7"),
+      $t("chapter.europeanStage"),
+      $t("chapter.euroleagueJerseyFace", {
         name: S.team.name,
         mom: S.npc.mom
       })
     ],
     nba: [
-      $t("core.62"),
-      $t("core.63"),
-      $t("core.88", {
+      $t("chapter.chapter8"),
+      $t("common.nba"),
+      $t("chapter.modaSeafrontNba", {
         name: S.team.name
       })
     ]
@@ -1035,7 +1035,7 @@ export function chapter(id, after) {
   sheet(
     T[0],
     seasonLabel(),
-    `<div class="chapter"><div class="hd"><h2 style="font-size:var(--fs-num)">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("core.64")}</button></div></div>`,
+    `<div class="chapter"><div class="hd"><h2 style="font-size:var(--fs-num)">${T[1]}</h2></div><div class="bd"><p>${T[2]}</p><button class="btn pri" id="chok">${$t("common.start")}</button></div></div>`,
     { noClose: true }
   );
   $("#chok").onclick = () => {
@@ -1078,19 +1078,19 @@ export function hudHTML() {
   const form = rs.length ? (rs.reduce((a, r) => a + r.rating, 0) / rs.length).toFixed(1) : "–";
   return `<header class="hud">
    <div class="hud-id"><button class="avatar" id="hav" aria-label="${esc($t("s32.portrait"))}"></button><div class="minw-0"><div class="nm">${esc(fullName())}</div><div class="tm">${$t(
-     "core.65",
+     "hud.ageRoleTeam",
      {
        age: S.age,
        n: POS[S.pos].n,
        name: esc(S.team.name)
      }
    )}</div></div>
-   <div class="hud-money"><span class="eyebrow">${$t("core.66")}</span><b>${fmt(S.money)}</b></div></div>
+   <div class="hud-money"><span class="eyebrow">${$t("common.balance")}</span><b>${fmt(S.money)}</b></div></div>
    <div class="hud-stats">
-    <div class="hs"><div class="k">${$t("core.67")}</div><div class="v">${S.energy}</div><div class="mt"><i style="--w:${S.energy};background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
-    <div class="hs"><div class="k">${$t("core.68")}</div><div class="v">${S.moral}</div><div class="mt"><i style="--w:${S.moral};background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
-    <div class="hs"><div class="k">${$t("core.69")}</div><div class="v">${ovr()} <span class="muted" style="font-size:var(--fs-sm)">· ${form}</span></div></div>
-    <div class="hs"><div class="k">${$t("core.70")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:var(--fs-sm)">· ${kfmt(S.followers)}</span></div></div>
+    <div class="hs"><div class="k">${$t("hud.energy")}</div><div class="v">${S.energy}</div><div class="mt"><i style="--w:${S.energy};background:${S.energy < 30 ? "var(--bad)" : S.energy < 55 ? "var(--warn)" : "var(--good)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("hud.morale")}</div><div class="v">${S.moral}</div><div class="mt"><i style="--w:${S.moral};background:${S.moral < 35 ? "var(--bad)" : S.moral < 55 ? "var(--warn)" : "var(--info)"}"></i></div></div>
+    <div class="hs"><div class="k">${$t("hud.ovrForm")}</div><div class="v">${ovr()} <span class="muted" style="font-size:var(--fs-sm)">· ${form}</span></div></div>
+    <div class="hs"><div class="k">${$t("hud.rankSocial")}</div><div class="v">${S.phase === "regular" ? rank + "." : "PO"} <span class="muted" style="font-size:var(--fs-sm)">· ${kfmt(S.followers)}</span></div></div>
    </div></header>`;
 }
 export function mapState() {
@@ -1110,9 +1110,9 @@ export function mapState() {
 }
 // harita sütunu (semt sekmeleri + harita): semt değişince yalnız bu kısım yeniden çizilir (renderMapCol)
 function mapColHTML() {
-  const tods = [$t("core.71"), $t("core.72"), $t("core.73"), $t("core.74")];
+  const tods = [$t("map.night"), $t("map.evening"), $t("map.afternoon"), $t("map.morning")];
   return `${late.districtTabsHTML ? late.districtTabsHTML() : ""}<div class="mapwrap"><div class="mapin"><div class="maphead"><div class="tagx">${esc(S.city)}<small>${$t(
-    "core.75",
+    "map.week",
     {
       v: seasonLabel(),
       week: S.week,
@@ -1161,7 +1161,7 @@ export function renderMain() {
       ? late.breakCardHTML()
       : `<div class="card weekcard"><div class="row between"><div class="eyebrow">${$t("main.week", { n: S.slot })}</div>${S.injury ? `<span class="pill l">${$t("main.injured", { n: S.injury.w })}</span>` : `<span class="pill g">${isPro(S.stage) ? ROLE_N[S.role] : $t("main.schoolTeam")}</span>`}</div>
    <div class="timebar">${[2, 1, 0].map(i => `<i class="${S.slot > i ? "on" : ""}"></i>`).join("")}</div>
-   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? $t("main.home") : $t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("core.76")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
+   <div class="next">${crestSVG(S.team, 40)}<div style="text-align:center;min-width:0"><div class="eyebrow">${phaseName()} · ${fx.home ? $t("main.home") : $t("main.away")}</div><div style="font-weight:800;font-size:var(--fs-lg);line-height:1.2">${esc(S.team.short)} <span class="vs">${$t("common.vs")}</span> ${esc(opp.name)}</div></div>${crestSVG(opp, 40)}</div>
    ${late.isDerby(opp) ? `<div class="small" style="color:var(--bad);text-align:center;font-weight:700">${$t("main.derby", { name: esc(late.derbyWho(opp)) })}</div>` : ""}${late.serMainHTML()}
    ${late.planRowHTML()}${late.dayRowHTML(late.missionsButtonHTML())}</div><div class="actbar" id="actbar" role="group" aria-label="${esc($t("main.week", { n: S.slot }))}"><div class="grid2"><button class="btn ghost" id="quickw">${$t("main.quickWeek")}</button><button class="btn pri" id="gostad">${$t("main.prepare")}</button></div></div>`
   }</div>${late.weekSummaryHTML()}${late.onboardHTML()}

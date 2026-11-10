@@ -12,80 +12,80 @@ export function locKafe(I) {
     dp = Math.round(12 * (1 + ORDER.indexOf(S.stage)));
   const b = sheet(
     I.n,
-    $t("places.243", {
+    $t("cafe.waiting", {
       f: f
     }),
     `<div class="pgrid">${[
       {
         id: "sohbet",
         ic: icon("coffee"),
-        t: $t("places.316"),
-        d: $t("places.317", {
+        t: $t("cafe.coffeeChat"),
+        d: $t("cafe.opening", {
           f: f
         }),
         slot: 1,
         price: 3,
         fx: [
-          [$t("places.244"), "p"],
-          [$t("places.245"), "p"]
+          [$t("common.moralePlus8"), "p"],
+          [$t("cafe.friendsPlus8"), "p"]
         ],
         btn: fmt(3)
       },
       {
         id: "izle",
         ic: icon("tv"),
-        t: $t("places.318"),
-        d: $t("places.319"),
+        t: $t("cafe.watchNbaGame"),
+        d: $t("cafe.learnReadGame"),
         slot: 1,
         price: 5,
         fx: [
-          [$t("places.143"), "p"],
-          [$t("places.246"), "p"]
+          [$t("common.moralePlus5"), "p"],
+          [$t("cafe.passChancePlus1"), "p"]
         ],
         btn: fmt(5)
       },
       {
         id: "oyun",
         ic: icon("pad"),
-        t: $t("places.257"),
-        d: $t("places.320"),
+        t: $t("cafe.gameNight2"),
+        d: $t("cafe.consoleTournamentUntil"),
         slot: 1,
         fx: [
-          [$t("places.247"), "p"],
-          [$t("extras.39"), "n"]
+          [$t("cafe.moralePlus12"), "p"],
+          [$t("common.energyMinus8"), "n"]
         ],
-        btn: $t("places.273")
+        btn: $t("common.join")
       },
       S.partner
         ? {
             id: "randevu",
             ic: icon("heart"),
-            t: $t("places.321", {
+            t: $t("cafe.meet", {
               partner: S.partner
             }),
-            d: $t("places.322"),
+            d: $t("cafe.cornerTable"),
             slot: 1,
             price: dp,
-            fx: [[$t("places.248"), "p"]],
+            fx: [[$t("cafe.partnerPlus12"), "p"]],
             btn: fmt(dp)
           }
         : {
             id: "flort",
             ic: icon("heart"),
-            t: $t("places.323"),
-            d: $t("places.324", {
+            t: $t("cafe.meetSomeone"),
+            d: $t("cafe.broughtFriend", {
               f: f
             }),
             slot: 1,
-            fx: [[$t("places.249"), "t"]],
-            btn: $t("places.325")
+            fx: [[$t("common.partnerChance"), "t"]],
+            btn: $t("cafe.meet2")
           }
     ]
       .map(prodHTML)
       .join("")}</div>${late.quizHTML()}`
   );
   late.bindQuiz(); // bilgi gecesi (src/venues.js)
-  addScene(b, "kafe", $t("places.348"), {
+  addScene(b, "kafe", $t("cafe.whatGetCake"), {
     friend: {
       L: { skin: SKINS[hash(f) % 4], hatStyle: "bere", hat: "#2d8a3e", pom: "#f4c534" },
       o: { jersey: "#e2741f", sleeves: true, gloves: "#2d8a3e", mood: "mutlu" }
@@ -96,33 +96,33 @@ export function locKafe(I) {
       sohbet: () => {
         if (S.money < 3) return;
         useSlot();
-        tx($t("map.20"), -3);
+        tx($t("common.cafe"), -3);
         S.moral += 8;
         S.rel.ark += 8;
         norm();
         save();
         resultView(
-          $t("places.250"),
+          $t("cafe.chat"),
           pick([
-            $t("places.251", {
+            $t("cafe.saidStartedNew", {
               f: f
             }),
-            $t("places.252", {
+            $t("cafe.talkedSchoolLove", {
               f: f
             }),
-            $t("places.253", {
+            $t("cafe.saidHesProud", {
               f: f
             })
           ]),
-          [[$t("places.244"), "p"]]
+          [[$t("common.moralePlus8"), "p"]]
         );
       },
       izle: () => {
         if (S.money < 5) return;
         useSlot();
-        tx($t("map.20"), -5);
+        tx($t("common.cafe"), -5);
         S.moral += 5;
-        let t = $t("places.254");
+        let t = $t("cafe.buzzerBeaterThree");
         if (Math.random() < 0.5) {
           const g = gainStat("pas", Math.round(0.25 * levelMul("pas") * 100) / 100);
           t += ` ${$t("prog.watch", { v: g.toFixed(2) })}`;
@@ -133,7 +133,7 @@ export function locKafe(I) {
         t += ` ${$t("life.scout", { k: statName(sk) })}`;
         norm();
         save();
-        resultView($t("places.256"), t, [[$t("places.143"), "p"]]);
+        resultView($t("cafe.gameNight"), t, [[$t("common.moralePlus5"), "p"]]);
       },
       oyun: () => {
         useSlot();
@@ -143,13 +143,13 @@ export function locKafe(I) {
         norm();
         save();
         resultView(
-          $t("places.257"),
-          $t("places.258", {
+          $t("cafe.gameNight2"),
+          $t("cafe.threwControllerWhen", {
             f: f
           }),
           [
-            [$t("places.247"), "p"],
-            [$t("extras.39"), "n"]
+            [$t("cafe.moralePlus12"), "p"],
+            [$t("common.energyMinus8"), "n"]
           ]
         );
       },
@@ -160,7 +160,7 @@ export function locKafe(I) {
           S.rel.partner = 50;
           S.moral += 10;
           news(
-            $t("places.349", {
+            $t("cafe.spottedTogether", {
               v: fullName(),
               partner: S.partner
             })
@@ -168,33 +168,33 @@ export function locKafe(I) {
           norm();
           save();
           resultView(
-            $t("places.259"),
-            $t("places.260", {
+            $t("common.spark"),
+            $t("cafe.talkedHoursNow", {
               partner: S.partner
             }),
-            [[$t("extras.37"), "p"]]
+            [[$t("common.moralePlus10"), "p"]]
           );
         } else {
           S.moral -= 4;
           norm();
           save();
-          resultView($t("casino.43"), $t("places.261"), [[$t("places.262"), "n"]]);
+          resultView($t("common.noLuck"), $t("cafe.conversationNeverGot"), [[$t("cafe.moraleMinus4"), "n"]]);
         }
       },
       randevu: () => {
         if (S.money < dp) return;
         useSlot();
-        tx($t("places.263"), -dp);
+        tx($t("cafe.date"), -dp);
         S.rel.partner += 12;
         S.moral += 6;
         norm();
         save();
         resultView(
-          $t("places.263"),
-          $t("places.264", {
+          $t("cafe.date"),
+          $t("cafe.lovelyEveningDidnt", {
             partner: S.partner
           }),
-          [[$t("places.248"), "p"]]
+          [[$t("cafe.partnerPlus12"), "p"]]
         );
       }
     },

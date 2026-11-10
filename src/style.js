@@ -14,11 +14,11 @@ export const styleFee = () => Math.round(8 * (PM[S.stage] || 1));
 const HATS = ["bere", "kep", "kulak", "band", "yok", "uzun", "afro", "orgu", "kel"];
 const BEARDS = ["yok", "kirli", "keci", "sakal"];
 const HAT_N = {
-  bere: "core.11",
-  kep: "core.12",
-  kulak: "core.13",
-  band: "core.14",
-  yok: "core.15",
+  bere: "common.beanie",
+  kep: "common.cap",
+  kulak: "common.headphones",
+  band: "common.headband",
+  yok: "common.hair",
   uzun: "sty.h.uzun",
   afro: "sty.h.afro",
   orgu: "sty.h.orgu",
@@ -43,8 +43,8 @@ export function styleTab(c, re) {
       L.hatStyle,
       $t("sty.hat")
     )}
-    ${NO_HAT.includes(L.hatStyle) ? "" : sw("st-hatc", [...HATC, ...late.extraHatColors()], L.hat, $t("core.17"))}
-    ${sw("st-hair", HAIRC, L.hair, $t("core.16"))}
+    ${NO_HAT.includes(L.hatStyle) ? "" : sw("st-hatc", [...HATC, ...late.extraHatColors()], L.hat, $t("common.accessoryColor"))}
+    ${sw("st-hair", HAIRC, L.hair, $t("common.hairColor"))}
     </div></div>
     ${opt(
       "st-beard",

@@ -115,7 +115,7 @@ export function midweek(next) {
   sheet(
     $t("cp.midTitle"),
     compName(g),
-    `<div class="card"><div class="row nowrap gap-2h">${crestSVG(S.team, 40)}<b>${esc(S.team.short)}</b><span class="vs">${$t("core.76")}</span>${crestSVG(opp, 40)}<b>${esc(opp.name)}</b></div><p class="small muted">${$t("cp.midD")}</p></div>${
+    `<div class="card"><div class="row nowrap gap-2h">${crestSVG(S.team, 40)}<b>${esc(S.team.short)}</b><span class="vs">${$t("common.vs")}</span>${crestSVG(opp, 40)}<b>${esc(opp.name)}</b></div><p class="small muted">${$t("cp.midD")}</p></div>${
       S.injury
         ? `<button class="btn pri" id="mw-sim">${$t("cp.injured")}</button>`
         : `<div class="grid2"><button class="btn pri" id="mw-play">${$t("quick.self")}</button><button class="btn" id="mw-sim">${$t("quick.sim")}</button></div>`
@@ -271,11 +271,11 @@ function resultSheet(g, line, next) {
             ? S.comps.cup.rounds[g.r.r].res
             : S.comps.sup.res;
   sheet(
-    r.win ? $t("match.32") : $t("match.33"),
+    r.win ? $t("common.win") : $t("common.loss"),
     compName(g),
     `<div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${r.us}–${r.them}</span>${crestSVG(opp, 36)}</div>${line && line.r ? `<div class="rating">${line.r.toFixed(1)}</div>` : ""}</div>
-    ${line ? `<div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("data.63")}</span></div></div>${late.gainsHTML()}` : `<p class="small muted">${$t("cp.withoutYou")}</p>`}
-    <button class="btn pri" id="mw-ok">${$t("ads.25")}</button>`,
+    ${line ? `<div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("common.score")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("common.assists")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("common.rebound")}</span></div></div>${late.gainsHTML()}` : `<p class="small muted">${$t("cp.withoutYou")}</p>`}
+    <button class="btn pri" id="mw-ok">${$t("common.continue")}</button>`,
     { noClose: true }
   );
   $("#mw-ok").onclick = () => (late.closeSheet(), next());

@@ -68,7 +68,7 @@ export function relAdFreeLabel() {
   } catch (e) {
     price = "";
   }
-  return price ? `${$t("ads.39")} · ${price}` : $t("ads.39");
+  return price ? `${$t("common.adFreePack")} · ${price}` : $t("common.adFreePack");
 }
 
 /* ---- Ayarlar bölümü ---- */

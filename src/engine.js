@@ -14,7 +14,7 @@ import { LK, M, PEN, addFeed, feedRowHTML, finishMatch, odds, resolvePlay, setM,
 // hücum başına süre: sahada geçiş → set → sonuç izlenir (src/court.js courtPlay)
 export const PACE = { 1: 1500, 2: 750, 4: 320 };
 const KEY_ON = 450; // "önemli anlar"da sahadayken
-export const TR_CALLS = [$t("engine.1"), $t("engine.2"), $t("engine.3"), $t("engine.4"), $t("engine.5")];
+export const TR_CALLS = [$t("live.arenaFeet"), $t("live.basket"), $t("live.standsGoingWild"), $t("live.whatGame"), $t("live.theyveTornRim")];
 export function rosterNames(city, n) {
   const c = cOf(city),
     out = new Set();
@@ -72,11 +72,11 @@ export function modeChoice() {
     const pre = `${late.preMatchHTML()}${late.osPreHTML()}`,
       roomy = window.matchMedia && matchMedia("(min-height:740px)").matches;
     $("#mview").innerHTML =
-      `<div class="card sit" id="mode-card"><div class="eyebrow">${$t("engine.9")}</div><h2>${$t("engine.10")}</h2>
+      `<div class="card sit" id="mode-card"><div class="eyebrow">${$t("mode.preGame")}</div><h2>${$t("mode.howWantPlay")}</h2>
      <div class="choices">
-      <button class="choice" data-m="full"><span class="ct">${$t("engine.11")}</span><span class="cd">${$t("engine.12")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("engine.6") : $t("engine.7")}</span></button>
-      <button class="choice" data-m="key"><span class="ct">${$t("engine.13")}</span><span class="cd">${$t("engine.14")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("engine.6") : $t("engine.8")}</span></button>
-      <button class="choice" data-m="only"><span class="ct">${$t("pl2.only")}</span><span class="cd">${$t("pl2.onlyD")}</span><span class="od ${cur === "only" ? "e" : "i"}">${cur === "only" ? $t("engine.6") : $t("pl2.fastest")}</span></button>
+      <button class="choice" data-m="full"><span class="ct">${$t("mode.playWholeGame")}</span><span class="cd">${$t("mode.watchGameFlow")}</span><span class="od ${cur === "full" ? "e" : "i"}">${cur === "full" ? $t("mode.lastPick") : $t("mode.watch")}</span></button>
+      <button class="choice" data-m="key"><span class="ct">${$t("mode.keyMomentsOnly")}</span><span class="cd">${$t("mode.benchMinutesFly")}</span><span class="od ${cur === "key" ? "e" : "i"}">${cur === "key" ? $t("mode.lastPick") : $t("mode.quick")}</span></button>
+      <button class="choice" data-m="only"><span class="ct">${$t("pl2.only")}</span><span class="cd">${$t("pl2.onlyD")}</span><span class="od ${cur === "only" ? "e" : "i"}">${cur === "only" ? $t("mode.lastPick") : $t("pl2.fastest")}</span></button>
      </div></div>${pre ? `<details class="mpre"${roomy ? " open" : ""}><summary>${$t("md.pre")}</summary><div class="stack">${pre}</div></details>` : ""}`;
     thumbAlign($("#mode-card"));
     $$("[data-m]").forEach(
@@ -177,7 +177,7 @@ export async function playMatch(ctx) {
     PL = PLAYS[S.pos];
   // düzen: skor tabelası üstte yapışkan; yatay/geniş ekranda saha solda, durum + karar + akış sağda (index.html .mlay)
   app.innerHTML = `<div class="mtop"><div id="bug"></div><div id="mto"></div></div><div class="mlay${AUTO ? " noct" : ""}"><div id="mstat" class="card" style="padding:var(--sp-2h) var(--sp-3);gap:var(--sp-1h)"></div>${AUTO ? "" : late.courtHTML()}<div id="mview"></div>
-   <div class="card mfeed"><div class="mctl"><div class="eyebrow">${$t("engine.15")}</div><div class="spd" id="spd"></div></div><div class="feed" id="feed"></div></div></div>`;
+   <div class="card mfeed"><div class="mctl"><div class="eyebrow">${$t("live.gameFlow")}</div><div class="spd" id="spd"></div></div><div class="feed" id="feed"></div></div></div>`;
   updBug();
   if (!AUTO) late.courtStart(opp); // saha görünümü (src/court.js)
   late.matchdayStart(ctx, foes, mates); // hakem, seyirci, rakip yıldız, kimya (src/matchday.js)
@@ -187,7 +187,7 @@ export async function playMatch(ctx) {
   $("#mview").innerHTML = "";
   const renderSpd = () => {
     $("#spd").innerHTML =
-      `<div class="spd-g" role="group" aria-label="${$t("engine.15")}">${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-mode="key" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("engine.16")}</button></div>`;
+      `<div class="spd-g" role="group" aria-label="${$t("live.gameFlow")}">${[1, 2, 4].map(s => `<button class="opt ${M.speed === s ? "on" : ""}" data-s="${s}" aria-label="${$t("a11y.speed", { n: s })}" aria-pressed="${M.speed === s}">${s}×</button>`).join("")}<button class="opt ${mode === "key" ? "on" : ""}" data-mode="key" aria-pressed="${mode === "key"}" aria-label="${$t("a11y.keyOnly")}">${$t("live.keyMoments")}</button></div>`;
     // mola ayrı ve belirgin: skor tabelasının yanında (yapışkan üst bölge, src/clutch.js)
     const mto = $("#mto");
     if (mto) mto.innerHTML = late.timeoutBtnHTML();
@@ -211,8 +211,8 @@ export async function playMatch(ctx) {
   const statLine = () => {
     if (M.silent) return;
     $("#mstat").innerHTML =
-      `<div class="row between nowrap"><span class="pill ${on ? "w" : ""}">${on ? $t("engine.17") : $t("engine.18")}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> ${$t(
-        "engine.19",
+      `<div class="row between nowrap"><span class="pill ${on ? "w" : ""}">${on ? $t("live.court") : $t("live.bench")}</span><span class="small muted">${ctx.label}</span></div><div class="small"><b>${esc(sur)}</b> ${$t(
+        "live.minPtsAst",
         {
           v: Math.floor(M.mins / 60),
           pts: M.pts,
@@ -242,7 +242,7 @@ export async function playMatch(ctx) {
     buzz(good ? 20 : 10);
   };
   addFeed(
-    $t("engine.20", {
+    $t("live.packedRefereeTosses", {
       v: ctx.home ? S.city : opp.city,
       label: ctx.label
     })
@@ -304,20 +304,20 @@ export async function playMatch(ctx) {
       M.on = on;
       if (on) {
         banner(
-          $t("engine.21", {
+          $t("live.subbedInQuarter", {
             q: M.q,
             clock: M.clock
           }),
           true
         );
         addFeed(
-          `<b>${$t("engine.22")}</b> ${$t("engine.23", {
+          `<b>${$t("live.substitution")}</b> ${$t("live.checked", {
             sur: sur
           })}`
         );
         if (benchFrom && mode === "key")
           addFeed(
-            $t("engine.24", {
+            $t("live.whileBenchScore", {
               v: benchFrom[0],
               v2: benchFrom[1],
               us: M.us,
@@ -327,14 +327,14 @@ export async function playMatch(ctx) {
         benchFrom = null;
       } else {
         banner(
-          $t("engine.25", {
+          $t("live.subbedQ", {
             q: M.q,
             clock: M.clock
           }),
           false
         );
         addFeed(
-          `<b>${$t("engine.22")}</b> ${$t("engine.26", {
+          `<b>${$t("live.substitution")}</b> ${$t("live.cameBench", {
             sur: sur
           })}`
         );
@@ -413,7 +413,7 @@ export async function playMatch(ctx) {
     }
     if (t >= end && end >= TOTAL && M.us === M.them) {
       end += 300;
-      addFeed(`<b>${$t("engine.27")}</b> ${$t("engine.28")}`);
+      addFeed(`<b>${$t("live.overtime")}</b> ${$t("live.fiveMoreMinutes")}`);
       if (!AUTO) late.commentLine("ot");
       M.toLeft = 1; // uzatmada bir mola
       if (t === TOTAL) {
@@ -447,7 +447,7 @@ export async function playMatch(ctx) {
     1,
     10
   );
-  addFeed(`<b>${$t("engine.29")}</b> ${M.us}-${M.them}.`);
+  addFeed(`<b>${$t("live.game")}</b> ${M.us}-${M.them}.`);
   if (!AUTO) {
     if (win) hapticSuccess(); // galibiyet: başarı titreşimi; mağlubiyet/beraberlik: tek kısa
     else hapticTap();
@@ -496,7 +496,7 @@ export async function playMatch(ctx) {
           M.autoPts = (M.autoPts || 0) + pts;
           if (mode === "full")
             addFeed(
-              `${S.team.short} · <b>${sur}</b> ${three ? $t("engine.30") : pick([$t("engine.31"), $t("engine.32"), $t("engine.33")])}`
+              `${S.team.short} · <b>${sur}</b> ${three ? $t("play.drainedThree") : pick([$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2")])}`
             );
           return;
         }
@@ -507,12 +507,12 @@ export async function playMatch(ctx) {
       }
       if (Math.random() < 0.55 || mode === "full")
         addFeed(
-          `${team} · ${who} ${three ? $t("engine.30") : pick([$t("engine.31"), $t("engine.32"), $t("engine.33"), $t("engine.34")])}${us && Math.random() < 0.12 ? " " + pick(TR_CALLS) : ""}`
+          `${team} · ${who} ${three ? $t("play.drainedThree") : pick([$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2"), $t("play.dunkFastBreak")])}${us && Math.random() < 0.12 ? " " + pick(TR_CALLS) : ""}`
         );
     } else if (on && Math.random() < { C: 0.2, PF: 0.16, SF: 0.1, SG: 0.06, PG: 0.05 }[S.pos] * (0.6 + eff("guc") / 100)) {
       M.reb++;
     } else if (Math.random() < 0.35 && mode === "full")
-      addFeed(`${team} · ${who} ${pick([$t("engine.35"), $t("engine.36"), $t("engine.37"), $t("engine.38")])}`);
+      addFeed(`${team} · ${who} ${pick([$t("play.missedShot"), $t("play.committedTurnover"), $t("play.committedFoul"), $t("play.missedLayup")])}`);
   }
   async function moment(us, clutch) {
     const diff = M.us - M.them,
@@ -533,16 +533,16 @@ export async function playMatch(ctx) {
     } else if (ty === "off") {
       head = clutch
         ? diff < 0
-          ? $t("engine.39", {
+          ? $t("moment.downLastPossession", {
               v: -diff
             })
           : diff === 0
-            ? $t("engine.40")
-            : $t("engine.41", {
+            ? $t("moment.tiedGameBall")
+            : $t("moment.close", {
                 diff: diff
               })
         : pick(PL.sit);
-      desc = $t("engine.42", {
+      desc = $t("moment.guarding", {
         dn: dn
       });
       opts = PL.off.map(([k, tt, st, d]) => ({
@@ -566,8 +566,8 @@ export async function playMatch(ctx) {
       }
       opts = late.extraOffOpts(opts, clutch, AUTO); // ikili kombinasyon, oyun kur (src/matchday.js)
     } else if (ty === "def") {
-      head = pick([$t("engine.43"), $t("engine.44"), $t("engine.45")]);
-      desc = $t("engine.46", {
+      head = pick([$t("moment.opponentOffenseBall"), $t("moment.opponentsStarComing"), $t("moment.givingFastBreak")]);
+      desc = $t("moment.comingBall", {
         dn: dn
       });
       opts = PL.def.map(([k, tt, st, d]) => ({
@@ -581,10 +581,10 @@ export async function playMatch(ctx) {
     } else {
       // faul anı: çoğunlukla 2 serbest atış, bazen üçlükte faul (3 serbest atış)
       const three = Math.random() < 0.3;
-      head = three ? $t("m2.foul3") : $t("engine.47");
-      desc = three ? $t("m2.foul3D") : $t("engine.48");
+      head = three ? $t("m2.foul3") : $t("moment.drewFoul");
+      desc = three ? $t("m2.foul3D") : $t("moment.headingLineTwo");
       opts = [
-        { k: three ? "free3" : "free", t: $t("data.70"), d: `${$t("engine.76")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }
+        { k: three ? "free3" : "free", t: $t("common.freeThrow"), d: `${$t("moment.shotsShooting2")} ${Math.round(eff("sut"))}`, e: eff("sut") + 15 }
       ];
     }
     if (sp && sp.pen) opts = opts.map(o => ({ ...o, e: o.e - sp.pen })); // şut saati baskısı
@@ -596,15 +596,15 @@ export async function playMatch(ctx) {
     const render = () => {
       late.courtFreeze(scn || (sp && sp.scn) || { us: ty !== "def", zone: "top", guard: "normal", sp: true }); // özel anlarda da saha durur
       $("#mview").innerHTML =
-        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment || late.mtutActive() ? "" : `<div class="say gold"><b>${$t("engine.49")}</b> ${$t("engine.50")}</div>`}<div class="eyebrow">${$t(
-          "engine.53",
+        `<div class="card sit" role="region" aria-label="${$t("a11y.moment")}">${S.tipMoment || late.mtutActive() ? "" : `<div class="say gold"><b>${$t("live.tip")}</b> ${$t("live.makeChoiceCritical")}</div>`}<div class="eyebrow">${$t(
+          "live.quarterClock",
           {
             q: M.q,
             clock: M.clock
           }
-        )}${clutch ? $t("engine.51") : ""}</div><h2 id="mom-h">${head}</h2><p class="muted">${desc}</p>${late.conditionsHTML(us)}<div class="choices" role="group" aria-labelledby="mom-h">${opts
+        )}${clutch ? $t("live.finalMinutes") : ""}</div><h2 id="mom-h">${head}</h2><p class="muted">${desc}</p>${late.conditionsHTML(us)}<div class="choices" role="group" aria-labelledby="mom-h">${opts
           .map(o => {
-            const [c, l] = o.k === "safe" ? ["i", $t("engine.52")] : odds(o.e);
+            const [c, l] = o.k === "safe" ? ["i", $t("live.safe")] : odds(o.e);
             return `<button class="choice" data-k="${o.k}"><span class="ct">${o.t}</span><span class="cd">${o.d}</span><span class="od ${c}" aria-label="${$t("a11y.odds", { v: l })}">${l}</span></button>`;
           })
           .join("")}</div></div>`;
@@ -704,7 +704,7 @@ export async function playMatch(ctx) {
         if (s && s[1] < 40) {
           s[1] = Math.min(40, s[1] + 2);
           addFeed(
-            $t("engine.54", {
+            $t("moment.letHimPlay", {
               coach: S.npc.coach
             })
           );
@@ -721,7 +721,7 @@ export async function playMatch(ctx) {
           const nx = plan.find(([a]) => a > t / 60);
           if (nx) nx[0] += 2;
           addFeed(
-            $t("engine.55", {
+            $t("moment.calledSidelineSit", {
               coach: S.npc.coach
             })
           );
@@ -751,22 +751,22 @@ export async function playMatch(ctx) {
           })
           .join("");
       const lines = {
-        win: [$t("engine.56"), $t("engine.57")],
-        lose: [$t("engine.58"), $t("engine.59")],
-        tie: [$t("engine.60"), $t("engine.61")]
+        win: [$t("quarter.keepDontLet"), $t("quarter.playingWellNo")],
+        lose: [$t("quarter.needGetTogether"), $t("quarter.scoreIsntWorthy")],
+        tie: [$t("quarter.gameNeckNeck"), $t("quarter.whoeverWantsMore")]
       };
       const st = M.us > M.them ? "win" : M.us < M.them ? "lose" : "tie";
       $("#mview").innerHTML = `<div class="card"><div class="eyebrow">${
         ot
-          ? $t("engine.62")
+          ? $t("quarter.beforeOvertime")
           : half
-            ? $t("engine.63")
-            : $t("engine.77", {
+            ? $t("quarter.halftime")
+            : $t("quarter.endQ", {
                 qn: qn
               })
       }</div>
-       <div class="tbl"><table><tr><th>${$t("data.36")}</th>${M.qs.map((_, i) => `<th>${$t("common.q", { n: i + 1 })}</th>`).join("")}<th>${$t("engine.71")}</th></tr><tr class="me"><td>${esc(S.team.short)}</td>${rows}<td>${M.us}</td></tr><tr><td>${esc(M.opp.short)}</td>${rowsT}<td>${M.them}</td></tr></table></div>
-       <div class="small"><b>${esc(sur)}:</b> ${$t("engine.72", {
+       <div class="tbl"><table><tr><th>${$t("common.team")}</th>${M.qs.map((_, i) => `<th>${$t("common.q", { n: i + 1 })}</th>`).join("")}<th>${$t("quarter.ball")}</th></tr><tr class="me"><td>${esc(S.team.short)}</td>${rows}<td>${M.us}</td></tr><tr><td>${esc(M.opp.short)}</td>${rowsT}<td>${M.them}</td></tr></table></div>
+       <div class="small"><b>${esc(sur)}:</b> ${$t("quarter.minPtsAst", {
          v: Math.floor(M.mins / 60),
          pts: M.pts,
          ast: M.ast,
@@ -778,20 +778,20 @@ export async function playMatch(ctx) {
        ${
          last
            ? ""
-           : `<div class="eyebrow">${half ? $t("engine.64") : $t("engine.65")} ${$t("engine.69")}</div><div class="grid3">${[
-               ["tempo", $t("engine.66")],
-               ["def", $t("engine.67")],
-               ["ball", $t("engine.68")]
+           : `<div class="eyebrow">${half ? $t("quarter.lockerRoom") : $t("quarter.timeout")} ${$t("quarter.pickTactic")}</div><div class="grid3">${[
+               ["tempo", $t("quarter.pushTempo")],
+               ["def", $t("quarter.focusDefense")],
+               ["ball", $t("quarter.giveBall")]
              ]
                .map(([k, n]) => `<button class="btn ${M.tac === k ? "sel" : "ghost"} sm" data-tac="${k}" aria-pressed="${M.tac === k}">${n}</button>`)
                .join("")}</div>`
        }
        ${half ? late.adHalfHTML() : ""}${half ? late.mascotHTML() : ""}<button class="btn pri" id="qgo">${
          ot
-           ? $t("engine.70")
+           ? $t("quarter.startOvertime")
            : last
-             ? $t("ads.25")
-             : $t("engine.78", {
+             ? $t("common.continue")
+             : $t("quarter.startQ", {
                  v: qn + 1
                })
        }</button></div>`;
@@ -822,10 +822,10 @@ export async function playMatch(ctx) {
         $("#mview").innerHTML = "";
         addFeed(
           ot
-            ? $t("engine.73")
-            : `${$t("engine.79", {
+            ? $t("quarter.overtimeBegun")
+            : `${$t("quarter.qStarted", {
                 v: qn + 1
-              })}${M.tac ? ` ${$t("engine.75")} ${{ tempo: $t("engine.66"), def: $t("engine.67"), ball: $t("engine.68") }[M.tac]}.` : ""}`
+              })}${M.tac ? ` ${$t("quarter.tactic")} ${{ tempo: $t("quarter.pushTempo"), def: $t("quarter.focusDefense"), ball: $t("quarter.giveBall") }[M.tac]}.` : ""}`
         );
         r();
       };

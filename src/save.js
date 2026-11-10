@@ -127,7 +127,7 @@ export function save() {
   if (!storageOK) {
     if (!storageWarned) {
       storageWarned = true;
-      toast($t("save.2"));
+      toast($t("save.browserSavingOff"));
     }
     return;
   }
@@ -153,7 +153,7 @@ export function save() {
     } catch (e2) {
       if (!storageWarned) {
         storageWarned = true;
-        toast($t("save.3"));
+        toast($t("save.saveFailedBrowser"));
         saveWarnBar();
       }
     }
@@ -165,7 +165,7 @@ export function saveWarnBar() {
   const d = document.createElement("div");
   d.id = "savewarn";
   d.setAttribute("role", "alert");
-  d.innerHTML = `<div class="minw-0"><b>${esc($t("s32.save.title"))}</b><p class="small">${esc($t("save.3"))}</p><button class="btn gold sm" id="sw-bk">${esc($t("s32.save.act"))}</button></div><button class="x" id="sw-x" aria-label="${esc($t("a11y.close"))}">✕</button>`;
+  d.innerHTML = `<div class="minw-0"><b>${esc($t("s32.save.title"))}</b><p class="small">${esc($t("save.saveFailedBrowser"))}</p><button class="btn gold sm" id="sw-bk">${esc($t("s32.save.act"))}</button></div><button class="x" id="sw-x" aria-label="${esc($t("a11y.close"))}">✕</button>`;
   document.body.appendChild(d);
   d.querySelector("#sw-bk").onclick = () => {
     if (S) exportSheet();
@@ -334,7 +334,7 @@ export async function storageRestore() {
       rd.then(v => {
         RESTORE.pending = false;
         const m = restoreLateNative(v);
-        if (m) toast($t("save.4", { n: m }));
+        if (m) toast($t("save.careersRestoredBackup", { n: m }));
         // yuva ekranı açıksa (panel yokken) yeniden çiz: yüklenen kariyerler görünsün
         if (!S && $("#help0") && !$("#ovl").innerHTML.trim()) renderSlots();
       });
@@ -367,7 +367,7 @@ export async function storageRestore() {
     setTimeout(
       () =>
         toast(
-          $t("save.4", {
+          $t("save.careersRestoredBackup", {
             n: n
           })
         ),
@@ -414,7 +414,7 @@ export function markBackup() {
 }
 export async function downloadSave() {
   if (late.nativeShareFile) {
-    await late.nativeShareFile(saveFileName(S), encodeSave(S), $t("save.36"));
+    await late.nativeShareFile(saveFileName(S), encodeSave(S), $t("backup.potaKariyeriBackup"));
     markBackup();
     return;
   }
@@ -423,9 +423,9 @@ export async function downloadSave() {
   try {
     const file = new File([blob], name, { type: "text/plain" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: $t("save.36") });
+      await navigator.share({ files: [file], title: $t("backup.potaKariyeriBackup") });
       markBackup();
-      toast($t("save.5"));
+      toast($t("backup.backupShared"));
       return;
     }
   } catch (e) {
@@ -441,7 +441,7 @@ export async function downloadSave() {
     a.remove();
   }, 1500);
   markBackup();
-  toast($t("save.6"));
+  toast($t("backup.backupFileDownloaded"));
 }
 export function readFileText(input) {
   return new Promise(res => {
@@ -456,7 +456,7 @@ export function readFileText(input) {
 export function importCode(code) {
   const s = decodeSave(code || "");
   if (!s) {
-    toast($t("save.7"));
+    toast($t("backup.couldntReadSave"));
     return false;
   }
   let free = 0;
@@ -466,14 +466,14 @@ export function importCode(code) {
       break;
     }
   if (!free) {
-    toast($t("save.8"));
+    toast($t("backup.noEmptySlots"));
     return false;
   }
   s.saveSlot = free;
   if (!late.openSafe(s, { noBak: true })) return false;
   save();
   toast(
-    $t("save.9", {
+    $t("backup.saveLoadedSlot", {
       free: free
     })
   );
@@ -485,10 +485,10 @@ export function backupNudge() {
   const gap = S.season - ((S.bk && S.bk.season) || 0);
   if (gap < (isInstalled() ? 4 : 2)) return false;
   sheet(
-    $t("ads.7"),
-    $t("save.10"),
-    `<div class="card"><div class="eyebrow">${$t("save.12")}</div><p>${$t("save.13")}</p>${isInstalled() ? "" : `<p class="small muted">${$t("save.11")}</p>`}</div>
-   <button class="btn pri" id="bn-dl">${$t("save.14")}</button><div class="grid2"><button class="btn ghost" id="bn-later">${$t("save.15")}</button><button class="btn ghost" id="bn-off">${$t("save.16")}</button></div>`
+    $t("common.backCareer"),
+    $t("backup.takesMinute"),
+    `<div class="card"><div class="eyebrow">${$t("backup.why")}</div><p>${$t("backup.careerLivesDevices")}</p>${isInstalled() ? "" : `<p class="small muted">${$t("backup.safestWayAdd")}</p>`}</div>
+   <button class="btn pri" id="bn-dl">${$t("backup.getBackupFile")}</button><div class="grid2"><button class="btn ghost" id="bn-later">${$t("backup.remindLater")}</button><button class="btn ghost" id="bn-off">${$t("backup.dontAskAgain")}</button></div>`
   );
   $("#bn-dl").onclick = async () => {
     await downloadSave();
@@ -503,7 +503,7 @@ export function backupNudge() {
     late.SETTINGS.backupNag = false;
     late.saveSettings();
     closeSheet();
-    toast($t("save.17"));
+    toast($t("backup.reminderTurnedOff"));
   };
   return true;
 }
@@ -528,13 +528,13 @@ export function slotRowsHTML(rows) {
   return `<div class="choices">${cards.join("")}</div>`;
 }
 export function slotSummary(s) {
-  return `${$t("save.19", {
+  return `${$t("save.slotAgeName", {
     age: s.age,
     name: esc(s.team.name)
   })} ${
     s.retired
-      ? `${$t("save.18")}${s.epilogue && late.EPILOGUES ? ` · ${esc((late.EPILOGUES.find(e => e.id === s.epilogue) || {}).n || "")}` : ""}`
-      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.37")}${s.heir ? ` · ${$t("slots.father", { v: esc(s.heir.parent) })}` : ""}${s.mode && s.mode !== "normal" && late.modeName ? ` · ${late.modeName(s.mode)}` : ""}`
+      ? `${$t("save.retired")}${s.epilogue && late.EPILOGUES ? ` · ${esc((late.EPILOGUES.find(e => e.id === s.epilogue) || {}).n || "")}` : ""}`
+      : `${s.year}–${String(s.year + 1).slice(2)} ${$t("save.season")}${s.heir ? ` · ${$t("slots.father", { v: esc(s.heir.parent) })}` : ""}${s.mode && s.mode !== "normal" && late.modeName ? ` · ${late.modeName(s.mode)}` : ""}`
   }`;
 }
 export function renderSlots() {
@@ -589,7 +589,7 @@ export function renderSlots() {
         if (!r || !r.S) return;
         if (late.openSafe(r.S) && r.from === "backup") {
           save();
-          toast($t("save.20"));
+          toast($t("save.mainSaveCorrupted"));
         }
       })
   );
@@ -598,11 +598,11 @@ export function renderSlots() {
       (b.onclick = () => {
         const i = +b.dataset.del;
         sheet(
-          $t("save.21"),
-          $t("save.22", {
+          $t("save.deleteSlot"),
+          $t("save.slot", {
             i: i
           }),
-          `<p>${$t("save.23")}</p><div class="grid2"><button class="btn ghost" id="n1">${$t("save.24")}</button><button class="btn bad" id="y1">${$t("save.25")}</button></div>`,
+          `<p>${$t("save.careerBackup")}</p><div class="grid2"><button class="btn ghost" id="n1">${$t("save.cancel")}</button><button class="btn bad" id="y1">${$t("save.delete")}</button></div>`,
           { onClose: renderSlots }
         );
         $("#n1").onclick = renderSlots;
@@ -623,10 +623,10 @@ export function renderSlots() {
       const t = await navigator.clipboard.readText();
       if (!t) throw 0;
       $("#imp").value = t.trim();
-      toast($t("save.26"));
+      toast($t("save.codePastedNow"));
     } catch (e) {
       $("#imp").focus();
-      toast($t("save.27"));
+      toast($t("save.couldntReadClipboard"));
     }
   };
   $("#help0").onclick = () => late.guideSheet();
@@ -636,21 +636,21 @@ export function renderSlots() {
 export function exportSheet() {
   const code = encodeSave(S);
   sheet(
-    $t("save.28"),
-    $t("save.29"),
-    `<p class="small muted">${$t("save.31")}</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:var(--fs-2xs);-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">${$t("save.32")}</button><button class="btn pri" id="dlf">${$t("save.33")}</button></div>${S.bk && S.bk.ts ? `<p class="small muted">${$t("save.30")} ${new Date(S.bk.ts).toLocaleDateString(LOCALE)}</p>` : ""}`
+    $t("backup.saveCode"),
+    $t("backup.backupDeviceTransfer"),
+    `<p class="small muted">${$t("backup.codeContainsEntire")}</p><textarea id="exp" rows="6" readonly style="width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:var(--r-lg);padding:var(--sp-2h);font-family:monospace;font-size:var(--fs-2xs);-webkit-user-select:all;user-select:all">${code}</textarea><div class="grid2"><button class="btn" id="cpy">${$t("backup.copyCode")}</button><button class="btn pri" id="dlf">${$t("backup.saveFile")}</button></div>${S.bk && S.bk.ts ? `<p class="small muted">${$t("backup.lastBackup")} ${new Date(S.bk.ts).toLocaleDateString(LOCALE)}</p>` : ""}`
   );
   $("#dlf").onclick = () => downloadSave();
   $("#cpy").onclick = async () => {
     try {
       await navigator.clipboard.writeText(code);
       markBackup();
-      toast($t("save.34"));
+      toast($t("backup.saveCodeCopied"));
     } catch (e) {
       const t = $("#exp");
       t.focus();
       t.select();
-      toast($t("save.35"));
+      toast($t("backup.codeSelectedLong"));
     }
   };
 }

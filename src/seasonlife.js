@@ -392,7 +392,7 @@ async function summerCamp() {
   journal.push(mvp ? $t("cp.j.mvp") : $t("cp.j.noMvp"));
   save();
   S.campRoom = null;
-  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:var(--sp-1h)">${campPhoto(loc)}</div><div class="card gap-1h">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
+  sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:var(--sp-1h)">${campPhoto(loc)}</div><div class="card gap-1h">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("common.backMap")}</button>`);
   $("#cp-ok").onclick = renderMain;
 }
 export function campSheet() {

@@ -8,18 +8,18 @@ import { ROLE_N, S, actHTML, bindActs, fame, fullName, news, norm, resultView, s
 import { save } from "../save.js";
 import { addScene } from "../places.js";
 export const TRIVIA = [
-  [$t("places.108"), "24", ["24", "30", "20", "35"]],
-  [$t("places.109"), "40", ["40", "48", "36", "44"]],
-  [$t("places.110"), "5", ["5", "6", "4", "7"]],
-  [$t("places.111"), "5", ["5", "6", "4", "3"]],
-  [$t("places.112"), $t("places.113"), $t("places.114").split("|")],
-  [$t("places.115"), $t("places.116"), [$t("places.116"), $t("places.117"), $t("places.118"), $t("places.119")]],
-  [$t("places.120"), "Ankara", ["Ankara", "İstanbul", "İzmir", "Bursa"]],
-  [$t("places.121"), $t("places.122"), [$t("places.122"), $t("places.123"), $t("places.124"), $t("places.125")]],
-  [$t("places.126"), "100 °C", ["100 °C", "90 °C", "80 °C", "120 °C"]],
-  [$t("places.127"), "12", ["12", "14", "11", "16"]],
-  [$t("places.128"), $t("places.129"), $t("rc.q.plant").split("|")],
-  [$t("places.130"), $t("places.131"), $t("rc.q.cont").split("|")]
+  [$t("quiz.howManySeconds"), "24", ["24", "30", "20", "35"]],
+  [$t("quiz.howManyMinutes"), "40", ["40", "48", "36", "44"]],
+  [$t("quiz.howManyPlayers"), "5", ["5", "6", "4", "7"]],
+  [$t("quiz.howManyPersonal"), "5", ["5", "6", "4", "3"]],
+  [$t("quiz.timeLimitBring"), $t("quiz.seconds8"), $t("quiz.secondsSecondsSeconds8").split("|")],
+  [$t("quiz.whichAreaThree"), $t("quiz.paint"), [$t("quiz.paint"), $t("quiz.midcourt"), $t("quiz.corners"), $t("quiz.threePointLine")]],
+  [$t("quiz.whatCapitalTurkey"), "Ankara", ["Ankara", "İstanbul", "İzmir", "Bursa"]],
+  [$t("quiz.whichTwoContinents"), $t("quiz.europeAsia"), [$t("quiz.europeAsia"), $t("quiz.asiaAfrica"), $t("quiz.europeAfrica"), $t("quiz.onlyEurope")]],
+  [$t("quiz.whatTemperatureWater"), "100 °C", ["100 °C", "90 °C", "80 °C", "120 °C"]],
+  [$t("quiz.what144"), "12", ["12", "14", "11", "16"]],
+  [$t("quiz.whichPartPlant"), $t("quiz.leaf"), $t("rc.q.plant").split("|")],
+  [$t("quiz.euroleagueClub"), $t("quiz.europe"), $t("rc.q.cont").split("|")]
 ];
 export function makeQuestion() {
   const r = Math.random();
@@ -30,7 +30,7 @@ export function makeQuestion() {
     const ans = 3 * a + 2 * b + f;
     const o = shuffle([ans, ans + 2, ans - 3, ans + 5]).map(String);
     return {
-      q: $t("places.281", {
+      q: $t("quiz.playerMadeThree", {
         a: a,
         b: b,
         f: f
@@ -45,7 +45,7 @@ export function makeQuestion() {
     const p = Math.round((m / n) * 100);
     const o = shuffle([p, p + 7, p - 9, p + 15]).map(x => `%${x}`);
     return {
-      q: $t("places.282", {
+      q: $t("quiz.makesShotsWhat", {
         n: n,
         m: m
       }),
@@ -67,7 +67,7 @@ export function runQuiz(nq, done) {
     addScene(b, "okul", null, { board: `SORU ${i + 1}/${nq}\n${Q.q.length > 34 ? Q.q.slice(0, 34) + "…" : Q.q}` });
     b.insertAdjacentHTML(
       "beforeend",
-      `<div class="card"><div class="eyebrow">${$t("places.132", {
+      `<div class="card"><div class="eyebrow">${$t("school.questionCorrect", {
         v: i + 1,
         nq: nq,
         correct: correct
@@ -110,53 +110,53 @@ export function locOkul(I) {
       I.n,
       isL
         ? S.team.name
-        : `${S.uni || $t("map.2")} ${$t("places.133", {
+        : `${S.uni || $t("common.university")} ${$t("school.year", {
             uniYear: S.uniYear
           })}`,
-      `<div class="card"><div class="attr"><span>${$t("places.15")}</span><div class="bar"><i style="--w:${S.aka};background:var(--info)"></i></div><b>${S.aka}</b></div><p class="small muted">${isL ? $t("places.134") : $t("places.135")}</p></div>` +
+      `<div class="card"><div class="attr"><span>${$t("common.academics")}</span><div class="bar"><i style="--w:${S.aka};background:var(--info)"></i></div><b>${S.aka}</b></div><p class="small muted">${isL ? $t("school.afterHighSchool") : $t("school.academicsBelowSeasons40")}</p></div>` +
         actHTML({
           id: "ders",
           ic: icon("book"),
-          t: $t("places.283"),
-          d: $t("places.284"),
+          t: $t("school.attendClass"),
+          d: $t("school.teacherWriteQuestions3"),
           slot: 1,
           fx: [
-            [$t("places.136"), "p"],
-            [$t("places.137"), "n"]
+            [$t("school.academicsPerCorrectPlus3"), "p"],
+            [$t("school.energyMinus6"), "n"]
           ],
-          btn: $t("places.283")
+          btn: $t("school.attendClass")
         }) +
         actHTML({
           id: "kurs",
           ic: icon("pencil"),
-          t: isL ? $t("places.138") : $t("places.139"),
-          d: $t("places.285"),
+          t: isL ? $t("school.examPrepCourse") : $t("school.privateTutoring"),
+          d: $t("school.intensiveQuestion5"),
           slot: 1,
           price: pr,
           fx: [
-            [$t("places.140"), "p"],
-            [$t("places.141"), "p"],
+            [$t("school.perCorrectAnswerPlus3"), "p"],
+            [$t("school.basePlus4"), "p"],
             [`−${fmt(pr)}`, "n"]
           ],
-          btn: $t("places.286")
+          btn: $t("school.enroll")
         }) +
         (!isL
           ? actHTML({
               id: "birak",
               ic: icon("door"),
-              t: $t("places.287"),
-              d: $t("places.288"),
+              t: $t("school.dropSchool"),
+              d: $t("school.focusEntirely"),
               fx: [
-                [$t("places.142"), "n"],
-                [$t("places.143"), "p"]
+                [$t("school.familyMinus10"), "n"],
+                [$t("common.moralePlus5"), "p"]
               ],
-              btn: $t("places.289"),
+              btn: $t("school.drop"),
               cls: "bad"
             })
           : "")
     );
-    addScene(b, "okul", $t("places.332"), {
-      board: isL ? $t("places.333") : $t("places.334")
+    addScene(b, "okul", $t("school.phonesAwayEyes"), {
+      board: isL ? $t("school.todaysTopicShooting") : $t("school.statisticsEfficiency101")
     });
     bindActs({
       ders: () => {
@@ -169,17 +169,17 @@ export function locOkul(I) {
           norm();
           save();
           resultView(
-            $t("places.144"),
+            $t("school.class"),
             c === 3
-              ? $t("places.145")
+              ? $t("school.threeThreeTeacher")
               : c
-                ? $t("places.146", {
+                ? $t("school.correctNotBad", {
                     c: c
                   })
-                : $t("places.147"),
+                : $t("school.noneCorrectTeacher"),
             [
               [
-                $t("places.148", {
+                $t("school.academics", {
                   v: c * 3
                 }),
                 "p"
@@ -191,20 +191,20 @@ export function locOkul(I) {
       kurs: () => {
         if (S.money < pr) return;
         useSlot();
-        tx(isL ? $t("places.138") : $t("places.139"), -pr);
+        tx(isL ? $t("school.examPrepCourse") : $t("school.privateTutoring"), -pr);
         S.studied = true;
         runQuiz(5, c => {
           S.aka += 4 + c * 3;
           norm();
           save();
           resultView(
-            $t("places.149"),
-            $t("places.150", {
+            $t("school.course"),
+            $t("school.correctHeadFull5", {
               c: c
             }),
             [
               [
-                $t("places.148", {
+                $t("school.academics", {
                   v: 4 + c * 3
                 }),
                 "p"
@@ -218,15 +218,15 @@ export function locOkul(I) {
         S.rel.aile -= 10;
         S.moral += 5;
         news(
-          $t("places.335", {
+          $t("school.droppedSchoolFocus", {
             v: fullName()
           })
         );
         norm();
         save();
         resultView(
-          $t("places.151"),
-          $t("places.152", {
+          $t("school.decisionMade"),
+          $t("school.wentQuietPhone", {
             mom: S.npc.mom
           })
         );
@@ -235,57 +235,57 @@ export function locOkul(I) {
   } else {
     const sp = Math.max(50, Math.round(fame() * fame() * ({ nba: 9, euro: 4, t1: 2 }[S.stage] || 1.2) * late.sponsorMul()));
     const b = sheet(
-      $t("map.3"),
-      $t("places.153", {
+      $t("common.agentsOffice"),
+      $t("school.agent", {
         agent: S.npc.agent
       }),
-      `<div class="card"><div class="kv"><span>${$t("places.13")}</span><b>${esc(S.team.name)}</b><span>${$t("places.62")}</span><b>${$t(
-        "places.154",
+      `<div class="card"><div class="kv"><span>${$t("common.contract")}</span><b>${esc(S.team.name)}</b><span>${$t("common.timeRemaining")}</span><b>${$t(
+        "school.yr",
         {
           v: S.contract || 0
         }
-      )}</b><span>${$t("places.155")}</span><b>${fmt(S.wage)}</b><span>${$t("places.21")}</span><b>${ROLE_N[S.role]}</b><span>${$t("places.23")}</span><b>${fame()}/100</b></div></div>` +
+      )}</b><span>${$t("common.weeklySalary")}</span><b>${fmt(S.wage)}</b><span>${$t("common.role")}</span><b>${ROLE_N[S.role]}</b><span>${$t("common.fame")}</span><b>${fame()}/100</b></div></div>` +
         (S.buffs.sponsorSeason === S.season
-          ? `<p class="small muted">${$t("places.156")}</p>`
+          ? `<p class="small muted">${$t("school.alreadySignedSeasons")}</p>`
           : actHTML({
               id: "sp",
               ic: icon("handshake"),
-              t: $t("places.290"),
-              d: fame() < 15 ? $t("places.157") : $t("places.158"),
+              t: $t("school.sponsorshipDeal"),
+              d: fame() < 15 ? $t("school.fameIsntEnough") : $t("school.oncePerSeason"),
               fx: [[`~${fmt(sp)}`, "p"]],
-              btn: $t("places.291"),
+              btn: $t("school.negotiate"),
               disabled: fame() < 15
             })) +
         actHTML({
           id: "pr",
           ic: icon("mic"),
-          t: $t("ads.13"),
-          d: $t("places.292"),
+          t: $t("common.pressConference"),
+          d: $t("school.agentSetQuestions"),
           slot: 1,
           fx: [
-            [$t("places.159"), "p"],
-            [$t("places.160"), "p"]
+            [$t("common.fans3"), "p"],
+            [$t("common.followers2"), "p"]
           ],
-          btn: $t("places.293")
+          btn: $t("school.edit")
         }) +
         late.sponsorDealHTML() +
         late.agentExtrasHTML() +
         (S.transferReq === S.season
-          ? `<p class="small warn">${$t("places.161")}</p>`
+          ? `<p class="small warn">${$t("school.transferRequestPassed")}</p>`
           : actHTML({
               id: "tr",
               ic: icon("door"),
-              t: $t("places.294"),
-              d: $t("places.295"),
+              t: $t("school.transferRequest"),
+              d: $t("school.tellClubWant"),
               fx: [
-                [$t("places.162"), "p"],
-                [$t("places.163"), "n"]
+                [$t("school.offerPlus1"), "p"],
+                [$t("school.coachMinus12"), "n"]
               ],
-              btn: $t("places.296"),
+              btn: $t("school.request"),
               cls: "bad"
             }))
     );
-    addScene(b, "ofis", fame() > 40 ? $t("places.336") : $t("places.337"));
+    addScene(b, "ofis", fame() > 40 ? $t("school.phoneWontStop") : $t("school.earnMorePost"));
     late.bindAgentExtras();
     bindActs({
       tr: () => {
@@ -294,20 +294,20 @@ export function locOkul(I) {
         S.rel.koc -= 12;
         norm();
         news(
-          $t("places.338", {
+          $t("school.askedClubTransfer", {
             v: fullName()
           })
         );
         save();
         resultView(
-          $t("places.164"),
-          $t("places.165", {
+          $t("school.requestSent"),
+          $t("school.deliveredWritten", {
             agent: S.npc.agent,
             coach: S.npc.coach
           }),
           [
-            [$t("places.166"), "p"],
-            [$t("places.163"), "n"]
+            [$t("school.offerSeasonEndPlus1"), "p"],
+            [$t("school.coachMinus12"), "n"]
           ]
         );
       },
@@ -320,18 +320,18 @@ export function locOkul(I) {
         norm();
         save();
         resultView(
-          $t("ads.13"),
-          $t("places.167", {
+          $t("common.pressConference"),
+          $t("school.spokeCalmlyConfidently", {
             journalist: S.npc.journalist
           }),
           [
             [
-              $t("places.168", {
+              $t("common.fans4", {
                 g: g
               }),
               "p"
             ],
-            [$t("places.169"), "p"]
+            [$t("school.followersPlus4pct"), "p"]
           ]
         );
       }
@@ -342,21 +342,21 @@ export function negotiate(base) {
   let offer = base,
     round = 1;
   const show = () => {
-    $("#shb").innerHTML = `<div class="card"><div class="eyebrow">${$t("places.170", {
+    $("#shb").innerHTML = `<div class="card"><div class="eyebrow">${$t("school.negotiationRound3", {
       round: round
-    })}</div><div class="big-num gold">${fmt(offer)}</div><p class="small muted">${$t("places.171")}</p></div><div class="grid2"><button class="btn good" id="ok1">${$t("places.172")}</button><button class="btn gold" id="up1" ${round >= 3 ? "disabled" : ""}>${$t("places.173")}</button></div>`;
+    })}</div><div class="big-num gold">${fmt(offer)}</div><p class="small muted">${$t("school.brandRepTable")}</p></div><div class="grid2"><button class="btn good" id="ok1">${$t("common.accept")}</button><button class="btn gold" id="up1" ${round >= 3 ? "disabled" : ""}>${$t("school.askMore25pct")}</button></div>`;
     $("#ok1").onclick = () => {
-      tx($t("places.290"), offer);
+      tx($t("school.sponsorshipDeal"), offer);
       S.buffs.sponsorSeason = S.season;
       news(
-        $t("places.339", {
+        $t("school.signedNewSponsorship", {
           v: fullName()
         })
       );
       save();
       resultView(
-        $t("places.174"),
-        $t("places.175", {
+        $t("school.signed"),
+        $t("school.hitAccountAd", {
           offer: fmt(offer)
         })
       );
@@ -365,7 +365,7 @@ export function negotiate(base) {
       if (Math.random() < 0.22 * round) {
         S.buffs.sponsorSeason = S.season;
         save();
-        resultView($t("places.176"), $t("places.177"));
+        resultView($t("school.walkedAway"), $t("school.repPackedWell"));
         return;
       }
       offer = Math.round(offer * 1.25);

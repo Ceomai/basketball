@@ -124,30 +124,30 @@ const waterOf = city => {
 
 /* ---- metin katmanı: genel anahtar → bölgesel yuva ---- */
 export const CU_OV = {
-  "map.20": "cafe",
-  "map.13": "mall",
-  "map.21": "market",
-  "shops.37": "fun",
+  "common.cafe": "cafe",
+  "map.mall": "mall",
+  "map.market": "market",
+  "common.entertainmentCenter": "fun",
   "st.name": "street",
   "hb.name": "wf",
   "dist.merkez": "hood",
   "dist.kompleks": "complex",
-  "map.16": "house2",
-  "map.17": "house3",
-  "places.266": "house3",
-  "map.18": "house4",
-  "map.19": "house5",
-  "shops.12": "club",
-  "art.2": "sign",
-  "art.4": "menu1",
-  "art.6": "menu2",
-  "art.7": "menu3",
-  "places.348": "cafeSay",
-  "places.316": "cafeTalk",
-  "shops.187": "mktSay",
-  "shops.153": "snack",
-  "shops.144": "coldCoffee",
-  "shops.52": "boutique",
+  "common.rentalApartment": "house2",
+  "map.residence": "house3",
+  "place.residenceApartment": "house3",
+  "common.villa": "house4",
+  "common.mansion": "house5",
+  "fun.nightclub": "club",
+  "art.neighborhoodMarket": "sign",
+  "art.turkishCoffee": "menu1",
+  "art.tea": "menu2",
+  "art.cake": "menu3",
+  "cafe.whatGetCake": "cafeSay",
+  "cafe.coffeeChat": "cafeTalk",
+  "market.freshTodayHelp": "mktSay",
+  "market.chickenSandwich": "snack",
+  "market.icedCoffee": "coldCoffee",
+  "store.fashionBoutique": "boutique",
   "st.sub": "stSub",
   "st.kids": "stKids",
   "tl.bus.runNo": "busNo",
@@ -348,7 +348,7 @@ function choices(opts) {
 function result(txt, fx) {
   const b = document.getElementById("shb");
   if (!b) return;
-  b.innerHTML = `<div class="say">${txt}</div><div class="fx">${fx.map(([t, c]) => `<span class="${c}">${t}</span>`).join("")}</div><button class="btn pri" id="rb">${$t("casino.13")}</button>`;
+  b.innerHTML = `<div class="say">${txt}</div><div class="fx">${fx.map(([t, c]) => `<span class="${c}">${t}</span>`).join("")}</div><button class="btn pri" id="rb">${$t("common.backMap")}</button>`;
   b.querySelector("#rb").onclick = () => (closeSheet(), renderMain());
 }
 

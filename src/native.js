@@ -159,7 +159,7 @@ function initStore() {
       new Promise((resolve, reject) => {
         const p = store.get(id, platform),
           offer = p && p.getOffer();
-        if (!offer) return reject(new Error($t("native.2")));
+        if (!offer) return reject(new Error($t("store.noProductsFound")));
         let n = 0;
         const timer = setInterval(() => {
           if (store.owned(id)) {

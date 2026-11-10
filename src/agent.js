@@ -49,7 +49,7 @@ export function sponsorTalk(base) {
           (o, i) =>
             `<button class="choice" data-so="${i}"><span class="ct">${brandName(o.b)}</span><span class="cd">${offerLine(o)}</span><span class="od m">~${fmt(totalOf(o))}</span></button>`
         )
-        .join("")}</div><button class="btn ghost" id="so-x">${$t("systems.76")}</button>`
+        .join("")}</div><button class="btn ghost" id="so-x">${$t("common.backOffers")}</button>`
     );
   pick1();
   $$("[data-so]").forEach(b => (b.onclick = () => talk(offers, +b.dataset.so)));
@@ -67,21 +67,21 @@ function talk(offers, i, msg = "", usedRival = false) {
   const o = offers[i];
   const moods =
     o.interest > 0.7
-      ? $t("systems.65")
+      ? $t("common.high")
       : o.interest > 0.55
-        ? $t("systems.66")
+        ? $t("common.high2")
         : o.interest > 0.4
-          ? $t("match.2")
-          : $t("systems.67");
+          ? $t("common.medium")
+          : $t("common.low");
   const rival = offers.find((x, j) => j !== i && !x.gone);
   sheet(
     brandName(o.b),
     $t("ag.talkSub", { v: o.patience }),
-    `<div class="card"><div class="kv"><span>${$t("ag.upL")}</span><b class="gold">${fmt(o.up)}</b><span>${$t("ag.wkL")}</span><b>${fmt(o.wk)}</b><span>${$t("ag.perfL")}</span><b>${fmt(o.perf)}</b><span>${$t("ag.seasonsL")}</span><b>${o.seasons}</b><span>${$t("systems.71")}</span><b>${moods}</b><span>${$t("ag.totalL")}</span><b>~${fmt(totalOf(o))}</b></div></div>
+    `<div class="card"><div class="kv"><span>${$t("ag.upL")}</span><b class="gold">${fmt(o.up)}</b><span>${$t("ag.wkL")}</span><b>${fmt(o.wk)}</b><span>${$t("ag.perfL")}</span><b>${fmt(o.perf)}</b><span>${$t("ag.seasonsL")}</span><b>${o.seasons}</b><span>${$t("common.clubInterest")}</span><b>${moods}</b><span>${$t("ag.totalL")}</span><b>~${fmt(totalOf(o))}</b></div></div>
      ${msg ? `<div class="say">${msg}</div>` : ""}
      <div class="grid2"><button class="btn ghost sm" data-ask="up">${$t("ag.askUp")}</button><button class="btn ghost sm" data-ask="wk">${$t("ag.askWk")}</button><button class="btn ghost sm" data-ask="len" ${o.seasons >= 3 ? "disabled" : ""}>${$t("ag.askLen")}</button><button class="btn ghost sm" data-ask="perf">${$t("ag.askPerf")}</button></div>
      ${rival && !usedRival ? `<button class="btn ghost sm" data-ask="rival">${$t("ag.askRival", { v: brandName(rival.b) })}</button>` : ""}
-     <div class="grid2"><button class="btn ghost" id="ag-back">${$t("ag.other")}</button><button class="btn good" id="ag-ok">${$t("systems.77")}</button></div>`,
+     <div class="grid2"><button class="btn ghost" id="ag-back">${$t("ag.other")}</button><button class="btn good" id="ag-ok">${$t("common.sign")}</button></div>`,
     { noClose: true }
   );
   $$("[data-ask]").forEach(
@@ -213,7 +213,7 @@ export function bindAgentExtras() {
         S.rel.koc -= 4;
         norm();
         save();
-        resultView($t("ag.raise"), $t("ag.raiseNo"), [[$t("places.83").replace("+4", "−4"), "n"]]);
+        resultView($t("ag.raise"), $t("ag.raiseNo"), [[$t("common.coachPlus4").replace("+4", "−4"), "n"]]);
       }
     };
   const c = $("#ag-camp");
@@ -272,7 +272,7 @@ async function shotSession() {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = () => late.openLoc("stad", "mac");
 }
 // Odaklanma: nefes ritmi (zamanlama); başarılıysa moral +5, enerji +5
@@ -292,7 +292,7 @@ async function focusGame() {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2 class="${ok ? "good" : ""}">${S.prepRes}</h2><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = () => late.openLoc("stad", "mac");
 }
 // Basın toplantısı: 3 soru, her biri 6 saniye; tutarlı ve sakin cevaplar iyi not getirir

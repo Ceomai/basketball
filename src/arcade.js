@@ -63,7 +63,7 @@ export function powerArrow(c, x, y, dx, dy, p, ideal = [0.55, 0.8]) {
   c.textAlign = "center";
   c.textBaseline = "alphabetic";
   c.fillText(`%${Math.round(p * 100)}`, gx + gw / 2, gy + gh + 16);
-  c.fillText($t("arcade.1"), gx + gw / 2, gy - 6);
+  c.fillText($t("arcade.power"), gx + gw / 2, gy - 6);
   c.restore();
   return col;
 }
@@ -84,7 +84,7 @@ export function slingBand(c, bx, by, px, py) {
 /* ---- Pota makinesi: geriye çek, bırak ---- */
 export function mgArcade(el) {
   setMgKind("arcade");
-  mkStage(el, $t("arcade.2"));
+  mkStage(el, $t("common.hoopMachine"));
   return new Promise(res => {
     const DUR = 30,
       HY = 112,
@@ -188,13 +188,13 @@ export function mgArcade(el) {
         if (p >= 1) {
           const close = Math.abs(ball.tx - hx) < 25;
           let made = false;
-          if (r < 0.86) ((msg = $t("arcade.3")), (msgGood = false));
+          if (r < 0.86) ((msg = $t("arcade.tooShort")), (msgGood = false));
           else if (r > 1.16) {
             made = close && Math.random() < 0.3;
-            ((msg = made ? $t("arcade.4") : $t("arcade.5")), (msgGood = !!made));
+            ((msg = made ? $t("arcade.bankShot") : $t("arcade.tooLong")), (msgGood = !!made));
           } else {
             made = close;
-            ((msg = made ? $t("arcade.6") : $t("arcade.7")), (msgGood = !!made));
+            ((msg = made ? $t("common.score") : $t("common.miss")), (msgGood = !!made));
           }
           if (made) {
             score++;
@@ -226,8 +226,8 @@ export function mgArcade(el) {
       c.fillText(String(Math.max(0, Math.ceil(DUR - t))).padStart(2, "0"), W / 2 + 36, H - 38);
       c.font = "600 9px Manrope";
       c.fillStyle = tok("--muted");
-      c.fillText($t("arcade.8"), W / 2 - 34, H - 28);
-      c.fillText($t("arcade.9"), W / 2 + 36, H - 28);
+      c.fillText($t("arcade.score"), W / 2 - 34, H - 28);
+      c.fillText($t("arcade.time"), W / 2 + 36, H - 28);
       if (flash > 0) {
         c.fillStyle = `rgba(255,63,164,${flash * 0.18})`;
         c.fillRect(0, 0, W, H);
@@ -237,17 +237,17 @@ export function mgArcade(el) {
         bigText(c, msg, 232, msgGood ? tok("--warn") : "#ffffff");
         mt -= dt;
       }
-      if (t < 4 && !drag) hint(c, $t("arcade.10"), 190);
+      if (t < 4 && !drag) hint(c, $t("arcade.pressScreenPull"), 190);
       if (t >= DUR && !ball)
         finish(stop, res, {
           score,
-          label: $t("arcade.32", {
+          label: $t("arcade.pointsShots", {
             score: score,
             shots: shots
           })
         });
       info(
-        $t("arcade.11", {
+        $t("arcade.record", {
           arcade: S.rec.arcade
         })
       );
@@ -257,7 +257,7 @@ export function mgArcade(el) {
 /* ---- Refleks paneli ---- */
 export function mgReflex(el) {
   setMgKind("reflex");
-  mkStage(el, $t("arcade.12"));
+  mkStage(el, $t("common.reflexPanel"));
   return new Promise(res => {
     const DUR = 20;
     let score = 0,
@@ -308,7 +308,7 @@ export function mgReflex(el) {
       c.textAlign = "center";
       c.textBaseline = "alphabetic";
       c.fillText(
-        $t("arcade.13", {
+        $t("arcade.scoreS", {
           score: score,
           v: Math.max(0, DUR - t).toFixed(1)
         }),
@@ -331,10 +331,10 @@ export function mgReflex(el) {
         c.fillRect(0, 0, W, H);
         miss -= dt;
       }
-      if (t < 2.5) hint(c, $t("arcade.14"), H - 30);
+      if (t < 2.5) hint(c, $t("arcade.tapLitButtons"), H - 30);
       if (t >= DUR) finish(stop, res, { score });
       info(
-        $t("arcade.15", {
+        $t("arcade.record2", {
           reflex: S.rec.reflex
         })
       );
@@ -344,7 +344,7 @@ export function mgReflex(el) {
 /* ---- Hava hokeyi ---- */
 export function mgHockey(el) {
   setMgKind("hockey");
-  mkStage(el, $t("arcade.16"));
+  mkStage(el, $t("common.airHockey"));
   return new Promise(res => {
     const R = 26,
       PR = 12,
@@ -470,7 +470,7 @@ export function mgHockey(el) {
           if (pk.y < TOP + PR) {
             if (Math.abs(pk.x - 180) < GW) {
               me++;
-              msg = $t("arcade.17");
+              msg = $t("arcade.goal");
               mt = 1;
               buzz(30);
               late.sfx("cheer");
@@ -483,7 +483,7 @@ export function mgHockey(el) {
           if (pk.y > BOT - PR) {
             if (Math.abs(pk.x - 180) < GW) {
               ai++;
-              msg = $t("arcade.18");
+              msg = $t("arcade.opponentGoal");
               mt = 1;
               late.sfx("buzzer");
               reset(1);
@@ -553,13 +553,13 @@ export function mgHockey(el) {
       c.fillText(ai, W - 26, 226);
       c.fillText(me, W - 26, 284);
       if (mt > 0) {
-        bigText(c, msg, 256, msg === $t("arcade.17") ? tok("--warn") : "#ffffff");
+        bigText(c, msg, 256, msg === $t("arcade.goal") ? tok("--warn") : "#ffffff");
         mt -= dt;
       }
-      if (t < 3) hint(c, $t("arcade.19"), H - 44);
+      if (t < 3) hint(c, $t("arcade.dragPaddleFinger"), H - 44);
       if (me >= 5 || ai >= 5 || t >= 75) finish(stop, res, { score: me, win: me > ai, label: `${me}–${ai}` });
       info(
-        $t("arcade.34", {
+        $t("common.seconds", {
           v: Math.max(0, 75 - t).toFixed(0)
         })
       );
@@ -609,13 +609,13 @@ export function mgRhythm(el, { title, karaoke }) {
         score += pf ? 2 : 1;
         combo++;
         best = Math.max(best, combo);
-        fb = pf ? $t("arcade.20") : $t("arcade.21");
+        fb = pf ? $t("arcade.perfectTiming") : $t("arcade.good");
         ft = 0.35;
         buzz(5);
         late.sfx("note", l);
       } else {
         combo = 0;
-        fb = $t("arcade.22");
+        fb = $t("arcade.early");
         ft = 0.25;
       }
     };
@@ -687,7 +687,7 @@ export function mgRhythm(el, { title, karaoke }) {
       c.textBaseline = "alphabetic";
       c.textAlign = "left";
       c.fillText(
-        $t("arcade.23", {
+        $t("arcade.score2", {
           score: score
         }),
         16,
@@ -695,28 +695,28 @@ export function mgRhythm(el, { title, karaoke }) {
       );
       c.textAlign = "right";
       c.fillText(
-        $t("arcade.24", {
+        $t("arcade.combo", {
           combo: combo
         }),
         W - 16,
         36
       );
       if (ft > 0) {
-        bigText(c, fb, 330, fb === $t("arcade.22") ? BAD() : tok("--warn"), 28);
+        bigText(c, fb, 330, fb === $t("arcade.early") ? BAD() : tok("--warn"), 28);
         ft -= dt;
       }
-      if (t < 2.2) hint(c, $t("arcade.25"), H - 14);
+      if (t < 2.2) hint(c, $t("arcade.tapLaneWhen"), H - 14);
       if (t >= DUR)
         finish(stop, res, {
           score,
-          label: $t("arcade.33", {
+          label: $t("arcade.notesCombo", {
             hits: hits,
             total: total,
             best: best
           })
         });
       info(
-        $t("arcade.34", {
+        $t("common.seconds", {
           v: Math.max(0, DUR - t).toFixed(0)
         })
       );
@@ -726,7 +726,7 @@ export function mgRhythm(el, { title, karaoke }) {
 /* ---- Bowling: geriye çek, nişan al, bırak ---- */
 export function mgBowling(el) {
   setMgKind("bowling");
-  mkStage(el, $t("arcade.26"));
+  mkStage(el, $t("common.bowling"));
   return new Promise(res => {
     const ROLLS = 3,
       BX = 180,
@@ -803,12 +803,12 @@ export function mgBowling(el) {
           total += knocked;
           msg =
             knocked === 10
-              ? $t("arcade.27")
+              ? $t("arcade.strikePins10")
               : knocked
-                ? $t("arcade.35", {
+                ? $t("arcade.pins", {
                     knocked: knocked
                   })
-                : $t("arcade.28");
+                : $t("arcade.gutter");
           mt = 1.3;
           ph = "show";
           t = 0;
@@ -824,7 +824,7 @@ export function mgBowling(el) {
         if (roll >= ROLLS) {
           finish(stop, res, {
             score: total,
-            label: $t("arcade.36", {
+            label: $t("arcade.pins2", {
               total: total
             })
           });
@@ -907,7 +907,7 @@ export function mgBowling(el) {
         c.lineWidth = 2;
         c.strokeStyle = INK;
         ell(c, bx, by, 16, 16, "#3949ab");
-        if (!drag) hint(c, $t("arcade.29"), 40);
+        if (!drag) hint(c, $t("arcade.pullBallBack"), 40);
       }
       if (ball) {
         c.lineWidth = 2;
@@ -923,7 +923,7 @@ export function mgBowling(el) {
       c.textAlign = "left";
       c.textBaseline = "alphabetic";
       c.fillText(
-        $t("arcade.30", {
+        $t("arcade.throwPins", {
           v: Math.min(roll + 1, ROLLS),
           ROLLS: ROLLS,
           total: total
@@ -932,7 +932,7 @@ export function mgBowling(el) {
         H - 16
       );
       info(
-        $t("arcade.31", {
+        $t("arcade.record3", {
           v: S.rec.bowling || 0
         })
       );

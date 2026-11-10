@@ -101,7 +101,7 @@ function askConsent() {
     el.id = "acov";
     el.className = "sheet-bg";
     el.style.zIndex = "55";
-    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("ads.1")}"><div class="sheet-h"><div class="minw-0"><div class="eyebrow">${$t("ads.2")}</div><h2>${$t("ads.1")}</h2></div></div><div class="sheet-b"><p>${$t("ads.3")}</p><p class="small muted">${$t("ads.4")} ${$t("adp.consentStats")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("ads.5")}</button><button class="btn pri" id="ac-yes">${$t("ads.6")}</button></div></div></div>`;
+    el.innerHTML = `<div class="sheet" role="dialog" aria-label="${$t("consent.adPreferences")}"><div class="sheet-h"><div class="minw-0"><div class="eyebrow">${$t("consent.askedOnlyOnce")}</div><h2>${$t("consent.adPreferences")}</h2></div></div><div class="sheet-b"><p>${$t("consent.gameFreeFunded")}</p><p class="small muted">${$t("consent.declineStillSee")} ${$t("adp.consentStats")}</p><div class="grid2"><button class="btn ghost" id="ac-no">${$t("consent.noPersonalization")}</button><button class="btn pri" id="ac-yes">${$t("consent.allow")}</button></div></div></div>`;
     document.body.appendChild(el);
     const done = v => {
       ADS.consent = v;
@@ -164,11 +164,11 @@ export async function nativeAd(kind) {
 }
 // Web: tam ekran oyun içi tanıtım; ödüllü reklamda süre dolmadan kapatılırsa ödül verilmez
 export const AD_PROMOS = [
-  [$t("ads.7"), $t("ads.8")],
-  [$t("ads.9"), $t("ads.10")],
-  [$t("ads.11"), $t("ads.12")],
-  [$t("ads.13"), $t("ads.14")],
-  [$t("ads.15"), $t("ads.16")]
+  [$t("common.backCareer"), $t("tip.saveCareerFile")],
+  [$t("tip.playOwnMatch"), $t("tip.quickSimmedMatches")],
+  [$t("tip.followRival"), $t("tip.seeRivalsCareer")],
+  [$t("common.pressConference"), $t("tip.talkBigBack")],
+  [$t("common.addHomeScreen"), $t("tip.addGameHome")]
 ];
 export function webAd(kind) {
   return new Promise(res => {
@@ -176,12 +176,12 @@ export function webAd(kind) {
       [h, t] = pick(AD_PROMOS),
       el = document.createElement("div");
     el.id = "adov";
-    el.innerHTML = `<div class="adbox"><div class="row between"><span class="pill">${$t("ads.19")}</span><span class="small muted" id="adt">${$t(
-      "ads.20",
+    el.innerHTML = `<div class="adbox"><div class="row between"><span class="pill">${$t("ads.ad")}</span><span class="small muted" id="adt">${$t(
+      "ads.seconds",
       {
         secs: secs
       }
-    )}</span></div><div class="adbody"><div class="eyebrow">${$t("ads.21")}</div><h2>${h}</h2><p>${t}</p><p class="small muted">${$t("ads.22")}</p></div><button class="btn ghost" id="adx">${kind === "rewarded" ? $t("ads.17") : $t("ads.18")}</button></div>`;
+    )}</span></div><div class="adbody"><div class="eyebrow">${$t("ads.potaKariyeriTip")}</div><h2>${h}</h2><p>${t}</p><p class="small muted">${$t("ads.noRealAds")}</p></div><button class="btn ghost" id="adx">${kind === "rewarded" ? $t("ads.closeNoReward") : $t("ads.skip")}</button></div>`;
     document.body.appendChild(el);
     let left = secs,
       done = false;
@@ -192,15 +192,15 @@ export function webAd(kind) {
       left--;
       tl.textContent =
         left > 0
-          ? $t("ads.48", {
+          ? $t("ads.secondsLeft", {
               left: left
             })
-          : $t("ads.23");
+          : $t("ads.done");
       if (left <= 0) {
         clearInterval(iv);
         done = true;
         btn.disabled = false;
-        btn.textContent = kind === "rewarded" ? $t("ads.24") : $t("ads.25");
+        btn.textContent = kind === "rewarded" ? $t("ads.claimReward") : $t("common.continue");
         btn.className = "btn pri";
       }
     }, 1000);
@@ -227,7 +227,7 @@ export async function showRewarded(place) {
   }
   if (!rewardLeft()) {
     Bus.emit("ad:cap", { place }); // test kaydı: sınır gerçek oyuncularda ne sıklıkla doluyor?
-    toast($t("ads.26"));
+    toast($t("ads.adRewardsToday"));
     return false;
   }
   // basılan reklam düğmesi hazırlanırken "Yükleniyor…" (aria-busy); sonuçtan sonra eski haline döner
@@ -236,7 +236,7 @@ export async function showRewarded(place) {
   const html = btn ? btn.innerHTML : "";
   if (btn) {
     btn.setAttribute("aria-busy", "true");
-    btn.innerHTML = `<span class="adtag">${$t("ads.19")}</span>${$t("s32.ad.loading")}`;
+    btn.innerHTML = `<span class="adtag">${$t("ads.ad")}</span>${$t("s32.ad.loading")}`;
   }
   let ok = false;
   try {
@@ -257,7 +257,7 @@ export async function showRewarded(place) {
     adStat(place, "done");
     adsSave();
     late.sfx("coin");
-  } else toast(AD_LAST.why === "noad" ? $t("s32.ad.none") : $t("ads.27")); // yüklenemedi ≠ yarıda kesildi
+  } else toast(AD_LAST.why === "noad" ? $t("s32.ad.none") : $t("ads.adNotCompleted")); // yüklenemedi ≠ yarıda kesildi
   return ok;
 }
 // Maçlar arası geçiş reklamı (sıklık sınırlı); bittiğinde next() çağrılır
@@ -325,17 +325,17 @@ try {
 }
 const AD_IC = `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
 const adBtnRaw = (id, label, sub) =>
-  `<button class="btn ad adbtn" id="${id}"><span class="adtag">${AD_IC}${ADS.adFree ? $t("ads.28") : rewardLeft() <= 5 ? `${$t("ads.19")} · ${$t("adx.left", { n: rewardLeft() })}` : $t("ads.19")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
+  `<button class="btn ad adbtn" id="${id}"><span class="adtag">${AD_IC}${ADS.adFree ? $t("ads.pack") : rewardLeft() <= 5 ? `${$t("ads.ad")} · ${$t("adx.left", { n: rewardLeft() })}` : $t("ads.ad")}</span>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
 
 /* ---- Yerleşimler ---- */
 export function adDoubleHTML(bonus) {
   return bonus > 0 && !window.__SIM
     ? adBtn(
         "ad-x2",
-        $t("ads.49", {
+        $t("ads.doubleBonus", {
           bonus: fmt(bonus)
         }),
-        $t("ads.50"),
+        $t("ads.watchShortAd"),
         "double_bonus"
       )
     : "";
@@ -349,9 +349,9 @@ export function bindAdDouble(bonus) {
     // reklam sürerken kariyerden çıkıldıysa ya da ekran değiştiyse ödül yazılmaz (kapalı kariyere yazmak çöküyordu)
     if (!S || !document.body.contains(b)) return;
     if (ok) {
-      tx($t("ads.51"), bonus);
+      tx($t("ads.matchBonusAd"), bonus);
       save();
-      b.outerHTML = `<div class="say good">${$t("ads.29", {
+      b.outerHTML = `<div class="say good">${$t("ads.bonusDoubled", {
         bonus: fmt(bonus)
       })}</div>`;
     } else b.disabled = false;
@@ -364,11 +364,11 @@ export function adEnergyHTML() {
     S.adEnergyN = 0;
   }
   if (window.__SIM || S.energy >= 60 || S.adEnergyN >= ADS_CFG.energyPerWeek) return "";
-  return `<div class="card"><div class="row between nowrap"><div><div class="eyebrow">${$t("ads.30", {
+  return `<div class="card"><div class="row between nowrap"><div><div class="eyebrow">${$t("ads.energyLow", {
     energy: S.energy
-  })}</div><p class="small muted" style="margin:2px 0 0">${$t("ads.31", {
+  })}</div><p class="small muted" style="margin:2px 0 0">${$t("ads.usedTimesWeek", {
     v: ADS_CFG.energyPerWeek - S.adEnergyN
-  })}</p></div></div>${adBtn("ad-en", $t("ads.32"), $t("ads.50"), "energy")}</div>`;
+  })}</p></div></div>${adBtn("ad-en", $t("ads.energyPlus30"), $t("ads.watchShortAd"), "energy")}</div>`;
 }
 export function bindAdEnergy(after) {
   const b = $("#ad-en");
@@ -383,14 +383,14 @@ export function bindAdEnergy(after) {
       S.energy += 30;
       norm();
       save();
-      toast($t("ads.32"));
+      toast($t("ads.energyPlus30"));
       after && after();
     } else b.disabled = false;
   };
 }
 export function adHealHTML() {
   return !window.__SIM && S.injury && S.injury.w > 1 && !S.injury.adHealed
-    ? adBtn("ad-heal", $t("ads.52"), $t("ads.53"), "heal")
+    ? adBtn("ad-heal", $t("ads.returnWeekEarlier1"), $t("ads.oncePerInjury"), "heal")
     : "";
 }
 export function bindAdHeal(after) {
@@ -405,13 +405,13 @@ export function bindAdHeal(after) {
       S.injury.w--;
       S.injury.adHealed = true;
       save();
-      toast($t("ads.33"));
+      toast($t("ads.physioArrangedExtra"));
       after && after();
     } else b.disabled = false;
   };
 }
 export function adHalfHTML() {
-  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.54"), $t("ads.55"), "halftime");
+  return window.__SIM || M.adHalf ? "" : adBtn("ad-half", $t("ads.lockerRoomTalk"), $t("ads.energyMoraleShortPlus10"), "halftime");
 }
 export function bindAdHalf() {
   const b = $("#ad-half");
@@ -426,7 +426,7 @@ export function bindAdHalf() {
       S.energy += 10;
       S.moral += 4;
       norm();
-      b.outerHTML = `<div class="say good">${$t("ads.34")}</div>`;
+      b.outerHTML = `<div class="say good">${$t("ads.coachsSpeechFiredPlus10")}</div>`;
     } else b.disabled = false;
   };
 }
@@ -434,13 +434,13 @@ export function bindAdHalf() {
 /* ---- Ayarlar bölümü ---- */
 export function adsSettingsHTML() {
   const total = Object.values(ADS.stats).reduce((a, s) => a + s.done, 0);
-  return `<div class="act"><div><h3>${$t("ads.40")}</h3><p>${
+  return `<div class="act"><div><h3>${$t("adsSettings.ads")}</h3><p>${
     ADS.adFree
-      ? $t("ads.35")
-      : `${$t("ads.36")} ${rewardLeft()}${$t("ads.56", {
+      ? $t("adsSettings.adFreePack")
+      : `${$t("adsSettings.rewardedAdsLeft")} ${rewardLeft()}${$t("adsSettings.totalWatched", {
           total: total
         })}`
-  }</p></div><div class="grid2 span-all"><button class="btn ghost sm" id="ad-cons">${$t("ads.41")} ${ADS.consent ? $t("ads.37") : $t("ads.38")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${relAdFreeLabel()}</button>`}</div></div>`;
+  }</p></div><div class="grid2 span-all"><button class="btn ghost sm" id="ad-cons">${$t("adsSettings.personalization")} ${ADS.consent ? $t("adsSettings.on") : $t("adsSettings.off")}</button>${ADS.adFree ? "" : `<button class="btn team sm" id="ad-free">${relAdFreeLabel()}</button>`}</div></div>`;
 }
 export function bindAdsSettings(re) {
   const c = $("#ad-cons");
@@ -462,18 +462,18 @@ export async function buyAdFree(re) {
       else if (r) {
         ADS.adFree = true;
         adsSave();
-        toast($t("ads.42"));
+        toast($t("adFree.thankAdFree"));
         re && re();
       }
     } catch (e) {
-      toast($t("ads.43"));
+      toast($t("adFree.purchaseNotCompleted"));
     }
     return;
   }
   sheet(
-    $t("ads.39"),
-    $t("ads.44"),
-    `<p>${$t("ads.45")}</p><p class="small muted">${$t("ads.46")}</p><button class="btn pri" id="af-ok">${$t("ads.47")}</button>`
+    $t("common.adFreePack"),
+    $t("adFree.storeVersion"),
+    `<p>${$t("adFree.adFreePack")}</p><p class="small muted">${$t("adFree.purchasesOpenGoogle")}</p><button class="btn pri" id="af-ok">${$t("common.ok")}</button>`
   );
   $("#af-ok").onclick = () => {
     closeSheet();

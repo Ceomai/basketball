@@ -242,7 +242,7 @@ export function boxSheet(after) {
       !b.free
         ? `<button class="btn pri" id="bx-free">${$t("adp.boxOpen")}</button>`
         : !b.ad && canAd()
-          ? adBtn("bx-ad", $t("adp.boxMore"), $t("ads.50"), "box")
+          ? adBtn("bx-ad", $t("adp.boxMore"), $t("ads.watchShortAd"), "box")
           : `<p class="small">${$t("adp.boxDone")}</p>`
     }`;
   const draw = msg => {

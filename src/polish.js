@@ -188,9 +188,9 @@ export function polCabinetHTML() {
   }
   // cam yansıması
   g += `<path d="M30 14 L70 14 L20 ${H - 14} L12 ${H - 14} L12 40Z" fill="#fff" opacity=".05" pointer-events="none"/><path d="M${W - 40} 14 L${W - 26} 14 L${W - 90} ${H - 14} L${W - 104} ${H - 14}Z" fill="#fff" opacity=".04" pointer-events="none"/>`;
-  return `<div class="card" id="pol-cab"><div class="row between"><div class="eyebrow">${$t("places.11")}</div><span class="pill">${$t("pol.cabCount", { n: tr.length })}</span></div>
+  return `<div class="card" id="pol-cab"><div class="row between"><div class="eyebrow">${$t("trophy.trophyCase")}</div><span class="pill">${$t("pol.cabCount", { n: tr.length })}</span></div>
   <svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:360px;display:block;margin:6px auto 0" role="group" aria-label="${esc($t("pol.cabTitle"))}" xmlns="http://www.w3.org/2000/svg">${g}</svg>
-  <div class="small ${tr.length ? "" : "muted"}" id="pol-cab-lbl" aria-live="polite" style="text-align:center;min-height:1.3em">${tr.length ? $t("pol.cabTap") : $t("places.7")}</div></div>`;
+  <div class="small ${tr.length ? "" : "muted"}" id="pol-cab-lbl" aria-live="polite" style="text-align:center;min-height:1.3em">${tr.length ? $t("pol.cabTap") : $t("trophy.noTrophiesYet")}</div></div>`;
 }
 export function polBindCabinet() {
   const tr = (S.career && S.career.trophies) || [];

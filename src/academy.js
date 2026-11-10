@@ -97,7 +97,7 @@ async function coach(i) {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2 class="good">${k.n} +${g.toFixed(1)}</h2><p class="small muted">${$t("ac.coachRes", { s: k.sk })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2 class="good">${k.n} +${g.toFixed(1)}</h2><p class="small muted">${$t("ac.coachRes", { s: k.sk })}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 // aidat: maaşın %40'ını geçmez; prestij 60'ta tavan (src/economy.js)

@@ -3577,7 +3577,7 @@ test("yayın b: depolama dolunca kayıt kaybolmaz (uyarı + oturum kopyası + In
     await new Promise(r => setTimeout(r, 20)); // iki kaydın zaman damgası ayrı olsun
     S.money = 777777;
     G.save();
-    const warned = G.TOAST_LOG.some(t => t === G.t("save.3"));
+    const warned = G.TOAST_LOG.some(t => t === G.t("save.saveFailedBrowser"));
     const mem = G.loadSlot(1).S.money;
     // yeniden açılış: localStorage'da eski kopya, IndexedDB'de yeni kopya; hafıza hâlâ dolu
     for (const k of Object.keys(G.SAVE_MEM)) delete G.SAVE_MEM[k];

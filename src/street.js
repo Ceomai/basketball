@@ -101,6 +101,6 @@ async function tournament(prize) {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><div class="eyebrow">${$t("st.tour")}</div><h2 class="${win ? "good" : ""}">${win ? $t("st.won") : $t("st.lost")}</h2><p>${$t("st.score", { v: score })}${win ? ` · +${fmt(prize)}` : ""}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><div class="eyebrow">${$t("st.tour")}</div><h2 class="${win ? "good" : ""}">${win ? $t("st.won") : $t("st.lost")}</h2><p>${$t("st.score", { v: score })}${win ? ` · +${fmt(prize)}` : ""}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }

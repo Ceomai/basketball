@@ -136,7 +136,7 @@ export function dbyResult(win) {
 /* ---- Stadyum: derbi notu ---- */
 export function dbyNoteHTML(opp) {
   const r = D().recs[opp.key];
-  return `<div class="say bad" id="dby-note"><b>${$t("story.120")}</b> ${$t("dby.note", { t: esc(opp.name), c: esc(S.city) })}${r ? ` <span class="small">${$t("dby.h2h", { w: r.w, l: r.l })}</span>` : ""}</div>`;
+  return `<div class="say bad" id="dby-note"><b>${$t("derby.derby2")}</b> ${$t("dby.note", { t: esc(opp.name), c: esc(S.city) })}${r ? ` <span class="small">${$t("dby.h2h", { w: r.w, l: r.l })}</span>` : ""}</div>`;
 }
 
 /* ---- Tribün: derbi ve seri atmosferi (src/matchday.js matchdayStart) ---- */
@@ -184,7 +184,7 @@ export function dbyPressSheet() {
   const done = txt => {
     norm();
     save();
-    $("#shb").innerHTML = `<div class="say warn">${txt}</div><button class="btn pri" id="dby-ok">${$t("ads.25")}</button>`;
+    $("#shb").innerHTML = `<div class="say warn">${txt}</div><button class="btn pri" id="dby-ok">${$t("common.continue")}</button>`;
     $("#dby-ok").onclick = () => {
       closeSheet();
       renderMain();

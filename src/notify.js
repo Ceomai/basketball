@@ -54,8 +54,8 @@ export function nextNotification(state, now = new Date()) {
   if (state.claimable > 0)
     return {
       at: new Date(now.getTime() + 3 * 3600e3),
-      title: $t("notify.1"),
-      body: $t("notify.2", { c: state.claimable })
+      title: $t("notify.missionRewardWaiting"),
+      body: $t("notify.missionRewardsWaiting", { c: state.claimable })
     };
   // dünden kalan hikâye anı (src/hooks.js): ertesi gün akşam
   if (state.hook) {
@@ -68,12 +68,12 @@ export function nextNotification(state, now = new Date()) {
     const at = new Date(now);
     at.setDate(at.getDate() + 1);
     at.setHours(19, 0, 0, 0);
-    return { at, title: $t("notify.3"), body: $t("notify.4") };
+    return { at, title: $t("notify.todaysMissions"), body: $t("notify.newMissionsRewards") };
   }
   return {
     at: new Date(now.getTime() + 2 * 24 * 3600e3),
-    title: $t("notify.5"),
-    body: state.next ? $t("notify.6", { next: state.next }) : $t("notify.7")
+    title: $t("notify.careerWaiting"),
+    body: state.next ? $t("notify.nextMatchTeam", { next: state.next }) : $t("notify.teamWaiting")
   };
 }
 async function schedule() {

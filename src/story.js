@@ -82,8 +82,8 @@ export function autoResolve(k, sur) {
       w: th ? 1.3 : 1,
       st: "sut",
       txt: ok
-        ? `${sur} ${th ? $t("story.1") : $t("story.2")}`
-        : $t("match.8", {
+        ? `${sur} ${th ? $t("auto.hitThree") : $t("auto.hitMidRange")}`
+        : $t("common.missedShot", {
             sur: sur
           })
     };
@@ -95,7 +95,7 @@ export function autoResolve(k, sur) {
         good: false,
         w: 1,
         st: "hiz",
-        txt: $t("match.96", {
+        txt: $t("common.turnedBall", {
           sur: sur
         })
       };
@@ -106,13 +106,13 @@ export function autoResolve(k, sur) {
       good: true,
       w: k === "break" ? 1.2 : 1,
       st: "hiz",
-      txt: $t("story.122", {
+      txt: $t("auto.droveHoopFinished", {
         sur: sur
       })
     };
   }
   if (["pnr", "kick", "lob"].includes(k)) {
-    if (!coin(autoP(eff("pas") - (PEN[k] || 0)))) return { good: false, w: 1, st: "pas", txt: $t("story.123") };
+    if (!coin(autoP(eff("pas") - (PEN[k] || 0)))) return { good: false, w: 1, st: "pas", txt: $t("auto.passIntercepted") };
     const conv = (k === "lob" ? 0.75 : 0.58) + S.rel.takim * 0.003 + (chemAvg() - 40) * 0.002;
     if (coin(conv)) {
       M.ast++;
@@ -120,12 +120,12 @@ export function autoResolve(k, sur) {
         good: true,
         w: k === "lob" ? 1.3 : 1,
         st: "pas",
-        txt: $t("story.124", {
+        txt: $t("auto.dishedAssist", {
           sur: sur
         })
       };
     }
-    return { good: true, w: 0.6, st: "pas", txt: $t("story.125") };
+    return { good: true, w: 0.6, st: "pas", txt: $t("auto.goodPassShot") };
   }
   if (k === "post" || k === "dunk") {
     const ok = coin(autoP(eff("guc") + (k === "dunk" ? 5 : 0)));
@@ -136,16 +136,16 @@ export function autoResolve(k, sur) {
       w: k === "dunk" ? 1.3 : 1.2,
       st: "guc",
       txt: ok
-        ? $t("story.3", {
+        ? $t("auto.finishedRim", {
             sur: sur
           })
-        : $t("story.4", {
+        : $t("auto.gotBlockedRim", {
             sur: sur
           })
     };
   }
   if (k === "putback" || k === "reb") {
-    if (!coin(autoP(eff("guc")))) return { good: false, w: 1, st: "guc", txt: $t("story.126") };
+    if (!coin(autoP(eff("guc")))) return { good: false, w: 1, st: "guc", txt: $t("auto.reboundGoesOpponent") };
     M.reb++;
     if (k === "reb") {
       M.stops++;
@@ -153,7 +153,7 @@ export function autoResolve(k, sur) {
         good: true,
         w: 1,
         st: "guc",
-        txt: $t("story.127", {
+        txt: $t("auto.grabbedRebound", {
           sur: sur
         })
       };
@@ -164,7 +164,7 @@ export function autoResolve(k, sur) {
         good: true,
         w: 1.2,
         st: "guc",
-        txt: $t("story.128", {
+        txt: $t("auto.putBackOff", {
           sur: sur
         })
       };
@@ -173,7 +173,7 @@ export function autoResolve(k, sur) {
       good: true,
       w: 0.6,
       st: "guc",
-      txt: $t("story.127", {
+      txt: $t("auto.grabbedRebound", {
         sur: sur
       })
     };
@@ -189,10 +189,10 @@ export function autoResolve(k, sur) {
       w: 1.2,
       st: "sav",
       txt: ok
-        ? $t("story.5", {
+        ? $t("auto.blocked", {
             sur: sur
           })
-        : $t("story.6")
+        : $t("auto.opponentFinished")
     };
   }
   if (k === "steal") {
@@ -203,10 +203,10 @@ export function autoResolve(k, sur) {
       w: 1.2,
       st: "hiz",
       txt: ok
-        ? $t("story.7", {
+        ? $t("auto.stoleBall", {
             sur: sur
           })
-        : $t("story.8")
+        : $t("auto.stealAttemptCame")
     };
   }
   if (k === "charge") {
@@ -217,16 +217,16 @@ export function autoResolve(k, sur) {
       w: 1.1,
       st: "sav",
       txt: ok
-        ? $t("story.9", {
+        ? $t("auto.drewOffensiveFoul", {
             sur: sur
           })
-        : $t("story.10")
+        : $t("auto.foulCalled")
     };
   }
   if (k === "safe") {
     const ok = coin(clamp((eff(S.pos === "PF" ? "guc" : "sav") / 100) * 0.7 + 0.25, 0.2, 0.9));
     if (ok) M.stops++;
-    return { good: ok, w: 0.5, st: "sav", txt: ok ? $t("story.11") : $t("story.12") };
+    return { good: ok, w: 0.5, st: "sav", txt: ok ? $t("auto.defenseHeldGround") : $t("auto.opponentFoundGap") };
   }
   let m = 0;
   for (let i = 0; i < (k === "free3" ? 3 : 2); i++) if (coin(autoP(eff("sut") + 12))) m++;
@@ -235,7 +235,7 @@ export function autoResolve(k, sur) {
     good: m > 0,
     w: 0.6,
     st: "sut",
-    txt: $t("story.129", {
+    txt: $t("auto.hitFreeThrows2", {
       sur: sur,
       m: m
     })
@@ -253,13 +253,13 @@ export function autoWeekPlan() {
     if (S.injury) {
       if (S.injury.w > 1 && coin(0.5)) S.injury.w--;
       S.energy += 10;
-      out.push([$t("story.13"), $t("story.14")]);
+      out.push([$t("common.physio"), $t("auto.energyPlus10")]);
       continue;
     }
     if (S.energy < 42) {
       S.energy += 35;
       S.moral += 2;
-      out.push([$t("places.52"), $t("story.15")]);
+      out.push([$t("common.rested"), $t("auto.energyPlus35")]);
       continue;
     }
     if (S.studying && S.aka < 55 && (S.stage === "lise" || S.stage === "uni") && !S.studied) {
@@ -269,24 +269,24 @@ export function autoWeekPlan() {
       S.energy -= 6;
       S.studied = true;
       out.push([
-        $t("story.16"),
-        $t("story.17", {
+        $t("auto.studied"),
+        $t("auto.academics", {
           v: c * 3
         })
       ]);
       continue;
     }
     if (S.moral < 45) {
-      if (S.money >= 3) tx($t("story.159"), -3);
+      if (S.money >= 3) tx($t("auto.cafeFriends"), -3);
       S.moral += 8;
       S.rel.ark += 8;
-      out.push([$t("story.18"), $t("story.19")]);
+      out.push([$t("auto.metFriends"), $t("auto.moralePlus8")]);
       continue;
     }
     if (S.rel.aile < 40) {
       S.rel.aile += 12;
       S.moral += 5;
-      out.push([$t("story.20"), $t("story.21")]);
+      out.push([$t("auto.visitedFamily"), $t("auto.familyPlus12")]);
       continue;
     }
     // pozisyona göre en çok işe yarayacak antrenman
@@ -313,12 +313,12 @@ export function autoWeekPlan() {
     Bus.emit("train:done", { k, ratio, auto: true });
     S.energy -= 18;
     out.push([
-      $t("story.22", {
+      $t("auto.training", {
         v: best[1]
       }),
       g >= 0.05
         ? `+${g.toFixed(2)} ${statName(k)}`
-        : $t("story.23", {
+        : $t("auto.improving", {
             k: statName(k)
           })
     ]);
@@ -336,7 +336,7 @@ export function quickWeek() {
     opp = teamByKey(fx.opp);
   sheet(
     t("quick.title"),
-    $t("places.72", {
+    $t("common.week2", {
       v: seasonLabel(),
       week: S.week
     }),
@@ -435,43 +435,43 @@ export function rivalCard(avg) {
   if (his > my && !R.ahead) {
     R.ahead = true;
     S.buffs.train = (S.buffs.train || 0) + 4;
-    line = $t("story.24", {
+    line = $t("rival.oneStepAhead4", {
       first: R.first
     });
   } else if (my > his && R.ahead) {
     R.ahead = false;
     S.rel.taraf += 5;
-    line = $t("story.25", {
+    line = $t("rival.nowAheadWhole", {
       first: R.first
     });
   } else
     line =
       his > my
-        ? $t("story.26", {
+        ? $t("rival.stillOneStep", {
             first: R.first
           })
         : my > his
-          ? $t("story.27", {
+          ? $t("rival.passed", {
               first: R.first
             })
-          : $t("story.28");
-  return `<div class="card"><div class="eyebrow">${$t("story.29", {
+          : $t("rival.levelRivalryGoes");
+  return `<div class="card"><div class="eyebrow">${$t("rival.rival", {
     v: esc(rivalName())
-  })}</div><div class="tbl"><table><tr><th></th><th>${$t("story.30")}</th><th>${esc(R.first)}</th></tr><tr><td>${$t("story.31")}</td><td>${levelName(S.stage)}</td><td>${levelName(R.stage)}</td></tr><tr><td>${$t("data.36")}</td><td>${esc(S.team.short || S.team.name)}</td><td>${esc(R.team.name)}</td></tr><tr><td>${$t("story.32")}</td><td>${myP}</td><td>${R.ppg}</td></tr><tr><td>${$t("story.33")}</td><td>${avg.toFixed(2)}</td><td>${R.avg}</td></tr><tr><td>${$t("match.58")}</td><td>${ovr()}</td><td>${R.ovr}</td></tr></table></div><p class="small">${line}</p></div>`;
+  })}</div><div class="tbl"><table><tr><th></th><th>${$t("rival.you")}</th><th>${esc(R.first)}</th></tr><tr><td>${$t("rival.level")}</td><td>${levelName(S.stage)}</td><td>${levelName(R.stage)}</td></tr><tr><td>${$t("common.team")}</td><td>${esc(S.team.short || S.team.name)}</td><td>${esc(R.team.name)}</td></tr><tr><td>${$t("rival.ppg")}</td><td>${myP}</td><td>${R.ppg}</td></tr><tr><td>${$t("rival.avgRating")}</td><td>${avg.toFixed(2)}</td><td>${R.avg}</td></tr><tr><td>${$t("common.overall")}</td><td>${ovr()}</td><td>${R.ovr}</td></tr></table></div><p class="small">${line}</p></div>`;
 }
 export function rivalInfo() {
   const R = S.rival;
-  return `<div class="card"><div class="eyebrow">${$t("story.29", {
+  return `<div class="card"><div class="eyebrow">${$t("rival.rival", {
     v: esc(rivalName())
-  })}</div><div class="kv"><span>${$t("data.36")}</span><b>${esc(R.team.name)}</b><span>${$t("story.31")}</span><b>${levelName(R.stage)}</b><span>${$t("match.58")}</span><b>${R.ovr}</b><span>${$t("story.35")}</span><b>${$t(
-    "story.36",
+  })}</div><div class="kv"><span>${$t("common.team")}</span><b>${esc(R.team.name)}</b><span>${$t("rival.level")}</span><b>${levelName(R.stage)}</b><span>${$t("common.overall")}</span><b>${R.ovr}</b><span>${$t("rival.lastSeason")}</span><b>${$t(
+    "rival.ptsRating",
     {
       ppg: R.ppg,
       avg: R.avg
     }
   )}</b></div>${
     R.hist.length
-      ? `<div class="tbl"><table><tr><th>${$t("story.34")}</th><th>${$t("data.36")}</th><th>${$t("arcade.6")}</th><th>${$t("extras.30")}</th></tr>${R.hist
+      ? `<div class="tbl"><table><tr><th>${$t("common.age")}</th><th>${$t("common.team")}</th><th>${$t("common.score")}</th><th>${$t("common.rating")}</th></tr>${R.hist
           .slice(-6)
           .reverse()
           .map(h => `<tr><td>${h.age}</td><td>${esc(h.team)}</td><td>${h.ppg}</td><td>${h.avg}</td></tr>`)
@@ -505,7 +505,7 @@ export function derbyResult(win) {
   const R = S.rival,
     rp = Math.max(0, Math.round(R.ppg * rnd(0.55, 1.45)));
   const beat = M.pts > rp,
-    txt = $t("story.37", {
+    txt = $t("derby.heldPointsScored", {
       first: R.first,
       rp: rp,
       pts: M.pts
@@ -515,7 +515,7 @@ export function derbyResult(win) {
     S.followers = Math.round(S.followers * 1.04);
     S.moral += 6;
     news(
-      $t("story.160", {
+      $t("derby.manMatchDerby", {
         v: fullName(),
         pts: M.pts,
         v2: rivalName(),
@@ -525,7 +525,7 @@ export function derbyResult(win) {
   } else if (!win && !beat) {
     S.moral -= 4;
     news(
-      $t("story.161", {
+      $t("derby.stoodDerbyPoints", {
         v: rivalName(),
         rp: rp
       })
@@ -535,11 +535,11 @@ export function derbyResult(win) {
     rp,
     txt:
       win && beat
-        ? $t("story.38", {
+        ? $t("derby.derby", {
             txt: txt
           })
         : !win && !beat
-          ? $t("story.39", {
+          ? $t("derby.scoredPointsDerby", {
               first: R.first,
               rp: rp,
               pts: M.pts
@@ -563,26 +563,26 @@ export function roleReview() {
     why = "";
   if (i < 2 && trust >= (i === 0 ? 58 : 70) && rec >= (i === 0 ? 6.7 : 7.2) && dominance() >= (i === 0 ? -8 : 0)) {
     to = order[i + 1];
-    why = i === 0 ? $t("story.40") : $t("story.41");
+    why = i === 0 ? $t("role.leftNoOther") : $t("role.deserveTeamsStarting");
   } else if (i > 0 && (trust < (i === 2 ? 46 : 30) || rec < (i === 2 ? 6.2 : 5.6))) {
     // ilk beşte kalmak da emek ister: kötü seri ya da koçla bozulan ilişki yedek kulübesine götürür
     to = order[i - 1];
-    why = i === 2 ? $t("story.42") : $t("story.43");
+    why = i === 2 ? $t("role.recentGamesHavent") : $t("role.wantPlayingTime");
   }
   if (!to) return false;
   const up = order.indexOf(to) > i;
   Bus.emit("role:change", { from: S.role, to });
   S.role = to;
   S.moral += up ? 8 : -8;
-  news(`${S.team.short}: ${fullName()} ${up ? $t("story.162") : $t("story.163")} (${ROLE_N[to]}).`);
+  news(`${S.team.short}: ${fullName()} ${up ? $t("role.promoted") : $t("role.lostRole")} (${ROLE_N[to]}).`);
   save();
   late.sfx(up ? "levelup" : "lose");
   sheet(
-    up ? $t("story.44") : $t("story.45"),
-    $t("match.38", {
+    up ? $t("role.roleGrew") : $t("role.roleShrank"),
+    $t("common.coach", {
       coach: S.npc.coach
     }),
-    `<div class="who"><div id="rcp"></div><div class="say">${why}</div></div><div class="kv"><span>${$t("story.46")}</span><b class="${up ? "good" : "bad"}">${ROLE_N[to]}</b><span>${$t("story.47")}</span><b>${rec.toFixed(2)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b></div><p class="small muted">${$t("story.48")}</p><button class="btn pri" id="rok">${$t("ads.25")}</button>`,
+    `<div class="who"><div id="rcp"></div><div class="say">${why}</div></div><div class="kv"><span>${$t("role.newRole")}</span><b class="${up ? "good" : "bad"}">${ROLE_N[to]}</b><span>${$t("role.averageRatingLast4")}</span><b>${rec.toFixed(2)}</b><span>${$t("common.relationshipCoach")}</span><b>${S.rel.koc}</b></div><p class="small muted">${$t("role.roleDeterminesHow4")}</p><button class="btn pri" id="rok">${$t("common.continue")}</button>`,
     { noClose: true }
   );
   const cl = LK.coach();
@@ -615,13 +615,13 @@ export function pressFollowUp(win) {
     if (win) {
       S.rel.taraf += 4;
       S.followers = Math.round(S.followers * 1.02);
-      return $t("story.49", {
+      return $t("press.lastWeekSaid", {
         quote: p.quote
       });
     }
     S.moral -= 6;
     S.rel.taraf -= 4;
-    return $t("story.50", {
+    return $t("press.lastWeeksThrown", {
       quote: p.quote
     });
   }
@@ -638,51 +638,51 @@ function pressQA(win) {
     j = S.npc.journalist,
     dr = isDerby(M.opp) ? derbyResult(win) : null;
   const q = derby
-    ? $t("story.51", {
+    ? $t("press.derbyWhatSay", {
         txt: dr.txt,
         first: R.first
       })
     : dr
-      ? `${dr.txt} ${win ? $t("story.56") : $t("story.57")}`
+      ? `${dr.txt} ${win ? $t("press.goodWinHow") : $t("press.toughDefeatWhats")}`
       : S.phase !== "regular"
         ? win
-          ? $t("story.52")
-          : $t("story.53")
+          ? $t("press.tookLeadSeries")
+          : $t("press.lostCrucialGame")
         : M.rating >= 8.3
-          ? $t("story.54", {
+          ? $t("press.manNightPoints", {
               pts: M.pts
             })
           : M.rating <= 4.5
-            ? $t("story.55")
+            ? $t("press.thingsDidntGo")
             : win
-              ? $t("story.56")
-              : $t("story.57");
+              ? $t("press.goodWinHow")
+              : $t("press.toughDefeatWhats");
   const A = derby
     ? [
         [
           "humble",
-          $t("story.58", {
+          $t("press.goodPlayerRespect", {
             first: R.first
           })
         ],
-        ["confident", $t("story.59")],
+        ["confident", $t("press.talkedCourtNo")],
         [
           "bold",
-          $t("story.60", {
+          $t("press.theresOnlyOne", {
             pos: S.pos
           })
         ]
       ]
     : win
       ? [
-          ["humble", $t("story.61")],
-          ["confident", $t("story.62")],
-          ["bold", $t("story.63")]
+          ["humble", $t("press.withoutTeammatesNone")],
+          ["confident", $t("press.gettingStartedIll")],
+          ["bold", $t("press.nobodyStopNext")]
         ]
       : [
-          ["humble", $t("story.64")],
-          ["confident", $t("story.65")],
-          ["bold", $t("story.66")]
+          ["humble", $t("press.responsibilityMineIll")],
+          ["confident", $t("press.badNightEveryone")],
+          ["bold", $t("press.refereesCallsDecided")]
         ];
   return { q, A, derby, j };
 }
@@ -696,19 +696,19 @@ function pressApply(k, P, win) {
     S.rel.koc += 3;
     S.rel.takim += 4;
     S.rel.taraf += 1;
-    out = $t("story.69");
+    out = $t("press.wordsWellReceived");
   } else if (k === "confident") {
     S.rel.taraf += 4;
     S.followers = Math.round(S.followers * 1.02);
     S.moral += 2;
-    out = $t("story.70");
+    out = $t("press.clearConfidentStance");
   } else {
     S.rel.taraf += 8;
     S.followers = Math.round(S.followers * 1.05);
     S.rel.koc -= 4;
     S.rel.takim -= 2;
     if (!win && !derby) tx($t("s35.fine"), -Math.round((S.wage || 10) * 0.5), { kind: "plain" });
-    out = !win && !derby ? $t("story.71") : $t("story.72");
+    out = !win && !derby ? $t("press.federationFined") : $t("press.headlinesCoachDidnt");
     S.press = { tone: "bold", quote: quote.length > 60 ? quote.slice(0, 57) + "…" : quote };
   }
   if (k === "humble") S.press = { tone: "humble", quote };
@@ -717,14 +717,14 @@ function pressApply(k, P, win) {
   return out;
 }
 const pressBody = P =>
-  `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("story.68", {
+  `<div class="who"><div id="pcp"></div><div><div class="eyebrow">${$t("press.sportsReporter", {
     j: esc(P.j)
-  })}</div><div class="say">"${P.q}"</div></div></div><div class="choices" id="pch">${P.A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("story.130"), confident: $t("story.131"), bold: $t("story.132") }[k]}</span></button>`).join("")}</div>`;
+  })}</div><div class="say">"${P.q}"</div></div></div><div class="choices" id="pch">${P.A.map(([k, t]) => `<button class="choice" data-press="${k}"><span class="ct" style="font-size:var(--fs-xl);text-transform:none;letter-spacing:0">${esc(t)}</span><span class="cd">${{ humble: $t("press.modestLovedCoach"), confident: $t("press.confidentBalanced"), bold: $t("press.boldFansGo") }[k]}</span></button>`).join("")}</div>`;
 export function pressConference(win, after) {
   const P = pressQA(win);
   sheet(
-    $t("ads.13"),
-    $t("story.67", {
+    $t("common.pressConference"),
+    $t("press.afterGame", {
       name: M.opp.name
     }),
     pressBody(P),
@@ -736,7 +736,7 @@ export function pressConference(win, after) {
     b =>
       (b.onclick = () => {
         const out = pressApply(b.dataset.press, P, win);
-        $("#pch").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="pok">${$t("ads.25")}</button>`;
+        $("#pch").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="pok">${$t("common.continue")}</button>`;
         $("#pok").onclick = () => {
           closeSheet();
           after();
@@ -754,7 +754,7 @@ export function pressInlineHTML(win) {
   if (!pressDue(win)) return "";
   const P = (M.pressP = pressQA(win));
   M.pressInl = 1;
-  return `<div class="card" id="pr-inl" role="region" aria-label="${esc($t("ads.13"))}"><div class="eyebrow">${$t("ads.13")}</div>${pressBody(P)}</div>`;
+  return `<div class="card" id="pr-inl" role="region" aria-label="${esc($t("common.pressConference"))}"><div class="eyebrow">${$t("common.pressConference")}</div>${pressBody(P)}</div>`;
 }
 /** Satır içi basın toplantısını bağla; cevap verilince done() (sonuç panelindeki "Devam" düğmesi açılır) */
 export function bindPressInline(win, done) {
@@ -788,7 +788,7 @@ export function arcSheet(title, who, look, text, choices, after) {
         const out = choices[+b.dataset.arc].do();
         norm();
         save();
-        $("#ach").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="aok">${$t("ads.25")}</button>`;
+        $("#ach").innerHTML = `<div class="say warn">${out}</div><button class="btn pri" id="aok">${$t("common.continue")}</button>`;
         $("#aok").onclick = () => {
           closeSheet();
           after && after();
@@ -796,7 +796,7 @@ export function arcSheet(title, who, look, text, choices, after) {
       })
   );
 }
-export const msg = (title, who, look, text) => arcSheet(title, who, look, text, [{ t: $t("ads.25"), do: () => $t("story.73") }]);
+export const msg = (title, who, look, text) => arcSheet(title, who, look, text, [{ t: $t("common.continue"), do: () => $t("story.storyContinues") }]);
 export function migrateStory() {
   S.arcs = S.arcs || {};
   S.arcQ = S.arcQ || [];
@@ -859,46 +859,46 @@ export const ARCS = {
         a.stage = nx;
         a.cc = t.cc;
         arcSheet(
-          $t("story.74"),
-          $t("story.75", {
+          $t("arc.transferRumor"),
+          $t("arc.agent", {
             agent: S.npc.agent
           }),
           LK.agent(),
-          $t("story.76", {
+          $t("arc.dontTellAnyone", {
             name: esc(t.name),
             nx: levelName(nx)
           }),
           [
             {
-              t: $t("story.133"),
-              d: $t("story.134"),
+              t: $t("arc.shutDownRumors"),
+              d: $t("arc.coachTeamPleased"),
               do: () => {
                 a.choice = "focus";
                 S.rel.koc += 6;
                 S.rel.takim += 3;
-                return $t("story.77");
+                return $t("arc.statementClearMind");
               }
             },
             {
-              t: $t("story.135"),
-              d: $t("story.136"),
+              t: $t("arc.leaveDoorAjar"),
+              d: $t("arc.offerGuaranteedCoach"),
               do: () => {
                 a.choice = "open";
                 S.rel.koc -= 6;
                 S.rel.taraf -= 4;
-                return $t("story.78", {
+                return $t("arc.saidBigClub", {
                   name: esc(t.name)
                 });
               }
             },
             {
-              t: $t("story.137"),
-              d: $t("story.138"),
+              t: $t("arc.sayHappyClub"),
+              d: $t("arc.fansLoveSeasons"),
               do: () => {
                 a.choice = "loyal";
                 S.rel.taraf += 8;
                 S.rel.koc += 4;
-                return $t("story.79");
+                return $t("arc.kissedCrestJersey");
               }
             }
           ],
@@ -912,20 +912,20 @@ export const ARCS = {
           S.moral -= 6;
           S.rel.taraf -= 5;
           msg(
-            $t("story.80"),
-            $t("story.81"),
+            $t("arc.boosStands"),
+            $t("arc.newspaperHeadline"),
             LK.press(),
-            `${$t("story.83", {
+            `${$t("arc.teamPositionStands", {
               rank: rank
-            })}${t ? esc(t.name) : $t("story.82")}${$t("story.84")}`
+            })}${t ? esc(t.name) : $t("arc.club")}${$t("arc.remarkBooedDuring")}`
           );
         } else if (a.choice === "focus") {
           S.moral += 4;
-          msg($t("story.85"), $t("story.81"), LK.press(), `${$t("story.87")} ${t ? esc(t.name) + $t("story.86") : ""}`);
+          msg($t("arc.focusPaidOff"), $t("arc.newspaperHeadline"), LK.press(), `${$t("arc.papersNowWriting")} ${t ? esc(t.name) + $t("arc.scoutStands") : ""}`);
         } else if (a.choice === "loyal") {
           S.moral += 3;
-          msg($t("story.88"), $t("story.81"), LK.press(), $t("story.89"));
-        } else msg($t("story.90"), $t("story.81"), LK.press(), $t("story.91"));
+          msg($t("arc.fansFavorite"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.clubPresidentSaid"));
+        } else msg($t("arc.rumorContinues"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.sportsShowsTalk"));
       }
     ]
   },
@@ -939,44 +939,44 @@ export const ARCS = {
         const cost = Math.max(60, Math.round((S.wage || 40) * 3));
         a.cost = cost;
         arcSheet(
-          $t("story.92"),
-          $t("story.93", {
+          $t("arc.callHome"),
+          $t("arc.mom", {
             mom: S.npc.mom
           }),
           LK.mom(),
-          $t("story.94", {
+          $t("arc.sonDontTell", {
             dad: S.npc.dad
           }),
           [
             {
               t: $t("rc.st.sendMoney", { v: fmt(cost) }),
-              d: $t("story.139"),
+              d: $t("arc.familyBondGrows"),
               do: () => {
                 a.choice = "pay";
-                tx($t("places.347"), -cost);
+                tx($t("common.familySupport"), -cost);
                 S.rel.aile += 15;
                 S.moral += 4;
-                return $t("story.95");
+                return $t("arc.sentTransferMom");
               }
             },
             {
-              t: $t("story.140"),
-              d: $t("story.141"),
+              t: $t("arc.callDadFind"),
+              d: $t("arc.moneyWontGo"),
               do: () => {
                 a.choice = "advice";
                 S.rel.aile -= 4;
-                return $t("story.96");
+                return $t("arc.dadListenedSaid");
               }
             },
             {
-              t: $t("story.142"),
-              d: $t("story.143"),
+              t: $t("arc.goHomeWeekend"),
+              d: $t("arc.familyOverjoyedMiss"),
               do: () => {
                 a.choice = "visit";
                 S.energy -= 20;
                 S.rel.aile += 20;
                 S.rel.koc -= 4;
-                return $t("story.97");
+                return $t("arc.tookFirstFlight");
               }
             }
           ],
@@ -988,33 +988,33 @@ export const ARCS = {
           S.rel.taraf += 3;
           S.moral += 4;
           msg(
-            $t("story.98"),
-            $t("story.99", {
+            $t("arc.shopSaved"),
+            $t("arc.dad", {
               dad: S.npc.dad
             }),
             LK.dad(),
-            $t("story.100")
+            $t("arc.hungJerseyShop")
           );
         } else if (a.choice === "advice") {
           S.rel.aile += 4;
           msg(
-            $t("story.101"),
-            $t("story.99", {
+            $t("arc.freshStart"),
+            $t("arc.dad", {
               dad: S.npc.dad
             }),
             LK.dad(),
-            $t("story.102")
+            $t("arc.handedShopStarted")
           );
         } else {
           S.rel.aile += 6;
           S.moral += 3;
           msg(
-            $t("story.103"),
-            $t("story.93", {
+            $t("arc.plannedTogether"),
+            $t("arc.mom", {
               mom: S.npc.mom
             }),
             LK.mom(),
-            $t("story.104")
+            $t("arc.dadAddedOnline")
           );
         }
       }
@@ -1027,31 +1027,31 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          $t("story.105"),
-          $t("match.38", {
+          $t("arc.captaincyOffer"),
+          $t("common.coach", {
             coach: S.npc.coach
           }),
           LK.coach(),
-          $t("story.106"),
+          $t("arc.wantTeamCaptain"),
           [
             {
-              t: $t("story.144"),
-              d: $t("story.145"),
+              t: $t("arc.acceptCaptaincy"),
+              d: $t("arc.teamBondsLosing"),
               do: () => {
                 a.choice = "yes";
                 S.rel.takim += 8;
                 S.rel.koc += 4;
                 S.captain = true;
-                return $t("story.107");
+                return $t("arc.putArmbandGave");
               }
             },
             {
-              t: $t("story.146"),
-              d: $t("story.147"),
+              t: $t("arc.notReadyYet"),
+              d: $t("arc.coachBitDisappointed"),
               do: () => {
                 a.choice = "no";
                 S.rel.koc -= 3;
-                return $t("story.108");
+                return $t("arc.coachSaidFine");
               }
             }
           ],
@@ -1072,38 +1072,38 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          $t("story.109"),
-          $t("story.110"),
+          $t("arc.finalsWeek"),
+          $t("arc.cinaraltiCampus"),
           LK.friend(),
-          $t("story.111", {
+          $t("arc.finalsWeekSame", {
             aka: S.aka
           }),
           [
             {
-              t: $t("story.148"),
-              d: $t("story.149"),
+              t: $t("arc.hitLibrary"),
+              d: $t("arc.academicsEnergyPlus15"),
               do: () => {
                 S.aka += 15;
                 S.energy -= 15;
-                return $t("story.112");
+                return $t("arc.pulledThreeNighters");
               }
             },
             {
-              t: $t("story.150"),
-              d: $t("story.151"),
+              t: $t("arc.focusBasketball"),
+              d: $t("arc.academicsNextWorkouts"),
               do: () => {
                 S.aka -= 10;
                 S.buffs.train = (S.buffs.train || 0) + 2;
-                return $t("story.113");
+                return $t("arc.gotLectureNotes");
               }
             },
             {
-              t: $t("story.152"),
-              d: $t("story.153"),
+              t: $t("arc.balanceBoth"),
+              d: $t("arc.academicsEnergyPlus6"),
               do: () => {
                 S.aka += 6;
                 S.energy -= 6;
-                return $t("story.114");
+                return $t("arc.classesDayPractice");
               }
             }
           ],
@@ -1121,34 +1121,34 @@ export const ARCS = {
         const m = late.roster().find(r => r.age >= 30) || late.roster()[0];
         a.name = m.n;
         arcSheet(
-          $t("story.164"),
-          $t("story.165", {
+          $t("arc.bigBrother"),
+          $t("arc.teammate", {
             n: m.n
           }),
           LK.mate(),
-          $t("story.166", {
+          $t("arc.afterPracticeMost", {
             n: esc(m.n)
           }),
           [
             {
-              t: $t("places.172"),
-              d: $t("story.167"),
+              t: $t("common.accept"),
+              d: $t("arc.nextPracticesMore6"),
               do: () => {
                 a.choice = "yes";
                 S.buffs.train = (S.buffs.train || 0) + 6;
                 S.rel.koc += 3;
                 S.rel.takim += 4;
-                return $t("story.168");
+                return $t("arc.whenWalkedGym");
               }
             },
             {
-              t: $t("story.169"),
-              d: $t("story.170"),
+              t: $t("arc.illFindOwn"),
+              d: $t("arc.nothingChangesMentor"),
               do: () => {
                 a.choice = "no";
                 S.rel.takim -= 2;
                 S.moral += 2;
-                return $t("story.171", {
+                return $t("arc.shruggedDoorsOpen", {
                   n: esc(m.n)
                 });
               }
@@ -1160,24 +1160,24 @@ export const ARCS = {
       a => {
         if (a.choice !== "yes")
           return msg(
-            $t("story.172"),
-            $t("story.173", {
+            $t("arc.doorsStillOpen"),
+            $t("arc.teammate2", {
               name: a.name
             }),
             LK.mate(),
-            $t("story.174", {
+            $t("arc.winkedPassedBefore", {
               name: esc(a.name)
             })
           );
         const weak = Object.entries(S.st).sort((x, y) => x[1] - y[1])[0][0];
         S.st[weak] += 2;
         msg(
-          $t("story.175"),
-          $t("story.173", {
+          $t("arc.bigBrothersLesson"),
+          $t("arc.teammate2", {
             name: a.name
           }),
           LK.mate(),
-          $t("story.176", {
+          $t("arc.sixWeeksFilmPlus2", {
             weak: statName(weak),
             name: esc(a.name)
           })
@@ -1199,14 +1199,14 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          $t("story.177"),
-          `${S.npc.natCoach || $t("story.178")} ${$t("story.179")}`,
+          $t("arc.captainsArmband"),
+          `${S.npc.natCoach || $t("arc.nationalTeamHead")} ${$t("arc.nationalTeam")}`,
           LK.coach(),
-          $t("story.180"),
+          $t("arc.nationalTeamHead2"),
           [
             {
-              t: $t("story.181"),
-              d: $t("story.182"),
+              t: $t("arc.idHonored"),
+              d: $t("arc.fansFamilyThrilled"),
               do: () => {
                 a.choice = "yes";
                 S.natCaptain = true;
@@ -1214,20 +1214,20 @@ export const ARCS = {
                 S.rel.aile += 8;
                 S.moral += 6;
                 news(
-                  $t("story.183", {
+                  $t("arc.becameNewCaptain", {
                     v: fullName()
                   })
                 );
-                return $t("story.184");
+                return $t("arc.firstTimeWore");
               }
             },
             {
-              t: $t("story.185"),
-              d: $t("story.186"),
+              t: $t("arc.handArmbandVeteran"),
+              d: $t("arc.earnRespectTake"),
               do: () => {
                 a.choice = "no";
                 S.rel.takim += 4;
-                return $t("story.187");
+                return $t("arc.pressConferencePraised");
               }
             }
           ],
@@ -1235,8 +1235,8 @@ export const ARCS = {
         ),
       a =>
         a.choice === "yes"
-          ? msg($t("story.188"), $t("story.81"), LK.press(), $t("story.189"))
-          : msg($t("story.190"), $t("story.81"), LK.press(), $t("story.191"))
+          ? msg($t("arc.captainsWord"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.lockerRoomSpeech"))
+          : msg($t("arc.quietLeader"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.evenWithoutArmband"))
     ]
   },
   // Rakip takım arkadaşı oluyor
@@ -1257,42 +1257,42 @@ export const ARCS = {
         const R = S.rival;
         R.team = { key: S.team.key, name: S.team.name, city: S.team.city, cc: S.team.cc, c1: S.team.c1, c2: S.team.c2 };
         news(
-          $t("story.192", {
+          $t("arc.agreedDealOld", {
             v: rivalName(),
             name: S.team.name
           })
         );
         arcSheet(
-          $t("story.193"),
-          $t("story.194", {
+          $t("arc.oldRivalNew"),
+          $t("arc.rival", {
             v: rivalName()
           }),
           LK.rival(),
-          $t("story.195", {
+          $t("arc.clubSignedSpent", {
             v: esc(rivalName())
           }),
           [
             {
-              t: $t("story.196"),
-              d: $t("story.197"),
+              t: $t("arc.leavePastBehind"),
+              d: $t("arc.teamChemistryImproves"),
               do: () => {
                 a.choice = "peace";
                 S.rel.takim += 8;
                 S.moral += 3;
-                return $t("story.198", {
+                return $t("arc.wentMealAfter", {
                   first: esc(R.first)
                 });
               }
             },
             {
-              t: $t("story.199"),
-              d: $t("story.200"),
+              t: $t("arc.competeMinutes"),
+              d: $t("arc.coachLovesCompetition"),
               do: () => {
                 a.choice = "rival";
                 S.rel.koc += 4;
                 S.rel.takim -= 4;
                 S.buffs.train = (S.buffs.train || 0) + 4;
-                return $t("story.201", {
+                return $t("arc.oneOneGames", {
                   first: esc(R.first)
                 });
               }
@@ -1306,16 +1306,16 @@ export const ARCS = {
         if (a.choice === "peace") {
           S.rel.takim += 4;
           msg(
-            $t("story.202"),
-            $t("story.81"),
+            $t("arc.duo"),
+            $t("arc.newspaperHeadline"),
             LK.press(),
-            $t("story.203", {
+            $t("arc.findEachOther", {
               first: esc(R.first)
             })
           );
         } else {
           S.moral -= 2;
-          msg($t("story.204"), $t("story.81"), LK.press(), $t("story.205"));
+          msg($t("arc.tenseLockerRoom"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.pressConferenceCoach"));
         }
       }
     ]
@@ -1328,48 +1328,48 @@ export const ARCS = {
     steps: [
       a =>
         arcSheet(
-          $t("story.206"),
-          $t("story.93", {
+          $t("arc.bodyTalking"),
+          $t("arc.mom", {
             mom: S.npc.mom
           }),
           LK.mom(),
-          $t("story.207"),
+          $t("arc.kneesArentWhat"),
           [
             {
-              t: $t("story.208"),
-              d: $t("story.209"),
+              t: $t("arc.lastSeasonFarewell"),
+              d: $t("arc.retireEndSeason"),
               do: () => {
                 a.choice = "last";
                 S.farewell = S.season;
                 S.rel.taraf += 10;
                 S.moral += 6;
                 news(
-                  $t("story.210", {
+                  $t("arc.announcedRetireEnd", {
                     v: fullName()
                   })
                 );
-                return $t("story.211");
+                return $t("arc.afterAnnouncementClub");
               }
             },
             {
-              t: $t("story.212"),
-              d: $t("story.213"),
+              t: $t("arc.keepGoingLong"),
+              d: $t("arc.careerGoesInjury"),
               do: () => {
                 a.choice = "go";
                 S.buffs.injWk = 10;
                 S.buffs.injMul = 1.3;
                 S.moral += 3;
-                return $t("story.214");
+                return $t("arc.illDieCourt");
               }
             },
             {
-              t: $t("story.215"),
-              d: $t("story.216"),
+              t: $t("arc.startCoachingCourses"),
+              d: $t("arc.keepPlayingEarn"),
               do: () => {
                 a.choice = "coach";
                 S.coachCourse = true;
                 S.rel.koc += 6;
-                return $t("story.217");
+                return $t("arc.signedWeekendCoaching");
               }
             }
           ],
@@ -1379,9 +1379,9 @@ export const ARCS = {
         if (a.choice === "last") {
           S.rel.taraf += 15;
           S.followers = Math.round(S.followers * 1.1);
-          msg($t("story.218"), $t("story.219"), LK.press(), $t("story.220"));
-        } else if (a.choice === "coach") msg($t("story.221"), $t("legacy.25"), LK.coach(), $t("story.222"));
-        else msg($t("story.223"), $t("story.81"), LK.press(), $t("story.224"));
+          msg($t("arc.standingOvation"), $t("arc.farewellTour"), LK.press(), $t("arc.evenRoadOpposing"));
+        } else if (a.choice === "coach") msg($t("arc.whiteboard"), $t("common.coachingCourse"), LK.coach(), $t("arc.gotTopGrade"));
+        else msg($t("arc.ageNumber"), $t("arc.newspaperHeadline"), LK.press(), $t("arc.papersCallMan"));
       }
     ]
   },
@@ -1403,31 +1403,31 @@ export const ARCS = {
         const cost = Math.max(40, Math.round(S.wage * 2));
         a.cost = cost;
         arcSheet(
-          $t("story.225"),
-          $t("story.226"),
+          $t("arc.summerCampInvitation"),
+          $t("arc.retiredNationalPlayer"),
           LK.coach(),
-          $t("story.227", {
+          $t("arc.legendWhoPlayed", {
             cost: fmt(cost)
           }),
           [
             {
               t: $t("rc.st.joinCamp", { v: fmt(cost) }),
-              d: $t("story.228"),
+              d: $t("arc.attributesNextPlus1"),
               do: () => {
                 a.choice = "yes";
-                tx($t("story.229"), -cost);
+                tx($t("arc.summerCamp"), -cost);
                 for (const k in S.st) S.st[k] += 1;
                 S.buffs.train = (S.buffs.train || 0) + 10;
                 S.moral += 5;
-                return $t("story.230");
+                return $t("arc.campHellLast");
               }
             },
             {
-              t: $t("story.231"),
-              d: $t("story.232"),
+              t: $t("arc.notSummer"),
+              d: $t("arc.nothingChanges"),
               do: () => {
                 a.choice = "no";
-                return $t("story.233");
+                return $t("arc.politelyTurnedDown");
               }
             }
           ],
@@ -1435,7 +1435,7 @@ export const ARCS = {
         );
       },
       a => {
-        if (a.choice !== "yes") return msg($t("story.234"), $t("story.235"), LK.agent(), $t("story.236"));
+        if (a.choice !== "yes") return msg($t("arc.missedOpportunity"), $t("arc.agent2"), LK.agent(), $t("arc.agentSaidTwo"));
         const nx = ORDER[ORDER.indexOf(S.stage) + 1],
           cc = coin(0.5) ? "TR" : pick(EU_CC),
           t = pick(leaguePool(nx, cc));
@@ -1443,12 +1443,12 @@ export const ARCS = {
         a.team = t; // takım listesine kayıtlı olmayabilir
         a.stage = nx;
         msg(
-          $t("story.237"),
-          $t("story.75", {
+          $t("arc.scoutStands2"),
+          $t("arc.agent", {
             agent: S.npc.agent
           }),
           LK.agent(),
-          $t("story.238", {
+          $t("arc.scoutWatchedLast", {
             name: esc(t.name)
           })
         );
@@ -1460,33 +1460,33 @@ export const ARCS = {
 export const ARC_ONCE = {
   comeback: () =>
     arcSheet(
-      $t("story.115"),
-      $t("match.38", {
+      $t("arc.backCourt"),
+      $t("common.coach", {
         coach: S.npc.coach
       }),
       LK.coach(),
-      $t("story.116"),
+      $t("arc.doctorSaidReturn"),
       [
         {
-          t: $t("story.154"),
-          d: $t("story.155"),
+          t: $t("arc.easeBackListen"),
+          d: $t("arc.injuryRiskHalved6"),
           do: () => {
             S.buffs.injWk = 6;
             S.buffs.injMul = 0.5;
             S.energy += 10;
             S.rel.koc += 2;
-            return $t("story.117");
+            return $t("arc.plannedReturnPhysio");
           }
         },
         {
-          t: $t("story.156"),
-          d: $t("story.157"),
+          t: $t("arc.goBackFull"),
+          d: $t("arc.moraleInjuryRiskPlus6"),
           do: () => {
             S.buffs.injWk = 5;
             S.buffs.injMul = 1.8;
             S.moral += 6;
             S.rel.taraf += 3;
-            return $t("story.118");
+            return $t("arc.ranWarmStands");
           }
         }
       ],
@@ -1534,7 +1534,7 @@ export function storyOffers(offers) {
         role: "rot",
         wage: Math.round(WAGE[bl.stage] * ((LEAGUES[t.cc] || LEAGUES.TR).pr || 1)),
         years: 2,
-        note: $t("story.239", {
+        note: $t("offer.secondChance", {
           stage: levelName(bl.stage)
         })
       });
@@ -1549,7 +1549,7 @@ export function storyOffers(offers) {
     const s = offers.find(o => o.stay);
     if (s) {
       s.wage = Math.round(s.wage * 1.15);
-      s.note = $t("story.119");
+      s.note = $t("offer.loyaltyRenewalPlus15pct");
     }
     return offers;
   }
@@ -1568,7 +1568,7 @@ export function storyOffers(offers) {
         role: role === "bench" ? "bench" : "rot",
         wage: Math.round(WAGE[a.stage] * ((LEAGUES[t.cc] || LEAGUES.TR).pr || 1) * (a.choice === "open" ? 1.2 : 1.1)),
         years: 2,
-        note: $t("story.158", {
+        note: $t("offer.rumorCameTrue", {
           stage: levelName(a.stage)
         })
       });
@@ -1579,7 +1579,7 @@ export function storyOffers(offers) {
 export function derbyNote(opp) {
   if (isDerby(opp) && !isRivalDerby(opp)) return late.dbyNoteHTML(opp);
   return isDerby(opp)
-    ? `<div class="say bad"><b>${$t("story.120")}</b> ${$t("story.121", {
+    ? `<div class="say bad"><b>${$t("derby.derby2")}</b> ${$t("derby.rivalOpposingTeam", {
         v: esc(rivalName())
       })}</div>`
     : "";

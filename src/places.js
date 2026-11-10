@@ -40,18 +40,18 @@ export function openLoc(id, tab) {
   late.placeTip(id); // ilk ziyarette kısa tanıtım (src/guide.js)
 }
 export const HOUSING = {
-  oda: { n: $t("places.265"), rent: 0, en: 0 },
-  yurt: { n: $t("map.15"), rent: 6, en: 0 },
+  oda: { n: $t("place.roomFamilysHome"), rent: 0, en: 0 },
+  yurt: { n: $t("common.studentDorm"), rent: 6, en: 0 },
   daire: {
     get n() {
-      return $t("map.16");
+      return $t("common.rentalApartment");
     },
     rent: 70,
     en: 4
   },
   lux: {
     get n() {
-      return $t("places.266");
+      return $t("place.residenceApartment");
     },
     rent: 475,
     en: 8,
@@ -59,7 +59,7 @@ export const HOUSING = {
   },
   villa: {
     get n() {
-      return $t("map.18");
+      return $t("common.villa");
     },
     rent: 2100,
     en: 12,
@@ -67,7 +67,7 @@ export const HOUSING = {
   },
   malikane: {
     get n() {
-      return $t("map.19");
+      return $t("common.mansion");
     },
     rent: 7500,
     en: 15,
@@ -83,14 +83,14 @@ export function restAct() {
   late.restInjury(); // dinlenmiş vücut: bu hafta sakatlık riski azalır (src/lifestyle.js)
   norm();
   save();
-  resultView($t("places.52"), pick([$t("places.53"), $t("places.54"), $t("places.55")]), [
-    [$t("places.8"), "p"],
+  resultView($t("common.rested"), pick([$t("place.sleptStraightThrough"), $t("place.couchDayBody"), $t("place.iceBathStretching")]), [
+    [$t("common.energyPlus35"), "p"],
     [$t("life.restInj"), "p"]
   ]);
 }
 export function sparkHTML() {
   const rs = late.rated().slice(-10);
-  if (!rs.length) return `<p class="small muted">${$t("places.56")}</p>`;
+  if (!rs.length) return `<p class="small muted">${$t("place.noMatchesYet")}</p>`;
   const w = 300,
     h = 70,
     n = rs.length;
@@ -134,11 +134,11 @@ export function runGame(kind, el, e, reps, title) {
   if (kind === "pass") return mgPass(el, { eff: e, reps, title }).then(r => r.ok / reps);
   if (kind === "dribble") return mgDribble(el, { eff: e, reps, title }).then(r => r.ok / reps);
   if (kind === "steal")
-    return mgTiming(el, { eff: e, tries: reps, title, label: $t("match.108"), kind: "steal" }).then(r => r.ok / reps);
+    return mgTiming(el, { eff: e, tries: reps, title, label: $t("common.reach"), kind: "steal" }).then(r => r.ok / reps);
   if (kind === "post") return mgPost(el, { eff: e, reps, title }).then(r => r.ok / reps);
   if (kind === "rebound") return mgRebound(el, { eff: e, reps, title }).then(r => r.ok / reps);
   if (kind === "block") return mgBlock(el, { eff: e, reps, title }).then(r => r.ok / reps);
-  if (kind === "free") return mgTiming(el, { eff: e, tries: reps + 1, title, label: $t("games.8") }).then(r => r.ok / (reps + 1));
+  if (kind === "free") return mgTiming(el, { eff: e, tries: reps + 1, title, label: $t("common.shoot") }).then(r => r.ok / (reps + 1));
   return mgGym(el, { title }).then(r => clamp(r.taps / 40, 0, 1));
 }
 // antrenman kazancı: başarı oranı, mevcut nitelik ve bonuslar; denge simülasyonu da aynı fonksiyonu kullanır

@@ -481,7 +481,7 @@ async function nightGame() {
   norm();
   save();
   $("#stg").innerHTML = "";
-  $("#res").innerHTML = `<div class="card"><h2 class="${win ? "good" : ""}">${win ? $t("vn.slWon") : $t("vn.slLost")}</h2><p>${$t(`vn.slRes.${kind}`, { m: r.made })}${extra}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  $("#res").innerHTML = `<div class="card"><h2 class="${win ? "good" : ""}">${win ? $t("vn.slWon") : $t("vn.slLost")}</h2><p>${$t(`vn.slRes.${kind}`, { m: r.made })}${extra}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 

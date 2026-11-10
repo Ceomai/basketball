@@ -49,7 +49,7 @@ Object.assign(ICON, {
     ),
   choco: () =>
     sv(
-      `<rect x="14" y="8" width="36" height="48" rx="3" fill="#5d4037" ${ST}/><path d="M14 22 H50 M14 36 H50 M32 8 V56" stroke="#3e2723" stroke-width="2"/><path d="M14 40 L50 30 V56 H14Z" fill="#c62828" ${ST}/><text x="32" y="50" font-family="Barlow Condensed" font-weight="800" font-size="10" text-anchor="middle" fill="#fff">${$t("shops.1")}</text>`
+      `<rect x="14" y="8" width="36" height="48" rx="3" fill="#5d4037" ${ST}/><path d="M14 22 H50 M14 36 H50 M32 8 V56" stroke="#3e2723" stroke-width="2"/><path d="M14 40 L50 30 V56 H14Z" fill="#c62828" ${ST}/><text x="32" y="50" font-family="Barlow Condensed" font-weight="800" font-size="10" text-anchor="middle" fill="#fff">${$t("shop.choco")}</text>`
     ),
   sandwich: () =>
     sv(
@@ -203,73 +203,73 @@ export const carUpkeep = () => itemWeekly("up");
 export const STORES = [
   {
     id: "sneaker",
-    n: $t("shops.46"),
+    n: $t("store.sneakerLab"),
     wall: "#20242c",
     acc: "#ff6a2b",
     disp: "shoes",
-    say: $t("shops.47"),
+    say: $t("store.newSeasonModels"),
     seller: { skin: SKINS[3], hatStyle: "kep", hat: "#ff6a2b" },
     kit: { jersey: "#141414", sleeves: true, mood: "mutlu" }
   },
   {
     id: "spor",
-    n: $t("shops.48"),
+    n: $t("store.proSports"),
     wall: "#123a2a",
     acc: "#36d38e",
     disp: "sport",
-    say: $t("shops.49"),
+    say: $t("store.professionalsShop"),
     seller: { skin: SKINS[1], hatStyle: "band", hat: "#36d38e", hair: "#111" },
     kit: { jersey: "#1b5e20", sleeves: true, mood: "mutlu", whistle: true }
   },
   {
     id: "tekno",
-    n: $t("shops.50"),
+    n: $t("store.techCenter"),
     wall: "#141b2e",
     acc: "#58a6ff",
     disp: "tech",
-    say: $t("shops.51"),
+    say: $t("store.everythingTwoYear"),
     seller: { skin: SKINS[0], hatStyle: "yok", hair: "#e2c15a" },
     kit: { jersey: "#1e3a8a", sleeves: true, glasses: true, mood: "mutlu" }
   },
   {
     id: "moda",
     get n() {
-      return $t("shops.52"); // bölgesel ad (src/culture.js)
+      return $t("store.fashionBoutique"); // bölgesel ad (src/culture.js)
     },
     wall: "#2a1f26",
     acc: "#d8b25a",
     disp: "fashion",
-    say: $t("shops.53"),
+    say: $t("store.jacketMade"),
     seller: { skin: SKINS[2], hatStyle: "uzun", hair: "#111" },
     kit: { adult: true, jersey: "#141414", sleeves: true, tie: "#d8b25a", mood: "mutlu" }
   },
   {
     id: "galeri",
-    n: $t("shops.54"),
+    n: $t("store.carDealership"),
     wall: "#1a1f26",
     acc: "#ff5468",
     disp: "cars",
-    say: $t("shops.55"),
+    say: $t("store.testDriveFree"),
     seller: { skin: SKINS[1], hatStyle: "yok", hair: "#333" },
     kit: { adult: true, jersey: "#37474f", sleeves: true, tie: "#ff5468", mustache: true, mood: "mutlu" }
   },
   {
     id: "yatirim",
-    n: $t("shops.56"),
+    n: $t("store.investmentLegacy"),
     wall: "#1b2330",
     acc: "#d8b25a",
     disp: "invest",
-    say: $t("shops.57"),
+    say: $t("store.makeMoneyWork"),
     seller: { skin: SKINS[1], hatStyle: "yok", hair: "#9e9e9e" },
     kit: { adult: true, jersey: "#22304a", sleeves: true, tie: "#d8b25a", glasses: true, mood: "mutlu" }
   },
   {
     id: "ev",
-    n: $t("shops.58"),
+    n: $t("store.homeLiving"),
     wall: "#2b2620",
     acc: "#ffc54d",
     disp: "home",
-    say: $t("shops.59"),
+    say: $t("store.goodSleepersPlay"),
     seller: { skin: SKINS[4], hatStyle: "bere", hat: "#ffc54d", pom: "#fff" },
     kit: { jersey: "#6d4c41", sleeves: true, apron: "#ffc54d", mood: "mutlu" }
   }
@@ -278,8 +278,8 @@ export const SHOP = [
   {
     id: "ayak1",
     st: "sneaker",
-    n: $t("shops.60"),
-    d: $t("shops.61"),
+    n: $t("shop.trainingShoes"),
+    d: $t("shop.agilityPlus2"),
     p: 60,
     ic: () => icon("sneaker", "#cfd8dc", "#1e88e5"),
     fx: () => late.statItem("hiz", 2)
@@ -287,8 +287,8 @@ export const SHOP = [
   {
     id: "ayak2",
     st: "sneaker",
-    n: $t("shops.62"),
-    d: $t("shops.63"),
+    n: $t("shop.signatureSeriesShoes"),
+    d: $t("shop.agilityShootingPlus3"),
     p: 260,
     ic: () => icon("sneaker", S.team.c1, "#141414"),
     fx: () => {
@@ -299,8 +299,8 @@ export const SHOP = [
   {
     id: "ayak3",
     st: "sneaker",
-    n: $t("shops.64"),
-    d: $t("shops.65"),
+    n: $t("shop.retroCollection"),
+    d: $t("shop.agilityFansPlus1"),
     p: 900,
     ic: () => icon("sneaker", "#fafafa", "#c8102e"),
     fx: () => {
@@ -311,8 +311,8 @@ export const SHOP = [
   {
     id: "ayak4",
     st: "sneaker",
-    n: $t("shops.66"),
-    d: $t("shops.67"),
+    n: $t("shop.goldLimitedEdition"),
+    d: $t("shop.agilityFansPlus2"),
     p: 6000,
     ic: () => icon("sneaker", "#d8b25a", "#141414"),
     fx: () => {
@@ -323,8 +323,8 @@ export const SHOP = [
   {
     id: "top",
     st: "spor",
-    n: $t("shops.68"),
-    d: $t("shops.69"),
+    n: $t("shop.matchBall"),
+    d: $t("shop.shootingPlus2"),
     p: 140,
     ic: () => icon("ball"),
     fx: () => late.statItem("sut", 2)
@@ -332,8 +332,8 @@ export const SHOP = [
   {
     id: "bileklik",
     st: "spor",
-    n: $t("shops.70"),
-    d: $t("shops.71"),
+    n: $t("shop.shootersWristband"),
+    d: $t("shop.shootingPlus1"),
     p: 40,
     ic: () => icon("wrist"),
     fx: () => late.statItem("sut", 1)
@@ -341,8 +341,8 @@ export const SHOP = [
   {
     id: "dizlik",
     st: "spor",
-    n: $t("shops.72"),
-    d: $t("shops.73"),
+    n: $t("shop.proKneeBrace"),
+    d: $t("shop.defensePlus2"),
     p: 90,
     ic: () => icon("knee"),
     fx: () => late.statItem("sav", 2)
@@ -350,8 +350,8 @@ export const SHOP = [
   {
     id: "agirlik",
     st: "spor",
-    n: $t("shops.74"),
-    d: $t("shops.75"),
+    n: $t("shop.homeWeightSet"),
+    d: $t("shop.strengthPlus2"),
     p: 400,
     ic: () => icon("weights"),
     fx: () => late.statItem("guc", 2)
@@ -359,8 +359,8 @@ export const SHOP = [
   {
     id: "forma",
     st: "spor",
-    n: $t("shops.76"),
-    d: $t("shops.77"),
+    n: $t("shop.teamJersey"),
+    d: $t("shop.fansPlus4"),
     p: 120,
     ic: () => icon("tshirt", S.team.c1),
     fx: () => (S.rel.taraf += 4)
@@ -368,18 +368,18 @@ export const SHOP = [
   {
     id: "kulaklik",
     st: "spor",
-    n: $t("shops.78"),
-    d: $t("places.244"),
+    n: $t("shop.studioHeadphones"),
+    d: $t("common.moralePlus8"),
     p: 180,
     ic: () => icon("headphones"),
     fx: () => (S.moral += 8)
   },
-  { id: "telefon", st: "tekno", n: $t("shops.79"), d: $t("shops.80"), p: 380, ic: () => icon("phone") },
+  { id: "telefon", st: "tekno", n: $t("shop.latestGenPhone"), d: $t("shop.shareImpactX15"), p: 380, ic: () => icon("phone") },
   {
     id: "konsol",
     st: "tekno",
-    n: $t("shops.81"),
-    d: $t("shops.82"),
+    n: $t("shop.gameConsole"),
+    d: $t("shop.moralePlus15"),
     p: 220,
     ic: () => icon("console"),
     fx: () => (S.moral += 15)
@@ -387,8 +387,8 @@ export const SHOP = [
   {
     id: "tablet",
     st: "tekno",
-    n: $t("shops.83"),
-    d: $t("shops.84"),
+    n: $t("shop.gameAnalysisTablet"),
+    d: $t("shop.passingPlus2"),
     p: 300,
     ic: () => icon("tablet"),
     fx: () => late.statItem("pas", 2)
@@ -396,18 +396,18 @@ export const SHOP = [
   {
     id: "laptop",
     st: "tekno",
-    n: $t("shops.85"),
-    d: $t("shops.86"),
+    n: $t("shop.laptop"),
+    d: $t("shop.academicsPlus8"),
     p: 700,
     ic: () => icon("laptop"),
     fx: () => (S.aka += 8)
   },
-  { id: "swatch", st: "tekno", n: $t("shops.87"), d: $t("shops.88"), p: 250, en: 3, ic: () => icon("swatch") },
+  { id: "swatch", st: "tekno", n: $t("shop.smartwatch"), d: $t("shop.sleepTrackingEnergyPlus3"), p: 250, en: 3, ic: () => icon("swatch") },
   {
     id: "vr",
     st: "tekno",
-    n: $t("shops.89"),
-    d: $t("shops.90"),
+    n: $t("shop.vrSet"),
+    d: $t("shop.moraleAgilityPlus10"),
     p: 900,
     ic: () => icon("vr"),
     fx: () => {
@@ -418,8 +418,8 @@ export const SHOP = [
   {
     id: "kiyafet",
     st: "moda",
-    n: $t("shops.91"),
-    d: $t("shops.92"),
+    n: $t("shop.streetwearSet"),
+    d: $t("shop.fansMoralePlus6"),
     p: 420,
     ic: () => icon("hoodie", "#37474f"),
     fx: () => {
@@ -430,8 +430,8 @@ export const SHOP = [
   {
     id: "gozluk",
     st: "moda",
-    n: $t("shops.93"),
-    d: $t("shops.77"),
+    n: $t("shop.sunglasses"),
+    d: $t("shop.fansPlus4"),
     p: 300,
     ic: () => icon("glasses"),
     fx: () => (S.rel.taraf += 4)
@@ -439,8 +439,8 @@ export const SHOP = [
   {
     id: "parfum",
     st: "moda",
-    n: $t("shops.94"),
-    d: $t("shops.95"),
+    n: $t("shop.signaturePerfume"),
+    d: $t("shop.moralePartnerPlus6"),
     p: 250,
     ic: () => icon("perfume"),
     fx: () => {
@@ -451,8 +451,8 @@ export const SHOP = [
   {
     id: "ceket",
     st: "moda",
-    n: $t("shops.96"),
-    d: $t("shops.97"),
+    n: $t("shop.leatherJacket"),
+    d: $t("shop.fansPlus8"),
     p: 1200,
     ic: () => icon("jacket"),
     fx: () => (S.rel.taraf += 8)
@@ -460,8 +460,8 @@ export const SHOP = [
   {
     id: "zincir",
     st: "moda",
-    n: $t("shops.98"),
-    d: $t("shops.99"),
+    n: $t("shop.goldChain"),
+    d: $t("shop.fansCoachPlus10"),
     p: 3000,
     ic: () => icon("chain"),
     fx: () => {
@@ -472,18 +472,18 @@ export const SHOP = [
   {
     id: "saat",
     st: "moda",
-    n: $t("shops.100"),
-    d: $t("shops.101"),
+    n: $t("shop.swissWatch"),
+    d: $t("shop.fansPlus10"),
     p: 4500,
     ic: () => icon("watch"),
     fx: () => (S.rel.taraf += 10)
   },
-  { id: "scooter", st: "galeri", n: $t("shops.102"), d: $t("shops.103"), p: 900, en: 2, up: 2, ic: () => icon("scooter") },
+  { id: "scooter", st: "galeri", n: $t("shop.electricScooter"), d: $t("shop.energyWeekPlus2"), p: 900, en: 2, up: 2, ic: () => icon("scooter") },
   {
     id: "araba1",
     st: "galeri",
-    n: $t("shops.104"),
-    d: $t("shops.105"),
+    n: $t("shop.hatchback"),
+    d: $t("shop.energyWeekPlus4"),
     p: 5200,
     en: 4,
     up: 8,
@@ -492,8 +492,8 @@ export const SHOP = [
   {
     id: "moto",
     st: "galeri",
-    n: $t("shops.106"),
-    d: $t("shops.107"),
+    n: $t("shop.motorcycle"),
+    d: $t("shop.energyWeekFansPlus5"),
     p: 14000,
     en: 5,
     up: 15,
@@ -503,8 +503,8 @@ export const SHOP = [
   {
     id: "araba2",
     st: "galeri",
-    n: $t("shops.108"),
-    d: $t("shops.109"),
+    n: $t("shop.electricSuv"),
+    d: $t("shop.energyWeekFansPlus7"),
     p: 42000,
     en: 7,
     up: 30,
@@ -514,8 +514,8 @@ export const SHOP = [
   {
     id: "araba3",
     st: "galeri",
-    n: $t("shops.110"),
-    d: $t("shops.111"),
+    n: $t("shop.italianSupercar"),
+    d: $t("shop.energyWeekFansPlus10"),
     p: 260000,
     en: 10,
     up: 120,
@@ -525,13 +525,13 @@ export const SHOP = [
       S.moral += 12;
     }
   },
-  { id: "yatak", st: "ev", n: $t("shops.112"), d: $t("shops.105"), p: 300, en: 4, ic: () => icon("bed") },
-  { id: "koltuk", st: "ev", n: $t("shops.113"), d: $t("shops.114"), p: 500, mo: 1, ic: () => icon("sofa") },
+  { id: "yatak", st: "ev", n: $t("shop.orthopedicBed"), d: $t("shop.energyWeekPlus4"), p: 300, en: 4, ic: () => icon("bed") },
+  { id: "koltuk", st: "ev", n: $t("shop.comfySofaSet"), d: $t("shop.moraleWeekPlus1"), p: 500, mo: 1, ic: () => icon("sofa") },
   {
     id: "oyunkoltugu",
     st: "ev",
-    n: $t("shops.115"),
-    d: $t("places.143"),
+    n: $t("shop.gamingChair"),
+    d: $t("common.moralePlus5"),
     p: 350,
     ic: () => icon("chair"),
     fx: () => (S.moral += 5)
@@ -539,21 +539,21 @@ export const SHOP = [
   {
     id: "robot",
     st: "ev",
-    n: $t("shops.116"),
-    d: $t("shops.117"),
+    n: $t("shop.robotVacuum"),
+    d: $t("shop.moraleHomeAlwaysPlus3"),
     p: 400,
     ic: () => icon("robot"),
     fx: () => (S.moral += 3)
   },
-  { id: "sinema", st: "ev", n: $t("shops.118"), d: $t("shops.119"), p: 1500, mo: 2, ic: () => icon("cinema") },
-  { id: "fizyo", st: "ev", n: $t("shops.120"), d: $t("shops.121"), p: 9000, ic: () => icon("whistle") },
-  { id: "kryo", st: "ev", n: $t("shops.122"), d: $t("shops.123"), p: 2500, en: 5, ic: () => icon("kryo") },
+  { id: "sinema", st: "ev", n: $t("shop.homeTheater"), d: $t("shop.moraleWeekPlus2"), p: 1500, mo: 2, ic: () => icon("cinema") },
+  { id: "fizyo", st: "ev", n: $t("shop.personal"), d: $t("shop.injuryRiskDrops"), p: 9000, ic: () => icon("whistle") },
+  { id: "kryo", st: "ev", n: $t("shop.iceBathTub"), d: $t("shop.energyWeekPlus5"), p: 2500, en: 5, ic: () => icon("kryo") },
 
   {
     id: "kiradaire",
     st: "yatirim",
-    n: $t("shops.124"),
-    d: $t("shops.125"),
+    n: $t("shop.rentalApartment"),
+    d: $t("shop.rentalIncomeEvery"),
     p: 60000,
     inc: 300,
     ic: () => icon("house", "#90a4ae")
@@ -561,8 +561,8 @@ export const SHOP = [
   {
     id: "dukkan",
     st: "yatirim",
-    n: $t("shops.126"),
-    d: $t("shops.125"),
+    n: $t("shop.shopInvestment"),
+    d: $t("shop.rentalIncomeEvery"),
     p: 250000,
     inc: 1300,
     ic: () => icon("house", "#c96f4a")
@@ -570,8 +570,8 @@ export const SHOP = [
   {
     id: "plaza",
     st: "yatirim",
-    n: $t("shops.127"),
-    d: $t("shops.125"),
+    n: $t("shop.officeFloorTower"),
+    d: $t("shop.rentalIncomeEvery"),
     p: 400000,
     inc: 2100,
     ic: () => icon("house", "#3f5f8a")
@@ -579,8 +579,8 @@ export const SHOP = [
   {
     id: "salon",
     st: "yatirim",
-    n: $t("shops.128"),
-    d: $t("shops.129"),
+    n: $t("shop.gymHometown"),
+    d: $t("shop.donationNeighborhoodPlus20"),
     p: 300000,
     ic: () => icon("hoop"),
     fx: () => {
@@ -588,7 +588,7 @@ export const SHOP = [
       S.rel.taraf += 15;
       S.followers *= 1.1;
       news(
-        $t("shops.185", {
+        $t("shop.builtSportsHall", {
           v: fullName()
         })
       );
@@ -597,8 +597,8 @@ export const SHOP = [
   {
     id: "yat",
     st: "yatirim",
-    n: $t("shops.130"),
-    d: $t("shops.131"),
+    n: $t("shop.yacht"),
+    d: $t("shop.moraleWeekFansPlus3"),
     p: 400000,
     mo: 3,
     up: 500,
@@ -608,21 +608,21 @@ export const SHOP = [
   {
     id: "akademi",
     st: "yatirim",
-    n: $t("shops.132"),
-    d: $t("shops.133"),
+    n: $t("shop.basketballAcademy"),
+    d: $t("shop.ownAcademyYoung"),
     p: 600000,
     ic: () => icon("trophyRoom"),
     fx: () => {
       S.followers *= 1.2;
       S.career.trophies.push({
         type: "award",
-        label: $t("shops.134", {
+        label: $t("shop.founderBasketball", {
           v: seasonLabel(),
           last: S.last
         })
       });
       news(
-        $t("shops.186", {
+        $t("shop.foundedOwnBasketball", {
           v: fullName()
         })
       );
@@ -631,8 +631,8 @@ export const SHOP = [
   {
     id: "jet",
     st: "yatirim",
-    n: $t("shops.135"),
-    d: $t("shops.136"),
+    n: $t("shop.privateJet"),
+    d: $t("shop.energyWeekFansPlus8"),
     p: 900000,
     en: 8,
     up: 1200,
@@ -646,7 +646,7 @@ export function locAvm(I, store = "sneaker") {
   const S0 = STORES.find(s => s.id === store);
   sheet(
     I.n,
-    $t("shops.2", {
+    $t("mall.balance", {
       n: S0.n,
       money: fmt(S.money)
     }),
@@ -671,7 +671,7 @@ export function locAvm(I, store = "sneaker") {
           d:
             it.d +
             (it.up
-              ? ` ${$t("shops.3", {
+              ? ` ${$t("mall.upkeepWeek", {
                   up: fmt(it.up)
                 })}`
               : "") +
@@ -681,7 +681,7 @@ export function locAvm(I, store = "sneaker") {
           own: !!S.items[it.id]
         })
       )
-      .join("")}</div><p class="small muted">${$t("shops.4")}</p>`
+      .join("")}</div><p class="small muted">${$t("mall.everyItemBuy")}</p>`
   );
   const m = {};
   items.forEach(
@@ -699,7 +699,7 @@ export function locAvm(I, store = "sneaker") {
         norm();
         save();
         toast(
-          $t("shops.5", {
+          $t("mall.purchasedAddedShowcase", {
             n: it.n
           })
         );
@@ -852,9 +852,9 @@ export function drawStoreScene(c, o) {
 export const MARKET = [
   {
     id: "enerji",
-    cat: $t("shops.137"),
-    n: $t("shops.138"),
-    d: $t("shops.139"),
+    cat: $t("market.drinks"),
+    n: $t("market.energyDrink"),
+    d: $t("market.energyPlus15"),
     p: 3,
     ic: () => icon("can"),
     fx: () => {
@@ -863,9 +863,9 @@ export const MARKET = [
   },
   {
     id: "izotonik",
-    cat: $t("shops.137"),
-    n: $t("shops.140"),
-    d: $t("shops.141"),
+    cat: $t("market.drinks"),
+    n: $t("market.isotonicDrink"),
+    d: $t("market.energyMoralePlus6"),
     p: 4,
     ic: () => icon("can", "#43a047"),
     fx: () => {
@@ -875,9 +875,9 @@ export const MARKET = [
   },
   {
     id: "su",
-    cat: $t("shops.137"),
-    n: $t("shops.142"),
-    d: $t("shops.143"),
+    cat: $t("market.drinks"),
+    n: $t("market.mineralWater"),
+    d: $t("market.energyPlus3"),
     p: 1,
     ic: () => icon("water"),
     fx: () => {
@@ -886,11 +886,11 @@ export const MARKET = [
   },
   {
     id: "kahve",
-    cat: $t("shops.137"),
+    cat: $t("market.drinks"),
     get n() {
-      return $t("shops.144"); // bölgesel ad (src/culture.js)
+      return $t("market.icedCoffee"); // bölgesel ad (src/culture.js)
     },
-    d: $t("shops.145"),
+    d: $t("market.energyPlus7"),
     p: 3,
     ic: () => icon("coffee"),
     fx: () => {
@@ -899,9 +899,9 @@ export const MARKET = [
   },
   {
     id: "muz",
-    cat: $t("shops.146"),
-    n: $t("shops.147"),
-    d: $t("shops.148"),
+    cat: $t("market.snacks"),
+    n: $t("market.banana"),
+    d: $t("market.energyPlus4"),
     p: 1,
     ic: () => icon("banana"),
     fx: () => {
@@ -910,9 +910,9 @@ export const MARKET = [
   },
   {
     id: "kuruyemis",
-    cat: $t("shops.146"),
-    n: $t("shops.149"),
-    d: $t("shops.150"),
+    cat: $t("market.snacks"),
+    n: $t("market.mixedNuts"),
+    d: $t("market.energyMoralePlus4"),
     p: 3,
     ic: () => icon("nuts"),
     fx: () => {
@@ -922,9 +922,9 @@ export const MARKET = [
   },
   {
     id: "cikolata",
-    cat: $t("shops.146"),
-    n: $t("shops.151"),
-    d: $t("shops.152"),
+    cat: $t("market.snacks"),
+    n: $t("market.chocolate"),
+    d: $t("market.moraleEnergyPlus5"),
     p: 2,
     ic: () => icon("choco"),
     fx: () => {
@@ -934,11 +934,11 @@ export const MARKET = [
   },
   {
     id: "sandvic",
-    cat: $t("shops.146"),
+    cat: $t("market.snacks"),
     get n() {
-      return $t("shops.153"); // bölgesel ad (src/culture.js)
+      return $t("market.chickenSandwich"); // bölgesel ad (src/culture.js)
     },
-    d: $t("shops.154"),
+    d: $t("market.energyPlus6"),
     p: 4,
     ic: () => icon("sandwich"),
     fx: () => {
@@ -947,9 +947,9 @@ export const MARKET = [
   },
   {
     id: "pizza",
-    cat: $t("shops.146"),
-    n: $t("shops.155"),
-    d: $t("shops.156"),
+    cat: $t("market.snacks"),
+    n: $t("market.familySizePizza"),
+    d: $t("market.moraleEnergyPlus8"),
     p: 9,
     ic: () => icon("pizza"),
     fx: () => {
@@ -959,9 +959,9 @@ export const MARKET = [
   },
   {
     id: "protein",
-    cat: $t("shops.157"),
-    n: $t("shops.158"),
-    d: $t("shops.159"),
+    cat: $t("market.sportsNutrition"),
+    n: $t("market.proteinPowder"),
+    d: $t("market.nextWorkoutsPlus1"),
     p: 35,
     ic: () => icon("tub"),
     fx: () => {
@@ -970,9 +970,9 @@ export const MARKET = [
   },
   {
     id: "jel",
-    cat: $t("shops.157"),
-    n: $t("shops.160"),
-    d: $t("shops.161"),
+    cat: $t("market.sportsNutrition"),
+    n: $t("market.energyGel"),
+    d: $t("market.energyPlus12"),
     p: 6,
     ic: () => icon("gel"),
     fx: () => {
@@ -981,9 +981,9 @@ export const MARKET = [
   },
   {
     id: "vitamin",
-    cat: $t("shops.157"),
-    n: $t("shops.162"),
-    d: $t("places.66"),
+    cat: $t("market.sportsNutrition"),
+    n: $t("market.vitaminsElectrolytes"),
+    d: $t("common.energyPlus10"),
     p: 7,
     ic: () => icon("bottle"),
     fx: () => {
@@ -992,9 +992,9 @@ export const MARKET = [
   },
   {
     id: "yulaf",
-    cat: $t("shops.157"),
-    n: $t("shops.163"),
-    d: $t("shops.141"),
+    cat: $t("market.sportsNutrition"),
+    n: $t("market.oatsFruitBowl"),
+    d: $t("market.energyMoralePlus6"),
     p: 5,
     ic: () => icon("oats"),
     fx: () => {
@@ -1004,9 +1004,9 @@ export const MARKET = [
   },
   {
     id: "saglik",
-    cat: $t("extras.4"),
-    n: $t("shops.164"),
-    d: $t("shops.165"),
+    cat: $t("common.weekly"),
+    n: $t("market.healthyGroceryRun"),
+    d: $t("market.energyMoralePlus8"),
     p: 12,
     ic: () => icon("bag"),
     fx: () => {
@@ -1016,9 +1016,9 @@ export const MARKET = [
   },
   {
     id: "meyve",
-    cat: $t("extras.4"),
-    n: $t("shops.166"),
-    d: $t("shops.167"),
+    cat: $t("common.weekly"),
+    n: $t("market.fruitBasket"),
+    d: $t("market.energyMoralePlus5"),
     p: 6,
     ic: () => icon("fruit"),
     fx: () => {
@@ -1028,9 +1028,9 @@ export const MARKET = [
   },
   {
     id: "buz",
-    cat: $t("extras.4"),
-    n: $t("shops.168"),
-    d: $t("shops.169"),
+    cat: $t("common.weekly"),
+    n: $t("market.icePack"),
+    d: $t("market.soreMusclesEnergyPlus8"),
     p: 5,
     ic: () => icon("ice"),
     fx: () => {
@@ -1042,7 +1042,7 @@ export function locMarket(I) {
   const cats = [...new Set(MARKET.map(m => m.cat))];
   const b = sheet(
     I.n,
-    $t("shops.6", {
+    $t("market.balance", {
       money: fmt(S.money)
     }),
     cats
@@ -1055,12 +1055,12 @@ export function locMarket(I) {
       .join("") +
       `<p class="small muted">${$t("life.mktHead", { v: late.marketEnergyLeft(), c: late.MKT_EN_CAP })}</p>${late.boostsHTML()}` +
       (S.buffs.train
-        ? `<p class="small good">${$t("shops.7", {
+        ? `<p class="small good">${$t("market.proteinEffectWorkouts", {
             train: S.buffs.train
           })}</p>`
         : "")
   );
-  addScene(b, "market", pick([$t("shops.187"), $t("shops.188"), $t("shops.189")]));
+  addScene(b, "market", pick([$t("market.freshTodayHelp"), $t("market.athleteDiscountDont"), $t("market.bananasCameMorning")]));
   const m = {};
   MARKET.forEach(
     it =>
@@ -1069,13 +1069,13 @@ export function locMarket(I) {
         if (note === null) return;
         save();
         toast(
-          $t("shops.8", {
+          $t("market.purchasedEnergyMorale", {
             n: it.n,
             energy: S.energy,
             moral: S.moral
           }) + (note ? ` ${note}` : "")
         );
-        $("#shsub").textContent = $t("shops.6", {
+        $("#shsub").textContent = $t("market.balance", {
           money: fmt(S.money)
         });
         $$("[data-act]").forEach(x => {
@@ -1089,11 +1089,11 @@ export function locMarket(I) {
 
 /* ================= EĞLENCE MERKEZİ ================= */
 export const ARCADE = [
-  { id: "hoop", n: $t("arcade.2"), d: $t("shops.170"), ic: "hoop", rec: "arcade" },
-  { id: "ref", n: $t("arcade.12"), d: $t("shops.171"), ic: "joystick", rec: "reflex" },
-  { id: "hockey", n: $t("arcade.16"), d: $t("shops.172"), ic: "puck", rec: "hockey" },
-  { id: "rhythm", n: $t("shops.39"), d: $t("shops.173"), ic: "note", rec: "rhythm" },
-  { id: "bowling", n: $t("arcade.26"), d: $t("shops.174"), ic: "bowling", rec: "bowling" }
+  { id: "hoop", n: $t("common.hoopMachine"), d: $t("arcade.howManyBaskets30"), ic: "hoop", rec: "arcade" },
+  { id: "ref", n: $t("common.reflexPanel"), d: $t("arcade.secondsLitButtons20"), ic: "joystick", rec: "reflex" },
+  { id: "hockey", n: $t("common.airHockey"), d: $t("arcade.versusComputerFirst5"), ic: "puck", rec: "hockey" },
+  { id: "rhythm", n: $t("common.danceRhythm"), d: $t("arcade.tapFallingNotes"), ic: "note", rec: "rhythm" },
+  { id: "bowling", n: $t("common.bowling"), d: $t("arcade.shotsAimSet3"), ic: "bowling", rec: "bowling" }
 ];
 export function venueCard(id, title, sub, kind, on) {
   const w = document.createElement("button");
@@ -1108,13 +1108,13 @@ export function venueCard(id, title, sub, kind, on) {
 export function locEglence(I, tab = "arcade") {
   Bus.emit("place:open", "eglence");
   S.rec = Object.assign({ arcade: 0, reflex: 0, hockey: 0, rhythm: 0, bowling: 0 }, S.rec);
-  sheet(I.n, $t("shops.9"), `<div class="venues" id="vn"></div><div id="egc" class="stack"></div>`);
+  sheet(I.n, $t("fun.whereGoing"), `<div class="venues" id="vn"></div><div id="egc" class="stack"></div>`);
   const vn = $("#vn");
   vn.appendChild(
     venueCard(
       "arcade",
-      $t("shops.10"),
-      $t("shops.11", {
+      $t("fun.arcade"),
+      $t("fun.gamesTokens", {
         length: ARCADE.length,
         v: fmt(late.arcadeCost())
       }),
@@ -1122,7 +1122,7 @@ export function locEglence(I, tab = "arcade") {
       tab === "arcade"
     )
   );
-  vn.appendChild(venueCard("kulup", $t("shops.12"), S.age < 18 ? $t("shops.13") : $t("shops.14"), "club", tab === "kulup"));
+  vn.appendChild(venueCard("kulup", $t("fun.nightclub"), S.age < 18 ? $t("fun.adultsOnly") : $t("fun.partyKaraokeVip"), "club", tab === "kulup"));
   $$(".venue").forEach(x => (x.onclick = () => locEglence(I, x.dataset.v)));
   const c = $("#egc");
   if (tab === "arcade") {
@@ -1132,18 +1132,18 @@ export function locEglence(I, tab = "arcade") {
     late.bindArcMate(() => locEglence(I, "arcade"));
     c.insertAdjacentHTML(
       "beforeend",
-      `<div class="eyebrow">${$t("shops.17")}</div><div class="pgrid">${ARCADE.map(g =>
+      `<div class="eyebrow">${$t("fun.arcadeGames")}</div><div class="pgrid">${ARCADE.map(g =>
         prodHTML({
           id: g.id,
           ic: icon(g.ic),
           t: g.n,
-          d: $t("shops.175", {
+          d: $t("fun.record", {
             d: g.d,
             v: S.rec[g.rec]
           }),
           price: late.arcadeCost(),
-          fx: [[$t("shops.15"), "p"]],
-          btn: $t("shops.16") + fmt(late.arcadeCost())
+          fx: [[$t("fun.morale"), "p"]],
+          btn: $t("fun.play") + fmt(late.arcadeCost())
         })
       ).join("")}</div>`
     );
@@ -1154,7 +1154,7 @@ export function locEglence(I, tab = "arcade") {
     if (S.age < 18) {
       c.insertAdjacentHTML(
         "beforeend",
-        `<div class="say">${$t("shops.18", {
+        `<div class="say">${$t("fun.bouncerCheckedId18", {
           v: 18 - S.age
         })}</div>`
       );
@@ -1169,44 +1169,44 @@ export function locEglence(I, tab = "arcade") {
       kp = Math.round(8 * (1 + ix));
     c.insertAdjacentHTML(
       "beforeend",
-      `<div class="eyebrow">${$t("shops.12")}</div><div class="pgrid">${[
+      `<div class="eyebrow">${$t("fun.nightclub")}</div><div class="pgrid">${[
         {
           id: "parti",
           ic: icon("disco"),
-          t: $t("shops.30"),
-          d: $t("shops.176"),
+          t: $t("fun.party"),
+          d: $t("fun.headingHomeDawn"),
           slot: 1,
           price: pp,
           fx: [
-            [$t("shops.19"), "p"],
-            [$t("shops.20"), "n"],
-            [$t("shops.21"), "t"]
+            [$t("fun.moralePlus16"), "p"],
+            [$t("fun.energyMinus22"), "n"],
+            [$t("fun.scandalRisk"), "t"]
           ],
           btn: fmt(pp)
         },
         {
           id: "karaoke",
           ic: icon("karaoke"),
-          t: $t("shops.38"),
-          d: $t("shops.177"),
+          t: $t("shop.karaoke"),
+          d: $t("fun.takeStageKeep"),
           slot: 1,
           price: kp,
           fx: [
-            [$t("shops.15"), "p"],
-            [$t("shops.22"), "p"]
+            [$t("fun.morale"), "p"],
+            [$t("fun.followerChance"), "p"]
           ],
           btn: fmt(kp)
         },
         {
           id: "vip",
           ic: icon("star"),
-          t: $t("shops.178"),
-          d: fame() < 30 ? $t("shops.23") : $t("shops.24"),
+          t: $t("fun.vipTable"),
+          d: fame() < 30 ? $t("fun.unlocksFame30") : $t("fun.photosSurelyLeak"),
           slot: 1,
           price: vp,
           fx: [
-            [$t("shops.25"), "p"],
-            [$t("shops.26"), "n"]
+            [$t("fun.followersPlus8pct"), "p"],
+            [$t("fun.coachMinus4"), "n"]
           ],
           btn: fmt(vp),
           disabled: fame() < 30
@@ -1216,24 +1216,24 @@ export function locEglence(I, tab = "arcade") {
               {
                 id: "dans",
                 ic: icon("heart"),
-                t: $t("shops.179"),
-                d: $t("shops.180"),
+                t: $t("fun.meetDanceFloor"),
+                d: $t("fun.musterCourage"),
                 slot: 1,
-                fx: [[$t("places.249"), "t"]],
-                btn: $t("shops.181")
+                fx: [[$t("common.partnerChance"), "t"]],
+                btn: $t("fun.try")
               }
             ]
           : [
               {
                 id: "dans2",
                 ic: icon("heart"),
-                t: $t("shops.182", {
+                t: $t("fun.dance2", {
                   partner: S.partner
                 }),
-                d: $t("shops.183"),
+                d: $t("fun.centerDanceFloor"),
                 slot: 1,
-                fx: [[$t("shops.27"), "p"]],
-                btn: $t("shops.184")
+                fx: [[$t("fun.partnerPlus10"), "p"]],
+                btn: $t("fun.dance3")
               }
             ])
       ]
@@ -1244,48 +1244,48 @@ export function locEglence(I, tab = "arcade") {
       parti: () => {
         if (S.money < pp) return;
         useSlot();
-        tx($t("shops.12"), -pp);
+        tx($t("fun.nightclub"), -pp);
         S.moral += 16;
         S.energy -= 22;
         late.fitHit(3); // gece hayatı kondisyonu düşürür (src/fitness.js)
-        let t = $t("shops.28");
+        let t = $t("fun.whatNightDidnt");
         if (Math.random() < 0.2) {
           S.rel.koc -= 8;
           S.rel.taraf -= 4;
-          t += ` ${$t("shops.29", {
+          t += ` ${$t("fun.someoneFilmedVideo", {
             coach: S.npc.coach
           })}`;
           news(
-            $t("shops.190", {
+            $t("fun.headlinesNightclub", {
               v: fullName()
             })
           );
         }
         norm();
         save();
-        resultView($t("shops.30"), t, [
-          [$t("shops.19"), "p"],
-          [$t("shops.20"), "n"]
+        resultView($t("fun.party"), t, [
+          [$t("fun.moralePlus16"), "p"],
+          [$t("fun.energyMinus22"), "n"]
         ]);
       },
       karaoke: () => {
         if (S.money < kp) return;
         useSlot();
-        tx($t("shops.38"), -kp);
+        tx($t("shop.karaoke"), -kp);
         arcadeRun("karaoke", true);
       },
       vip: () => {
         if (S.money < vp) return;
         useSlot();
-        tx($t("shops.178"), -vp);
+        tx($t("fun.vipTable"), -vp);
         late.mediaGain(0.05, 6);
         S.moral += 12;
         S.rel.koc -= 4;
         norm();
         save();
-        resultView($t("shops.31"), $t("shops.32"), [
-          [$t("shops.25"), "p"],
-          [$t("shops.26"), "n"]
+        resultView($t("fun.vipNight"), $t("fun.photoFamousSinger"), [
+          [$t("fun.followersPlus8pct"), "p"],
+          [$t("fun.coachMinus4"), "n"]
         ]);
       },
       dans: () => {
@@ -1296,15 +1296,15 @@ export function locEglence(I, tab = "arcade") {
           S.rel.partner = 45;
           S.moral += 10;
           news(
-            $t("shops.191", {
+            $t("fun.startedNewRelationship", {
               v: fullName()
             })
           );
           norm();
           save();
           resultView(
-            $t("places.259"),
-            $t("shops.33", {
+            $t("common.spark"),
+            $t("fun.metDanceFloor", {
               partner: S.partner
             })
           );
@@ -1312,7 +1312,7 @@ export function locEglence(I, tab = "arcade") {
           S.moral -= 3;
           norm();
           save();
-          resultView($t("casino.43"), $t("shops.34"));
+          resultView($t("common.noLuck"), $t("fun.senseRhythmStayed"));
         }
       },
       dans2: () => {
@@ -1323,11 +1323,11 @@ export function locEglence(I, tab = "arcade") {
         norm();
         save();
         resultView(
-          $t("shops.35"),
-          $t("shops.36", {
+          $t("fun.dance"),
+          $t("fun.spunMiddleFloor", {
             partner: S.partner
           }),
-          [[$t("shops.27"), "p"]]
+          [[$t("fun.partnerPlus10"), "p"]]
         );
       }
     });
@@ -1337,21 +1337,21 @@ export async function arcadeRun(kind, paid) {
   if (!paid) {
     const cost = late.arcadeCost();
     if (S.money < cost) return;
-    tx($t("shops.192"), -cost);
+    tx($t("arcade.arcadeToken"), -cost);
   }
   const counts = late.arcadeCounts(); // haftada ilk 2 oyun moral/gelişim verir (src/economy.js)
   closeSheet();
   arenaFor(null);
   Bus.emit("arcade:start", kind);
-  const meta = ARCADE.find(g => g.id === kind) || { n: $t("shops.38"), rec: "rhythm" };
-  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("shops.37")}</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
+  const meta = ARCADE.find(g => g.id === kind) || { n: $t("shop.karaoke"), rec: "rhythm" };
+  app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("common.entertainmentCenter")}</div><h2>${meta.n}</h2></div><div id="stg"></div><div id="res"></div>`;
   const el = $("#stg");
   let r;
   if (kind === "hoop") r = await late.mgArcade(el);
   else if (kind === "ref") r = await late.mgReflex(el);
   else if (kind === "hockey") r = await late.mgHockey(el);
   else if (kind === "bowling") r = await late.mgBowling(el);
-  else r = await late.mgRhythm(el, { title: kind === "karaoke" ? $t("shops.38") : $t("shops.39"), karaoke: kind === "karaoke" });
+  else r = await late.mgRhythm(el, { title: kind === "karaoke" ? $t("shop.karaoke") : $t("common.danceRhythm"), karaoke: kind === "karaoke" });
   const key = meta.rec,
     rec = r.score > (S.rec[key] || 0);
   if (kind !== "karaoke") late.arcSubmit(key, r.score);
@@ -1361,7 +1361,7 @@ export async function arcadeRun(kind, paid) {
   else extra = $t("eco.arcTired");
   if (kind === "hockey" && r.win) {
     S.moral += 4;
-    extra = $t("shops.40");
+    extra = $t("arcade.beatComputer");
   }
   if (counts && kind === "ref" && r.score >= 18 && Math.random() < 0.4) {
     const g = late.gainStat("hiz", Math.round(0.2 * late.levelMul("hiz") * 100) / 100);
@@ -1369,22 +1369,22 @@ export async function arcadeRun(kind, paid) {
   }
   if (kind === "karaoke" && r.score >= 20) {
     late.mediaGain(0.02, 3);
-    extra = $t("shops.42");
+    extra = $t("arcade.videoSharedFollowers");
   }
   if (kind !== "karaoke") extra += late.arcMateResult(r.score);
   norm();
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><div class="eyebrow">${$t("extras.11")}</div><div class="big-num">${r.label || r.score}</div><p>${
+    `<div class="card"><div class="eyebrow">${$t("common.score2")}</div><div class="big-num">${r.label || r.score}</div><p>${
       kind !== "karaoke"
         ? rec
-          ? $t("shops.43")
-          : $t("shops.44", {
+          ? $t("arcade.newRecord")
+          : $t("arcade.record4", {
               v: S.rec[key]
             })
         : ""
-    } ${extra}</p><div class="grid2"><button class="btn ghost" id="bk">${$t("casino.13")}</button>${kind === "karaoke" ? "" : `<button class="btn pri" id="again">${$t("shops.45")}</button>`}</div></div>`;
+    } ${extra}</p><div class="grid2"><button class="btn ghost" id="bk">${$t("common.backMap")}</button>${kind === "karaoke" ? "" : `<button class="btn pri" id="again">${$t("arcade.oneMoreToken")}</button>`}</div></div>`;
   $("#bk").onclick = renderMain;
   const ag = $("#again");
   if (ag) ag.onclick = () => arcadeRun(kind);

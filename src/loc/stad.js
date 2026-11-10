@@ -11,12 +11,12 @@ import { momentCount, DRILL_IC, arenaFor, runGame, drillGain } from "../places.j
 export function locStad(I, tab = "mac") {
   if (S.brk && tab === "mac") tab = "idman"; // milli takım arasında lig maçı oynanmaz (src/plan.js)
   const tabs = [
-    ["mac", $t("match.88")],
-    ["idman", $t("places.57")],
-    ["kadro", $t("places.58")],
-    ["tablo", $t("places.59")]
+    ["mac", $t("common.match")],
+    ["idman", $t("stadium.training")],
+    ["kadro", $t("stadium.roster")],
+    ["tablo", $t("stadium.standings")]
   ];
-  if (S.tryout && !S.tryout.done) tabs.push(["secme", $t("places.60")]);
+  if (S.tryout && !S.tryout.done) tabs.push(["secme", $t("stadium.tryouts")]);
   sheet(I.n, `${S.team.name} · ${S.city}`, `${tabsHTML(tabs, tab)}<div id="stc" class="stack"></div>`, {
     icon: crestSVG(S.team, 36)
   });
@@ -27,23 +27,23 @@ export function locStad(I, tab = "mac") {
     const fx = fixture(),
       opp = teamByKey(fx.opp);
     c.innerHTML =
-      `<div class="card"><div class="eyebrow">${$t("places.61")}</div><h2 class="bad">${esc(S.injury.n)}</h2><div class="kv"><span>${$t("places.62")}</span><b>${$t(
-        "places.63",
+      `<div class="card"><div class="eyebrow">${$t("stadium.injuryReport")}</div><h2 class="bad">${esc(S.injury.n)}</h2><div class="kv"><span>${$t("common.timeRemaining")}</span><b>${$t(
+        "stadium.weeks",
         {
           w: S.injury.w
         }
-      )}</b><span>${$t("places.64")}</span><b>${esc(opp.name)}</b></div><div class="bar"><i style="--w:${100 - (S.injury.w / S.injury.total) * 100};background:var(--good)"></i></div><p class="small muted">${$t("places.65")}</p></div>` +
+      )}</b><span>${$t("stadium.weeksMatch")}</span><b>${esc(opp.name)}</b></div><div class="bar"><i style="--w:${100 - (S.injury.w / S.injury.total) * 100};background:var(--good)"></i></div><p class="small muted">${$t("stadium.cantPlayMatches")}</p></div>` +
       actHTML({
         id: "fizyo",
         ic: icon("kryo"),
-        t: $t("story.13"),
-        d: $t("places.270"),
+        t: $t("common.physio"),
+        d: $t("stadium.chanceShortenRecovery50pct"),
         slot: 1,
-        fx: [[$t("places.66"), "p"]],
-        btn: $t("places.271")
+        fx: [[$t("common.energyPlus10"), "p"]],
+        btn: $t("stadium.joinSession")
       }) +
       late.adHealHTML() +
-      `<button class="btn pri big" id="watch">${$t("places.67")}</button>`;
+      `<button class="btn pri big" id="watch">${$t("stadium.watchMatchStands")}</button>`;
     bindActs({ fizyo: late.physioAct });
     late.bindAdHeal(() => locStad(I, "mac"));
     $("#watch").onclick = () => {
@@ -57,28 +57,28 @@ export function locStad(I, tab = "mac") {
       opp = teamByKey(fx.opp),
       row = S.league.find(r => r.key === opp.key),
       mr = S.league.find(r => r.key === S.team.key);
-    c.innerHTML = `<div class="card ta-c"><div class="eyebrow">${$t("places.72", {
+    c.innerHTML = `<div class="card ta-c"><div class="eyebrow">${$t("common.week2", {
       v: phaseName(),
       week: S.week
     })}</div>
-     <div class="row nowrap" style="justify-content:space-around"><div>${crestSVG(S.team, 64)}<div style="font-weight:800">${esc(S.team.short)}</div><div class="small muted">${mr.w}-${mr.l}</div></div><div class="disp" style="font-size:var(--fs-7xl);color:var(--muted)">${$t("places.73")}</div><div>${crestSVG(opp, 64)}<div style="font-weight:800">${esc(opp.short)}</div><div class="small muted">${row.w}-${row.l}</div></div></div>
+     <div class="row nowrap" style="justify-content:space-around"><div>${crestSVG(S.team, 64)}<div style="font-weight:800">${esc(S.team.short)}</div><div class="small muted">${mr.w}-${mr.l}</div></div><div class="disp" style="font-size:var(--fs-7xl);color:var(--muted)">${$t("stadium.vs")}</div><div>${crestSVG(opp, 64)}<div style="font-weight:800">${esc(opp.short)}</div><div class="small muted">${row.w}-${row.l}</div></div></div>
      <div style="font-weight:700">${esc(opp.name)}</div><div class="small muted">${
        fx.home
-         ? $t("places.68", {
+         ? $t("stadium.home", {
              city: esc(S.city)
            })
-         : $t("places.69", {
+         : $t("stadium.away", {
              city: esc(opp.city)
            })
      }</div></div>
-     <div class="card"><div class="kv"><span>${$t("places.74")}</span><b class="${S.energy < 35 ? "bad" : ""}">${S.energy}</b><span>${$t("places.75")}</span><b>${isPro(S.stage) ? ROLE_N[S.role] : $t("places.12")}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("places.76")}</span><b>${momentCount()}</b></div>${S.energy < 35 ? `<p class="small bad">${$t("places.70")}</p>` : ""}${
+     <div class="card"><div class="kv"><span>${$t("stadium.energy")}</span><b class="${S.energy < 35 ? "bad" : ""}">${S.energy}</b><span>${$t("stadium.role")}</span><b>${isPro(S.stage) ? ROLE_N[S.role] : $t("common.schoolTeam")}</b><span>${$t("common.relationshipCoach")}</span><b>${S.rel.koc}</b><span>${$t("stadium.expectedKeyMoment")}</span><b>${momentCount()}</b></div>${S.energy < 35 ? `<p class="small bad">${$t("stadium.tiredAccuracyDrop")}</p>` : ""}${
        S.slot > 0
-         ? `<p class="small muted">${$t("places.71", {
+         ? `<p class="small muted">${$t("stadium.moreTimeSlots", {
              slot: S.slot
            })}</p>`
          : ""
      }</div>
-     ${late.adEnergyHTML()}${late.serPreHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("places.77")}</button><button class="btn ghost" id="qplay">${$t("places.78")}</button>`;
+     ${late.adEnergyHTML()}${late.serPreHTML()}${late.derbyNote(opp)}${late.prepHTML()}${late.boostsHTML()}<button class="btn pri big" id="play">${$t("stadium.playMatch")}</button><button class="btn ghost" id="qplay">${$t("stadium.simMatch")}</button>`;
     $("#play").onclick = () => {
       closeSheet();
       late.playMatch().catch(late.matchFail);
@@ -92,15 +92,15 @@ export function locStad(I, tab = "mac") {
   }
   if (tab === "idman" && S.injury) {
     c.innerHTML =
-      `<div class="say bad">${$t("places.79")}</div>` +
+      `<div class="say bad">${$t("stadium.cantTrainWhile")}</div>` +
       actHTML({
         id: "fizyo",
         ic: icon("kryo"),
-        t: $t("story.13"),
-        d: $t("places.270"),
+        t: $t("common.physio"),
+        d: $t("stadium.chanceShortenRecovery50pct"),
         slot: 1,
-        fx: [[$t("places.66"), "p"]],
-        btn: $t("places.271")
+        fx: [[$t("common.energyPlus10"), "p"]],
+        btn: $t("stadium.joinSession")
       });
     bindActs({ fizyo: late.physioAct });
     return;
@@ -109,7 +109,7 @@ export function locStad(I, tab = "mac") {
     const list = [...DRILLS[S.pos], ...COMMON_DRILLS];
     c.innerHTML =
       late.programHTML() +
-      `<div class="eyebrow">${$t("places.80", {
+      `<div class="eyebrow">${$t("stadium.program", {
         n: POS[S.pos].n
       })}</div>` +
       list
@@ -118,17 +118,17 @@ export function locStad(I, tab = "mac") {
             id,
             ic: icon(DRILL_IC[g]),
             t: n,
-            d: $t("places.328", {
+            d: $t("stadium.now", {
               d: d,
               k: statName(k),
               v: stat1(k)
             }),
             slot: 1,
             fx: [
-              [$t("places.81"), "n"],
+              [$t("stadium.energyMinus18"), "n"],
               [`${statName(k)} +0–5`, "p"]
             ],
-            btn: $t("core.64"),
+            btn: $t("common.start"),
             disabled: S.energy < 18
           })
         )
@@ -136,16 +136,16 @@ export function locStad(I, tab = "mac") {
       actHTML({
         id: "takim",
         ic: icon("whistle"),
-        t: $t("places.86"),
-        d: $t("places.272"),
+        t: $t("stadium.teamPractice"),
+        d: $t("stadium.coachsTacticsSession"),
         slot: 1,
         fx: [
-          [$t("places.82"), "n"],
-          [$t("places.83"), "p"],
-          [$t("places.84"), "p"],
+          [$t("stadium.energyMinus12"), "n"],
+          [$t("common.coachPlus4"), "p"],
+          [$t("common.teamPlus3"), "p"],
           [$t("prog.teamFx"), "p"]
         ],
-        btn: $t("places.273"),
+        btn: $t("common.join"),
         disabled: S.energy < 12
       }) +
       (S.items.hoca
@@ -153,10 +153,10 @@ export function locStad(I, tab = "mac") {
         : actHTML({
             id: "hoca",
             ic: icon("whistle"),
-            t: $t("places.274"),
-            d: $t("places.275"),
+            t: $t("stadium.hirePersonalTrainer"),
+            d: $t("stadium.gainTrainingOnePlus1"),
             price: 6000,
-            fx: [[$t("places.85"), "t"]],
+            fx: [[$t("stadium.permanent"), "t"]],
             btn: fmt(6000),
             cls: "ghost"
           }));
@@ -182,36 +182,36 @@ export function locStad(I, tab = "mac") {
       norm();
       save();
       resultView(
-        $t("places.86"),
+        $t("stadium.teamPractice"),
         $t("prog.team", {
           coach: S.npc.coach,
           k: statName(k),
           v: g.toFixed(2)
         }),
         [
-          [$t("places.83"), "p"],
-          [$t("places.84"), "p"]
+          [$t("common.coachPlus4"), "p"],
+          [$t("common.teamPlus3"), "p"]
         ]
       );
     };
     m.hoca = () => {
       if (S.money < 6000) return;
-      tx($t("places.329"), -6000);
+      tx($t("stadium.personalTrainer"), -6000);
       S.items.hoca = 1;
       save();
-      toast($t("places.88"));
+      toast($t("stadium.coachReady"));
       locStad(I, "idman");
     };
     bindActs(m);
     late.bindProgram(() => locStad(I, "idman"));
   }
   if (tab === "tablo") {
-    c.innerHTML = `<div class="card"><div class="eyebrow">${esc(lgName())} · ${seasonLabel()}</div><div class="tbl"><table><tr><th>#</th><th>${$t("data.36")}</th><th>G</th><th>M</th><th>${$t("places.89")}</th></tr>${standings()
+    c.innerHTML = `<div class="card"><div class="eyebrow">${esc(lgName())} · ${seasonLabel()}</div><div class="tbl"><table><tr><th>#</th><th>${$t("common.team")}</th><th>G</th><th>M</th><th>${$t("stadium.avg")}</th></tr>${standings()
       .map((r, i) => {
         const t = teamByKey(r.key);
         return `<tr class="${t.key === S.team.key ? "me" : ""}"><td>${i + 1}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:var(--r-2xs);background:${t.c1};margin-right:6px"></span>${esc(t.name)}</td><td>${r.w}</td><td>${r.l}</td><td>${r.pf - r.pa > 0 ? "+" : ""}${r.pf - r.pa}</td></tr>`;
       })
-      .join("")}</table></div><p class="small muted">${$t("places.90", {
+      .join("")}</table></div><p class="small muted">${$t("stadium.topTeamsStay4", {
       v: S.stage === "lise" ? $t("lc.toTour") : $t("lc.toPlayoff")
     })}</p></div>`;
   }
@@ -219,7 +219,7 @@ export function locStad(I, tab = "mac") {
     const t = teamByKey(S.tryout.club);
     c.innerHTML =
       `<div class="card"><div class="row nowrap">${crestSVG(t, 48)}<div><div class="eyebrow">${esc(leagueName(S.tryout.stage, t.cc))}</div><h3>${esc(t.name)}</h3></div></div><p class="small">${$t(
-        "places.91",
+        "stadium.tryoutThreeParts3",
         {
           until: S.tryout.until
         }
@@ -227,11 +227,11 @@ export function locStad(I, tab = "mac") {
       actHTML({
         id: "go",
         ic: icon("whistle"),
-        t: $t("places.276"),
-        d: $t("places.277"),
+        t: $t("stadium.joinTryout"),
+        d: $t("stadium.takesWholeDay"),
         slot: 1,
-        fx: [[$t("places.92"), "n"]],
-        btn: $t("places.273")
+        fx: [[$t("stadium.energyMinus20"), "n"]],
+        btn: $t("common.join")
       });
     bindActs({
       go: () => {
@@ -246,7 +246,7 @@ export async function runDrill([id, name, k, kind]) {
   S.energy -= 18;
   save();
   arenaFor(null);
-  app.innerHTML = `<div class="row between pt-3"><div><div class="eyebrow">${$t("places.93", {
+  app.innerHTML = `<div class="row between pt-3"><div><div class="eyebrow">${$t("drill.training", {
     short: esc(S.team.short),
     n: POS[S.pos].n
   })}</div><h2>${name}</h2></div></div><div id="stg"></div><div id="res"></div>`;
@@ -256,15 +256,15 @@ export async function runDrill([id, name, k, kind]) {
   if (ratio > 0.6) S.rel.koc += 2;
   norm();
   save();
-  $("#res").innerHTML = `<div class="card mt-3"><div class="row between"><div><div class="eyebrow">${$t("places.98", {
+  $("#res").innerHTML = `<div class="card mt-3"><div class="row between"><div><div class="eyebrow">${$t("drill.resultSuccess", {
     v: Math.round(ratio * 100)
-  })}</div><h2>${gain >= 1 ? $t("places.94") : gain >= 0.5 ? $t("places.95") : gain >= 0.1 ? $t("places.96") : $t("places.97")}</h2></div><div class="big-num ${gain >= 0.05 ? "good" : ""}">+${gain.toFixed(2)}</div></div><p class="small muted">${$t(
+  })}</div><h2>${gain >= 1 ? $t("drill.perfectSession") : gain >= 0.5 ? $t("drill.productiveSession") : gain >= 0.1 ? $t("drill.okay") : $t("drill.notDay")}</h2></div><div class="big-num ${gain >= 0.05 ? "good" : ""}">+${gain.toFixed(2)}</div></div><p class="small muted">${$t(
     "prog.drillNow",
     {
       k: statName(k),
       v: stat1(k)
     }
-  )}</p><div class="bar"><i style="--w:${statVal(k)}"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  )}</p><div class="bar"><i style="--w:${statVal(k)}"></i></div>${late.trainAdHTML(gain)}<button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   late.bindTrainAd(k, gain);
   $("#bk").onclick = renderMain;
 }
@@ -274,16 +274,16 @@ export async function runTryout() {
   save();
   const club = teamByKey(S.tryout.club);
   arenaFor(club);
-  app.innerHTML = `<div class="row nowrap pt-3">${crestSVG(club, 44)}<div><div class="eyebrow">${$t("places.60")}</div><h2>${esc(club.name)}</h2></div></div><div class="say" id="tsay">${$t("places.100")}</div><div id="stg"></div><div id="res"></div>`;
+  app.innerHTML = `<div class="row nowrap pt-3">${crestSVG(club, 44)}<div><div class="eyebrow">${$t("stadium.tryouts")}</div><h2>${esc(club.name)}</h2></div></div><div class="say" id="tsay">${$t("tryout.partShootingThree1")}</div><div id="stg"></div><div id="res"></div>`;
   const shift = (tdOf(S.tryout.stage, club.cc) - TD()) / 2;
-  const r1 = await mgShoot($("#stg"), { eff: clamp(eff("sut") - shift, 3, 100), shots: 3, title: $t("places.278"), def: false });
-  $("#tsay").textContent = $t("places.101");
-  const r2 = await mgDribble($("#stg"), { eff: clamp(eff("hiz") - shift, 3, 100), reps: 1, title: $t("places.279") });
-  $("#tsay").textContent = $t("places.102");
+  const r1 = await mgShoot($("#stg"), { eff: clamp(eff("sut") - shift, 3, 100), shots: 3, title: $t("tryout.tryoutShooting"), def: false });
+  $("#tsay").textContent = $t("tryout.partDribblingScouts2");
+  const r2 = await mgDribble($("#stg"), { eff: clamp(eff("hiz") - shift, 3, 100), reps: 1, title: $t("tryout.tryoutDribbling") });
+  $("#tsay").textContent = $t("tryout.partDefense3");
   const r3 = await mgBlock($("#stg"), {
     eff: clamp((eff("sav") + eff("guc")) / 2 - shift, 3, 100),
     reps: 1,
-    title: $t("places.280")
+    title: $t("tryout.tryoutBlocking")
   });
   const score = r1.made + r2.ok + r3.ok,
     pass = score >= 3;
@@ -291,7 +291,7 @@ export async function runTryout() {
   if (pass) {
     S.clubDeal = { club: club.key, stage: S.tryout.stage };
     news(
-      $t("places.330", {
+      $t("tryout.passedTryouts", {
         v: fullName(),
         name: club.name
       })
@@ -301,7 +301,7 @@ export async function runTryout() {
   } else {
     S.moral -= 8;
     news(
-      $t("places.331", {
+      $t("tryout.tryoutResultsNot", {
         name: club.name
       })
     );
@@ -310,14 +310,14 @@ export async function runTryout() {
   save();
   $("#stg").innerHTML = "";
   $("#tsay").remove();
-  $("#res").innerHTML = `<div class="card"><div class="eyebrow">${$t("places.107", {
+  $("#res").innerHTML = `<div class="card"><div class="eyebrow">${$t("tryout.tryoutResult5", {
     score: score
-  })}</div><h2 class="${pass ? "good" : "bad"}">${pass ? $t("places.103") : $t("places.104")}</h2><p>${
+  })}</div><h2 class="${pass ? "good" : "bad"}">${pass ? $t("tryout.madeSquad") : $t("tryout.didntMakeSquad")}</h2><p>${
     pass
-      ? $t("places.105", {
+      ? $t("tryout.offerContractEnd", {
           name: club.name
         })
-      : $t("places.106")
-  }</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+      : $t("tryout.scoutSaidTheres")
+  }</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }

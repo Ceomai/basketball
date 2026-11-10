@@ -44,11 +44,11 @@ export function trophyIcon(t) {
 /* ================= ARCADE SIRALAMALARI ================= */
 // Sunucu olmadığı için rakipler her hafta aynı tohumla üretilir; oyuncunun haftalık ve aylık en iyi skoru listeye yerleşir.
 export const ARC_GAMES = {
-  arcade: { n: $t("arcade.2"), lo: 6, hi: 17 },
-  reflex: { n: $t("arcade.12"), lo: 12, hi: 26 },
-  hockey: { n: $t("arcade.16"), lo: 2, hi: 5 },
-  rhythm: { n: $t("shops.39"), lo: 20, hi: 58 },
-  bowling: { n: $t("arcade.26"), lo: 9, hi: 27 }
+  arcade: { n: $t("common.hoopMachine"), lo: 6, hi: 17 },
+  reflex: { n: $t("common.reflexPanel"), lo: 12, hi: 26 },
+  hockey: { n: $t("common.airHockey"), lo: 2, hi: 5 },
+  rhythm: { n: $t("common.danceRhythm"), lo: 20, hi: 58 },
+  bowling: { n: $t("common.bowling"), lo: 9, hi: 27 }
 };
 export const seeded = lcg; // src/logic/rng.js
 export const weekId = () => weekNo(100),
@@ -92,7 +92,7 @@ export function arcResolve(period) {
     if (r > 3) continue;
     const base = period === "w" ? [25, 15, 8][r - 1] : [120, 60, 30][r - 1];
     tx(
-      `${ARC_GAMES[g].n} ${period === "w" ? $t("extras.74") : $t("extras.75")} ${$t("extras.76", {
+      `${ARC_GAMES[g].n} ${period === "w" ? $t("arcadeBoard.weekly") : $t("arcadeBoard.monthly")} ${$t("arcadeBoard.prize", {
         r: r
       })}`,
       Math.max(1, Math.round(base * mult))
@@ -102,7 +102,7 @@ export function arcResolve(period) {
     if (period === "m" && r === 1)
       S.career.trophies.push({
         type: "arcade",
-        label: $t("extras.59", {
+        label: $t("arcadeBoard.monthChampion", {
           v: seasonLabel(),
           n: ARC_GAMES[g].n,
           city: S.city
@@ -111,7 +111,7 @@ export function arcResolve(period) {
     out.push(`${ARC_GAMES[g].n}: ${r}. (${fmt(base * mult)})`);
   }
   if (out.length)
-    news(`${$t("extras.77")} ${period === "w" ? $t("extras.74") : $t("extras.75")} ${$t("extras.78")} ${out.join(", ")}.`);
+    news(`${$t("arcadeBoard.arcade")} ${period === "w" ? $t("arcadeBoard.weekly") : $t("arcadeBoard.monthly")} ${$t("arcadeBoard.rankingRewards")} ${out.join(", ")}.`);
   if (period === "w") {
     a.wb = {};
     a.w = weekId();
@@ -125,12 +125,12 @@ export function boardSheet(g = "arcade", period = "w") {
   const b = arcBoard(g, period);
   arcState(); // durum nesnesi hazır olsun (S.arc)
   sheet(
-    $t("extras.1"),
-    `${S.city} · ${period === "w" ? $t("extras.2") : $t("extras.3")}`,
+    $t("board.arcadeLeaderboard"),
+    `${S.city} · ${period === "w" ? $t("board.week") : $t("board.month")}`,
     `${tabsHTML(
       [
-        ["w", $t("extras.4")],
-        ["m", $t("extras.5")]
+        ["w", $t("common.weekly")],
+        ["m", $t("board.monthly")]
       ],
       period,
       "p"
@@ -138,9 +138,9 @@ export function boardSheet(g = "arcade", period = "w") {
    <div class="opts" id="gsel">${Object.entries(ARC_GAMES)
      .map(([k, v]) => `<button class="opt ${k === g ? "on" : ""}" data-g="${k}">${v.n}</button>`)
      .join("")}</div>
-   <div class="card"><div class="tbl"><table><tr><th>#</th><th>${$t("extras.10")}</th><th class="ta-r">${$t("extras.11")}</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ` <span class="muted small">${$t("extras.6")}</span>` : ""}</td><td class="ta-r">${r.s}</td></tr>`).join("")}</table></div></div>
-   <div class="card small"><div class="eyebrow">${$t("extras.12")}</div><div>${period === "w" ? $t("extras.7") : $t("extras.8")}</div><div class="muted">${$t("extras.13")} ${period === "w" ? "hafta" : $t("extras.9")} ${$t("extras.14")}</div></div>
-   <button class="btn pri" id="bkE">${$t("extras.15")}</button>`
+   <div class="card"><div class="tbl"><table><tr><th>#</th><th>${$t("common.player")}</th><th class="ta-r">${$t("common.score2")}</th></tr>${b.map((r, i) => `<tr class="${r.me ? "me" : ""}"><td>${i + 1}</td><td>${esc(r.n)}${r.me && !r.s ? ` <span class="muted small">${$t("board.haventPlayedYet")}</span>` : ""}</td><td class="ta-r">${r.s}</td></tr>`).join("")}</table></div></div>
+   <div class="card small"><div class="eyebrow">${$t("board.rewards")}</div><div>${period === "w" ? $t("board.topEndWeek3") : $t("board.topEndMonth3")}</div><div class="muted">${$t("board.rankingsResetEvery")} ${period === "w" ? "hafta" : $t("board.everyWeeks4")} ${$t("board.rewardsGivenWeek")}</div></div>
+   <button class="btn pri" id="bkE">${$t("board.backEntertainment")}</button>`
   );
   $$("[data-p]").forEach(x => (x.onclick = () => boardSheet(g, x.dataset.p)));
   $$("#gsel [data-g]").forEach(x => (x.onclick = () => boardSheet(x.dataset.g, period)));
@@ -154,29 +154,29 @@ export function arcBoardCard() {
         s = S.arc.wb[k] || 0;
       return `<div class="row between small"><span>${v.n}</span><span>${
         s
-          ? `<b>${r}.</b> ${$t("extras.16", {
+          ? `<b>${r}.</b> ${$t("arcadeBoard.rank", {
               s: s
             })}`
-          : `<span class="muted">${$t("extras.17")}</span>`
+          : `<span class="muted">${$t("arcadeBoard.notPlayed")}</span>`
       }</span></div>`;
     })
     .join("");
-  return `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("extras.18", {
+  return `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("arcadeBoard.weeklyRanking", {
     city: esc(S.city)
-  })}</div><h3>${$t("extras.19")}</h3></div><button class="btn gold sm" id="brd">${$t("extras.20")}</button></div>${rows}<div class="small muted">${$t("extras.21")}</div></div>`;
+  })}</div><h3>${$t("arcadeBoard.rivalryTable")}</h3></div><button class="btn gold sm" id="brd">${$t("arcadeBoard.openTable")}</button></div>${rows}<div class="small muted">${$t("arcadeBoard.topFinishersEarn3")}</div></div>`;
 }
 
 /* ================= MİLLİ TAKIM ================= */
 export const NAT = {
-  TR: { c1: "#e30a17", c2: "#ffffff", str: 1.0, s: $t("extras.60") },
-  ES: { c1: "#c60b1e", c2: "#ffc400", str: 1.08, s: $t("extras.61") },
-  IT: { c1: "#0064aa", c2: "#ffffff", str: 0.98, s: $t("extras.62") },
-  FR: { c1: "#0055a4", c2: "#ffffff", str: 1.05, s: $t("extras.63") },
-  DE: { c1: "#f4f4f4", c2: "#141414", str: 1.02, s: $t("extras.64") },
-  GR: { c1: "#0d5eaf", c2: "#ffffff", str: 1.03, s: $t("extras.65") },
-  RS: { c1: "#c6363c", c2: "#0c4076", str: 1.08, s: $t("extras.66") },
-  LT: { c1: "#fdb913", c2: "#006a44", str: 1.0, s: $t("extras.67") },
-  US: { c1: "#0a3161", c2: "#b31942", str: 1.22, s: $t("data.151") }
+  TR: { c1: "#e30a17", c2: "#ffffff", str: 1.0, s: $t("national.tur") },
+  ES: { c1: "#c60b1e", c2: "#ffc400", str: 1.08, s: $t("national.esp") },
+  IT: { c1: "#0064aa", c2: "#ffffff", str: 0.98, s: $t("national.ita") },
+  FR: { c1: "#0055a4", c2: "#ffffff", str: 1.05, s: $t("national.fra") },
+  DE: { c1: "#f4f4f4", c2: "#141414", str: 1.02, s: $t("national.ger") },
+  GR: { c1: "#0d5eaf", c2: "#ffffff", str: 1.03, s: $t("national.gre") },
+  RS: { c1: "#c6363c", c2: "#0c4076", str: 1.08, s: $t("national.srb") },
+  LT: { c1: "#fdb913", c2: "#006a44", str: 1.0, s: $t("national.ltu") },
+  US: { c1: "#0a3161", c2: "#b31942", str: 1.22, s: $t("common.usa") }
 };
 export const CAPITAL = {
   TR: "İstanbul",
@@ -200,10 +200,10 @@ export function natTeam(cc, cat) {
     key,
     name:
       cat === "A"
-        ? $t("extras.22", {
+        ? $t("national.nationalTeam", {
             n: LEAGUES[cc].n
           })
-        : $t("extras.23", {
+        : $t("national.nationalTeam2", {
             n: LEAGUES[cc].n,
             cat: cat
           }),
@@ -256,7 +256,7 @@ export function natMatch(cat, opp, label, after, auto = false) {
       norm();
       save();
       news(
-        $t("extras.79", {
+        $t("national.ptsRating", {
           name: us.name,
           us: line.us,
           them: line.them,
@@ -267,12 +267,12 @@ export function natMatch(cat, opp, label, after, auto = false) {
         })
       );
       sheet(
-        win ? $t("extras.24") : $t("extras.25"),
+        win ? $t("national.nationalTeamWin") : $t("national.nationalTeamLoss"),
         label,
-        `<div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("extras.30")}</div><div class="rating">${r.toFixed(1)}</div></div></div>
-      <div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${S.career.natCaps}</b><span class="eyebrow">${$t("extras.32")}</span></div></div>
-      <div class="say">${win ? pick([$t("extras.26"), $t("extras.27")]) : pick([$t("extras.28"), $t("extras.29")])}</div>
-      <button class="btn pri" id="nok">${$t("ads.25")}</button>`,
+        `<div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(us, 36)}<span class="big-num">${line.us}–${line.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("common.rating")}</div><div class="rating">${r.toFixed(1)}</div></div></div>
+      <div class="box"><div><b>${line.pts}</b><span class="eyebrow">${$t("common.score")}</span></div><div><b>${line.ast}</b><span class="eyebrow">${$t("common.assists")}</span></div><div><b>${line.reb}</b><span class="eyebrow">${$t("common.rebound")}</span></div><div><b>${S.career.natCaps}</b><span class="eyebrow">${$t("common.nationalTeamGame")}</span></div></div>
+      <div class="say">${win ? pick([$t("national.crescentStarFlags"), $t("national.wholeLockerRoom")]) : pick([$t("national.headsHeldHigh"), $t("national.meetingCoachSaid")])}</div>
+      <button class="btn pri" id="nok">${$t("common.continue")}</button>`,
         { noClose: true }
       );
       $("#nok").onclick = () => after(win, r);
@@ -282,42 +282,42 @@ export function natMatch(cat, opp, label, after, auto = false) {
 export function camp(cat, title, after) {
   S.npc.natCoach = S.npc.natCoach || `${pick(LEAGUES.TR.first)} ${pick(LEAGUES.TR.last)}`;
   sheet(
-    $t("extras.33"),
+    $t("camp.nationalTeamCamp"),
     title,
-    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? $t("extras.34") : cat + $t("extras.35")}</div><h2 style="font-size:var(--fs-8xl)">${$t("extras.40")}</h2></div><div class="bd">
-   <p>${$t("extras.41", {
+    `<div class="chapter"><div class="hd" style="background:#e30a17;color:#fff"><div class="eyebrow" style="color:inherit;opacity:.8">${cat === "A" ? $t("camp.nationalTeam") : cat + $t("camp.nationalTeam2")}</div><h2 style="font-size:var(--fs-8xl)">${$t("camp.invitationReceived")}</h2></div><div class="bd">
+   <p>${$t("camp.callFederationNational", {
      natCoach: esc(S.npc.natCoach)
-   })} ${cat === "A" ? $t("extras.34") : cat + $t("extras.35")} ${$t("extras.42", {
+   })} ${cat === "A" ? $t("camp.nationalTeam") : cat + $t("camp.nationalTeam2")} ${$t("camp.squadWhenHeard", {
      mom: S.npc.mom,
      dad: S.npc.dad
    })}</p>
-   <div class="eyebrow">${$t("extras.43")}</div><div class="pgrid">${[
+   <div class="eyebrow">${$t("camp.whatCamp")}</div><div class="pgrid">${[
      {
        id: "c1",
        ic: icon("whistle"),
-       t: $t("extras.68"),
-       d: $t("extras.69"),
-       fx: [[$t("extras.36"), "p"]],
-       btn: $t("core.10")
+       t: $t("camp.tacticsSession"),
+       d: $t("camp.learnCoachsSystem"),
+       fx: [[$t("camp.randomAttributePlus2"), "p"]],
+       btn: $t("common.select")
      },
      {
        id: "c2",
        ic: icon("chat"),
-       t: $t("extras.70"),
-       d: $t("extras.71"),
-       fx: [[$t("extras.37"), "p"]],
-       btn: $t("core.10")
+       t: $t("camp.teamSpiritNight"),
+       d: $t("camp.talkRoommateUntil"),
+       fx: [[$t("common.moralePlus10"), "p"]],
+       btn: $t("common.select")
      },
      {
        id: "c3",
        ic: icon("ball"),
-       t: $t("extras.72"),
-       d: $t("extras.73"),
+       t: $t("camp.extraShootingSession"),
+       d: $t("camp.gymAfterEveryones"),
        fx: [
-         [$t("extras.38"), "p"],
-         [$t("extras.39"), "n"]
+         [$t("camp.shootingPlus2"), "p"],
+         [$t("common.energyMinus8"), "n"]
        ],
-       btn: $t("core.10")
+       btn: $t("common.select")
      }
    ]
      .map(prodHTML)
@@ -357,8 +357,8 @@ export function fibaWindow(done) {
   }
   S.natWin = S.season;
   const opp = natTeam(pick(EU_CC.filter(c => c !== "TR")), "A");
-  camp(cat, $t("extras.44"), () =>
-    natMatch(cat, opp, $t("extras.45"), () => {
+  camp(cat, $t("national.fibaWorldCup"), () =>
+    natMatch(cat, opp, $t("national.fibaWorldCup2"), () => {
       renderMain();
       done();
     })
@@ -377,16 +377,16 @@ export function summerTournament(avg, done) {
   }
   const name =
     cat === "U18"
-      ? $t("extras.46")
+      ? $t("tournament.u18European")
       : cat === "U20"
-        ? $t("extras.47")
+        ? $t("tournament.u20European")
         : S.year % 4 === 3
-          ? $t("extras.48")
+          ? $t("tournament.fibaWorldCup")
           : S.year % 4 === 1
-            ? $t("extras.49")
-            : $t("extras.50");
+            ? $t("tournament.eurobasket")
+            : $t("tournament.olympicQualifiers");
   // son turlarda güçlü rakipler
-  const pool = [...EU_CC.filter(c => c !== "TR"), ...(cat === "A" && name === $t("extras.48") ? ["US"] : [])].sort(
+  const pool = [...EU_CC.filter(c => c !== "TR"), ...(cat === "A" && name === $t("tournament.fibaWorldCup") ? ["US"] : [])].sort(
     (a, b) => NAT[a].str - NAT[b].str + rnd(-0.04, 0.04)
   );
   pool.splice(0, pool.length - 4);
@@ -402,9 +402,9 @@ export function weeklyHooks() {
   if (got.length) {
     save();
     toast(
-      `${$t("extras.58", {
+      `${$t("hooks.arcadeReward", {
         v: got[0]
-      })}${got.length > 1 ? $t("extras.57") : ""}`
+      })}${got.length > 1 ? $t("hooks.above") : ""}`
     );
   }
   if (S.chips != null && S.chips < 100) {

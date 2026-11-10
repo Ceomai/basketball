@@ -11,13 +11,13 @@ import { save } from "./save.js";
 import { late } from "./late.js";
 
 export const PROGRAMS = [
-  ["denge", $t("coach.1"), $t("coach.2")],
-  ["sut", $t("coach.3"), $t("coach.4")],
-  ["pas", $t("coach.5"), $t("coach.6")],
-  ["hiz", $t("data.32"), $t("coach.7")],
-  ["guc", $t("coach.8"), $t("coach.9")],
-  ["sav", $t("data.34"), $t("coach.10")],
-  ["toparlanma", $t("coach.11"), $t("coach.12")]
+  ["denge", $t("program.balanced"), $t("program.equalGainsAttributes")],
+  ["sut", $t("program.shootingFocus"), $t("program.shootingImprovesFaster")],
+  ["pas", $t("program.playmaking"), $t("program.passingImprovesFaster30pct")],
+  ["hiz", $t("common.agility"), $t("program.agilityImprovesFaster30pct")],
+  ["guc", $t("program.strengthFitness"), $t("program.strengthImprovesFaster")],
+  ["sav", $t("common.defense"), $t("program.defenseImprovesFaster30pct")],
+  ["toparlanma", $t("program.recovery"), $t("program.gainsLowerEnergy20pct")]
 ];
 export const program = () => (S && late.unlocked("program") && PROGRAMS.some(p => p[0] === S.program) ? S.program : "denge");
 /** Antrenman kazancı çarpanı */
@@ -33,7 +33,7 @@ Bus.on("week:start", () => {
 export function programHTML() {
   if (!late.unlocked("program")) return "";
   const pg = program();
-  return `<div class="card"><div class="eyebrow">${$t("coach.13")}</div><div class="opts">${PROGRAMS.map(([k, n]) => `<button class="opt ${pg === k ? "on" : ""}" data-pg="${k}">${esc(n)}</button>`).join("")}</div><p class="small muted">${esc(PROGRAMS.find(p => p[0] === pg)[2])} ${$t("coach.14")}</p></div>`;
+  return `<div class="card"><div class="eyebrow">${$t("coach.seasonTrainingProgram")}</div><div class="opts">${PROGRAMS.map(([k, n]) => `<button class="opt ${pg === k ? "on" : ""}" data-pg="${k}">${esc(n)}</button>`).join("")}</div><p class="small muted">${esc(PROGRAMS.find(p => p[0] === pg)[2])} ${$t("coach.quickWeekAlso")}</p></div>`;
 }
 export function bindProgram(re) {
   $$("[data-pg]").forEach(
@@ -48,11 +48,11 @@ export function bindProgram(re) {
 }
 
 export const SYSTEMS = {
-  tempo: { n: $t("match.9"), w: { hiz: 1.5, sut: 1.1, pas: 1, guc: 0.7, sav: 0.7 } },
-  savunma: { n: $t("coach.15"), w: { sav: 1.5, guc: 1.2, hiz: 0.9, pas: 0.7, sut: 0.7 } },
-  ucluk: { n: $t("coach.16"), w: { sut: 1.6, pas: 1, hiz: 0.9, guc: 0.7, sav: 0.8 } },
-  post: { n: $t("coach.17"), w: { guc: 1.6, sav: 1.1, pas: 0.9, sut: 0.7, hiz: 0.7 } },
-  paylasim: { n: $t("coach.18"), w: { pas: 1.6, hiz: 1, sut: 1, guc: 0.7, sav: 0.7 } }
+  tempo: { n: $t("common.fastBreak"), w: { hiz: 1.5, sut: 1.1, pas: 1, guc: 0.7, sav: 0.7 } },
+  savunma: { n: $t("system.defenseFirst"), w: { sav: 1.5, guc: 1.2, hiz: 0.9, pas: 0.7, sut: 0.7 } },
+  ucluk: { n: $t("system.threePointBarrage"), w: { sut: 1.6, pas: 1, hiz: 0.9, guc: 0.7, sav: 0.8 } },
+  post: { n: $t("system.postGame"), w: { guc: 1.6, sav: 1.1, pas: 0.9, sut: 0.7, hiz: 0.7 } },
+  paylasim: { n: $t("system.ballSharing"), w: { pas: 1.6, hiz: 1, sut: 1, guc: 0.7, sav: 0.7 } }
 };
 /** Takımın oyun sistemi (takıma göre sabit) */
 export const teamSystem = team => {
@@ -75,18 +75,18 @@ export function systemFit(team = S && S.team) {
   return Math.max(-8, Math.min(8, Math.round((weighted - plain) * 0.9) + adapt));
 }
 export const fitLabel = f =>
-  f >= 5 ? $t("coach.19") : f >= 2 ? $t("coach.25") : f > -2 ? $t("coach.26") : f > -5 ? $t("coach.20") : $t("coach.27");
+  f >= 5 ? $t("coach.perfectFit") : f >= 2 ? $t("coach.good") : f > -2 ? $t("coach.average") : f > -5 ? $t("coach.weak") : $t("coach.poorFit");
 export function systemHTML(team = S.team) {
   if (!late.unlocked("sistem")) return "";
   const sys = SYSTEMS[teamSystem(team)],
     f = systemFit(team),
     best = Object.entries(sys.w).sort((a, b) => b[1] - a[1])[0][0];
-  return `<div class="card"><div class="eyebrow">${$t("coach.21")}</div><div class="row between nowrap"><b>${esc(sys.n)}</b><span class="pill ${f >= 2 ? "g" : f <= -2 ? "l" : ""}">${$t("coach.22")} ${fitLabel(f)}</span></div><p class="small muted">${$t(
-    "coach.23",
+  return `<div class="card"><div class="eyebrow">${$t("coach.coachsSystem")}</div><div class="row between nowrap"><b>${esc(sys.n)}</b><span class="pill ${f >= 2 ? "g" : f <= -2 ? "l" : ""}">${$t("coach.fit")} ${fitLabel(f)}</span></div><p class="small muted">${$t(
+    "coach.systemMattersMost",
     {
       best: statName(best)
     }
   )}</p></div>`;
 }
 /** Teklif kartı için: o takımın sistemi ve senin uyumun */
-export const offerFitNote = team => `${SYSTEMS[teamSystem(team)].n} ${$t("coach.24")} ${fitLabel(systemFit(team))}`;
+export const offerFitNote = team => `${SYSTEMS[teamSystem(team)].n} ${$t("coach.fit2")} ${fitLabel(systemFit(team))}`;

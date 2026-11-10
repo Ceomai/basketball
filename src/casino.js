@@ -19,13 +19,13 @@ export const chips = () => {
   if (S.chips == null) S.chips = 1000;
   return S.chips;
 };
-export const fis = n => `${Math.round(n).toLocaleString("tr-TR")} ${$t("casino.1")}`;
+export const fis = n => `${Math.round(n).toLocaleString("tr-TR")} ${$t("casino.chips")}`;
 export function chipTx(a) {
   S.chips = Math.max(0, chips() + a);
   if (a > 0) late.sfx("win");
   const m = [
-    [5000, $t("casino.2")],
-    [20000, $t("casino.3")]
+    [5000, $t("casino.cardTableMaster")],
+    [20000, $t("casino.gameClubLegend")]
   ];
   S.chipAw = S.chipAw || [];
   for (const [v, n] of m)
@@ -33,7 +33,7 @@ export function chipTx(a) {
       S.chipAw.push(v);
       S.career.trophies.push({ type: "arcade", label: `${seasonLabel()} · ${n}` });
       toast(
-        $t("casino.4", {
+        $t("casino.newTrophyShowcase", {
           n: n
         })
       );
@@ -44,7 +44,7 @@ export function chipTx(a) {
 export function betBar() {
   const bets = [10, 50, 100, 250, 500, 1000].filter(b => b <= Math.max(10, chips()));
   if (!bets.includes(BET)) BET = bets[0];
-  return `<div class="row between"><div class="eyebrow">${$t("casino.5")}</div><span class="gold disp" id="bal">${fis(chips())}</span></div><div class="opts" id="bets">${bets.map(b => `<button class="opt ${b === BET ? "on" : ""}" data-b="${b}">${b}</button>`).join("")}</div>`;
+  return `<div class="row between"><div class="eyebrow">${$t("casino.bet")}</div><span class="gold disp" id="bal">${fis(chips())}</span></div><div class="opts" id="bets">${bets.map(b => `<button class="opt ${b === BET ? "on" : ""}" data-b="${b}">${b}</button>`).join("")}</div>`;
 }
 export function bindBets(re) {
   $$("#bets [data-b]").forEach(
@@ -63,28 +63,28 @@ export function locSans(I, game = "rulet") {
   if (S.age < 18) {
     const y = 18 - S.age;
     sheet(
-      $t("casino.6"),
-      $t("casino.7"),
-      `<div class="card"><div class="eyebrow">${$t("casino.9")}</div><div class="say">${$t("casino.10", {
+      $t("common.gameClub"),
+      $t("casino.only18"),
+      `<div class="card"><div class="eyebrow">${$t("casino.doorman")}</div><div class="say">${$t("casino.letCheckId18", {
         age: S.age
-      })} ${y === 1 ? "seneye" : y + $t("casino.8")} ${$t("casino.11")}</div><p class="small muted">${$t("casino.12")}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`
+      })} ${y === 1 ? "seneye" : y + $t("casino.years")} ${$t("casino.comeBackEnd")}</div><p class="small muted">${$t("casino.gameClubOpens18")}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`
     );
     $("#bk").onclick = () => renderMain();
     return;
   }
   Bus.emit("place:open", "sans");
   const tabs = [
-    ["rulet", $t("casino.14"), "wheel"],
-    ["bj", $t("casino.15"), "cards"],
-    ["slot", $t("casino.16"), "seven"]
+    ["rulet", $t("casino.roulette"), "wheel"],
+    ["bj", $t("casino.blackjack"), "cards"],
+    ["slot", $t("casino.slots"), "seven"]
   ];
   const b = sheet(
     I.n,
-    $t("casino.17"),
+    $t("casino.chipsFunOnly"),
     `${tabsHTML(tabs, game, "g")}<div id="gc" style="display:flex;flex-direction:column;gap:var(--sp-3)"></div>`
   );
   $$(".tabs button").forEach(x => (x.onclick = () => locSans(I, x.dataset.g)));
-  addScene(b, "sans", { rulet: $t("casino.44"), bj: $t("casino.45"), slot: $t("casino.46") }[game]);
+  addScene(b, "sans", { rulet: $t("casino.placeBetsBefore"), bj: $t("casino.anotherCard"), slot: $t("casino.pullLeverTry") }[game]);
   ({ rulet: roulette, bj: blackjack, slot: slots })[game](I);
   b.insertAdjacentHTML("beforeend", late.cashierHTML());
   late.bindCashier(() => locSans(I, game));
@@ -93,13 +93,13 @@ export function locSans(I, game = "rulet") {
 }
 export function roulette(I) {
   const c = $("#gc");
-  c.innerHTML = `${betBar()}<div class="felt"><div style="position:relative;width:min(280px,100%)"><canvas id="wh" style="width:100%;aspect-ratio:1"></canvas></div><div id="rmsg" class="disp" style="font-size:var(--fs-5xl)">${$t("casino.24")}</div></div>
+  c.innerHTML = `${betBar()}<div class="felt"><div style="position:relative;width:min(280px,100%)"><canvas id="wh" style="width:100%;aspect-ratio:1"></canvas></div><div id="rmsg" class="disp" style="font-size:var(--fs-5xl)">${$t("casino.chooseBet")}</div></div>
    <div class="grid3">${[
-     ["r", $t("casino.19"), "#c62828"],
-     ["b", $t("casino.20"), "#212121"],
-     ["g", $t("casino.21"), "#2e7d32"],
-     ["odd", $t("casino.22"), ""],
-     ["even", $t("casino.23"), ""],
+     ["r", $t("casino.redX2"), "#c62828"],
+     ["b", $t("casino.blackX2"), "#212121"],
+     ["g", $t("casino.greenX360"), "#2e7d32"],
+     ["odd", $t("casino.oddX2"), ""],
+     ["even", $t("casino.evenX2"), ""],
      ["low", "1–18 ×2", ""]
    ]
      .map(
@@ -188,7 +188,7 @@ export function roulette(I) {
       (btn.onclick = () => {
         if (busy) return;
         if (chips() < BET) {
-          toast($t("casino.25"));
+          toast($t("casino.notEnoughChips"));
           late.hapticError();
           return;
         }
@@ -204,7 +204,7 @@ export function roulette(I) {
           bT = b0 - Math.PI * 2 * 7;
         const T0 = performance.now(),
           DUR = 3800;
-        $("#rmsg").textContent = $t("casino.26");
+        $("#rmsg").textContent = $t("casino.ballSpinning");
         let lastSeg = -1;
         const step = t => {
           // panel kapandıysa döngü durur: top yerine oturur, sonuç hemen kaydedilir
@@ -282,14 +282,14 @@ export function blackjack(I) {
       ? `<div class="cardx back"></div>`
       : `<div class="cardx ${cd.red ? "red" : ""}"><span>${cd.r}${cd.s}</span><span>${cd.r}${cd.s}</span></div>`;
   const render = msg => {
-    c.innerHTML = `${betBar()}<div class="felt"><div class="eyebrow" style="color:#cfe9da">${$t("casino.31")} ${over ? "· " + val(dh) : ""}</div><div class="hand">${dh.map((cd, i) => cardH(cd, !over && i === 1)).join("")}</div><div class="eyebrow" style="color:#cfe9da">${$t("casino.32")} ${ph.length ? val(ph) : "–"}</div><div class="hand">${ph.map(cd => cardH(cd)).join("")}</div><div class="disp" style="font-size:var(--fs-4xl)">${msg || ""}</div></div>
+    c.innerHTML = `${betBar()}<div class="felt"><div class="eyebrow" style="color:#cfe9da">${$t("casino.dealer")} ${over ? "· " + val(dh) : ""}</div><div class="hand">${dh.map((cd, i) => cardH(cd, !over && i === 1)).join("")}</div><div class="eyebrow" style="color:#cfe9da">${$t("casino.youLabel")} ${ph.length ? val(ph) : "–"}</div><div class="hand">${ph.map(cd => cardH(cd)).join("")}</div><div class="disp" style="font-size:var(--fs-4xl)">${msg || ""}</div></div>
      ${
        over
-         ? `<button class="btn gold big" id="deal">${$t("casino.27", {
+         ? `<button class="btn gold big" id="deal">${$t("casino.dealChips", {
              BET: BET
            })}</button>`
-         : `<div class="grid3"><button class="btn good" id="hit">${$t("casino.28")}</button><button class="btn" id="stand">${$t("casino.29")}</button><button class="btn gold" id="dbl" ${ph.length > 2 || chips() < BET ? "disabled" : ""}>${$t("casino.30")}</button></div>`
-     }<p class="small muted">${$t("casino.33")}</p>`;
+         : `<div class="grid3"><button class="btn good" id="hit">${$t("casino.hit")}</button><button class="btn" id="stand">${$t("casino.stand")}</button><button class="btn gold" id="dbl" ${ph.length > 2 || chips() < BET ? "disabled" : ""}>${$t("casino.doubleDown")}</button></div>`
+     }<p class="small muted">${$t("casino.blackjackPaysX25")}</p>`;
     bindBets(() => {
       if (over) render(msg);
     });
@@ -307,7 +307,7 @@ export function blackjack(I) {
   };
   const deal = () => {
     if (chips() < BET) {
-      toast($t("casino.25"));
+      toast($t("casino.notEnoughChips"));
       late.hapticError();
       return;
     }
@@ -322,7 +322,7 @@ export function blackjack(I) {
       const p = Math.round(stake * 2.3);
       chipTx(p);
       save();
-      render(`<span class="good">${$t("casino.34")}${fis(p)}</span>`);
+      render(`<span class="good">${$t("casino.blackjack2")}${fis(p)}</span>`);
       return;
     }
     render();
@@ -332,7 +332,7 @@ export function blackjack(I) {
     if (val(ph) > 21) {
       over = true;
       save();
-      render(`<span class="bad">${$t("casino.35")}${fis(stake)}</span>`);
+      render(`<span class="bad">${$t("casino.bust")}${fis(stake)}</span>`);
     } else render();
   };
   const stand = () => {
@@ -343,11 +343,11 @@ export function blackjack(I) {
     let msg;
     if (d > 21 || p > d) {
       chipTx(stake * 2);
-      msg = `<span class="good">${$t("casino.36")}${fis(stake)}</span>`;
+      msg = `<span class="good">${$t("casino.win")}${fis(stake)}</span>`;
     } else if (p === d) {
       chipTx(stake);
-      msg = $t("casino.37");
-    } else msg = `<span class="bad">${$t("casino.38")}${fis(stake)}</span>`;
+      msg = $t("casino.pushBetReturned");
+    } else msg = `<span class="bad">${$t("casino.dealerWins")}${fis(stake)}</span>`;
     norm();
     save();
     render(msg);
@@ -360,10 +360,10 @@ export function blackjack(I) {
     if (val(ph) > 21) {
       over = true;
       save();
-      render(`<span class="bad">${$t("casino.35")}${fis(stake)}</span>`);
+      render(`<span class="bad">${$t("casino.bust")}${fis(stake)}</span>`);
     } else stand();
   };
-  render($t("casino.39"));
+  render($t("casino.chooseBetDeal"));
 }
 export function slots(I) {
   const c = $("#gc");
@@ -383,18 +383,18 @@ export function slots(I) {
     }
     return 0;
   };
-  c.innerHTML = `${betBar()}<div class="reels">${[0, 1, 2].map(i => `<div class="reel" id="r${i}">${SYM[i][1]()}</div>`).join("")}</div><div id="smsg" class="disp" style="font-size:var(--fs-4xl);text-align:center">${$t("casino.40")}</div><button class="btn gold big" id="spin">${$t(
-    "casino.41",
+  c.innerHTML = `${betBar()}<div class="reels">${[0, 1, 2].map(i => `<div class="reel" id="r${i}">${SYM[i][1]()}</div>`).join("")}</div><div id="smsg" class="disp" style="font-size:var(--fs-4xl);text-align:center">${$t("casino.threeTrophiesX257s")}</div><button class="btn gold big" id="spin">${$t(
+    "casino.pullLeverChips",
     {
       BET: BET
     }
-  )}</button><p class="small muted">${$t("casino.42")}</p>`;
+  )}</button><p class="small muted">${$t("casino.twoMatchingSymbols1")}</p>`;
   bindBets(() => slots(I));
   let busy = false;
   $("#spin").onclick = async () => {
     if (busy) return;
     if (chips() < BET) {
-      toast($t("casino.25"));
+      toast($t("casino.notEnoughChips"));
       late.hapticError();
       return;
     }
@@ -433,7 +433,7 @@ export function slots(I) {
     save();
     const sm = $("#smsg");
     if (!sm) return;
-    sm.innerHTML = pay ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">${$t("casino.43")}</span>`;
+    sm.innerHTML = pay ? `<span class="good">+${fis(pay)}</span>` : `<span class="bad">${$t("common.noLuck")}</span>`;
     updBal();
   };
 }

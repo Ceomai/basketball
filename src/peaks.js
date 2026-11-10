@@ -105,7 +105,7 @@ async function runContest(k, done) {
   Bus.emit("peak", { kind: "skill", k, won });
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><div class="eyebrow">${$t(c.n)}</div><h2 class="${won ? "good" : ""}">${won ? $t("pk.won") : $t("pk.lost")}</h2><p>${$t("pk.score", { v: score })}${won ? ` · +${fmt(prize)}` : ""}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><div class="eyebrow">${$t(c.n)}</div><h2 class="${won ? "good" : ""}">${won ? $t("pk.won") : $t("pk.lost")}</h2><p>${$t("pk.score", { v: score })}${won ? ` · +${fmt(prize)}` : ""}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = () => {
     renderMain();
     done();
@@ -183,7 +183,7 @@ function midWindowSheet() {
     `<p>${S.role === "bench" ? $t("pk.trWhyBench") : S.rel.koc < 35 ? $t("pk.trWhyCoach") : $t("pk.trWhyStar")}</p><div class="choices">${offers
       .map(
         (o, i) =>
-          `<button class="choice" data-mt="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2)">${crestSVG(o.team, 26)}<span>${esc(o.team.name)}</span></span><span class="cd">${esc(o.team.city)} · ${ROLE_N[o.role]} · ${$t("match.63", { wage: fmt(o.wage) })} ${$t("match.64", { years: o.years })}</span><span class="od m">${$t("pk.trMove")}</span></button>`
+          `<button class="choice" data-mt="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2)">${crestSVG(o.team, 26)}<span>${esc(o.team.name)}</span></span><span class="cd">${esc(o.team.city)} · ${ROLE_N[o.role]} · ${$t("common.week", { wage: fmt(o.wage) })} ${$t("common.yr", { years: o.years })}</span><span class="od m">${$t("pk.trMove")}</span></button>`
       )
       .join("")}</div><button class="btn ghost" id="mt-stay">${$t("pk.trStay")}</button>`,
     { noClose: true }

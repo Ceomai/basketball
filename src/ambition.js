@@ -232,7 +232,7 @@ export function ambSheet(back) {
     const st = a.proj[p.id],
       can = pro && !st && !act && S.money >= p.cost && S.slot >= 1;
     const status = st ? (st.done ? $t("amb.done") : $t("amb.left", { n: st.left })) : "";
-    return `<div class="act"><div><h3>${$t(`amb.p.${p.id}`)}</h3><p>${$t(`amb.p.${p.id}D`)}</p><div class="fx"><span class="t">${fmt(p.cost)}</span><span class="t">${$t("amb.weeks", { n: p.wk, en: p.en })}</span><span class="p">${$t("legacy.39", { pts: p.pts })}</span><span class="p">${$t("legacy.40", { fans: p.fans })}</span></div>${status ? `<p class="small gold">${status}</p>` : ""}</div><button class="btn ${st ? "ghost" : "team"} sm" data-amb-p="${p.id}" ${can ? "" : "disabled"}>${st ? (st.done ? "✓" : "…") : $t("amb.start")}</button></div>`;
+    return `<div class="act"><div><h3>${$t(`amb.p.${p.id}`)}</h3><p>${$t(`amb.p.${p.id}D`)}</p><div class="fx"><span class="t">${fmt(p.cost)}</span><span class="t">${$t("amb.weeks", { n: p.wk, en: p.en })}</span><span class="p">${$t("common.legacy", { pts: p.pts })}</span><span class="p">${$t("common.fans2", { fans: p.fans })}</span></div>${status ? `<p class="small gold">${status}</p>` : ""}</div><button class="btn ${st ? "ghost" : "team"} sm" data-amb-p="${p.id}" ${can ? "" : "disabled"}>${st ? (st.done ? "✓" : "…") : $t("amb.start")}</button></div>`;
   }).join("");
   let brandHTML;
   if (a.brand) {
@@ -256,7 +256,7 @@ export function ambSheet(back) {
   }
   const rank = ambCaptainRank();
   const capHTML = `<div class="row between nowrap"><h3>${esc($t(`amb.rank.${rank}`))}</h3><span class="pill">${rank}/4</span></div>${bar(rank * 25, "var(--info)")}
-    <p class="small muted">${$t(`amb.rankD.${rank}`)}</p><div class="kv"><span>${$t("extras.32")}</span><b>${S.career.natCaps || 0}</b><span>${$t("amb.capCount")}</span><b>${a.cap}</b></div>
+    <p class="small muted">${$t(`amb.rankD.${rank}`)}</p><div class="kv"><span>${$t("common.nationalTeamGame")}</span><b>${S.career.natCaps || 0}</b><span>${$t("amb.capCount")}</span><b>${a.cap}</b></div>
     ${ambFarewellReady() ? `<button class="btn team" id="amb-farewell">${$t("amb.farewellBtn")}</button>` : a.farewell ? `<p class="small gold">${$t("amb.farewellDone", { n: a.farewell.season })}</p>` : ""}`;
   sheet(
     $t("amb.title"),

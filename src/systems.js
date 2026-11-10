@@ -252,7 +252,7 @@ export function recordGame() {
   for (const k of ["pts", "ast", "reb"])
     if (M[k] > h[k]) {
       h[k] = M[k];
-      h[k + $t("systems.1")] = `${M.opp.name} · ${seasonLabel()}`;
+      h[k + $t("stats.vs")] = `${M.opp.name} · ${seasonLabel()}`;
     }
   S.career.min = (S.career.min || 0) + mins;
   S.career.stl = (S.career.stl || 0) + M.stl;
@@ -266,25 +266,25 @@ export function statsTab(c) {
     ...S.hist.map(x => ({ ...x, live: false })),
     { label: seasonLabel(), team: S.team.name, league: lgName(), ...(S.ss || blankSS()), live: true }
   ];
-  c.innerHTML = `<div class="card"><div class="eyebrow">${$t("systems.3")}</div><div class="box"><div><b>${per(s.pts, s.g)}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${per(s.ast, s.g)}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${per(s.reb, s.g)}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${per(s.min, s.g)}</b><span class="eyebrow">${$t("systems.4")}</span></div></div><div class="small muted">${$t(
-    "systems.5",
+  c.innerHTML = `<div class="card"><div class="eyebrow">${$t("stats.seasonPerGame")}</div><div class="box"><div><b>${per(s.pts, s.g)}</b><span class="eyebrow">${$t("common.score")}</span></div><div><b>${per(s.ast, s.g)}</b><span class="eyebrow">${$t("common.assists")}</span></div><div><b>${per(s.reb, s.g)}</b><span class="eyebrow">${$t("common.rebound")}</span></div><div><b>${per(s.min, s.g)}</b><span class="eyebrow">${$t("stats.minutes")}</span></div></div><div class="small muted">${$t(
+    "stats.games",
     {
       g: s.g
     }
   )}${
     s.dnp
-      ? ` ${$t("systems.2", {
+      ? ` ${$t("stats.injuredGames", {
           dnp: s.dnp
         })}`
       : ""
-  } ${$t("systems.6", {
+  } ${$t("stats.avgRatingBlocks", {
     v: s.g ? (s.rs / s.g).toFixed(2) : "–",
     blk: s.blk,
     stl: s.stl
   })}</div></div>
-   <div class="card"><div class="eyebrow">${$t("systems.7")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>M</th><th>${$t("systems.8")}</th><th>${$t("systems.9")}</th><th>${$t("systems.10")}</th><th>${$t("systems.11")}</th><th>${$t("extras.30")}</th></tr>${rows.map(r => `<tr class="${r.live ? "me" : ""}"><td>${r.label}</td><td>${esc(r.team)}<div class="small muted">${esc(r.league || "")}</div></td><td>${r.g ?? "–"}</td><td>${per(r.min, r.g)}</td><td>${per(r.pts, r.g)}</td><td>${per(r.ast, r.g)}</td><td>${per(r.reb, r.g)}</td><td>${r.g ? (r.rs / r.g).toFixed(1) : r.avg != null ? r.avg.toFixed(1) : "–"}</td></tr>`).join("")}</table></div></div>
-   <div class="card"><div class="eyebrow">${$t("systems.12")}</div><div class="kv"><span>${$t("match.88")}</span><b>${k.games}</b><span>${$t("systems.4")}</span><b>${k.min || 0}</b><span>${$t("arcade.6")}</span><b>${k.pts} (${per(k.pts, k.games)})</b><span>${$t("extras.31")}</span><b>${k.ast} (${per(k.ast, k.games)})</b><span>${$t("data.63")}</span><b>${k.reb || 0} (${per(k.reb || 0, k.games)})</b><span>${$t("systems.13")}</span><b>${k.blk} · ${k.stl || 0}</b><span>${$t("match.32")}</span><b>${k.wins}</b><span>${$t("extras.32")}</span><b>${k.natCaps || 0}</b></div></div>
-   <div class="card"><div class="eyebrow">${$t("systems.14")}</div><div class="kv"><span>${$t("arcade.6")}</span><b>${h.pts || 0}</b>${h.ptsVs ? `<span class="small muted" style="grid-column:1/-1;margin-top:-4px">${esc(h.ptsVs)}</span>` : ""}<span>${$t("extras.31")}</span><b>${h.ast || 0}</b><span>${$t("data.63")}</span><b>${h.reb || 0}</b></div></div>`;
+   <div class="card"><div class="eyebrow">${$t("stats.seasonSeason")}</div><div class="tbl"><table><tr><th>${$t("common.season")}</th><th>${$t("common.team")}</th><th>M</th><th>${$t("stats.min")}</th><th>${$t("stats.pts")}</th><th>${$t("stats.ast")}</th><th>${$t("stats.reb")}</th><th>${$t("common.rating")}</th></tr>${rows.map(r => `<tr class="${r.live ? "me" : ""}"><td>${r.label}</td><td>${esc(r.team)}<div class="small muted">${esc(r.league || "")}</div></td><td>${r.g ?? "–"}</td><td>${per(r.min, r.g)}</td><td>${per(r.pts, r.g)}</td><td>${per(r.ast, r.g)}</td><td>${per(r.reb, r.g)}</td><td>${r.g ? (r.rs / r.g).toFixed(1) : r.avg != null ? r.avg.toFixed(1) : "–"}</td></tr>`).join("")}</table></div></div>
+   <div class="card"><div class="eyebrow">${$t("stats.careerTotals")}</div><div class="kv"><span>${$t("common.match")}</span><b>${k.games}</b><span>${$t("stats.minutes")}</span><b>${k.min || 0}</b><span>${$t("common.score")}</span><b>${k.pts} (${per(k.pts, k.games)})</b><span>${$t("common.assists")}</span><b>${k.ast} (${per(k.ast, k.games)})</b><span>${$t("common.rebound")}</span><b>${k.reb || 0} (${per(k.reb || 0, k.games)})</b><span>${$t("stats.blocksSteals")}</span><b>${k.blk} · ${k.stl || 0}</b><span>${$t("common.win")}</span><b>${k.wins}</b><span>${$t("common.nationalTeamGame")}</span><b>${k.natCaps || 0}</b></div></div>
+   <div class="card"><div class="eyebrow">${$t("stats.careerRecords")}</div><div class="kv"><span>${$t("common.score")}</span><b>${h.pts || 0}</b>${h.ptsVs ? `<span class="small muted" style="grid-column:1/-1;margin-top:-4px">${esc(h.ptsVs)}</span>` : ""}<span>${$t("common.assists")}</span><b>${h.ast || 0}</b><span>${$t("common.rebound")}</span><b>${h.reb || 0}</b></div></div>`;
   if (S.rival) c.insertAdjacentHTML("beforeend", late.rivalInfo() + late.h2hHTML()); // karşılaşma geçmişi (src/seasonlife.js)
 }
 
@@ -321,7 +321,7 @@ export function seasonAwards(avg, champ) {
   const label = {
     mvp: [
       "mvp",
-      $t("systems.15", {
+      $t("awards.mvp", {
         ln: ln
       })
     ],
@@ -330,19 +330,19 @@ export function seasonAwards(avg, champ) {
     rpg: ["award", $t("lc.awReb", { ln, v: per(s.reb, g) })],
     dpoy: [
       "award",
-      $t("systems.16", {
+      $t("awards.defensivePlayerYear", {
         ln: ln
       })
     ],
     roy: [
       "award",
-      $t("systems.17", {
+      $t("awards.rookieYear", {
         ln: ln
       })
     ],
     fmvp: [
       "mvp",
-      $t("systems.18", {
+      $t("awards.finalsMvp", {
         ln: ln
       })
     ]
@@ -368,16 +368,16 @@ export function allStar(done) {
   S.career.allStars = (S.career.allStars || 0) + 1;
   award(
     "allstar",
-    $t("systems.19", {
+    $t("allStar.star", {
       v: lgName()
     })
   );
   save();
   late.sfx("fanfare");
   sheet(
-    $t("systems.20"),
+    $t("allStar.madeStarTeam"),
     lgName(),
-    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.8">${$t("systems.21")}</div><h2 style="font-size:var(--fs-8xl)">${esc(fullName())}</h2></div><div class="bd"><p>${$t("systems.22")}</p><div class="grid2"><button class="btn ghost" id="as-no">${$t("systems.23")}</button><button class="btn pri" id="as-go">${$t("systems.24")}</button></div></div></div>`,
+    `<div class="chapter"><div class="hd"><div class="eyebrow" style="color:inherit;opacity:.8">${$t("allStar.starWeekend")}</div><h2 style="font-size:var(--fs-8xl)">${esc(fullName())}</h2></div><div class="bd"><p>${$t("allStar.madeLeaguesBest7")}</p><div class="grid2"><button class="btn ghost" id="as-no">${$t("allStar.skipContest")}</button><button class="btn pri" id="as-go">${$t("allStar.enterContest")}</button></div></div></div>`,
     { noClose: true }
   );
   $("#as-no").onclick = () => {
@@ -388,11 +388,11 @@ export function allStar(done) {
   $("#as-go").onclick = async () => {
     closeSheet();
     arenaFor(null);
-    app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("systems.25")}</div><h2>${$t("systems.26")}</h2></div><div id="stg"></div><div id="res"></div>`;
+    app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("allStar.starThreePoint")}</div><h2>${$t("allStar.shots7")}</h2></div><div id="stg"></div><div id="res"></div>`;
     const r = await mgShoot($("#stg"), {
       eff: clamp(eff("sut") + 15, 5, 100),
       shots: 7,
-      title: $t("systems.133"),
+      title: $t("allStar.threePointContest"),
       dist: "three",
       def: false
     });
@@ -400,7 +400,7 @@ export function allStar(done) {
     if (won) {
       award(
         "award",
-        $t("systems.27", {
+        $t("allStar.starThreePoint2", {
           v: lgName()
         })
       );
@@ -411,12 +411,12 @@ export function allStar(done) {
     norm();
     save();
     $("#stg").innerHTML = "";
-    $("#res").innerHTML = `<div class="card"><div class="eyebrow">${$t("match.56")}</div><h2 class="${won ? "good" : ""}">${$t(
-      "systems.31",
+    $("#res").innerHTML = `<div class="card"><div class="eyebrow">${$t("common.result")}</div><h2 class="${won ? "good" : ""}">${$t(
+      "allStar.made7",
       {
         made: r.made
       }
-    )}${won ? $t("systems.28") : ""}</h2><p>${won ? $t("systems.29") : $t("systems.30")}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    )}${won ? $t("allStar.champion") : ""}</h2><p>${won ? $t("allStar.liftedTrophyArena") : $t("allStar.notTimeMaking")}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
     $("#bk").onclick = () => {
       renderMain();
       done();
@@ -426,11 +426,11 @@ export function allStar(done) {
 
 /* ================= SAKATLIKLAR ================= */
 export const INJ = [
-  [$t("systems.32"), 1, 2, 0.5],
-  [$t("systems.33"), 2, 3, 0.24],
-  [$t("systems.34"), 2, 4, 0.12],
-  [$t("systems.35"), 1, 3, 0.08],
-  [$t("systems.36"), 6, 9, 0.06]
+  [$t("injury.ankleSprain"), 1, 2, 0.5],
+  [$t("injury.hamstringStrain"), 2, 3, 0.24],
+  [$t("injury.groinInjury"), 2, 4, 0.12],
+  [$t("injury.brokenFinger"), 1, 3, 0.08],
+  [$t("injury.tornKneeLigament"), 6, 9, 0.06]
 ];
 export function injuryRisk() {
   return injuryChance({
@@ -458,13 +458,13 @@ export function rollInjury() {
   }
   const w = ri(pick2[1], pick2[2]);
   S.injury = { n: pick2[0], w, total: w };
-  if (pick2[0].startsWith($t("systems.37"))) {
+  if (pick2[0].startsWith($t("injury.knee"))) {
     S.st.hiz -= 2;
     S.st.guc -= 1;
   }
   S.moral -= 8;
   news(
-    $t("systems.139", {
+    $t("injury.gotInjuredWeeks", {
       v: fullName(),
       v2: pick2[0],
       w: w
@@ -479,11 +479,11 @@ export function healTick() {
   if (S.injury.w <= 0) {
     const inj = S.injury;
     news(
-      $t("systems.140", {
+      $t("injury.recoveredInjuryBack", {
         v: fullName()
       })
     );
-    toast($t("systems.38"));
+    toast($t("injury.injuryHealedReturn"));
     S.injury = null;
     Bus.emit("injury:healed", inj);
   }
@@ -503,7 +503,7 @@ export function simWithoutMe() {
   S.ss.dnp++;
   if (S.phase === "regular") updateLeague(win, opp, us, them);
   news(
-    $t("systems.141", {
+    $t("sim.watchedStandsDue", {
       short: S.team.short,
       us: us,
       them: them,
@@ -515,17 +515,17 @@ export function simWithoutMe() {
   norm();
   save();
   sheet(
-    win ? $t("systems.39") : $t("systems.40"),
-    $t("systems.41", {
+    win ? $t("sim.teamWon") : $t("sim.teamLost"),
+    $t("sim.watchedStands", {
       v: phaseName()
     }),
-    `<div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${us}–${them}</span>${crestSVG(opp, 36)}</div><div class="say">${win ? $t("systems.42") : $t("systems.43")}</div><p class="small muted">${$t(
-      "systems.44",
+    `<div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${us}–${them}</span>${crestSVG(opp, 36)}</div><div class="say">${win ? $t("sim.teammatesDedicatedWin") : $t("sim.watchingSidelineHard")}</div><p class="small muted">${$t(
+      "sim.injuryWeeksLeft",
       {
         n: esc(S.injury.n),
         w: S.injury.w
       }
-    )}</p><button class="btn pri" id="nx">${$t("ads.25")}</button>`,
+    )}</p><button class="btn pri" id="nx">${$t("common.continue")}</button>`,
     { noClose: true }
   );
   // sakatken izlenen maç da maç sayılır (geçiş reklamı sıklığı aynı kurallarla)
@@ -582,9 +582,9 @@ export function physioAct() {
   S.energy += 10;
   norm();
   save();
-  resultView($t("story.13"), fast ? $t("systems.45") : $t("systems.46"), [
-    [$t("places.66"), "p"],
-    ...(fast ? [[$t("systems.47"), "p"]] : [])
+  resultView($t("common.physio"), fast ? $t("injury.physiotherapistSays") : $t("injury.sessionWentWell"), [
+    [$t("common.energyPlus10"), "p"],
+    ...(fast ? [[$t("injury.recoveryWeekMinus1"), "p"]] : [])
   ]);
 }
 
@@ -634,37 +634,37 @@ export function rosterTab(c) {
     late.systemHTML() +
     late.trustCardHTML() +
     late.charactersHTML() +
-    `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("systems.50", {
+    `<div class="card"><div class="row between"><div><div class="eyebrow">${$t("roster.roster", {
       name: esc(S.team.name)
-    })}</div><h3>${$t("systems.51")} ${Math.round(chemAvg())}/100</h3></div><span class="pill ${chemAvg() >= 60 ? "w" : ""}">${chemAvg() >= 60 ? $t("systems.48") : $t("systems.49")}</span></div><p class="small muted">${$t("systems.52")} <b>${esc(best.n)}</b>.</p>
-   <div class="tbl"><table><tr><th>${$t("extras.10")}</th><th>${$t("systems.53")}</th><th>${$t("story.34")}</th><th>${$t("match.58")}</th><th>${$t("systems.54")}</th></tr><tr class="me"><td>${esc(fullName())}${late.isCaptain && late.isCaptain() ? ' <span class="pill g">K</span>' : ""}</td><td>${S.pos}</td><td>${S.age}</td><td>${ovr()}</td><td>–</td></tr>${r.map(p => `<tr><td>${esc(p.n)}${p.cap && !(late.isCaptain && late.isCaptain()) ? ' <span class="pill g">K</span>' : ""}${late.mateTraitHTML ? late.mateTraitHTML(p.n) : ""}</td><td>${p.pos}</td><td>${p.age}</td><td>${p.ovr}</td><td><div class="bar" style="width:60px"><i style="--w:${p.chem};background:var(--info)"></i></div></td></tr>`).join("")}</table></div></div>` +
+    })}</div><h3>${$t("roster.teamChemistry")} ${Math.round(chemAvg())}/100</h3></div><span class="pill ${chemAvg() >= 60 ? "w" : ""}">${chemAvg() >= 60 ? $t("roster.sync") : $t("roster.improving")}</span></div><p class="small muted">${$t("roster.whenTeamChemistry")} <b>${esc(best.n)}</b>.</p>
+   <div class="tbl"><table><tr><th>${$t("common.player")}</th><th>${$t("roster.pos")}</th><th>${$t("common.age")}</th><th>${$t("common.overall")}</th><th>${$t("roster.chem")}</th></tr><tr class="me"><td>${esc(fullName())}${late.isCaptain && late.isCaptain() ? ' <span class="pill g">K</span>' : ""}</td><td>${S.pos}</td><td>${S.age}</td><td>${ovr()}</td><td>–</td></tr>${r.map(p => `<tr><td>${esc(p.n)}${p.cap && !(late.isCaptain && late.isCaptain()) ? ' <span class="pill g">K</span>' : ""}${late.mateTraitHTML ? late.mateTraitHTML(p.n) : ""}</td><td>${p.pos}</td><td>${p.age}</td><td>${p.ovr}</td><td><div class="bar" style="width:60px"><i style="--w:${p.chem};background:var(--info)"></i></div></td></tr>`).join("")}</table></div></div>` +
     actHTML({
       id: "yemek",
       ic: icon("plate"),
-      t: $t("systems.59"),
-      d: $t("systems.134"),
+      t: $t("roster.teamDinner"),
+      d: $t("roster.takeEveryoneEat"),
       slot: 1,
       price: Math.round(10 * (1 + ORDER.indexOf(S.stage) * 2)),
       fx: [
-        [$t("systems.55"), "p"],
-        [$t("places.84"), "p"]
+        [$t("roster.wholeRosterChemistryPlus6"), "p"],
+        [$t("common.teamPlus3"), "p"]
       ],
-      btn: $t("systems.135")
+      btn: $t("roster.treat")
     }) +
     actHTML({
       id: "ikili",
       ic: icon("ball"),
-      t: $t("systems.62"),
-      d: $t("systems.136", {
+      t: $t("roster.extraPractice"),
+      d: $t("roster.passingScreenWork", {
         n: r[0].n
       }),
       slot: 1,
       fx: [
-        [$t("systems.56"), "p"],
+        [$t("roster.chemistryPlus12"), "p"],
         [$t("prog.pasSmall"), "p"],
-        [$t("systems.58"), "n"]
+        [$t("roster.energyMinus10"), "n"]
       ],
-      btn: $t("systems.137"),
+      btn: $t("roster.work"),
       disabled: S.energy < 10
     });
   bindActs({
@@ -672,12 +672,12 @@ export function rosterTab(c) {
       const p = Math.round(10 * (1 + ORDER.indexOf(S.stage) * 2));
       if (S.money < p) return;
       useSlot();
-      tx($t("systems.59"), -p);
+      tx($t("roster.teamDinner"), -p);
       r.forEach(x => (x.chem = Math.min(100, x.chem + 6)));
       S.rel.takim += 3;
       norm();
       save();
-      resultView($t("systems.59"), `${r.find(x => x.cap).n} ${$t("systems.60")}`, [[$t("systems.61"), "p"]]);
+      resultView($t("roster.teamDinner"), `${r.find(x => x.cap).n} ${$t("roster.stoodSeasonOurs")}`, [[$t("roster.chemistryPlus6"), "p"]]);
     },
     ikili: () => {
       useSlot();
@@ -687,12 +687,12 @@ export function rosterTab(c) {
       norm();
       save();
       resultView(
-        $t("systems.62"),
-        $t("systems.63", {
+        $t("roster.extraPractice"),
+        $t("roster.nowSetMemorized", {
           n: r[0].n
         }),
         [
-          [$t("systems.56"), "p"],
+          [$t("roster.chemistryPlus12"), "p"],
           [$t("prog.pasSmall"), "p"]
         ]
       );
@@ -714,31 +714,31 @@ export function negotiateOffer(o, done) {
   const view = msg => {
     const cl = (offer.clauses = offer.clauses || {});
     sheet(
-      $t("systems.64"),
+      $t("contract.contractNegotiation"),
       offer.team.name,
       `<div class="row nowrap">${crestSVG(offer.team, 48)}<div><div class="eyebrow">${esc(leagueName(offer.stage, offer.team.cc))}</div><h3>${esc(offer.team.name)}</h3><div class="small muted">${$t(
-        "systems.68",
+        "contract.agentTable",
         {
           city: esc(offer.team.city),
           agent: esc(S.npc.agent)
         }
       )}</div></div></div>
       ${late.repHTML(offer.team, interest)}
-      <div class="card"><div class="kv"><span>${$t("places.155")}</span><b class="gold">${fmt(offer.wage)}</b><span>${$t("match.39")}</span><b>${$t(
-        "systems.69",
+      <div class="card"><div class="kv"><span>${$t("common.weeklySalary")}</span><b class="gold">${fmt(offer.wage)}</b><span>${$t("common.minutes")}</span><b>${$t(
+        "contract.years",
         {
           years: offer.years
         }
-      )}</b><span>${$t("places.21")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("systems.70")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("systems.71")}</span><b>${interest > 0.75 ? $t("systems.65") : interest > 0.55 ? $t("systems.66") : interest > 0.4 ? $t("match.2") : $t("systems.67")}</b></div></div>
+      )}</b><span>${$t("common.role")}</span><b>${ROLE_N[offer.role]}</b><span>${$t("contract.signingBonus")}</span><b>${fmt(offer.bonus || 0)}</b><span>${$t("common.clubInterest")}</span><b>${interest > 0.75 ? $t("common.high") : interest > 0.55 ? $t("common.high2") : interest > 0.4 ? $t("common.medium") : $t("common.low")}</b></div></div>
       ${msg ? `<div class="say">${msg}</div>` : ""}
-      <div class="eyebrow">${$t("systems.72", {
+      <div class="eyebrow">${$t("contract.demandLeft", {
         v: 3 - asks
       })}</div>
-      <div class="grid2"><button class="btn ghost sm" data-ask="wage" ${asks >= 3 ? "disabled" : ""}>${$t("systems.73")}</button><button class="btn ghost sm" data-ask="years" ${asks >= 3 || offer.years >= 4 ? "disabled" : ""}>${$t("systems.74")}</button><button class="btn ghost sm" data-ask="role" ${asks >= 3 || offer.role === "star" ? "disabled" : ""}>${$t("systems.75")}</button><button class="btn ghost sm" data-ask="bonus" ${asks >= 3 || offer.bonus ? "disabled" : ""}>${$t("systems.70")}</button></div>
-      <div class="eyebrow">${$t("systems.146")}</div>
-      <div class="grid3"><button class="btn ghost sm" data-ask="release" ${asks >= 3 || cl.release ? "disabled" : ""}>${$t("systems.147")}</button>${offer.stage !== "nba" ? `<button class="btn ghost sm" data-ask="nbaout" ${asks >= 3 || cl.nbaout ? "disabled" : ""}>${$t("systems.138")}</button>` : ""}<button class="btn ghost sm" data-ask="perf" ${asks >= 3 || cl.perf ? "disabled" : ""}>${$t("systems.148")}</button></div>
-      <p class="small muted">${$t("systems.149")}${Object.keys(cl).length ? ` <b>${$t("systems.145")} ${[cl.release && $t("systems.143"), cl.nbaout && $t("systems.138"), cl.perf && $t("systems.144")].filter(Boolean).join(", ")}</b>` : ""}</p>
-      <div class="grid2"><button class="btn ghost" id="ng-back">${$t("systems.76")}</button><button class="btn good" id="ng-ok">${$t("systems.77")}</button></div>`,
+      <div class="grid2"><button class="btn ghost sm" data-ask="wage" ${asks >= 3 ? "disabled" : ""}>${$t("contract.salaryPlus15pct")}</button><button class="btn ghost sm" data-ask="years" ${asks >= 3 || offer.years >= 4 ? "disabled" : ""}>${$t("contract.lengthYearPlus1")}</button><button class="btn ghost sm" data-ask="role" ${asks >= 3 || offer.role === "star" ? "disabled" : ""}>${$t("contract.biggerRole")}</button><button class="btn ghost sm" data-ask="bonus" ${asks >= 3 || offer.bonus ? "disabled" : ""}>${$t("contract.signingBonus")}</button></div>
+      <div class="eyebrow">${$t("contract.contractClauses")}</div>
+      <div class="grid3"><button class="btn ghost sm" data-ask="release" ${asks >= 3 || cl.release ? "disabled" : ""}>${$t("contract.releaseClause")}</button>${offer.stage !== "nba" ? `<button class="btn ghost sm" data-ask="nbaout" ${asks >= 3 || cl.nbaout ? "disabled" : ""}>${$t("contract.nbaEscape")}</button>` : ""}<button class="btn ghost sm" data-ask="perf" ${asks >= 3 || cl.perf ? "disabled" : ""}>${$t("contract.performanceBonus2")}</button></div>
+      <p class="small muted">${$t("contract.releaseClauseLeave15pct")}${Object.keys(cl).length ? ` <b>${$t("contract.clauses")} ${[cl.release && $t("contract.release"), cl.nbaout && $t("contract.nbaEscape"), cl.perf && $t("contract.performanceBonus")].filter(Boolean).join(", ")}</b>` : ""}</p>
+      <div class="grid2"><button class="btn ghost" id="ng-back">${$t("common.backOffers")}</button><button class="btn good" id="ng-ok">${$t("common.sign")}</button></div>`,
       { noClose: true }
     );
     late.mountRep(offer.team, interest);
@@ -753,18 +753,18 @@ export function negotiateOffer(o, done) {
             if (interest < 0.25) {
               late.sfx("lose");
               sheet(
-                $t("systems.78"),
+                $t("contract.talks"),
                 offer.team.name,
-                `<div class="say">${$t("systems.79", {
+                `<div class="say">${$t("contract.walkedAwayTable", {
                   name: esc(offer.team.name)
-                })}</div><button class="btn pri" id="ng-x">${$t("systems.76")}</button>`,
+                })}</div><button class="btn pri" id="ng-x">${$t("common.backOffers")}</button>`,
                 { noClose: true }
               );
               o.withdrawn = true; // masadan kalkan kulüp bu yaz yeniden pazarlığa oturmaz
               $("#ng-x").onclick = () => done(null, o);
               return;
             }
-            view($t("systems.80"));
+            view($t("contract.clubRejectedDemand"));
             return;
           }
           late.sfx("coin");
@@ -774,7 +774,7 @@ export function negotiateOffer(o, done) {
           if (k === "bonus") offer.bonus = Math.round(offer.wage * rnd(2, 4));
           if (k === "release" || k === "nbaout" || k === "perf") offer.clauses = { ...(offer.clauses || {}), [k]: true };
           interest -= 0.05;
-          view($t("systems.81"));
+          view($t("contract.clubAcceptedDemand"));
         })
     );
     $("#ng-back").onclick = () => done(null, o);
@@ -782,7 +782,7 @@ export function negotiateOffer(o, done) {
       late.sfx("levelup");
       if (offer.bonus)
         tx(
-          $t("systems.142", {
+          $t("contract.signingBonus2", {
             short: offer.team.short
           }),
           offer.bonus
@@ -792,11 +792,11 @@ export function negotiateOffer(o, done) {
   };
   view(
     interest > 0.75
-      ? $t("systems.82", {
+      ? $t("contract.reallyWantPush", {
           agent: S.npc.agent
         })
       : interest < 0.45
-        ? $t("systems.83", {
+        ? $t("contract.pushTooHard", {
             agent: S.npc.agent
           })
         : ""
@@ -806,24 +806,24 @@ export const seasonAvgOf = () => (S.hist.length ? S.hist[S.hist.length - 1].avg 
 
 /* ================= KILAVUZ ================= */
 export const GUIDE = [
-  [$t("systems.84"), $t("systems.85")],
-  [$t("systems.86"), $t("systems.87")],
-  [$t("match.88"), $t("systems.88")],
-  [$t("systems.89"), $t("systems.90")],
-  [$t("systems.91"), $t("systems.92")],
-  [$t("match.93"), $t("systems.93")],
-  [$t("systems.94"), $t("systems.95")]
+  [$t("guide.gettingStarted"), $t("guide.startYearsOld16")],
+  [$t("guide.map"), $t("guide.mainMenuMap")],
+  [$t("common.match"), $t("guide.gameRunsFour")],
+  [$t("guide.miniGames"), $t("guide.shotPressScreen")],
+  [$t("guide.progression"), $t("guide.trainingRaises24")],
+  [$t("common.career"), $t("guide.endSeasonOffers")],
+  [$t("guide.moneyItems"), $t("guide.earnMoneySalary")]
 ];
 export function guideSheet(i = 0) {
   if (late.fullGuide) return late.fullGuide(i); // yeni ayrıntılı kılavuz (src/guide.js)
   sheet(
-    $t("systems.96"),
-    $t("systems.97"),
+    $t("guide.guide"),
+    $t("guide.howPlay"),
     `${tabsHTML(
       GUIDE.map((g, k) => [String(k), g[0]]),
       String(i),
       "g"
-    )}<div class="card"><h3>${GUIDE[i][0]}</h3><p style="line-height:1.6">${GUIDE[i][1]}</p></div><div class="grid2"><button class="btn ghost" id="gd-p" ${i === 0 ? "disabled" : ""}>${$t("systems.100")}</button><button class="btn pri" id="gd-n">${i === GUIDE.length - 1 ? $t("systems.98") : $t("systems.99")}</button></div>`,
+    )}<div class="card"><h3>${GUIDE[i][0]}</h3><p style="line-height:1.6">${GUIDE[i][1]}</p></div><div class="grid2"><button class="btn ghost" id="gd-p" ${i === 0 ? "disabled" : ""}>${$t("guide.previous")}</button><button class="btn pri" id="gd-n">${i === GUIDE.length - 1 ? $t("guide.close") : $t("guide.next")}</button></div>`,
     { onClose: () => (S ? renderMain() : renderSlots()) }
   );
   $$("[data-g]").forEach(b => (b.onclick = () => guideSheet(+b.dataset.g)));
@@ -832,11 +832,11 @@ export function guideSheet(i = 0) {
 }
 // ilk açılışta adım adım tanıtım: hedef öğe ışıklandırılır
 export const TOUR = [
-  [".hud", $t("systems.101"), $t("systems.102")],
-  [".mapwrap", $t("systems.103"), $t("systems.104")],
-  [".timebar", $t("systems.105"), $t("systems.106")],
-  ["#gostad", $t("systems.107"), $t("systems.108")],
-  ["#opt", $t("systems.109"), $t("systems.110")]
+  [".hud", $t("tour.playerBar"), $t("tour.balanceEnergyMorale")],
+  [".mapwrap", $t("tour.cityMap"), $t("tour.mainMenuTap")],
+  [".timebar", $t("tour.timeSlots"), $t("tour.timeSlotsEach3")],
+  ["#gostad", $t("tour.gameDay"), $t("tour.whenReadyHead")],
+  ["#opt", $t("tour.settingsGuide"), $t("tour.soundVibrationSave")]
 ];
 export function startTour(step = 0) {
   $$(".tour").forEach(x => x.remove());
@@ -864,10 +864,10 @@ export function startTour(step = 0) {
     card.className = "tour card";
     const below = r.bottom < innerHeight * 0.55;
     card.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);${below ? `top:${Math.min(innerHeight - 200, r.bottom + 14)}px` : `bottom:${Math.min(innerHeight - 200, innerHeight - r.top + 14)}px`};width:min(420px,calc(100% - 32px));z-index:46;border-color:var(--gold)`;
-    card.innerHTML = `<div class="eyebrow">${$t("systems.114", {
+    card.innerHTML = `<div class="eyebrow">${$t("tour.tour", {
       v: step + 1,
       length: TOUR.length
-    })}</div><h3>${title}</h3><p class="small">${text}</p><div class="grid2"><button class="btn ghost sm" id="tr-skip">${$t("systems.115")}</button><button class="btn pri sm" id="tr-next">${step === TOUR.length - 1 ? $t("systems.112") : $t("systems.113")}</button></div>`;
+    })}</div><h3>${title}</h3><p class="small">${text}</p><div class="grid2"><button class="btn ghost sm" id="tr-skip">${$t("tour.skipTour")}</button><button class="btn pri sm" id="tr-next">${step === TOUR.length - 1 ? $t("tour.finish") : $t("tour.next")}</button></div>`;
     document.body.append(ring, card);
     late.sfx("notify");
     $("#tr-next").onclick = () => startTour(step + 1);
@@ -918,10 +918,10 @@ export function registerPWA() {
 export function installSheet() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   sheet(
-    $t("ads.15"),
-    $t("systems.116"),
-    `${installEvt ? `<p>${$t("systems.117")}</p><button class="btn pri" id="in-go">${$t("systems.118")}</button>` : ios ? `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("systems.119")} <b>${$t("systems.120")}</b> ${$t("systems.121")}</li><li>${$t("systems.122")} <b>${$t("systems.123")}</b>${$t("systems.124")}</li><li>${$t("systems.125")} <b>${$t("systems.126")}</b>${$t("systems.127")}</li></ol></div>` : `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("systems.128")}</li><li><b>${$t("ads.15")}</b> ${$t("systems.129")} <b>${$t("systems.130")}</b>${$t("systems.124")}</li></ol></div>`}
-   <p class="small muted">${$t("systems.131")}</p>`
+    $t("common.addHomeScreen"),
+    $t("install.playLikeApp"),
+    `${installEvt ? `<p>${$t("install.installOneTap")}</p><button class="btn pri" id="in-go">${$t("install.installNow")}</button>` : ios ? `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("install.safariTap")} <b>${$t("install.share")}</b> ${$t("install.iconBottomSquare")}</li><li>${$t("install.scrollListSelect")} <b>${$t("install.addHomeScreen")}</b>${$t("install.yiSec")}</li><li>${$t("install.topRightTap")} <b>${$t("install.add")}</b>${$t("install.yeDokun")}</li></ol></div>` : `<div class="card"><ol style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-1h)"><li>${$t("install.openBrowserMenu")}</li><li><b>${$t("common.addHomeScreen")}</b> ${$t("install.or")} <b>${$t("install.installApp")}</b>${$t("install.yiSec")}</li></ol></div>`}
+   <p class="small muted">${$t("install.noteInstallationWorks")}</p>`
   );
   const g = $("#in-go");
   if (g)
@@ -929,7 +929,7 @@ export function installSheet() {
       installEvt.prompt();
       try {
         const r = await installEvt.userChoice;
-        if (r.outcome === "accepted") toast($t("systems.132"));
+        if (r.outcome === "accepted") toast($t("install.gameAddedHome"));
       } catch (e) {}
       installEvt = null;
       closeSheet();

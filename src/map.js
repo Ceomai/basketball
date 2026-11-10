@@ -27,36 +27,36 @@ export const LOCS2 = [
 ];
 // ev adları çağrı anında: kiralık ev türü bulunulan şehre göre değişir (src/culture.js)
 const HOUSE_N = {
-  oda: () => $t("map.14"),
-  yurt: () => $t("map.15"),
-  daire: () => $t("map.16"),
-  lux: () => $t("map.17"),
-  villa: () => $t("map.18"),
-  malikane: () => $t("map.19")
+  oda: () => $t("map.familyHomeRoom"),
+  yurt: () => $t("common.studentDorm"),
+  daire: () => $t("common.rentalApartment"),
+  lux: () => $t("map.residence"),
+  villa: () => $t("common.villa"),
+  malikane: () => $t("common.mansion")
 };
 export function locInfo(id, P) {
   const away = P.city !== P.home;
   const r = {
-    okul: { n: P.studying ? (P.stage === "lise" ? $t("map.1") : $t("map.2")) : $t("map.3"), slot: P.studying },
-    medya: { n: $t("places.184"), slot: true },
-    ev: { n: (HOUSE_N[P.housing] || (() => $t("map.4")))(), slot: false },
+    okul: { n: P.studying ? (P.stage === "lise" ? $t("common.highSchool") : $t("common.university")) : $t("common.agentsOffice"), slot: P.studying },
+    medya: { n: $t("common.mediaCenter"), slot: true },
+    ev: { n: (HOUSE_N[P.housing] || (() => $t("map.home")))(), slot: false },
     stad: {
-      n: P.team ? P.team.short + " " + (["lise", "uni"].includes(P.stage) ? $t("map.5") : $t("map.6")) : $t("map.7"),
+      n: P.team ? P.team.short + " " + (["lise", "uni"].includes(P.stage) ? $t("map.gym") : $t("map.arena")) : $t("map.stadium"),
       slot: false
     },
     aile: {
       n: away
-        ? $t("map.8", {
+        ? $t("map.family", {
             home: P.home
           })
-        : $t("map.9"),
+        : $t("map.familyHome"),
       slot: true
     },
-    kafe: { n: $t("map.20"), slot: true },
-    eglence: { n: $t("shops.37"), slot: false },
-    avm: { n: $t("map.13"), slot: false },
-    market: { n: $t("map.21"), slot: false },
-    sans: { n: P.age < 18 ? $t("map.10") : $t("casino.6"), slot: false, locked: P.age < 18 },
+    kafe: { n: $t("common.cafe"), slot: true },
+    eglence: { n: $t("common.entertainmentCenter"), slot: false },
+    avm: { n: $t("map.mall"), slot: false },
+    market: { n: $t("map.market"), slot: false },
+    sans: { n: P.age < 18 ? $t("map.gameClub18") : $t("common.gameClub"), slot: false, locked: P.age < 18 },
     sokak: { n: $t("st.name"), slot: true },
     studyo: { n: $t("sd.name"), slot: true },
     taraftar: { n: $t("fz.name"), slot: true },
@@ -364,7 +364,7 @@ export function mapSVG(P) {
     );
   }
   // AVM tabelası bölgesel adla (Mall, Centro commerciale...) genişler
-  const avmT = $t("map.13"),
+  const avmT = $t("map.mall"),
     avmW = Math.min(84, Math.max(36, avmT.length * 4.4 + 10));
   const B = {
     // akademi: küçük salon ve dış saha
@@ -426,7 +426,7 @@ export function mapSVG(P) {
     medya: (x, y) =>
       box(x - 38, y + 30, 62, 42, 12, "#3a4358", "#2a3142", "#56607a") +
       windows(x - 38, y + 30, 62, 36, 5, 2, lit, true) +
-      `<path d="M${x + 2} ${y - 12}L${x - 10} ${y + 4}M${x + 2} ${y - 12}L${x + 14} ${y + 4}M${x + 2} ${y - 12}V${y - 58}" stroke="#aab4c2" stroke-width="2.5"/><circle cx="${x + 2}" cy="${y - 60}" r="3" fill="#ff5468"/><ellipse cx="${x - 22}" cy="${y - 16}" rx="10" ry="6" fill="#dfe6ee" transform="rotate(-25 ${x - 22} ${y - 16})"/><rect x="${x - 30}" y="${y + 2}" width="40" height="8" fill="#06090f"/><text x="${x - 10}" y="${y + 9}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#ff5468">${$t("map.11")}</text>`,
+      `<path d="M${x + 2} ${y - 12}L${x - 10} ${y + 4}M${x + 2} ${y - 12}L${x + 14} ${y + 4}M${x + 2} ${y - 12}V${y - 58}" stroke="#aab4c2" stroke-width="2.5"/><circle cx="${x + 2}" cy="${y - 60}" r="3" fill="#ff5468"/><ellipse cx="${x - 22}" cy="${y - 16}" rx="10" ry="6" fill="#dfe6ee" transform="rotate(-25 ${x - 22} ${y - 16})"/><rect x="${x - 30}" y="${y + 2}" width="40" height="8" fill="#06090f"/><text x="${x - 10}" y="${y + 9}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="7" fill="#ff5468">${$t("map.live")}</text>`,
     ev: (x, y) =>
       homeSVG(x, y, P, lit, { wall: wallC }, roof) +
       (P.car ? `<g transform="translate(${x + 20},${y + 30}) scale(.45)">${P.car.replace(/<svg[^>]*>|<\/svg>/g, "")}</g>` : ""),
@@ -444,7 +444,7 @@ export function mapSVG(P) {
       windows(x - 38, y + 30, 64, 20, 3, 1, lit),
     eglence: (x, y) =>
       box(x - 38, y + 30, 64, 42, 12, "#241b3b", "#19132b", "#352a55") +
-      `<rect x="${x - 32}" y="${y - 6}" width="52" height="14" rx="4" fill="${lit ? "#ff3fa4" : "#6b2f5a"}"/><text x="${x - 6}" y="${y + 5}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="9" letter-spacing="1" fill="#fff">${$t("map.12")}</text>` +
+      `<rect x="${x - 32}" y="${y - 6}" width="52" height="14" rx="4" fill="${lit ? "#ff3fa4" : "#6b2f5a"}"/><text x="${x - 6}" y="${y + 5}" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="9" letter-spacing="1" fill="#fff">${$t("map.arcadeClub")}</text>` +
       windows(x - 38, y + 30, 64, 14, 4, 1, lit),
     avm: (x, y) =>
       box(x - 52, y + 30, 92, 42, 14, "#cfd6de", "#aab3be", "#bcc5cf") +

@@ -40,7 +40,7 @@ function outro(title, txt, fx) {
   save();
   const res = $("#res");
   if (!res) return done(txt, fx);
-  res.innerHTML = `<div class="card"><h2>${title}</h2><p>${txt}</p><div class="fx">${fx.map(([t, k]) => `<span class="${k}">${t}</span>`).join("")}</div><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+  res.innerHTML = `<div class="card"><h2>${title}</h2><p>${txt}</p><div class="fx">${fx.map(([t, k]) => `<span class="${k}">${t}</span>`).join("")}</div><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 // sonuç: açık panelin içine yazılır (resultView #shb'yi kullanır); panel yoksa önce açılır

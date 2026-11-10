@@ -127,3 +127,13 @@ Profil başına 3 kariyer ile ölçülen sonuçlar:
 - Kariyer ~1 saatte bitebiliyor ve oyunun en zengin kısmı (maç anları, antrenman mini oyunları) hızlı haftada atlanıyor. Bir hafif teşvik eklenebilir: "Önemli maç" (derbi, final, playoff) haftalarında hızlı geçişte "bu maçı kendin oynamak ister misin?" sorusu.
 - "Sakin kal" hâlâ en yüksek beklentili seçenek (otomatik oyuncu hep onu seçiyor). İnsan oyuncular için taraftar bonusu cazip olabilir; test kaydı verisiyle bakılmalı.
 - Fesih bedelinin çoğu yatay geçişlerden geliyor; teklif kartında bedel görünüyor, yine de oyuncu verisiyle izlenmeli.
+
+## i18n anahtar adlandırma kuralı
+
+Arayüz metinleri `$t("alan.kavram")` ile okunur. Eski çıkarıcının verdiği sayısal adlar (`match.65`, `ads.25` …) Kasım 2026'da `tools/rename-i18n-keys.js` ile anlamlı adlara çevrildi; metinler aynı kaldı, eşleme `reports/i18n-rename-map.json`'da.
+
+- **Biçim:** `<alan>.<kavram>`; ikisi de küçük harfle başlayan camelCase, yalnız ASCII harf ve rakam (`season.newSeason`, `press.clearConfidentStance`, `home.trophyCase`).
+- **Alan:** metnin göründüğü ekran ya da sistem (`home`, `press`, `contract`, `minigame` …). Birden çok ekranda kullanılan genel metin (`Devam`, `Tamam`, `+5 Moral`) `common.` alır (`common.continue`); başka bir ekranın anahtarını ödünç alma.
+- **Kavram:** metnin anlamı, 1–3 kelime (İngilizce): `contract.signingBonus`, `consent.noPersonalization`. Sayılar sona: `+5 Moral` → `moralePlus5`. Aynı kavram ikinci kez gerekiyorsa ayırt edici bir kelime ekle; son çare sayı soneki (`…2`).
+- **Dinamik anahtar** yalnız şablon literalle ve kendi önekiyle: `` $t(`sc.${id}`) ``; `"önek." + x` birleştirmesi yasak (birim testi yakalar). Bu tür aileler yeniden adlandırma aracının dışında tutulur.
+- **Yeni metin:** `keys/<ad>.json` dosyasına `{"tr":{…},"en":{…}}` yaz, adları bu kurala göre seç; yer tutucular (`{v}`) iki dilde aynı olmalı. Elle yazılan sözlükler `src/i18n/tr.js`/`en.js`; `tr.auto.js`/`en.auto.js` eski çıkarılmış metinlerin evidir. `tools/extract-i18n.js` yine sayısal ad verir: kullanılırsa ardından `node tools/rename-i18n-keys.js --dry-run` ile önizleyip uygula.

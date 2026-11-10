@@ -325,7 +325,7 @@ export function finish(stop, res, val) {
 }
 
 /* ---- Şut (çek-bırak) ---- */
-export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null, def = true }) {
+export function mgShoot(el, { eff, shots = 1, title = $t("common.shooting"), dist = null, def = true }) {
   const X = MG_CTX;
   if (X && X.press != null) def = X.press > 0.05; // boşsan savunmacı yok
   eff = dEff(eff);
@@ -418,7 +418,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         if (stepBall(st.ball, dt)) {
           made++;
           pts += st.three ? 3 : 2;
-          st.msg = st.three ? $t("games.1") : $t("games.2");
+          st.msg = st.three ? $t("minigame.ptsPlus3") : $t("minigame.ptsPlus2");
           st.sw = 1;
           hapticSuccess();
         }
@@ -429,7 +429,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
           st.ph = "done";
           st.t = 0;
           if (!st.ball.in) {
-            st.msg = $t("arcade.7");
+            st.msg = $t("common.miss");
             hapticTap();
           }
         }
@@ -478,19 +478,19 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         late.powerArrow(c, st.ball.x, st.ball.y, v.x, v.y, clamp(Math.hypot(v.x, v.y) / 880, 0, 1), [0.5, 0.72]);
       }
       if (st.ph === "aim") {
-        hint(c, $t("games.3"));
+        hint(c, $t("minigame.pressPullDown"));
         if (def) {
           c.font = "700 11px Manrope";
           c.fillStyle = tok("--muted");
           c.textAlign = "left";
-          c.fillText($t("games.4"), 14, 64);
+          c.fillText($t("minigame.defensivePressure"), 14, 64);
           rr(c, 14, 70, 100, 6, 3, "#24314a", false);
           rr(c, 14, 70, Math.max(4, 100 * st.pr), 6, 3, st.pr > 0.66 ? BAD() : st.pr > 0.33 ? tok("--warn") : GOOD(), false);
         }
         c.font = '800 15px "Barlow Condensed"';
         c.textAlign = "right";
         c.fillStyle = "#fff";
-        c.fillText(st.three ? $t("games.5") : $t("games.6"), W - 14, 72);
+        c.fillText(st.three ? $t("minigame.pointRange3") : $t("minigame.pointRange2"), W - 14, 72);
         if (!def && X && X.press === 0) {
           c.font = '800 16px "Barlow Condensed"';
           c.textAlign = "left";
@@ -507,7 +507,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
         }
       }
       info(
-        $t("games.7", {
+        $t("minigame.made", {
           v: Math.min(n + 1, shots),
           shots: shots,
           made: made
@@ -517,7 +517,7 @@ export function mgShoot(el, { eff, shots = 1, title = $t("data.30"), dist = null
   });
 }
 /* ---- Zamanlama çubuğu: serbest atış, top çalma, smaç ---- */
-export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kind = "free" }) {
+export function mgTiming(el, { eff, title, tries = 2, label = $t("common.shoot"), kind = "free" }) {
   eff = dEff(eff);
   setMgKind("timing");
   mkStage(el, title);
@@ -548,7 +548,7 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
       if (kind === "steal") {
         st.ok = good;
         st.ph = "done";
-        st.msg = good ? $t("games.9") : $t("games.10");
+        st.msg = good ? $t("minigame.stolen") : $t("minigame.foul");
         if (good) {
           ok++;
           buzz(25);
@@ -585,14 +585,14 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
         if (st.ph !== "aim") {
           if (stepBall(st.ball, dt)) {
             ok++;
-            st.msg = kind === "dunk" ? $t("games.11") : $t("games.12");
+            st.msg = kind === "dunk" ? $t("minigame.dunkPtsPlus2") : $t("minigame.scorePlus1");
             hapticSuccess();
           }
           if (st.ph === "fly" && (st.t > 2.6 || st.ball.bounce >= 2 || st.ball.x > W + 30)) {
             st.ph = "done";
             st.t = 0;
             if (!st.ball.in) {
-              st.msg = kind === "dunk" ? $t("games.13") : $t("arcade.7");
+              st.msg = kind === "dunk" ? $t("minigame.missedDunk") : $t("common.miss");
               hapticTap();
             }
           }
@@ -626,7 +626,7 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
       rr(c, bx, by, bw, 20, 10, "#141d2e", false);
       rr(c, bx + bw * (st.zc - st.zw / 2), by, bw * st.zw, 20, 4, GOOD(), false);
       rr(c, bx + bw * st.nv - 3, by - 6, 6, 32, 3, "#ffffff", false);
-      if (st.ph === "aim") hint(c, kind === "steal" ? $t("games.14") : kind === "dunk" ? $t("games.15") : $t("games.16"), 40);
+      if (st.ph === "aim") hint(c, kind === "steal" ? $t("minigame.catchGreenMoment") : kind === "dunk" ? $t("minigame.jumpGreenSlam") : $t("minigame.tapWhenWhite"), 40);
       if (st.ph === "done") {
         bigText(c, st.msg, 170, st.ball.in || st.ok ? tok("--warn") : "#ffffff");
         if (st.t > 1) {
@@ -636,7 +636,7 @@ export function mgTiming(el, { eff, title, tries = 2, label = $t("games.8"), kin
         }
       }
       info(
-        $t("games.17", {
+        $t("minigame.successful", {
           v: Math.min(n + 1, tries),
           tries: tries,
           ok: ok
@@ -665,7 +665,7 @@ export function headTop(c, x, y, L, col, r = 15) {
   c.arc(x + 2.5, y - 3, 1.4, 0, 7);
   c.fill();
 }
-export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
+export function mgPass(el, { eff, reps = 1, title = $t("common.passing") }) {
   eff = dEff(eff);
   setMgKind("pass");
   mkStage(el, title);
@@ -784,7 +784,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
         if (st.clock <= 0) {
           st.ph = "done";
           st.t2 = 0;
-          st.msg = $t("games.18");
+          st.msg = $t("minigame.shotClockExpired");
           st.ok = false;
         }
       }
@@ -796,7 +796,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
         if (d <= sp) {
           st.ph = "done";
           st.ok = true;
-          st.msg = $t("games.19");
+          st.msg = $t("minigame.assistPass");
           st.t2 = 0;
         } else {
           st.ball.x += (dx / d) * sp;
@@ -806,14 +806,14 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
           if (st.ph === "fly" && Math.hypot(p.x - st.ball.x, p.y - st.ball.y) < 17 + lvl()) {
             st.ph = "done";
             st.ok = false;
-            st.msg = $t("games.20");
+            st.msg = $t("minigame.passIntercepted");
             late.sfx("ooh");
             st.t2 = 0;
           }
       }
       drawBall(c, st.ball.x, st.ball.y, 8);
       if (st.ph === "aim") {
-        hint(c, $t("games.21"), H - 14);
+        hint(c, $t("minigame.tapOpenTeammate"), H - 14);
         c.font = '800 30px "Barlow Condensed"';
         c.textAlign = "right";
         c.lineWidth = 5;
@@ -833,7 +833,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
         }
       }
       info(
-        $t("games.22", {
+        $t("minigame.successful2", {
           v: Math.min(n + 1, reps),
           reps: reps,
           ok: ok
@@ -843,7 +843,7 @@ export function mgPass(el, { eff, reps = 1, title = $t("data.31") }) {
   });
 }
 /* ---- Blok ---- */
-export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
+export function mgBlock(el, { eff, reps = 1, title = $t("common.block") }) {
   eff = dEff(eff);
   setMgKind("block");
   mkStage(el, title);
@@ -869,7 +869,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
     const tap = () => {
       if (st.ph !== "jump") return;
       st.ok = Math.abs(st.ring - 16) < st.tol;
-      st.msg = st.ok ? $t("data.111") : $t("games.23");
+      st.msg = st.ok ? $t("common.block") : $t("minigame.missedTiming");
       st.ph = "done";
       st.t = 0;
       st.bv = { x: st.ok ? -260 : 220, y: st.ok ? -120 : -200 };
@@ -886,7 +886,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
         tap();
       }
     };
-    $("#mgC").innerHTML = `<button class="btn bad" id="bl">${$t("data.111")}</button>`;
+    $("#mgC").innerHTML = `<button class="btn bad" id="bl">${$t("common.block")}</button>`;
     $("#bl").onpointerdown = e => {
       e.preventDefault();
       tap();
@@ -908,7 +908,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
         st.ring -= st.rs * dt;
         if (st.ring <= 2) {
           st.ok = false;
-          st.msg = $t("games.24");
+          st.msg = $t("minigame.tooLate");
           st.ph = "done";
           st.t = 0;
           st.bv = { x: 220, y: -200 };
@@ -952,7 +952,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
         c.arc(st.ball.x, st.ball.y, Math.max(1, st.ring), 0, 7);
         c.stroke();
       }
-      if (st.ph !== "done") hint(c, $t("games.25"));
+      if (st.ph !== "done") hint(c, $t("minigame.tapWhenWhite2"));
       if (st.ph === "done") {
         bigText(c, st.msg, 130, st.ok ? tok("--warn") : "#ffffff");
         if (st.t > 1.1) {
@@ -963,7 +963,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
         }
       }
       info(
-        $t("games.26", {
+        $t("minigame.blocks", {
           v: Math.min(n + 1, reps),
           reps: reps,
           ok: ok
@@ -973,7 +973,7 @@ export function mgBlock(el, { eff, reps = 1, title = $t("data.111") }) {
   });
 }
 /* ---- Çalım (kaydırma) ---- */
-export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
+export function mgDribble(el, { eff, reps = 1, title = $t("common.crossover") }) {
   eff = dEff(eff);
   setMgKind("dribble");
   mkStage(el, title);
@@ -1009,13 +1009,13 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
           st.ph = "done";
           st.ok = true;
           st.t = 0;
-          st.msg = $t("games.27");
+          st.msg = $t("minigame.defenderBeaten");
         }
       } else {
         st.ph = "done";
         st.ok = false;
         st.t = 0;
-        st.msg = $t("games.28");
+        st.msg = $t("minigame.turnover");
         late.sfx("ooh");
       }
     };
@@ -1037,7 +1037,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
     $("#mgC").innerHTML = ["L", "U", "D", "R"]
       .map(
         k =>
-          `<button class="btn" data-k="${k}" aria-label="${{ L: $t("games.56"), U: $t("games.57"), D: $t("games.58"), R: $t("games.59") }[k]}">${AR[k]}</button>`
+          `<button class="btn" data-k="${k}" aria-label="${{ L: $t("minigame.left"), U: $t("minigame.up"), D: $t("minigame.down"), R: $t("minigame.right") }[k]}">${AR[k]}</button>`
       )
       .join("");
     $$("#mgC [data-k]").forEach(
@@ -1062,7 +1062,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
         st.ph = "done";
         st.ok = false;
         st.t = 0;
-        st.msg = $t("games.29");
+        st.msg = $t("minigame.times");
       }
       st.sway *= 0.88;
       const fell = st.ph === "done" && st.ok;
@@ -1109,7 +1109,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
       if (st.ph === "go") {
         rr(c, 30, 124, 300, 6, 3, "#141d2e", false);
         rr(c, 30, 124, Math.max(2, 300 * (1 - st.t / st.time)), 6, 3, st.t / st.time > 0.7 ? BAD() : GOOD(), false);
-        hint(c, $t("games.30"), 28);
+        hint(c, $t("minigame.swipeScreenDirection"), 28);
       }
       if (st.ph === "done") {
         bigText(c, st.msg, 185, st.ok ? tok("--warn") : "#ffffff", 30);
@@ -1121,7 +1121,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
         }
       }
       info(
-        $t("games.22", {
+        $t("minigame.successful2", {
           v: Math.min(n + 1, reps),
           reps: reps,
           ok: ok
@@ -1131,7 +1131,7 @@ export function mgDribble(el, { eff, reps = 1, title = $t("data.51") }) {
   });
 }
 /* ---- Post-up: it, sonra kanca ---- */
-export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
+export function mgPost(el, { eff, reps = 1, title = $t("common.post") }) {
   eff = dEff(eff);
   setMgKind("post");
   mkStage(el, title);
@@ -1175,7 +1175,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         act();
       }
     };
-    $("#mgC").innerHTML = `<button class="btn bad" id="pb">${$t("games.31")}</button>`;
+    $("#mgC").innerHTML = `<button class="btn bad" id="pb">${$t("minigame.push")}</button>`;
     $("#pb").onpointerdown = e => {
       e.preventDefault();
       act();
@@ -1197,7 +1197,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
       if (st.ph === "ready" && st.t > 1) {
         st.ph = "aim";
         st.t = 0;
-        $("#pb").textContent = $t("games.32");
+        $("#pb").textContent = $t("minigame.hook");
         $("#pb").style.opacity = "";
       }
       if (st.ph === "aim") st.nv = 0.5 + 0.5 * Math.sin(st.t * (2.6 + lvl() * 0.3));
@@ -1206,14 +1206,14 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         if (stepBall(st.ball, dt)) {
           st.ok = true;
           ok++;
-          st.msg = $t("games.33");
+          st.msg = $t("minigame.hookPtsPlus2");
           hapticSuccess();
         }
         if (st.ph === "fly" && (st.t > 2.4 || st.ball.bounce >= 2)) {
           st.ph = "done";
           st.t = 0;
           if (!st.ok) {
-            st.msg = $t("arcade.7");
+            st.msg = $t("common.miss");
             hapticTap();
           }
         }
@@ -1240,7 +1240,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
       if (st.ph === "push") {
         rr(c, 30, 70, 300, 14, 7, "#141d2e", false);
         rr(c, 30, 70, 300 * st.pos, 14, 7, tok("--hot"), false);
-        hint(c, $t("games.34"), 40);
+        hint(c, $t("minigame.tapFastPush"), 40);
         c.font = '800 13px "Barlow Condensed"';
         c.fillStyle = "#fff";
         c.textAlign = "right";
@@ -1252,7 +1252,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
         rr(c, 30, 70, 300, 20, 10, "#141d2e", false);
         rr(c, 30 + 300 * (st.zc - zw / 2), 70, 300 * zw, 20, 4, GOOD(), false);
         rr(c, 30 + 300 * st.nv - 3, 64, 6, 32, 3, "#fff", false);
-        hint(c, $t("games.35"), 40);
+        hint(c, $t("minigame.hookGreen"), 40);
       }
       if (st.ph === "done") {
         bigText(c, st.msg, 160, st.ok ? tok("--warn") : "#fff");
@@ -1261,7 +1261,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
           if (n >= reps) finish(stop, res, { ok, reps });
           else {
             next();
-            $("#pb").textContent = $t("games.31");
+            $("#pb").textContent = $t("minigame.push");
           }
         }
       }
@@ -1270,7 +1270,7 @@ export function mgPost(el, { eff, reps = 1, title = $t("data.107") }) {
   });
 }
 /* ---- Ribaund: top halkanın içindeyken zıpla ---- */
-export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
+export function mgRebound(el, { eff, reps = 1, title = $t("common.rebound") }) {
   eff = dEff(eff);
   setMgKind("rebound");
   mkStage(el, title);
@@ -1292,7 +1292,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
       st.ok = d < st.r && st.t > 0.8;
       st.ph = "done";
       st.t = 0;
-      st.msg = st.ok ? $t("data.63") : $t("games.36");
+      st.msg = st.ok ? $t("common.rebound") : $t("minigame.missedRebound");
       if (st.ok) {
         ok++;
         buzz(25);
@@ -1306,7 +1306,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
         tap();
       }
     };
-    $("#mgC").innerHTML = `<button class="btn pri" id="rbb">${$t("games.37")}</button>`;
+    $("#mgC").innerHTML = `<button class="btn pri" id="rbb">${$t("common.jump")}</button>`;
     $("#rbb").onpointerdown = e => {
       e.preventDefault();
       tap();
@@ -1327,7 +1327,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
         if (st.b.bounce >= 1 || st.t > 4) {
           st.ph = "done";
           st.t = 0;
-          st.msg = $t("games.38");
+          st.msg = $t("minigame.opponentsRebound");
         }
       }
       if (st.jump) st.jump += dt;
@@ -1351,7 +1351,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
         c.arc(st.ring.x, st.ring.y, st.r, 0, 7);
         c.stroke();
         c.setLineDash([]);
-        hint(c, $t("games.39"));
+        hint(c, $t("minigame.jumpWhenBall"));
       }
       if (st.ph === "done") {
         bigText(c, st.msg, 140, st.ok ? tok("--warn") : "#fff");
@@ -1362,7 +1362,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
         }
       }
       info(
-        $t("games.40", {
+        $t("minigame.rebounds", {
           v: Math.min(n + 1, reps),
           reps: reps,
           ok: ok
@@ -1373,7 +1373,7 @@ export function mgRebound(el, { eff, reps = 1, title = $t("data.63") }) {
 }
 /* ---- Ağırlık ---- */
 const GYM_T = 5.5; // saniye
-export function mgGym(el, { title = $t("games.41") }) {
+export function mgGym(el, { title = $t("minigame.weights") }) {
   setMgKind("gym");
   mkStage(el, title);
   return new Promise(res => {
@@ -1389,7 +1389,7 @@ export function mgGym(el, { title = $t("games.41") }) {
       late.sfx("clank");
       lift = Math.min(1, lift + 0.18);
     };
-    $("#mgC").innerHTML = `<button class="btn bad" id="tp">${$t("games.42")}</button>`;
+    $("#mgC").innerHTML = `<button class="btn bad" id="tp">${$t("minigame.lift")}</button>`;
     $("#tp").onpointerdown = e => {
       e.preventDefault();
       tap();
@@ -1415,7 +1415,7 @@ export function mgGym(el, { title = $t("games.41") }) {
       c.font = '800 22px "Barlow Condensed"';
       c.textAlign = "center";
       c.fillText(
-        $t("games.43", {
+        $t("minigame.performanceCenter", {
           short: late.S.team.short
         }),
         W / 2,
@@ -1441,7 +1441,7 @@ export function mgGym(el, { title = $t("games.41") }) {
         rr(c, 30, 96, Math.max(2, 300 * Math.max(0, 1 - t / GYM_T)), 6, 3, GOOD(), false);
       }
       bigText(c, String(taps), 160, tok("--warn"), 52);
-      if (!started) hint(c, $t("games.44"), H - 20);
+      if (!started) hint(c, $t("minigame.tapLiftScreen"), H - 20);
       if (t >= GYM_T && !done) {
         done = true;
         setTimeout(() => finish(stop, res, { taps }), 900);
@@ -1450,14 +1450,14 @@ export function mgGym(el, { title = $t("games.41") }) {
         bigText(
           c,
           taps >= 40
-            ? $t("games.45", {
+            ? $t("minigame.repsStrongSet", {
                 taps: taps
               })
             : taps >= 28
-              ? $t("games.46", {
+              ? $t("minigame.repsGoodSet", {
                   taps: taps
                 })
-              : $t("games.47", {
+              : $t("minigame.repsWeakSet", {
                   taps: taps
                 }),
           220,
@@ -1465,7 +1465,7 @@ export function mgGym(el, { title = $t("games.41") }) {
           30
         );
       info(
-        $t("arcade.34", {
+        $t("common.seconds", {
           v: Math.max(0, GYM_T - t).toFixed(1)
         })
       );
@@ -1473,7 +1473,7 @@ export function mgGym(el, { title = $t("games.41") }) {
   });
 }
 /* ---- Medya: fotoğraf çekimi ---- */
-export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
+export function mgPhoto(el, { title = $t("minigame.shoot"), bg = "arena" }) {
   setMgKind("photo");
   mkStage(el, title);
   return new Promise(res => {
@@ -1495,14 +1495,14 @@ export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
       late.sfx("shutter");
       last =
         sc >= 85
-          ? $t("games.49", {
+          ? $t("minigame.frameQualityGreat", {
               sc: sc
             })
           : sc >= 60
-            ? $t("games.50", {
+            ? $t("minigame.frameQuality", {
                 sc: sc
               })
-            : $t("games.51", {
+            : $t("minigame.frameQualityBlurry", {
                 sc: sc
               });
       if (sc > best) {
@@ -1516,7 +1516,7 @@ export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
         });
       }
     };
-    $("#mgC").innerHTML = `<button class="btn gold" id="sh">${$t("games.52")}</button>`;
+    $("#mgC").innerHTML = `<button class="btn gold" id="sh">${$t("minigame.capture")}</button>`;
     $("#sh").onpointerdown = e => {
       e.preventDefault();
       shoot();
@@ -1568,20 +1568,20 @@ export function mgPhoto(el, { title = $t("games.48"), bg = "arena" }) {
       c.fillStyle = "#fff";
       c.font = "700 12px Manrope";
       c.textAlign = "left";
-      c.fillText($t("games.53"), 34, 28);
+      c.fillText($t("minigame.rec"), 34, 28);
       if (flash > 0) {
         c.fillStyle = `rgba(255,255,255,${flash})`;
         c.fillRect(0, 0, W, H);
         flash -= dt * 3;
       }
       if (last) bigText(c, last, 150, tok("--warn"), 26);
-      if (shots === 0) hint(c, $t("games.54"), H - 14);
+      if (shots === 0) hint(c, $t("minigame.shootWhenPlayer"), H - 14);
       if (shots >= 3 && flash <= 0) {
         setTimeout(() => finish(stop, res, { score: best, img: bestImg }), 500);
         shots = 99;
       }
       info(
-        $t("games.55", {
+        $t("minigame.frameBest3", {
           shots: Math.min(shots, 3),
           v: Math.max(0, best)
         })

@@ -221,7 +221,7 @@ function showResult(back) {
     canRetry = res.r !== "w" && !t.ad && (ADS.adFree || rewardLeft() > 0);
   const el = $("#res") || app;
   el.innerHTML = `<div class="card mt-3"><div class="eyebrow">${$t("dly.title")} #${scenario(t.day).no}</div><h2 class="${res.r === "w" ? "good" : res.r === "l" ? "bad" : ""}">${res.r === "w" ? $t("dly.won") : res.r === "t" ? $t("dly.ot") : $t("dly.lost")} · ${res.us}–${res.them}</h2><div style="font-size:var(--fs-7xl);letter-spacing:4px">${res.grid.map(x => (x ? "🟩" : "🟥")).join("")}</div><div class="kv"><span>${$t("dly.streakL")}</span><b>${DLY.streak}</b><span>${$t("dly.bestL")}</span><b>${DLY.best}</b><span>${$t("dly.winsL")}</span><b>${DLY.wins}/${DLY.played}</b></div>${res.r === "w" ? `<p class="small good">${$t("dly.reward")}</p>` : ""}<p class="small muted">${$t("dly.tomorrow")}</p>
-   <button class="btn pri" id="dl-share">${$t("dly.share")}</button>${canRetry ? adBtn("dl-retry", $t("dly.retry"), $t("dly.retrySub"), "daily_retry") : ""}<button class="btn ghost" id="dl-back">${$t("casino.13")}</button></div>`;
+   <button class="btn pri" id="dl-share">${$t("dly.share")}</button>${canRetry ? adBtn("dl-retry", $t("dly.retry"), $t("dly.retrySub"), "daily_retry") : ""}<button class="btn ghost" id="dl-back">${$t("common.backMap")}</button></div>`;
   $("#dl-share").onclick = share;
   $("#dl-back").onclick = back;
   const rb = $("#dl-retry");

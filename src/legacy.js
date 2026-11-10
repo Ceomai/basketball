@@ -12,16 +12,16 @@ import { late } from "./late.js";
 import { brandIsEuro, brandIsNba } from "./brand.js";
 
 export const FOUNDATION = [
-  { id: "saha", p: 20000, pts: 40, fans: 5, aile: 5, n: $t("legacy.1"), d: $t("legacy.2") },
-  { id: "burs", p: 80000, pts: 90, fans: 8, aile: 4, n: $t("legacy.3"), d: $t("legacy.4") },
+  { id: "saha", p: 20000, pts: 40, fans: 5, aile: 5, n: $t("foundation.neighborhoodCourts"), d: $t("foundation.hoopsSurfacesFive") },
+  { id: "burs", p: 80000, pts: 90, fans: 8, aile: 4, n: $t("foundation.scholarshipFund"), d: $t("foundation.schoolScholarships50") },
   {
     id: "engelsiz",
     p: 200000,
     pts: 150,
     fans: 12,
     aile: 4,
-    n: $t("legacy.5"),
-    d: $t("legacy.6")
+    n: $t("foundation.wheelchairBasketball"),
+    d: $t("foundation.accessibleBasketball")
   },
   {
     id: "salonlar",
@@ -29,8 +29,8 @@ export const FOUNDATION = [
     pts: 260,
     fans: 18,
     aile: 6,
-    n: $t("legacy.7"),
-    d: $t("legacy.8")
+    n: $t("foundation.gymsDisasterZone"),
+    d: $t("foundation.gymsKidsEarthquake")
   },
   {
     id: "altyapi",
@@ -38,17 +38,17 @@ export const FOUNDATION = [
     pts: 400,
     fans: 25,
     aile: 8,
-    n: $t("legacy.9"),
-    d: $t("legacy.10")
+    n: $t("foundation.nationalYouthProgram"),
+    d: $t("foundation.youthCoachesProvinces81")
   }
 ];
-export const CLUB = { name: $t("legacy.11"), step: 10, cost: s => 120000 + s * 30000, pts: 45, majority: 51 };
+export const CLUB = { name: $t("legacy.maviMartiSpor"), step: 10, cost: s => 120000 + s * 30000, pts: 45, majority: 51 };
 // eşikler ekonomi/denge simülasyonundaki miras puanı dağılımına göre (tests/economy.js)
 export const HOF = [
-  [3300, $t("legacy.12"), $t("legacy.13")],
-  [2600, $t("legacy.14"), $t("legacy.15")],
-  [1600, $t("legacy.16"), $t("legacy.17")],
-  [0, $t("legacy.18"), $t("legacy.19")]
+  [3300, $t("hof.hallFameFirst"), $t("hof.nameNearlyEvery")],
+  [2600, $t("hof.hallFame"), $t("hof.afterFewYears")],
+  [1600, $t("hof.clubLegend"), $t("hof.missedHallFame")],
+  [0, $t("hof.respectedCareer"), $t("hof.noMajorTrophies")]
 ];
 
 const L = () => (S.legacy = S.legacy || { found: {}, club: 0 });
@@ -60,17 +60,17 @@ export function legacyBreakdown() {
   // istatistik ağırlığı düşük, başarılar (kupa, MVP, All-Star, milli takım, üst lig) belirleyici
   const top = S.hist.filter(h => brandIsEuro(h.league) || brandIsNba(h.league)).length;
   const parts = [
-    [$t("legacy.20"), Math.round((k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25) * late.modeLegacy().stat)],
-    [$t("legacy.21"), Math.round(k.wins * 0.6 * late.modeLegacy().stat)],
+    [$t("legacy.pointsAssistsRebounds"), Math.round((k.pts * 0.1 + k.ast * 0.2 + (k.reb || 0) * 0.12 + k.blk * 0.25) * late.modeLegacy().stat)],
+    [$t("legacy.wins"), Math.round(k.wins * 0.6 * late.modeLegacy().stat)],
     // kupa türüne göre ağırlık: küçük kupalar (Süper Kupa, ülke kupası, sokak, beceri yarışması) az sayılır
-    [$t("legacy.22"), k.trophies.reduce((a, t) => a + (TROPHY_W[t.type] ?? 30), 0) + k.mvps * 60 + (k.allStars || 0) * 50],
-    [$t("legacy.23"), top * 40],
-    [$t("legacy.24"), (k.natCaps || 0) * 3 + (S.natCaptain ? 80 : 0)],
-    [$t("legacy.25"), S.coachCourse ? 30 : 0],
-    [$t("legacy.26"), (S.items.akademi ? 150 : 0) + (S.items.salon ? 80 : 0)],
-    [$t("legacy.27"), FOUNDATION.filter(f => lg.found[f.id]).reduce((a, f) => a + f.pts, 0)],
-    [$t("legacy.28"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
-    [$t("legacy.52"), S.epiloguePts || 0],
+    [$t("legacy.trophiesAwards"), k.trophies.reduce((a, t) => a + (TROPHY_W[t.type] ?? 30), 0) + k.mvps * 60 + (k.allStars || 0) * 50],
+    [$t("legacy.euroleagueNbaSeasons"), top * 40],
+    [$t("legacy.nationalTeam"), (k.natCaps || 0) * 3 + (S.natCaptain ? 80 : 0)],
+    [$t("common.coachingCourse"), S.coachCourse ? 30 : 0],
+    [$t("legacy.academyArena"), (S.items.akademi ? 150 : 0) + (S.items.salon ? 80 : 0)],
+    [$t("legacy.foundation"), FOUNDATION.filter(f => lg.found[f.id]).reduce((a, f) => a + f.pts, 0)],
+    [$t("legacy.hometownClub"), (lg.club / CLUB.step) * CLUB.pts + (lg.club >= CLUB.majority ? 100 : 0)],
+    [$t("legacy.afterCareer"), S.epiloguePts || 0],
     [$t("st.legacyPart"), (lg.kids || 0) * 15],
     [$t("ac.legacyPart"), late.acadLegacy ? late.acadLegacy() : 0],
     [$t("cch.legacyPart"), late.cchLegacy ? late.cchLegacy() : 0],
@@ -88,7 +88,7 @@ function donate(f) {
   const lg = L();
   if (lg.found[f.id] || S.money < f.p) return;
   tx(
-    $t("legacy.29", {
+    $t("legacy.foundation2", {
       n: f.n
     }),
     -f.p
@@ -98,7 +98,7 @@ function donate(f) {
   S.rel.aile += f.aile;
   S.followers = Math.round(S.followers * 1.03);
   news(
-    $t("legacy.30", {
+    $t("legacy.foundationLaunchedNew", {
       v: fullName(),
       n: f.n
     })
@@ -112,7 +112,7 @@ function buyShare() {
     c = CLUB.cost(lg.club / CLUB.step);
   if (lg.club >= 100 || S.money < c) return;
   tx(
-    $t("legacy.31", {
+    $t("legacy.shares", {
       name: CLUB.name
     }),
     -c
@@ -121,15 +121,15 @@ function buyShare() {
   S.rel.taraf += 4;
   if (lg.club === CLUB.majority + 9 || (lg.club >= CLUB.majority && lg.club - CLUB.step < CLUB.majority)) {
     news(
-      $t("legacy.32", {
+      $t("legacy.boughtMajorityStake", {
         v: fullName(),
         name: CLUB.name
       })
     );
-    late.toast($t("legacy.33"));
+    late.toast($t("legacy.clubPresidentNow"));
   } else
     news(
-      $t("legacy.34", {
+      $t("legacy.raisedStake", {
         v: fullName(),
         name: CLUB.name,
         club: lg.club
@@ -147,43 +147,43 @@ export function legacyTab(c, re) {
     tier = hofTier(b.total),
     next = [...HOF].reverse().find(h => h[0] > b.total);
   const pro = isPro(S.stage) || S.retired;
-  c.innerHTML = `<div class="card"><div class="eyebrow">${$t("legacy.42")}</div><div class="row between nowrap"><h2 class="gold">${b.total}</h2><span class="pill g">${esc(tier[1])}</span></div>
+  c.innerHTML = `<div class="card"><div class="eyebrow">${$t("legacy.legacyScore")}</div><div class="row between nowrap"><h2 class="gold">${b.total}</h2><span class="pill g">${esc(tier[1])}</span></div>
      ${
        next
          ? `<div class="bar"><i style="--w:${Math.min(100, (b.total / next[0]) * 100)};background:var(--gold)"></i></div><p class="small muted">${$t(
-             "legacy.35",
+             "legacy.pointsNeeded",
              {
                v: esc(next[1]),
                v2: next[0]
              }
            )}</p>`
-         : `<p class="small">${$t("legacy.36")}</p>`
+         : `<p class="small">${$t("legacy.topTier")}</p>`
      }
      <div class="kv">${b.parts.map(([n, v]) => `<span>${esc(n)}</span><b>${v}</b>`).join("")}</div>
-     <p class="small muted">${$t("legacy.43")}</p></div>
-   <div class="card"><div class="eyebrow">${$t("legacy.44", {
+     <p class="small muted">${$t("legacy.hallFameReview")}</p></div>
+   <div class="card"><div class="eyebrow">${$t("legacy.foundation3", {
      v: esc(fullName())
-   })}</div>${pro ? "" : `<p class="small muted">${$t("legacy.37")}</p>`}
+   })}</div>${pro ? "" : `<p class="small muted">${$t("legacy.setFoundationOnce")}</p>`}
      <div class="choices">${FOUNDATION.map(
        f =>
          `<div class="act"><div><h3>${esc(f.n)}</h3><p>${esc(f.d)}</p><div class="fx"><span class="t">${fmt(f.p)}</span><span class="p">${$t(
-           "legacy.39",
+           "common.legacy",
            {
              pts: f.pts
            }
-         )}</span><span class="p">${$t("legacy.40", {
+         )}</span><span class="p">${$t("common.fans2", {
            fans: f.fans
-         })}</span></div></div><button class="btn ${lg.found[f.id] ? "ghost" : "team"} sm" data-fd="${f.id}" ${lg.found[f.id] || !pro || S.money < f.p ? "disabled" : ""}>${lg.found[f.id] ? $t("legacy.38") : $t("places.306")}</button></div>`
+         })}</span></div></div><button class="btn ${lg.found[f.id] ? "ghost" : "team"} sm" data-fd="${f.id}" ${lg.found[f.id] || !pro || S.money < f.p ? "disabled" : ""}>${lg.found[f.id] ? $t("legacy.progress") : $t("common.start2")}</button></div>`
      ).join("")}</div></div>
-   <div class="card"><div class="eyebrow">${$t("legacy.45", {
+   <div class="card"><div class="eyebrow">${$t("legacy.hometownClub2", {
      name: esc(CLUB.name)
-   })}</div><p class="small">${$t("legacy.46", {
+   })}</div><p class="small">${$t("legacy.becomePartnerPro", {
      step: CLUB.step,
      majority: CLUB.majority
    })}</p>
-     <div class="bar"><i style="--w:${lg.club};background:var(--team)"></i></div><div class="kv"><span>${$t("legacy.47")}</span><b>%${lg.club}${lg.club >= CLUB.majority ? $t("legacy.41") : ""}</b><span>${$t("legacy.48")}</span><b>${lg.club >= 100 ? "–" : fmt(CLUB.cost(lg.club / CLUB.step))}</b></div>
+     <div class="bar"><i style="--w:${lg.club};background:var(--team)"></i></div><div class="kv"><span>${$t("legacy.stake")}</span><b>%${lg.club}${lg.club >= CLUB.majority ? $t("legacy.president") : ""}</b><span>${$t("legacy.nextStake")}</span><b>${lg.club >= 100 ? "–" : fmt(CLUB.cost(lg.club / CLUB.step))}</b></div>
      <button class="btn team" id="lg-share" ${lg.club >= 100 || !pro || S.money < CLUB.cost(lg.club / CLUB.step) ? "disabled" : ""}>${$t(
-       "legacy.49",
+       "legacy.buyShares",
        {
          step: CLUB.step
        }
@@ -200,12 +200,12 @@ export function hofCard() {
   const b = legacyBreakdown(),
     tier = hofTier(b.total);
   Bus.emit("legacy", { kind: "hof", score: b.total, tier: tier[1] });
-  return `<div class="card"><div class="eyebrow">${$t("legacy.14")}</div><h2 class="gold">${esc(tier[1])}</h2><p>${esc(tier[2])}</p><div class="kv">${b.parts
+  return `<div class="card"><div class="eyebrow">${$t("hof.hallFame")}</div><h2 class="gold">${esc(tier[1])}</h2><p>${esc(tier[2])}</p><div class="kv">${b.parts
     .filter(p => p[1])
     .map(([n, v]) => `<span>${esc(n)}</span><b>${v}</b>`)
-    .join("")}<span>${$t("legacy.51")}</span><b>${b.total}</b></div>${
+    .join("")}<span>${$t("hof.totalLegacyScore")}</span><b>${b.total}</b></div>${
     (L().club || 0) >= CLUB.majority
-      ? `<p class="small">${$t("legacy.50", {
+      ? `<p class="small">${$t("hof.dayAfterRetired", {
           name: esc(CLUB.name)
         })}</p>`
       : ""
@@ -224,34 +224,34 @@ export function autoLegacy() {
 export const EPILOGUES = [
   {
     id: "koc",
-    perk: () => $t("legacy.65"),
-    n: $t("legacy.53"),
+    perk: () => $t("epilogue.sonStartsAttributesPlus1"),
+    n: $t("epilogue.coach"),
     pts: 50,
     need: () => true,
     text: s =>
-      $t("legacy.54", {
+      $t("epilogue.firstBecameAssistant", {
         s: s
       })
   },
   {
     id: "tv",
-    perk: () => $t("legacy.66"),
-    n: $t("legacy.55"),
+    perk: () => $t("epilogue.sonStartsDouble"),
+    n: $t("epilogue.tvPundit"),
     pts: 30,
     need: () => true,
     text: s =>
-      $t("legacy.56", {
+      $t("epilogue.studioEveryGame", {
         s: s
       })
   },
   {
     id: "baskan",
-    perk: () => $t("legacy.67"),
-    n: $t("legacy.57"),
+    perk: () => $t("epilogue.sonGetsBoth"),
+    n: $t("epilogue.clubPresident"),
     pts: 80,
     need: () => (S.legacy && S.legacy.club) >= CLUB.majority,
     text: s =>
-      $t("legacy.58", {
+      $t("epilogue.sFirstSeason", {
         s: s,
         name: CLUB.name
       })
@@ -259,19 +259,19 @@ export const EPILOGUES = [
 ];
 export function afterCareerHTML() {
   const ep = S.epilogue && EPILOGUES.find(e => e.id === S.epilogue);
-  return `<div class="card"><div class="eyebrow">${$t("legacy.52")}</div>${
+  return `<div class="card"><div class="eyebrow">${$t("legacy.afterCareer")}</div>${
     ep
       ? `<h3>${esc(ep.n)}</h3><p>${esc(ep.text(fullName()))}</p>`
-      : `<p class="small">${$t("legacy.60")}</p><div class="choices">${EPILOGUES.filter(e => e.need())
+      : `<p class="small">${$t("legacy.basketballChooseNext")}</p><div class="choices">${EPILOGUES.filter(e => e.need())
           .map(
             e =>
-              `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.59", {
+              `<button class="choice" data-ep="${e.id}"><span class="ct">${esc(e.n)}</span><span class="cd">${$t("legacy.legacyPoints", {
                 pts: e.pts
               })} · ${e.perk()}</span></button>`
           )
           .join("")}</div>`
   }</div>
-  <div class="card"><div class="eyebrow">${$t("legacy.61")}</div><p class="small">${$t("legacy.62")}</p><button class="btn team" id="heir">${$t("legacy.63")}</button></div>`;
+  <div class="card"><div class="eyebrow">${$t("legacy.nextGeneration")}</div><p class="small">${$t("legacy.sonWantsBasketball")}</p><button class="btn team" id="heir">${$t("legacy.newCareerSon")}</button></div>`;
 }
 export function bindAfterCareer(re) {
   $$("[data-ep]").forEach(
@@ -330,7 +330,7 @@ export function applyHeir(h) {
   S.heir = h;
   S.family = h.family || [];
   news(
-    $t(h.g === "f" ? "legacy.64f" : "legacy.64", {
+    $t(h.g === "f" ? "legacy.64f" : "legacy.sonLegendStarted", {
       v: fullName(),
       parent: h.parent,
       name: S.team.name

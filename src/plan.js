@@ -102,7 +102,7 @@ export function runPlan(plan) {
   sheet(
     $t("pl2.done"),
     $t("pl2.doneSub"),
-    `<div class="card gap-1h">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("casino.13")}</button>`
+    `<div class="card gap-1h">${out.map(x => `<div class="small">${x}</div>`).join("")}</div><button class="btn pri" id="pl-ok">${$t("common.backMap")}</button>`
   );
   $("#pl-ok").onclick = renderMain;
 }

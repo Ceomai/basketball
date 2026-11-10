@@ -32,12 +32,12 @@ export function natTourney(cat, name, pool, done) {
 const flag = cc => esc(late.LEAGUES[cc] ? late.LEAGUES[cc].n : cc);
 const label = g =>
   g.stage === "g"
-    ? `${T.name} · ${$t("extras.51")}`
+    ? `${T.name} · ${$t("national.groupStage")}`
     : g.stage === "sf"
-      ? `${T.name} · ${$t("extras.52")}`
+      ? `${T.name} · ${$t("national.semifinal")}`
       : g.stage === "f"
-        ? `${T.name} · ${$t("extras.53")}`
-        : $t("extras.54", { name: T.name });
+        ? `${T.name} · ${$t("national.final")}`
+        : $t("national.bronzeMedalGame", { name: T.name });
 function tableHTML() {
   const st = T.group.slice().sort((a, b) => b.w - a.w || b.pf - b.pa - (a.pf - a.pa));
   return `<div class="tbl"><table><tr><th>#</th><th></th><th>G</th><th>M</th><th>±</th></tr>${st
@@ -58,7 +58,7 @@ function fixturesHTML() {
 function statsHTML() {
   const s = T.stats,
     g = Math.max(1, s.g);
-  return `<div class="kv"><span>${$t("nt.games")}</span><b>${s.g}</b><span>${$t("arcade.6")}</span><b>${(s.pts / g).toFixed(1)}</b><span>${$t("extras.31")}</span><b>${(s.ast / g).toFixed(1)}</b><span>${$t("data.63")}</span><b>${(s.reb / g).toFixed(1)}</b><span>${$t("nt.avg")}</span><b>${s.g ? (s.rs / g).toFixed(2) : "-"}</b></div>`;
+  return `<div class="kv"><span>${$t("nt.games")}</span><b>${s.g}</b><span>${$t("common.score")}</span><b>${(s.pts / g).toFixed(1)}</b><span>${$t("common.assists")}</span><b>${(s.ast / g).toFixed(1)}</b><span>${$t("common.rebound")}</span><b>${(s.reb / g).toFixed(1)}</b><span>${$t("nt.avg")}</span><b>${s.g ? (s.rs / g).toFixed(2) : "-"}</b></div>`;
 }
 function hub() {
   const g = T.games[T.at];
@@ -172,7 +172,7 @@ function result(g, win) {
       const st = T.group.slice().sort((a, b) => b.w - a.w || b.pf - b.pa - (a.pf - a.pa)),
         rank = st.findIndex(r => r.cc === "TR") + 1;
       if (rank > 2) {
-        news($t("extras.81", { name: T.name }));
+        news($t("national.turkiyeFailedGet", { name: T.name }));
         return finish();
       }
       // yarı final: grup 1.'si → diğer grubun 2.'si; 2.'si → diğer grubun 1.'si
@@ -186,7 +186,7 @@ function result(g, win) {
     else T.games.push({ stage: "b", cc: wa ? b : a, res: null });
     T.at++;
   } else {
-    if (g.stage === "f") medal(win ? "nat_gold" : "nat_silver", win ? $t("extras.55") : $t("extras.56"));
+    if (g.stage === "f") medal(win ? "nat_gold" : "nat_silver", win ? $t("national.gold") : $t("national.silver"));
     else if (win) medal("nat_bronze", "bronz");
     T.at++;
     return finish();
@@ -196,7 +196,7 @@ function result(g, win) {
 }
 function medal(type, lab) {
   S.career.trophies.push({ type, label: `${S.year} ${T.name} · ${lab}` });
-  news($t("extras.80", { v: fullName(), name: T.name, lab }));
+  news($t("national.won", { v: fullName(), name: T.name, lab }));
   save();
 }
 function finish() {
@@ -209,7 +209,7 @@ function finish() {
   const html = `<div class="card"><div class="eyebrow">${$t("nt.myStats")}</div>${statsHTML()}</div>${fixturesHTML()}`;
   const name = T.name;
   T = null;
-  sheet(name, $t("nt.over"), `${html}<button class="btn pri" id="nt-done">${$t("ads.25")}</button>`, { noClose: true });
+  sheet(name, $t("nt.over"), `${html}<button class="btn pri" id="nt-done">${$t("common.continue")}</button>`, { noClose: true });
   $("#nt-done").onclick = () => {
     closeSheet();
     done();

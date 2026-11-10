@@ -139,7 +139,7 @@ async function content(type) {
   Bus.emit("content", { type, q });
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2>${$t(`sd.t.${type}`)}</h2><p>${txt}</p><div class="fx">${fx.map(([t, k]) => `<span class="${k}">${t}</span>`).join("")}</div><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2>${$t(`sd.t.${type}`)}</h2><p>${txt}</p><div class="fx">${fx.map(([t, k]) => `<span class="${k}">${t}</span>`).join("")}</div><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 

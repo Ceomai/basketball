@@ -617,7 +617,7 @@ function result(I, field, order, pickI, bet, kind) {
     )
     .join("")}
    <div class="say ${ok ? "good" : "bad"}">${ok ? $t(kind === "place" ? "hp.wonPlace" : "hp.won", { n: field[pickI].n, v: fmt(pay) }) : $t("hp.lost", { n: field[win].n })}</div>
-   <div class="grid2"><button class="btn" id="hp-home">${$t("casino.13")}</button><button class="btn pri" id="hp-again">${$t("hp.again")}</button></div></div>`;
+   <div class="grid2"><button class="btn" id="hp-home">${$t("common.backMap")}</button><button class="btn pri" id="hp-again">${$t("hp.again")}</button></div></div>`;
   $("#hp-again").onclick = () => {
     renderMain();
     locHipodrom(I);

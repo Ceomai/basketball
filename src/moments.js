@@ -59,11 +59,11 @@ export function pickSpecial(us, clutch, diff, dn) {
       id: "lastshot",
       head:
         diff === 0
-          ? $t("moments.1")
-          : $t("moments.2", {
+          ? $t("moment.tiedGameLast")
+          : $t("moment.downFinalSeconds", {
               v: -diff
             }),
-      desc: $t("moments.3", {
+      desc: $t("moment.arenaFeetCoach", {
         dn: dn
       }),
       // standart anahtarlar kullanılır: şut ve penetrasyon mini oyunla, pas otomatik
@@ -83,22 +83,22 @@ function fastBreak(dn) {
   return {
     id: "fastbreak",
     ty: "off",
-    head: $t("moments.4"),
-    desc: $t("moments.5", {
+    head: $t("moment.fastBreak2"),
+    desc: $t("moment.stoleBallOnly", {
       dn: dn
     }),
     opts: [
-      { k: "fb_finish", t: $t("moments.6"), d: `${$t("moments.7")} ${Math.round(eff("hiz"))}`, e: eff("hiz") + 8 },
+      { k: "fb_finish", t: $t("moment.finishYourself"), d: `${$t("moment.dunkLayupAgility")} ${Math.round(eff("hiz"))}`, e: eff("hiz") + 8 },
       {
         k: "fb_pass",
-        t: $t("moments.8"),
-        d: `${$t("moments.9")} ${Math.round(eff("pas"))}`,
+        t: $t("moment.lastSecondPass"),
+        d: `${$t("moment.drawDefenderDish")} ${Math.round(eff("pas"))}`,
         e: eff("pas") + 10
       },
       {
         k: "fb_wait",
-        t: $t("moments.10"),
-        d: `${$t("moments.11")} · ${statName("sut")} ${Math.round(eff("sut"))}`,
+        t: $t("moment.slowDownSet"),
+        d: `${$t("moment.zeroRiskReset")} · ${statName("sut")} ${Math.round(eff("sut"))}`,
         e: eff("sut") - 4
       }
     ],
@@ -111,10 +111,10 @@ function fastBreak(dn) {
           w: 1.2,
           st: "hiz",
           txt: ok
-            ? $t("match.97", {
+            ? $t("common.finishedFastBreak", {
                 sur: sur
               })
-            : $t("moments.12", {
+            : $t("moment.gotBlockedRim", {
                 sur: sur,
                 dn: dn
               })
@@ -128,15 +128,15 @@ function fastBreak(dn) {
           w: 1.1,
           st: "pas",
           txt: ok
-            ? $t("moments.13", {
+            ? $t("moment.drewDefenderMade", {
                 sur: sur
               })
-            : $t("moments.14")
+            : $t("moment.passTooHard")
         };
       }
       // yavaşlamak risksiz değil: set hücumu orta mesafe şutla biter (hızlı hücumun avantajı kaybolur)
       const r = late.autoResolve("mid", sur);
-      return { ...r, w: 0.8, txt: `${$t("moments.15", { sur: sur })} ${r.txt}` };
+      return { ...r, w: 0.8, txt: `${$t("moment.slowedTempoHalf", { sur: sur })} ${r.txt}` };
     }
   };
 }
@@ -145,14 +145,14 @@ function screenDefense(dn) {
   return {
     id: "screen",
     ty: "def",
-    head: $t("moments.16"),
-    desc: $t("moments.17", {
+    head: $t("moment.screenComing"),
+    desc: $t("moment.bigSetsScreen", {
       dn: dn
     }),
     opts: [
-      { k: "sc_switch", t: $t("moments.18"), d: `${$t("moments.19")} ${Math.round(eff("guc"))}`, e: eff("guc") + 4 },
-      { k: "sc_over", t: $t("moments.20"), d: `${$t("moments.21")} ${Math.round(eff("hiz"))}`, e: eff("hiz") },
-      { k: "sc_help", t: $t("moments.22"), d: `${$t("moments.23")} ${Math.round(eff("sav"))}`, e: eff("sav") + 6 }
+      { k: "sc_switch", t: $t("moment.switch"), d: `${$t("moment.acceptMismatchBig")} ${Math.round(eff("guc"))}`, e: eff("guc") + 4 },
+      { k: "sc_over", t: $t("moment.fightScreen"), d: `${$t("moment.stayManAgility")} ${Math.round(eff("hiz"))}`, e: eff("hiz") },
+      { k: "sc_help", t: $t("moment.callHelp"), d: `${$t("moment.teamDefenseDefense")} ${Math.round(eff("sav"))}`, e: eff("sav") + 6 }
     ],
     resolve(k, sur) {
       const st = k === "sc_switch" ? "guc" : k === "sc_over" ? "hiz" : "sav",
@@ -161,19 +161,19 @@ function screenDefense(dn) {
       if (ok) M.stops++;
       const txt = ok
         ? pick([
-            $t("moments.24", {
+            $t("moment.readScreenShot", {
               sur: sur
             }),
-            $t("moments.25", {
+            $t("moment.slippedThroughScreen", {
               sur: sur
             }),
-            $t("moments.26")
+            $t("moment.helpDefenseArrived")
           ])
         : pick([
-            $t("moments.27", {
+            $t("moment.greatScreenWide", {
               dn: dn
             }),
-            $t("moments.28", {
+            $t("moment.gotCaughtScreen", {
               sur: sur
             })
           ]);
@@ -186,14 +186,14 @@ function provocation(dn) {
   return {
     id: "provoke",
     ty: "prov",
-    head: $t("moments.29"),
-    desc: $t("moments.30", {
+    head: $t("moment.trashTalk"),
+    desc: $t("moment.saysSomethingEar", {
       dn: dn
     }),
     opts: [
-      { k: "pv_calm", t: $t("moments.31"), d: $t("moments.32"), e: 80 },
-      { k: "pv_react", t: $t("moments.33"), d: $t("moments.34"), e: 45 },
-      { k: "pv_ref", t: $t("moments.35"), d: $t("moments.36"), e: 55 }
+      { k: "pv_calm", t: $t("moment.stayCalm"), d: $t("moment.focusPlayGame"), e: 80 },
+      { k: "pv_react", t: $t("moment.talkBack"), d: $t("moment.crowdLovesTheres"), e: 45 },
+      { k: "pv_ref", t: $t("moment.tellReferee"), d: $t("moment.refereeListensOpponent"), e: 55 }
     ],
     resolve(k, sur) {
       if (k === "pv_calm") {
@@ -202,7 +202,7 @@ function provocation(dn) {
             good: false,
             w: 0.4,
             st: "sav",
-            txt: $t("moments.42", {
+            txt: $t("moment.triedStayCalm", {
               sur: sur
             })
           };
@@ -211,7 +211,7 @@ function provocation(dn) {
           good: true,
           w: 0.4,
           st: "sav",
-          txt: $t("moments.37", {
+          txt: $t("moment.ignoredTrashTalk", {
             sur: sur
           })
         };
@@ -224,7 +224,7 @@ function provocation(dn) {
             good: false,
             w: 1,
             st: "sav",
-            txt: $t("moments.38")
+            txt: $t("moment.refereeSawBoth")
           };
         }
         S.rel.taraf += 2;
@@ -232,7 +232,7 @@ function provocation(dn) {
           good: true,
           w: 0.6,
           st: "guc",
-          txt: $t("moments.39", {
+          txt: $t("moment.gavePerfectComeback", {
             sur: sur,
             dn: dn
           })
@@ -245,10 +245,10 @@ function provocation(dn) {
         w: 0.6,
         st: "pas",
         txt: ok
-          ? $t("moments.40", {
+          ? $t("moment.refereeWarnedHim", {
               dn: dn
             })
-          : $t("moments.41")
+          : $t("moment.refereeWavedPlay")
       };
     }
   };

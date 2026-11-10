@@ -238,7 +238,7 @@ export const luma = hex => {
 // t: [1. lig, 2. lig, 3. lig], pr: lig gücü çarpanı
 export const LEAGUES = {
   TR: {
-    n: $t("data.143"),
+    n: $t("league.turkiye"),
     t: brandTiers("TR", ["Basketbol Süper Ligi", "TBL", "TB2L"]),
     pr: 0.97,
     cities: [
@@ -275,7 +275,7 @@ export const LEAGUES = {
     fem: ["Elif", "Zeynep", "Defne", "Ece", "Selin", "Ada", "Melis"]
   },
   ES: {
-    n: $t("data.144"),
+    n: $t("league.spain"),
     t: brandTiers("ES", ["Liga ACB", "Primera FEB", "Segunda FEB"]),
     pr: 1,
     cities: [
@@ -297,7 +297,7 @@ export const LEAGUES = {
     fem: ["Lucía", "Carmen", "Paula", "Marta"]
   },
   IT: {
-    n: $t("data.145"),
+    n: $t("league.italy"),
     t: brandTiers("IT", ["Serie A", "Serie A2", "Serie B"]),
     pr: 0.93,
     cities: [
@@ -319,7 +319,7 @@ export const LEAGUES = {
     fem: ["Giulia", "Sofia", "Chiara", "Martina"]
   },
   FR: {
-    n: $t("data.146"),
+    n: $t("league.france"),
     t: brandTiers("FR", ["LNB Élite", "Pro B", "Nationale 1"]),
     pr: 0.92,
     cities: [
@@ -341,7 +341,7 @@ export const LEAGUES = {
     fem: ["Léa", "Chloé", "Manon", "Camille"]
   },
   DE: {
-    n: $t("data.147"),
+    n: $t("league.germany"),
     t: brandTiers("DE", ["BBL", "ProA", "ProB"]),
     pr: 0.91,
     cities: [
@@ -363,7 +363,7 @@ export const LEAGUES = {
     fem: ["Lena", "Anna", "Mia", "Lea"]
   },
   GR: {
-    n: $t("data.148"),
+    n: $t("league.greece"),
     t: brandTiers("GR", ["GBL", "Elite League", "National League 1"]),
     pr: 0.94,
     cities: [
@@ -385,7 +385,7 @@ export const LEAGUES = {
     fem: ["Eleni", "Maria", "Katerina", "Sofia"]
   },
   RS: {
-    n: $t("data.149"),
+    n: $t("league.serbia"),
     t: brandTiers("RS", ["KLS", "Prva Liga", "Druga Liga"]),
     pr: 0.9,
     cities: [
@@ -407,7 +407,7 @@ export const LEAGUES = {
     fem: ["Jelena", "Milica", "Ana", "Teodora"]
   },
   LT: {
-    n: $t("data.150"),
+    n: $t("league.lithuania"),
     t: brandTiers("LT", ["LKL", "NKL", "RKL"]),
     pr: 0.89,
     cities: [
@@ -429,7 +429,7 @@ export const LEAGUES = {
     fem: ["Austėja", "Gabija", "Ieva", "Emilija"]
   },
   US: {
-    n: $t("data.151"),
+    n: $t("common.usa"),
     t: brandTiers("US", ["NBA"]),
     pr: 1.2,
     cities: [
@@ -508,21 +508,21 @@ export function roleAt(o, stage, cc) {
   return roleFor(o, tdOf(stage, cc));
 }
 export function leagueName(stage, cc, ss) {
-  if (stage === "lise") return ss === 1 ? $t("data.1") : $t("data.2");
-  if (stage === "uni") return $t("data.3");
-  if (stage === "euro") return $t("data.4");
-  if (stage === "nba") return $t("core.63");
+  if (stage === "lise") return ss === 1 ? $t("data.istanbulHighSchools") : $t("data.turkiyeHighSchools");
+  if (stage === "uni") return $t("data.universityLeague");
+  if (stage === "euro") return $t("data.euroleague");
+  if (stage === "nba") return $t("common.nba");
   return (LEAGUES[cc] || LEAGUES.TR).t[{ t1: 0, t2: 1, t3: 2 }[stage]];
 }
 export const levelName = st =>
   ({
-    lise: $t("map.1"),
-    uni: $t("map.2"),
-    t3: $t("data.152"),
-    t2: $t("data.153"),
-    t1: $t("data.154"),
-    euro: $t("data.4"),
-    nba: $t("core.63")
+    lise: $t("common.highSchool"),
+    uni: $t("common.university"),
+    t3: $t("data.level3"),
+    t2: $t("data.level2"),
+    t1: $t("data.level1"),
+    euro: $t("data.euroleague"),
+    nba: $t("common.nba")
   })[st];
 export const COLORS = [
   ["#c8102e", "#ffffff"],
@@ -576,78 +576,78 @@ export const PAT = {
   TR: [
     c => `${c} ${MASC_TR[hash(c) % 12]}`,
     c =>
-      $t("data.5", {
+      $t("club.belediyespor", {
         c: c
       }),
     c =>
-      $t("data.6", {
+      $t("club.genclikspor", {
         c: c
       }),
     c =>
-      $t("data.7", {
+      $t("club.basketball", {
         c: c
       })
   ],
   ES: [
     c => `CB ${c}`,
     c =>
-      $t("data.8", {
+      $t("club.basket", {
         c: c
       }),
     c =>
-      $t("data.9", {
+      $t("club.clubBaloncesto", {
         c: c
       }),
     c =>
-      $t("data.10", {
+      $t("club.atletico", {
         c: c
       })
   ],
   IT: [
     c =>
-      $t("data.11", {
+      $t("club.pallacanestro", {
         c: c
       }),
     c =>
-      $t("data.8", {
+      $t("club.basket", {
         c: c
       }),
     c =>
-      $t("data.12", {
+      $t("club.polisportiva", {
         c: c
       }),
     c =>
-      $t("data.13", {
+      $t("club.aquile", {
         c: c
       })
   ],
   FR: [
     c =>
-      $t("data.8", {
+      $t("club.basket", {
         c: c
       }),
     c =>
-      $t("data.14", {
+      $t("club.etoileDe", {
         c: c
       }),
     c =>
-      $t("data.15", {
+      $t("club.union", {
         c: c
       }),
     c =>
-      $t("data.16", {
+      $t("club.metropole", {
         c: c
       })
   ],
   DE: [
     c => `BC ${c}`,
     c =>
-      $t("data.17", {
+      $t("club.dragons", {
         c: c
       }),
     c => `SV ${c}`,
     c =>
-      $t("data.18", {
+      $t("club.falken", {
         c: c
       })
   ],
@@ -655,37 +655,37 @@ export const PAT = {
     c => `${c} BC`,
     c => `AS ${c}`,
     c =>
-      $t("data.19", {
+      $t("club.asteras", {
         c: c
       }),
     c =>
-      $t("data.20", {
+      $t("club.ermis", {
         c: c
       })
   ],
   RS: [
     c => `KK ${c}`,
     c =>
-      $t("data.21", {
+      $t("club.okk", {
         c: c
       }),
     c =>
-      $t("data.8", {
+      $t("club.basket", {
         c: c
       }),
     c =>
-      $t("data.22", {
+      $t("club.kkMladost", {
         c: c
       })
   ],
   LT: [
     c => `BC ${c}`,
     c =>
-      $t("data.23", {
+      $t("club.krepsinis", {
         c: c
       }),
     c =>
-      $t("data.24", {
+      $t("club.vilkai", {
         c: c
       }),
     c => `KK ${c}`
@@ -706,132 +706,132 @@ export const IST_DIST = [
   "Beyoğlu",
   "Bahçelievler"
 ];
-export const IST_TYPE = [$t("data.25"), $t("data.26"), $t("data.27"), $t("data.28"), $t("data.29")];
+export const IST_TYPE = [$t("school.sportsHighSchool"), $t("school.anatolianHighSchool"), $t("school.scienceHighSchool"), $t("school.college"), $t("school.cumhuriyetHighSchool")];
 
 /* ================= POZİSYONLAR ================= */
 export const POS = {
-  PG: { n: $t("data.155"), b: { pas: 10, hiz: 8 } },
-  SG: { n: $t("data.156"), b: { sut: 12, hiz: 4 } },
-  SF: { n: $t("data.157"), b: { sut: 6, sav: 6, hiz: 4 } },
-  PF: { n: $t("data.158"), b: { guc: 8, sav: 6, sut: 2 } },
-  C: { n: $t("data.159"), b: { guc: 10, sav: 8 } }
+  PG: { n: $t("position.pointGuard"), b: { pas: 10, hiz: 8 } },
+  SG: { n: $t("position.shootingGuard"), b: { sut: 12, hiz: 4 } },
+  SF: { n: $t("position.smallForward"), b: { sut: 6, sav: 6, hiz: 4 } },
+  PF: { n: $t("position.powerForward"), b: { guc: 8, sav: 6, sut: 2 } },
+  C: { n: $t("position.center"), b: { guc: 10, sav: 8 } }
 };
 export const STATS = [
-  ["sut", $t("data.30")],
-  ["pas", $t("data.31")],
-  ["hiz", $t("data.32")],
-  ["guc", $t("data.33")],
-  ["sav", $t("data.34")]
+  ["sut", $t("common.shooting")],
+  ["pas", $t("common.passing")],
+  ["hiz", $t("common.agility")],
+  ["guc", $t("stat.strength")],
+  ["sav", $t("common.defense")]
 ];
 export const statName = k => STATS.find(s => s[0] === k)[1];
 export const RELS = [
-  ["koc", $t("data.35")],
-  ["takim", $t("data.36")],
-  ["taraf", $t("data.37")],
-  ["aile", $t("data.38")],
-  ["ark", $t("data.39")],
-  ["partner", $t("data.40")]
+  ["koc", $t("relation.coach")],
+  ["takim", $t("common.team")],
+  ["taraf", $t("common.fans")],
+  ["aile", $t("relation.family")],
+  ["ark", $t("relation.friends")],
+  ["partner", $t("relation.partner")]
 ];
 // pozisyona özel antrenmanlar: [id, ad, nitelik, mini oyun, açıklama]
 export const DRILLS = {
   PG: [
-    ["pnr", $t("data.41"), "pas", "pass", $t("data.42")],
-    ["handle", $t("data.43"), "hiz", "dribble", $t("data.44")],
-    ["pull", $t("data.45"), "sut", "shoot", $t("data.46")]
+    ["pnr", $t("drill.pickRollReading"), "pas", "pass", $t("drill.findOpenMan")],
+    ["handle", $t("drill.dribbling"), "hiz", "dribble", $t("drill.swipeChainCrossover")],
+    ["pull", $t("drill.pullShot"), "sut", "shoot", $t("drill.threePointerOff")]
   ],
   SG: [
-    ["cs", $t("data.47"), "sut", "shoot", $t("data.48")],
-    ["step", $t("data.49"), "sut", "shootmid", $t("data.50")],
-    ["handle", $t("data.51"), "hiz", "dribble", $t("data.52")]
+    ["cs", $t("drill.catchShoot"), "sut", "shoot", $t("drill.takePassRelease")],
+    ["step", $t("data.stepBack"), "sut", "shootmid", $t("drill.stepBackMid")],
+    ["handle", $t("common.crossover"), "hiz", "dribble", $t("drill.getPastDefender")]
   ],
   SF: [
-    ["wing", $t("data.53"), "sut", "shoot", $t("data.54")],
-    ["break", $t("data.55"), "hiz", "dribble", $t("data.56")],
-    ["perim", $t("data.57"), "sav", "steal", $t("data.58")]
+    ["wing", $t("drill.wingShot"), "sut", "shoot", $t("drill.threesCornerWing")],
+    ["break", $t("drill.fastBreakFinish"), "hiz", "dribble", $t("drill.runFinish")],
+    ["perim", $t("drill.perimeterDefense"), "sav", "steal", $t("drill.timePassingLane")]
   ],
   PF: [
-    ["pop", $t("data.59"), "sut", "shootmid", $t("data.60")],
-    ["post", $t("data.61"), "guc", "post", $t("data.62")],
-    ["reb", $t("data.63"), "guc", "rebound", $t("data.64")]
+    ["pop", $t("data.pickPop"), "sut", "shootmid", $t("drill.popAfterScreen")],
+    ["post", $t("drill.postMoves"), "guc", "post", $t("drill.backBasketPush")],
+    ["reb", $t("common.rebound"), "guc", "rebound", $t("drill.jumpGrabBall")]
   ],
   C: [
-    ["hook", $t("data.65"), "guc", "post", $t("data.66")],
-    ["reb", $t("data.63"), "guc", "rebound", $t("data.67")],
-    ["rim", $t("data.68"), "sav", "block", $t("data.69")],
-    ["ft", $t("data.70"), "sut", "free", $t("data.71")]
+    ["hook", $t("drill.hookShot"), "guc", "post", $t("drill.strengthTouchUnder")],
+    ["reb", $t("common.rebound"), "guc", "rebound", $t("drill.ownPaint")],
+    ["rim", $t("data.rimProtection"), "sav", "block", $t("drill.blockTiming")],
+    ["ft", $t("common.freeThrow"), "sut", "free", $t("drill.bigMansWeak")]
   ]
 };
-export const COMMON_DRILLS = [["gym", $t("data.72"), "guc", "gym", $t("data.73")]];
+export const COMMON_DRILLS = [["gym", $t("drill.weightRoom"), "guc", "gym", $t("drill.tapFastSeconds5")]];
 // pozisyona özel maç seçenekleri: [anahtar, ad, nitelik, açıklama]
 export const PLAYS = {
   PG: {
     off: [
-      ["pnr", $t("data.74"), "pas", $t("data.75")],
-      ["pull", $t("data.76"), "sut", $t("data.77")],
-      ["drive", $t("data.78"), "hiz", $t("data.79")],
-      ["lob", $t("data.80"), "pas", $t("data.81")]
+      ["pnr", $t("plays.readPickRoll"), "pas", $t("plays.useScreenFind")],
+      ["pull", $t("plays.pullThree"), "sut", $t("plays.pointsOffDribble3")],
+      ["drive", $t("plays.driveRim"), "hiz", $t("plays.crossoverLayup")],
+      ["lob", $t("common.alleyOopPass"), "pas", $t("plays.lobBigMan")]
     ],
     def: [
-      ["steal", $t("data.82"), "hiz", $t("data.83")],
-      ["safe", $t("data.84"), "sav", $t("data.85")],
-      ["charge", $t("data.86"), "sav", $t("data.87")]
+      ["steal", $t("plays.stealBall"), "hiz", $t("plays.reachOpposingPoint")],
+      ["safe", $t("plays.stayFront"), "sav", $t("plays.safeDefense")],
+      ["charge", $t("plays.drawOffensiveFoul"), "sav", $t("plays.standGroundWait")]
     ],
-    sit: [$t("data.88"), $t("data.89"), $t("data.90")]
+    sit: [$t("plays.broughtBallFrontcourt"), $t("plays.secondsLeftShot10"), $t("plays.fastBreakTwo")]
   },
   SG: {
     off: [
-      ["catch", $t("data.91"), "sut", $t("data.92")],
-      ["step", $t("data.49"), "sut", $t("data.93")],
-      ["drive", $t("data.94"), "hiz", $t("data.79")],
-      ["kick", $t("data.95"), "pas", $t("data.96")]
+      ["catch", $t("plays.catchShootThree"), "sut", $t("plays.takePassRelease")],
+      ["step", $t("data.stepBack"), "sut", $t("plays.stepBackPoints2")],
+      ["drive", $t("plays.drive"), "hiz", $t("plays.crossoverLayup")],
+      ["kick", $t("plays.pass"), "pas", $t("plays.kickWhenDouble")]
     ],
     def: [
-      ["steal", $t("data.82"), "hiz", $t("data.97")],
-      ["safe", $t("data.84"), "sav", $t("data.85")],
-      ["block", $t("data.98"), "sav", $t("data.99")]
+      ["steal", $t("plays.stealBall"), "hiz", $t("plays.tryPassingLane")],
+      ["safe", $t("plays.stayFront"), "sav", $t("plays.safeDefense")],
+      ["block", $t("plays.blockBehind"), "sav", $t("plays.chaseDownFast")]
     ],
-    sit: [$t("data.100"), $t("data.101"), $t("data.102")]
+    sit: [$t("plays.waitingCornerBall"), $t("plays.cameOffScreen"), $t("plays.defenderPlayingToo")]
   },
   SF: {
     off: [
-      ["wing", $t("data.103"), "sut", $t("data.104")],
-      ["break", $t("data.105"), "hiz", $t("data.106")],
-      ["post", $t("data.107"), "guc", $t("data.108")],
-      ["kick", $t("data.109"), "pas", $t("data.110")]
+      ["wing", $t("plays.wingThree"), "sut", $t("plays.openWing")],
+      ["break", $t("plays.fastBreakDunk"), "hiz", $t("plays.runFinish")],
+      ["post", $t("common.post"), "guc", $t("plays.turnBackShorter")],
+      ["kick", $t("plays.pass2"), "pas", $t("plays.kickOpenShooter")]
     ],
     def: [
-      ["block", $t("data.111"), "sav", $t("data.112")],
-      ["steal", $t("data.113"), "hiz", $t("data.114")],
-      ["safe", $t("data.84"), "sav", $t("data.85")]
+      ["block", $t("common.block"), "sav", $t("plays.riseOneComing")],
+      ["steal", $t("plays.passingLane"), "hiz", $t("plays.stepPassingLane")],
+      ["safe", $t("plays.stayFront"), "sav", $t("plays.safeDefense")]
     ],
-    sit: [$t("data.115"), $t("data.116"), $t("data.117")]
+    sit: [$t("plays.gotBallWing"), $t("plays.stealFastBreak"), $t("plays.matchupShorter")]
   },
   PF: {
     off: [
-      ["pop", $t("data.59"), "sut", $t("data.118")],
-      ["post", $t("data.107"), "guc", $t("data.119")],
-      ["putback", $t("data.120"), "guc", $t("data.121")],
-      ["kick", $t("data.109"), "pas", $t("data.122")]
+      ["pop", $t("data.pickPop"), "sut", $t("plays.popAfterScreen")],
+      ["post", $t("common.post"), "guc", $t("plays.backBasketPush")],
+      ["putback", $t("common.offensiveRebound"), "guc", $t("plays.finishMissedShot")],
+      ["kick", $t("plays.pass2"), "pas", $t("plays.punishDoubleTeam")]
     ],
     def: [
-      ["block", $t("data.111"), "sav", $t("data.123")],
-      ["reb", $t("data.124"), "guc", $t("data.125")],
-      ["safe", $t("data.126"), "guc", $t("data.127")]
+      ["block", $t("common.block"), "sav", $t("plays.blockHelpDefense")],
+      ["reb", $t("common.defensiveRebound"), "guc", $t("plays.grabBallFinish")],
+      ["safe", $t("plays.box"), "guc", $t("plays.keepOpponent")]
     ],
-    sit: [$t("data.128"), $t("data.129"), $t("data.130")]
+    sit: [$t("plays.setScreenDefense"), $t("plays.gotPositionPaint"), $t("plays.teammateShotBattle")]
   },
   C: {
     off: [
-      ["post", $t("data.131"), "guc", $t("data.119")],
-      ["dunk", $t("data.132"), "guc", $t("data.133")],
-      ["putback", $t("data.120"), "guc", $t("data.121")],
-      ["kick", $t("data.109"), "pas", $t("data.122")]
+      ["post", $t("plays.postHook"), "guc", $t("plays.backBasketPush")],
+      ["dunk", $t("common.alleyOopDunk"), "guc", $t("plays.finishLob")],
+      ["putback", $t("common.offensiveRebound"), "guc", $t("plays.finishMissedShot")],
+      ["kick", $t("plays.pass2"), "pas", $t("plays.punishDoubleTeam")]
     ],
     def: [
-      ["block", $t("data.68"), "sav", $t("data.134")],
-      ["reb", $t("data.124"), "guc", $t("data.125")],
-      ["safe", $t("data.135"), "sav", $t("data.85")]
+      ["block", $t("data.rimProtection"), "sav", $t("plays.blockOneComing")],
+      ["reb", $t("common.defensiveRebound"), "guc", $t("plays.grabBallFinish")],
+      ["safe", $t("plays.takePosition"), "sav", $t("plays.safeDefense")]
     ],
-    sit: [$t("data.136"), $t("data.137"), $t("data.138")]
+    sit: [$t("plays.gotPositionUnder"), $t("plays.pointGuardWants"), $t("plays.shotMissedBall")]
   }
 };

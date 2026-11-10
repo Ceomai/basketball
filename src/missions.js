@@ -11,21 +11,21 @@ import { late } from "./late.js";
 
 const D = (id, n, goal, ev, test, reward) => ({ id, n, goal, ev, test, reward });
 export const DAILY = [
-  D("win", $t("missions.1"), 1, "match:end", d => d.win, "money"),
-  D("manual", $t("missions.2"), 1, "match:end", d => !d.auto, "energy"),
-  D("pts15", $t("missions.3"), 1, "match:end", d => (d.pts || 0) >= 15, "money"),
-  D("train2", $t("missions.4"), 2, "train:done", () => true, "energy"),
-  D("shots3", $t("missions.5"), 3, "minigame:end", d => d.kind === "shoot", "chips"),
-  D("rating7", $t("missions.6"), 1, "match:end", d => (d.rating || 0) >= 7, "money"),
-  D("social", $t("missions.7"), 1, "social:done", () => true, "energy")
+  D("win", $t("missions.winMatch"), 1, "match:end", d => d.win, "money"),
+  D("manual", $t("missions.playMatchYourself"), 1, "match:end", d => !d.auto, "energy"),
+  D("pts15", $t("missions.scorePointsMatch15"), 1, "match:end", d => (d.pts || 0) >= 15, "money"),
+  D("train2", $t("missions.trainingSessions2"), 2, "train:done", () => true, "energy"),
+  D("shots3", $t("missions.makeShotsShooting3"), 3, "minigame:end", d => d.kind === "shoot", "chips"),
+  D("rating7", $t("missions.finishMatchRating7"), 1, "match:end", d => (d.rating || 0) >= 7, "money"),
+  D("social", $t("missions.spendTimeFamily"), 1, "social:done", () => true, "energy")
 ];
 export const WEEKLY = [
-  D("win4", $t("missions.8"), 4, "match:end", d => d.win, "money"),
-  D("manual5", $t("missions.9"), 5, "match:end", d => !d.auto, "money"),
-  D("rating8", $t("missions.10"), 1, "match:end", d => (d.rating || 0) >= 8, "money"),
-  D("train8", $t("missions.11"), 8, "train:done", () => true, "energy"),
-  D("press", $t("missions.12"), 1, "press", () => true, "chips"),
-  D("buy", $t("missions.13"), 1, "purchase", () => true, "chips")
+  D("win4", $t("missions.winMatches4"), 4, "match:end", d => d.win, "money"),
+  D("manual5", $t("missions.playMatchesYourself5"), 5, "match:end", d => !d.auto, "money"),
+  D("rating8", $t("missions.finishMatchRating8"), 1, "match:end", d => (d.rating || 0) >= 8, "money"),
+  D("train8", $t("missions.trainingSessions8"), 8, "train:done", () => true, "energy"),
+  D("press", $t("missions.attendPressConference"), 1, "press", () => true, "chips"),
+  D("buy", $t("missions.buyItem"), 1, "purchase", () => true, "chips")
 ];
 // yerel gün (gece yarısı yenilenir; UTC kullanılsaydı Türkiye'de 03:00'te yenilenirdi)
 const today = (d = new Date()) =>
@@ -80,7 +80,7 @@ function progress(ev, data) {
       m.p = d.goal;
       m.done = true;
       late.toast(
-        $t("missions.14", {
+        $t("missions.missionComplete", {
           n: d.n
         })
       );
@@ -101,10 +101,10 @@ const rewardText = r =>
   r.money
     ? `+${fmt(r.money)}`
     : r.energy
-      ? $t("missions.15", {
+      ? $t("missions.energy", {
           energy: r.energy
         })
-      : $t("missions.16", {
+      : $t("missions.chips", {
           chips: r.chips
         });
 function grant(r, label) {
@@ -120,12 +120,12 @@ export function missionsHTML() {
   const row = (m, weekly) => {
     const d = def(m.id),
       r = rewardOf(d.reward, weekly);
-    return `<div class="mrow"><div><b>${esc(d.n)}</b><div class="bar"><i style="--w:${(m.p / d.goal) * 100};background:${m.done ? "var(--good)" : "var(--gold)"}"></i></div></div><button class="btn ${m.claimed ? "ghost" : m.done ? "pri" : "ghost"} sm" data-ms="${weekly ? "w" : "d"}:${m.id}" ${!m.done || m.claimed ? "disabled" : ""}>${m.claimed ? $t("missions.17") : `${m.p}/${d.goal} · ${rewardText(r)}`}</button></div>`;
+    return `<div class="mrow"><div><b>${esc(d.n)}</b><div class="bar"><i style="--w:${(m.p / d.goal) * 100};background:${m.done ? "var(--good)" : "var(--gold)"}"></i></div></div><button class="btn ${m.claimed ? "ghost" : m.done ? "pri" : "ghost"} sm" data-ms="${weekly ? "w" : "d"}:${m.id}" ${!m.done || m.claimed ? "disabled" : ""}>${m.claimed ? $t("missions.claimed") : `${m.p}/${d.goal} · ${rewardText(r)}`}</button></div>`;
   };
   const allDaily = M.daily.every(m => m.claimed);
-  return `<div class="card missions"><div class="row between"><div class="eyebrow">${$t("missions.19")}</div><span class="small muted">${$t("missions.20")}</span></div>${M.daily.map(m => row(m, false)).join("")}
-   ${allDaily && !M.bonus ? `<button class="btn team sm" id="ms-bonus">${$t("missions.18")}</button>` : ""}
-   <div class="eyebrow mt-1h">${$t("missions.21")}</div>${M.weekly.map(m => row(m, true)).join("")}</div>`;
+  return `<div class="card missions"><div class="row between"><div class="eyebrow">${$t("missions.todaysMissions")}</div><span class="small muted">${$t("missions.weeklyMissionsBelow")}</span></div>${M.daily.map(m => row(m, false)).join("")}
+   ${allDaily && !M.bonus ? `<button class="btn team sm" id="ms-bonus">${$t("missions.doneClaimBonus30")}</button>` : ""}
+   <div class="eyebrow mt-1h">${$t("missions.weeksMissions")}</div>${M.weekly.map(m => row(m, true)).join("")}</div>`;
 }
 export function bindMissions(re) {
   $$("[data-ms]").forEach(
@@ -136,7 +136,7 @@ export function bindMissions(re) {
           m = (kind === "w" ? M.weekly : M.daily).find(x => x.id === id);
         if (!m || !m.done || m.claimed) return;
         m.claimed = true;
-        grant(rewardOf(def(id).reward, kind === "w"), `${$t("missions.22")} ${def(id).n}`);
+        grant(rewardOf(def(id).reward, kind === "w"), `${$t("missions.missionReward")} ${def(id).n}`);
         late.sfx("coin");
         save();
         re();
@@ -165,7 +165,7 @@ export const claimable = () => {
 
 /** Görevler paneli (ana ekrandaki düğmeden açılır) */
 export function missionsSheet() {
-  sheet($t("missions.23"), $t("missions.24"), missionsHTML());
+  sheet($t("missions.missions"), $t("missions.dailyWeekly"), missionsHTML());
   bindMissions(missionsSheet);
 }
 /** Ana ekran düğmesi */
@@ -173,12 +173,12 @@ export function missionsButtonHTML() {
   if (!late.unlocked("gorev")) return "";
   const c = claimable(),
     o = openMissions();
-  return `<button class="btn ghost has-dot" id="msb">${$t("missions.27")} ${
+  return `<button class="btn ghost has-dot" id="msb">${$t("missions.missions2")} ${
     c
-      ? $t("missions.25", {
+      ? $t("missions.rewardsReady", {
           c: c
         })
-      : $t("missions.26", {
+      : $t("missions.openMissions", {
           o: o
         })
   }${c ? late.newDot() : ""}</button>`;

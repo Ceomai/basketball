@@ -14,11 +14,11 @@ export function locAile(I) {
   const b = sheet(
     I.n,
     away
-      ? $t("places.221", {
+      ? $t("family.flight", {
           home: S.home,
           travel: fmt(travel)
         })
-      : $t("places.342", {
+      : $t("family.and", {
           mom: S.npc.mom,
           dad: S.npc.dad
         }),
@@ -26,42 +26,42 @@ export function locAile(I) {
       {
         id: "yemek",
         ic: icon("plate"),
-        t: $t("places.230"),
-        d: away ? $t("places.222") : $t("places.223"),
+        t: $t("family.familyDinner"),
+        d: away ? $t("family.flyHomeEat") : $t("family.sundayDinnerUncles"),
         slot: 1,
         price: travel,
         fx: [
-          [$t("places.224"), "p"],
-          [$t("places.143"), "p"]
+          [$t("family.familyPlus12"), "p"],
+          [$t("common.moralePlus5"), "p"]
         ],
-        btn: $t("places.307")
+        btn: $t("family.sitTable")
       },
       {
         id: "baba",
         ic: icon("hoop"),
-        t: $t("places.233", {
+        t: $t("family.oneOne", {
           dad: S.npc.dad
         }),
-        d: $t("places.308"),
+        d: $t("family.oldSchoolStreet"),
         slot: 1,
         price: travel,
         fx: [
           [$t("prog.dadAile"), "p"],
           [$t("prog.dadMoral"), "p"]
         ],
-        btn: $t("places.309")
+        btn: $t("family.play")
       },
       ...(isPro(S.stage)
         ? [
             {
               id: "para",
               ic: icon("envelope"),
-              t: $t("places.310"),
-              d: $t("places.311"),
+              t: $t("family.sendMoneyFamily"),
+              d: $t("family.helpHouseLoan"),
               price: gift,
               fx: [
-                [$t("places.227"), "p"],
-                [$t("places.228"), "p"]
+                [$t("family.familyPlus15"), "p"],
+                [$t("family.moralePlus4"), "p"]
               ],
               btn: fmt(gift)
             }
@@ -70,17 +70,17 @@ export function locAile(I) {
       {
         id: "tel",
         ic: icon("phone"),
-        t: $t("places.312"),
-        d: $t("places.313"),
-        fx: [[$t("places.229"), "p"]],
-        btn: $t("places.314"),
+        t: $t("family.videoCall2"),
+        d: $t("family.shortGood"),
+        fx: [[$t("family.familyPlus4"), "p"]],
+        btn: $t("family.call"),
         disabled: S.buffs.called === S.week
       }
     ]
       .map(prodHTML)
       .join("")}</div>`
   );
-  addScene(b, "aile", S.rel.aile > 70 ? $t("places.343") : S.rel.aile > 40 ? $t("places.344") : $t("places.345"), {
+  addScene(b, "aile", S.rel.aile > 70 ? $t("family.proudDinnerReady") : S.rel.aile > 40 ? $t("family.feelsLikeNeglecting") : $t("family.killCallOnce"), {
     bubbleLeft: false,
     mom: {
       L: { skin: S.look.skin, hatStyle: "uzun", hair: "#5a3418" },
@@ -94,7 +94,7 @@ export function locAile(I) {
   const pay = () => {
     if (travel) {
       tx(
-        $t("places.346", {
+        $t("family.flight2", {
           home: S.home
         }),
         -travel
@@ -113,12 +113,12 @@ export function locAile(I) {
         norm();
         save();
         resultView(
-          $t("places.230"),
-          $t("places.231", {
+          $t("family.familyDinner"),
+          $t("family.madeFavoriteDish", {
             mom: S.npc.mom,
             dad: S.npc.dad
           }),
-          [[$t("places.224"), "p"]]
+          [[$t("family.familyPlus12"), "p"]]
         );
       },
       baba: async () => {
@@ -127,15 +127,15 @@ export function locAile(I) {
         pay();
         closeSheet();
         arenaFor(null);
-        app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("places.232", {
+        app.innerHTML = `<div class="pt-3"><div class="eyebrow">${$t("family.streetHoop", {
           home: esc(S.home)
-        })}</div><h2>${$t("places.233", {
+        })}</div><h2>${$t("family.oneOne", {
           dad: esc(S.npc.dad)
         })}</h2></div><div id="stg"></div><div id="res"></div>`;
         const r = await mgShoot($("#stg"), {
           eff: clamp(eff("sut") + 25, 5, 100),
           shots: 3,
-          title: $t("places.315"),
+          title: $t("family.firstMakesWins3"),
           def: false
         });
         const win = r.made >= 2;
@@ -145,22 +145,22 @@ export function locAile(I) {
         norm();
         save();
         $("#stg").innerHTML = "";
-        $("#res").innerHTML = `<div class="card"><h2>${win ? $t("places.234") : $t("places.235")}</h2><p>${
+        $("#res").innerHTML = `<div class="card"><h2>${win ? $t("family.won") : $t("family.dadWon")}</h2><p>${
           win
-            ? $t("places.236", {
+            ? $t("family.saidKneeHurting", {
                 dad: S.npc.dad
               })
-            : $t("places.237", {
+            : $t("family.tellWholeNeighborhood", {
                 dad: S.npc.dad
               })
         } ${$t("prog.dadRes", {
           v: win ? 4 : 2
-        })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+        })}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
         $("#bk").onclick = renderMain;
       },
       para: () => {
         if (S.money < gift) return;
-        tx($t("places.347"), -gift);
+        tx($t("common.familySupport"), -gift);
         // para göndermek haftada bir tam etkili: tekrarında aile yalnızca küçük bir teşekkür eder (akşam yemeği anlamsızlaşmasın)
         const again = S.giftWk === weekKey();
         S.giftWk = weekKey();
@@ -169,12 +169,12 @@ export function locAile(I) {
         norm();
         save();
         resultView(
-          $t("places.239"),
-          $t("places.240", {
+          $t("family.sent"),
+          $t("family.thankedVoiceMessage", {
             mom: S.npc.mom,
             dad: S.npc.dad
           }),
-          [[$t("places.227"), "p"]]
+          [[$t("family.familyPlus15"), "p"]]
         );
       },
       tel: () => {
@@ -183,12 +183,12 @@ export function locAile(I) {
         norm();
         save();
         resultView(
-          $t("places.241"),
-          $t("places.242", {
+          $t("family.videoCall"),
+          $t("family.pointedCameraCeiling", {
             mom: S.npc.mom,
             dad: S.npc.dad
           }),
-          [[$t("places.229"), "p"]]
+          [[$t("family.familyPlus4"), "p"]]
         );
       }
     },

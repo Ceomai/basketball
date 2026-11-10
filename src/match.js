@@ -81,7 +81,7 @@ export function updBug() {
   if (b) b.innerHTML = bugHTML();
   if (late.a11yScore) late.a11yScore(); // ekran okuyucu için canlı skor (src/a11y.js)
 }
-export const odds = e => (e >= 55 ? ["e", $t("match.1")] : e >= 32 ? ["m", $t("match.2")] : ["h", $t("match.3")]);
+export const odds = e => (e >= 55 ? ["e", $t("match.easy")] : e >= 32 ? ["m", $t("common.medium")] : ["h", $t("match.hard")]);
 export const FEED_MAX = 40; // akışta (DOM + M.feed) tutulan en çok satır; eskiler düşer
 export const feedRowHTML = x => `<div><time>${x.t}</time><span>${x.x}</span></div>`;
 export function addFeed(t) {
@@ -114,13 +114,13 @@ export const PEN = {
 };
 // Basket faul: sayı geçerli, bir serbest atış
 async function andOne(el, sur, dn, st, w) {
-  addFeed($t("match.11", { sur, dn }));
+  addFeed($t("play.gotPastFinished", { sur, dn }));
   M.and1 = (M.and1 || 0) + 1;
   M.fta = (M.fta || 0) + 1; // basket faul serbest atışı (src/court.js trackPlay sayının kendisini sayar)
-  const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("match.98"), tries: 1, label: $t("games.8") });
+  const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("play.andOne"), tries: 1, label: $t("common.shoot") });
   M.pts += f.ok;
   M.ftm = (M.ftm || 0) + f.ok;
-  return { good: true, w, st, txt: f.ok ? $t("match.12") : $t("match.13") };
+  return { good: true, w, st, txt: f.ok ? $t("play.oneCompleted") : $t("play.freeThrowMissed") };
 }
 export async function resolvePlay(k, el, sur, dn) {
   const three = SHOT_THREE,
@@ -130,7 +130,7 @@ export async function resolvePlay(k, el, sur, dn) {
     const r = await mgShoot(el, {
       eff: eff("sut") - (PEN[k] || 0),
       shots: 1,
-      title: th ? $t("match.4") : $t("match.5"),
+      title: th ? $t("play.threePointer") : $t("play.midRange"),
       dist: th ? "three" : "mid"
     });
     M.pts += r.pts;
@@ -139,8 +139,8 @@ export async function resolvePlay(k, el, sur, dn) {
       w: th ? 1.3 : 1,
       st: "sut",
       txt: r.made
-        ? `${sur} ${th ? $t("match.6") : $t("match.7")}`
-        : $t("match.8", {
+        ? `${sur} ${th ? $t("play.hitThree") : $t("play.twoPointsMid")}`
+        : $t("common.missedShot", {
             sur: sur
           })
     };
@@ -149,7 +149,7 @@ export async function resolvePlay(k, el, sur, dn) {
     const r = await mgDribble(el, {
       eff: eff("hiz") - (PEN[k] || 0),
       reps: 1,
-      title: k === "break" ? $t("match.9") : k === "lay" ? $t("pl.lay") : $t("match.10")
+      title: k === "break" ? $t("common.fastBreak") : k === "lay" ? $t("pl.lay") : $t("play.driveRim")
     });
     if (!r.ok) {
       // penetrede hücum faulü: kişisel faul sayılır
@@ -158,7 +158,7 @@ export async function resolvePlay(k, el, sur, dn) {
         good: false,
         w: 1,
         st: "hiz",
-        txt: of ? `${$t("m2.charge", { sur })}${of}` : $t("match.96", { sur: sur })
+        txt: of ? `${$t("m2.charge", { sur })}${of}` : $t("common.turnedBall", { sur: sur })
       };
     }
     if (k === "break") {
@@ -167,7 +167,7 @@ export async function resolvePlay(k, el, sur, dn) {
         good: true,
         w: 1.2,
         st: "hiz",
-        txt: $t("match.97", {
+        txt: $t("common.finishedFastBreak", {
           sur: sur
         })
       };
@@ -175,14 +175,14 @@ export async function resolvePlay(k, el, sur, dn) {
     if (Math.random() < (k === "lay" ? 0.12 : 0.18)) {
       M.pts += 2;
       addFeed(
-        $t("match.11", {
+        $t("play.gotPastFinished", {
           sur: sur,
           dn: dn
         })
       );
-      const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("match.98"), tries: 1, label: $t("games.8") });
+      const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("play.andOne"), tries: 1, label: $t("common.shoot") });
       M.pts += f.ok;
-      return { good: true, w: 1.2, st: "hiz", txt: f.ok ? $t("match.12") : $t("match.13") };
+      return { good: true, w: 1.2, st: "hiz", txt: f.ok ? $t("play.oneCompleted") : $t("play.freeThrowMissed") };
     }
     if (Math.random() < 0.88) {
       M.pts += 2;
@@ -190,7 +190,7 @@ export async function resolvePlay(k, el, sur, dn) {
         good: true,
         w: 1,
         st: "hiz",
-        txt: $t("match.99", {
+        txt: $t("play.blewPastFinished", {
           sur: sur,
           dn: dn
         })
@@ -200,7 +200,7 @@ export async function resolvePlay(k, el, sur, dn) {
       good: true,
       w: 0.6,
       st: "hiz",
-      txt: $t("match.100", {
+      txt: $t("play.beatManLayup", {
         sur: sur
       })
     };
@@ -209,14 +209,14 @@ export async function resolvePlay(k, el, sur, dn) {
     const r = await mgPass(el, {
       eff: eff("pas") - (PEN[k] || 0),
       reps: 1,
-      title: k === "lob" ? $t("data.80") : k === "pnr" ? $t("match.14") : $t("data.31")
+      title: k === "lob" ? $t("common.alleyOopPass") : k === "pnr" ? $t("play.pickRoll") : $t("common.passing")
     });
     if (!r.ok)
       return {
         good: false,
         w: 1,
         st: "pas",
-        txt: $t("match.101", {
+        txt: $t("play.sPassIntercepted", {
           sur: sur
         })
       };
@@ -229,10 +229,10 @@ export async function resolvePlay(k, el, sur, dn) {
         st: "pas",
         txt:
           k === "lob"
-            ? $t("match.15", {
+            ? $t("play.lobBigMan", {
                 sur: sur
               })
-            : $t("match.16", {
+            : $t("play.findsOpenMan", {
                 sur: sur
               })
       };
@@ -241,13 +241,13 @@ export async function resolvePlay(k, el, sur, dn) {
       good: true,
       w: 0.6,
       st: "pas",
-      txt: $t("match.102", {
+      txt: $t("play.madeNicePass", {
         sur: sur
       })
     };
   }
   if (k === "post") {
-    const r = await mgPost(el, { eff: eff("guc"), reps: 1, title: $t("data.107") });
+    const r = await mgPost(el, { eff: eff("guc"), reps: 1, title: $t("common.post") });
     if (r.ok) M.pts += 2;
     if (r.ok && Math.random() < 0.1 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.3);
     return {
@@ -255,17 +255,17 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 1.2,
       st: "guc",
       txt: r.ok
-        ? $t("match.17", {
+        ? $t("play.backedDownFinished", {
             sur: sur,
             dn: dn
           })
-        : $t("match.18", {
+        : $t("play.sHookRolled", {
             sur: sur
           })
     };
   }
   if (k === "dunk") {
-    const r = await mgTiming(el, { eff: eff("guc") + 5, title: $t("data.132"), tries: 1, label: $t("games.37"), kind: "dunk" });
+    const r = await mgTiming(el, { eff: eff("guc") + 5, title: $t("common.alleyOopDunk"), tries: 1, label: $t("common.jump"), kind: "dunk" });
     if (r.ok) M.pts += 2;
     if (r.ok && Math.random() < 0.08 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.4);
     return {
@@ -273,16 +273,16 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 1.3,
       st: "guc",
       txt: r.ok
-        ? $t("match.19", {
+        ? $t("play.slammedHomeAlley", {
             sur: sur
           })
-        : $t("match.20", {
+        : $t("play.hitRimDunk", {
             sur: sur
           })
     };
   }
   if (k === "putback" || k === "reb") {
-    const r = await mgRebound(el, { eff: eff("guc"), reps: 1, title: k === "reb" ? $t("data.124") : $t("data.120") });
+    const r = await mgRebound(el, { eff: eff("guc"), reps: 1, title: k === "reb" ? $t("common.defensiveRebound") : $t("common.offensiveRebound") });
     if (r.ok) {
       M.reb++;
       if (k === "reb") {
@@ -291,7 +291,7 @@ export async function resolvePlay(k, el, sur, dn) {
           good: true,
           w: 1,
           st: "guc",
-          txt: $t("match.103", {
+          txt: $t("play.grabbedRebound", {
             sur: sur
           })
         };
@@ -302,7 +302,7 @@ export async function resolvePlay(k, el, sur, dn) {
           good: true,
           w: 1.2,
           st: "guc",
-          txt: $t("match.104", {
+          txt: $t("play.finishedOffensive", {
             sur: sur
           })
         };
@@ -311,7 +311,7 @@ export async function resolvePlay(k, el, sur, dn) {
         good: true,
         w: 0.6,
         st: "guc",
-        txt: $t("match.105", {
+        txt: $t("play.gotReboundCouldnt", {
           sur: sur
         })
       };
@@ -320,13 +320,13 @@ export async function resolvePlay(k, el, sur, dn) {
       good: false,
       w: 1,
       st: "guc",
-      txt: $t("match.106", {
+      txt: $t("play.grabbedRebound2", {
         dn: dn
       })
     };
   }
   if (k === "block") {
-    const r = await mgBlock(el, { eff: (eff("sav") + eff("guc")) / 2, reps: 1, title: $t("data.111") });
+    const r = await mgBlock(el, { eff: (eff("sav") + eff("guc")) / 2, reps: 1, title: $t("common.block") });
     if (r.ok) {
       M.blk++;
       M.stops++;
@@ -336,11 +336,11 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 1.2,
       st: "sav",
       txt: r.ok
-        ? $t("match.21", {
+        ? $t("play.massiveBlock", {
             sur: sur,
             dn: dn
           })
-        : $t("match.22", {
+        : $t("play.foundBasket", {
             dn: dn
           })
     };
@@ -348,9 +348,9 @@ export async function resolvePlay(k, el, sur, dn) {
   if (k === "steal") {
     const r = await mgTiming(el, {
       eff: eff("hiz") - 6,
-      title: $t("match.107"),
+      title: $t("play.steal"),
       tries: 1,
-      label: $t("match.108"),
+      label: $t("common.reach"),
       kind: "steal"
     });
     if (r.ok) M.stl++;
@@ -359,10 +359,10 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 1.2,
       st: "hiz",
       txt: r.ok
-        ? $t("match.23", {
+        ? $t("play.stoleBallTwo", {
             sur: sur
           })
-        : $t("match.24", {
+        : $t("play.fouledLine", {
             sur: sur,
             dn: dn
           })
@@ -376,10 +376,10 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 1.1,
       st: "sav",
       txt: ok
-        ? $t("match.25", {
+        ? $t("play.stoodGroundDrew", {
             sur: sur
           })
-        : $t("match.26")
+        : $t("play.refereeCalledBlocking")
     };
   }
   if (k === "safe") {
@@ -390,23 +390,23 @@ export async function resolvePlay(k, el, sur, dn) {
       w: 0.5,
       st: "sav",
       txt: ok
-        ? $t("match.27", {
+        ? $t("play.heldPositionTook", {
             sur: sur,
             dn: dn
           })
-        : $t("match.22", {
+        : $t("play.foundBasket", {
             dn: dn
           })
     };
   }
   const n = k === "free3" ? 3 : 2; // üçlükte faul: 3 serbest atış
-  const r = await mgTiming(el, { eff: eff("sut") + 12, title: $t("data.70"), tries: n, label: $t("games.8") });
+  const r = await mgTiming(el, { eff: eff("sut") + 12, title: $t("common.freeThrow"), tries: n, label: $t("common.shoot") });
   M.pts += r.ok;
   return {
     good: r.ok > 0,
     w: 0.6,
     st: "sut",
-    txt: n === 3 ? $t("m2.ft3", { sur, ok: r.ok }) : $t("match.109", { sur: sur, ok: r.ok })
+    txt: n === 3 ? $t("m2.ft3", { sur, ok: r.ok }) : $t("play.hitFreeThrows2", { sur: sur, ok: r.ok })
   };
 }
 export function finishMatch(win) {
@@ -420,7 +420,7 @@ export function finishMatch(win) {
   S.buffs.scoutK = null; // video analizi avantajı tek maçlık (src/agent.js)
   late.matchStatGains(M); // maç istatistiğine göre ondalık gelişim (src/progress.js)
   const bonus = matchBonus({ stage: S.stage, wage: S.wage, rating: r, win });
-  if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("match.132"), Math.round(S.wage * 0.15));
+  if (S.clauses && S.clauses.perf && r >= 7.5) tx($t("result.performanceBonus"), Math.round(S.wage * 0.15));
   // önemli maçı kendin oynadıysan: taraftar ve takipçi (kazanınca daha çok)
   if (M.big && !M.auto) {
     S.rel.taraf += win ? 4 : 2;
@@ -428,7 +428,7 @@ export function finishMatch(win) {
     news($t("big.news", { v: fullName(), label: M.big.label }));
   }
   tx(
-    $t("match.116", {
+    $t("result.matchBonus2", {
       short: opp.short
     }),
     bonus
@@ -456,26 +456,26 @@ export function finishMatch(win) {
   const inj = late.rollInjury();
   norm();
   save();
-  const coach = r >= 8 ? $t("match.28") : r >= 6.5 ? $t("match.29") : r >= 5 ? $t("match.30") : $t("match.31");
+  const coach = r >= 8 ? $t("result.bestPlayerCourt") : r >= 6.5 ? $t("result.goodJobNeed") : r >= 5 ? $t("result.averageWellTalk") : $t("result.performanceMinutesDrop");
   // basın toplantısı bu maçta varsa sonuç panelinin altında (tek ekran; src/story.js pressInlineHTML)
   const pressHTML = late.pressInlineHTML(win);
   sheet(
-    win ? $t("match.32") : $t("match.33"),
+    win ? $t("common.win") : $t("common.loss"),
     `${phaseName()} · ${opp.name}`,
     `
-   <div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${M.us}–${M.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("match.36")}</div><div class="rating" style="color:${r >= 7 ? "var(--good)" : r >= 5 ? "var(--text)" : "var(--bad)"}">${r.toFixed(1)}</div></div></div>
-   <div class="box"><div><b>${M.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${M.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${M.reb}</b><span class="eyebrow">${$t("data.63")}</span></div><div><b>${M.blk + M.stl}</b><span class="eyebrow">${$t("match.37")}</span></div></div>
-   <div class="who"><div id="cp"></div><div><div class="eyebrow">${$t("match.38", {
+   <div class="row between nowrap"><div class="row nowrap gap-2">${crestSVG(S.team, 36)}<span class="big-num">${M.us}–${M.them}</span>${crestSVG(opp, 36)}</div><div class="ta-r"><div class="eyebrow">${$t("result.matchRating")}</div><div class="rating" style="color:${r >= 7 ? "var(--good)" : r >= 5 ? "var(--text)" : "var(--bad)"}">${r.toFixed(1)}</div></div></div>
+   <div class="box"><div><b>${M.pts}</b><span class="eyebrow">${$t("common.score")}</span></div><div><b>${M.ast}</b><span class="eyebrow">${$t("common.assists")}</span></div><div><b>${M.reb}</b><span class="eyebrow">${$t("common.rebound")}</span></div><div><b>${M.blk + M.stl}</b><span class="eyebrow">${$t("result.blocksSteals")}</span></div></div>
+   <div class="who"><div id="cp"></div><div><div class="eyebrow">${$t("common.coach", {
      coach: esc(S.npc.coach)
    })}</div><div class="say">${coach}</div></div></div>
-   <div class="kv"><span>${$t("match.39")}</span><b>${$t("match.40", {
+   <div class="kv"><span>${$t("common.minutes")}</span><b>${$t("result.minPlusMinus", {
      v: Math.round((M.mins || 0) / 60),
      v2: (M.plus || 0) >= 0 ? "+" : "",
      v3: M.plus || 0
-   })}</b><span>${$t("match.41")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("match.42")}</span><b>${S.rel.koc}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}<span>${$t("pf.label")}</span><b class="${M.fo ? "bad" : ""}">${M.pf || 0}${M.fo ? ` · ${$t("pf.outShort")}` : ""}</b></div>
+   })}</b><span>${$t("result.matchBonus")}</span><b class="good">+${fmt(bonus)}</b><span>${$t("common.relationshipCoach")}</span><b>${S.rel.koc}</b><span>${$t("common.followers")}</span><b>${kfmt(S.followers)}</b>${late.trustHTML(M)}<span>${$t("pf.label")}</span><b class="${M.fo ? "bad" : ""}">${M.pf || 0}${M.fo ? ` · ${$t("pf.outShort")}` : ""}</b></div>
    ${
      inj
-       ? `<div class="say bad"><b>${$t("match.34")}</b> ${$t("match.35", {
+       ? `<div class="say bad"><b>${$t("result.injury")}</b> ${$t("result.weeks", {
            n: esc(inj.n),
            w: inj.w
          })}</div>`
@@ -484,7 +484,7 @@ export function finishMatch(win) {
    ${late.reportHTML()}
    ${late.duelHTML()}
    ${late.gainsHTML()}
-   ${late.adDoubleHTML(bonus)}${pressHTML}<button class="btn pri" id="nx"${pressHTML ? " hidden" : ""}>${$t("ads.25")}</button>`,
+   ${late.adDoubleHTML(bonus)}${pressHTML}<button class="btn pri" id="nx"${pressHTML ? " hidden" : ""}>${$t("common.continue")}</button>`,
     { noClose: true }
   );
   const cl = LK.coach();
@@ -521,14 +521,14 @@ export function afterMatchFlow(win) {
       S._otherSemi = [0, 1, 2, 3].filter(i => i !== rank - 1 && i !== oi).map(i => st[i].key);
       late.poStart(st, rank, S.playoffOpp, S._otherSemi);
       news(
-        $t("match.118", {
+        $t("result.finishedRegularSeason", {
           short: S.team.short,
           rank: rank
         })
       );
     } else {
       news(
-        $t("match.119", {
+        $t("result.finishedSeasonPlace", {
           short: S.team.short,
           rank: rank
         })
@@ -547,14 +547,14 @@ export function afterMatchFlow(win) {
       S.playoffOpp = Math.random() < a.str / (a.str + b.str) ? a.key : b.key;
       late.poSemi(true, S.playoffOpp);
       news(
-        `${$t("match.120", {
+        `${$t("result.finalOpponent", {
           short: S.team.short
         })} ${teamByKey(S.playoffOpp).name}.`
       );
     } else {
       late.poSemi(false, null);
       news(
-        $t("match.121", {
+        $t("result.knockedSemiFinals", {
           short: S.team.short
         })
       );
@@ -565,10 +565,10 @@ export function afterMatchFlow(win) {
     late.poFinal(win);
     news(
       win
-        ? $t("match.122", {
+        ? $t("result.champions", {
             name: S.team.name
           })
-        : $t("match.123", {
+        : $t("result.lostFinal", {
             name: S.team.name
           })
     );
@@ -616,13 +616,13 @@ export function endWeek() {
     S.rel.partner -= 4;
     if (S.rel.partner <= 10) {
       news(
-        $t("match.124", {
+        $t("week.split", {
           v: fullName(),
           partner: S.partner
         })
       );
       toast(
-        $t("match.44", {
+        $t("week.endedRelationship", {
           partner: S.partner
         })
       );
@@ -643,11 +643,11 @@ export function endWeek() {
   late.healTick();
   if (S.money < 0) {
     S.moral -= 6;
-    toast($t("match.45"));
+    toast($t("week.accountOverdrawnWatch"));
   }
   if (S.tryout && !S.tryout.done && S.week > S.tryout.until) {
     S.tryout.done = true;
-    news($t("match.125"));
+    news($t("week.tryoutDatePassed"));
   }
   norm();
   save();
@@ -723,7 +723,7 @@ export function eventSheet(ev, after) {
         norm();
         save();
         $("#ch").innerHTML =
-          `<div class="say warn">${out}</div><button class="btn pri" id="ok">${$t("ads.25")}</button>`;
+          `<div class="say warn">${out}</div><button class="btn pri" id="ok">${$t("common.continue")}</button>`;
         $("#ok").onclick = after;
       })
   );
@@ -758,13 +758,13 @@ export function seasonEnd(playoff, champ, final) {
   if (champ) {
     if (!window.__SIM) late.hapticSuccess(); // şampiyonluk
     awards.push(
-      $t("match.46", {
+      $t("season.champion", {
         tn: tn
       })
     );
     S.career.trophies.push({
       type: S.stage === "lise" ? "lise" : "champ",
-      label: $t("match.110", {
+      label: $t("season.champion3", {
         label: label,
         tn: tn,
         name: S.team.name
@@ -774,13 +774,13 @@ export function seasonEnd(playoff, champ, final) {
     S.followers *= 1.25;
   } else if (final) {
     awards.push(
-      $t("match.126", {
+      $t("season.runner2", {
         tn: tn
       })
     );
     S.career.trophies.push({
       type: "final",
-      label: $t("match.111", {
+      label: $t("season.runner", {
         label: label,
         tn: tn
       })
@@ -816,19 +816,19 @@ export function seasonEnd(playoff, champ, final) {
       if (S.uniYear > 4) {
         S.studying = false;
         S.graduated = true;
-        schoolMsg = $t("match.47");
+        schoolMsg = $t("season.graduatedUniversity");
         S.rel.aile += 15;
         news(
-          $t("match.127", {
+          $t("season.graduatedUniversity2", {
             v: fullName()
           })
         );
       } else
-        schoolMsg = $t("match.48", {
+        schoolMsg = $t("season.passedYearYear", {
           uniYear: S.uniYear
         });
     } else {
-      schoolMsg = $t("match.49");
+      schoolMsg = $t("season.academicScoreLow");
       S.moral -= 6;
     }
   }
@@ -842,13 +842,13 @@ export function seasonEnd(playoff, champ, final) {
   late.rivalSeason();
   norm();
   save();
-  const head = `<div class="card"><div class="eyebrow">${$t("match.53", {
+  const head = `<div class="card"><div class="eyebrow">${$t("season.season", {
     label: label,
     tn: esc(tn)
-  })}</div><h2>${$t("match.54", {
+  })}</div><h2>${$t("season.winsLosses", {
     w: w,
     v: res.length - w
-  })}</h2><div class="kv"><span>${$t("match.55")}</span><b>${avg.toFixed(2)}</b><span>${$t("match.56")}</span><b>${champ ? $t("match.50") : final ? $t("match.51") : playoff ? $t("core.3") : $t("match.52")}</b><span>${$t("match.57")}</span><b>${S.age}</b><span>${$t("match.58")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}<div id="seasonad">${late.seasonAdHTML()}</div>${late.rivalCard(avg)}`;
+  })}</h2><div class="kv"><span>${$t("season.averageRating")}</span><b>${avg.toFixed(2)}</b><span>${$t("common.result")}</span><b>${champ ? $t("season.champion2") : final ? $t("season.finalist") : playoff ? $t("common.playoffs") : $t("season.missedPlayoffs")}</b><span>${$t("season.newAge")}</span><b>${S.age}</b><span>${$t("common.overall")}</span><b>${ovr()}</b></div>${awards.length ? `<div class="say">${awards.join(" · ")}</div>` : ""}${schoolMsg ? `<p class="small">${schoolMsg}</p>` : ""}</div>${late.goalsResultHTML()}<div id="seasonad">${late.seasonAdHTML()}</div>${late.rivalCard(avg)}`;
   S.offArgs = { avg, champ, head }; // turnuva arasında oyun kapanırsa sezon geçişi buradan sürer (src/natcup.js)
   save();
   late.summerTournament(avg, () => transition(avg, champ, head));
@@ -892,17 +892,17 @@ export function genOffers(avg, champ, n = 3) {
 export function offerHTML(o, i) {
   const t = o.team;
   const up = ORDER.indexOf(o.stage) > ORDER.indexOf(S.stage);
-  const lab = o.stay ? $t("match.59") : o.uni ? $t("match.60") : up ? $t("match.61") : $t("match.62"),
+  const lab = o.stay ? $t("offer.stay") : o.uni ? $t("offer.school") : up ? $t("offer.step") : $t("offer.offer"),
     cls = o.stay ? "e" : o.uni ? "i" : up ? "m" : "i";
-  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-2xl)">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${isPro(o.stage) && !o.uni ? ` · ${late.offerFitNote(t)}` : ""}${buyoutFor(o) ? ` ${$t("match.133")} ${fmt(buyoutFor(o))}` : ""}${
+  return `<button class="choice" data-o="${i}"><span class="ct" style="display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-2xl)">${crestSVG(t, 28)}<span>${esc(t.name)}</span></span><span class="cd">${esc(o.note || leagueName(o.stage, t.cc))} · ${esc(t.city)}${o.uni ? "" : `, ${(LEAGUES[t.cc] || LEAGUES.TR).n}`}${o.role ? ` · ${ROLE_N[o.role]}` : ""}${isPro(o.stage) && !o.uni ? ` · ${late.offerFitNote(t)}` : ""}${buyoutFor(o) ? ` ${$t("offer.buyoutFee")} ${fmt(buyoutFor(o))}` : ""}${
     o.wage
-      ? ` ${$t("match.63", {
+      ? ` ${$t("common.week", {
           wage: fmt(o.wage)
         })}`
       : ""
   }${
     o.years
-      ? ` ${$t("match.64", {
+      ? ` ${$t("common.yr", {
           years: o.years
         })}`
       : ""
@@ -937,22 +937,22 @@ export function transition(avg, champ, head) {
 }
 function transitionInner(avg, champ, head) {
   let offers = [],
-    title = $t("match.65"),
+    title = $t("transition.newSeason"),
     intro = "";
   const P = potential(avg, champ);
   if (S.stage === "lise") {
     if (S.stageSeason > 2) {
       const exam = clamp(Math.round(S.aka * 0.75 + rnd(0, 20) + (avg - 6) * 3), 0, 100);
-      title = $t("match.66");
-      intro = `<div class="card"><div class="eyebrow">${$t("match.69")}</div><div class="row between nowrap"><div><h3>${esc(fullName())}</h3><div class="small muted">${$t(
-        "match.70",
+      title = $t("transition.careerReview");
+      intro = `<div class="card"><div class="eyebrow">${$t("transition.scoutReport")}</div><div class="row between nowrap"><div><h3>${esc(fullName())}</h3><div class="small muted">${$t(
+        "transition.ageGamesPoints",
         {
           n: POS[S.pos].n,
           age: S.age,
           games: S.career.games,
           pts: S.career.pts
         }
-      )}</div></div><div class="big-num gold">${grade(P)}</div></div><p class="small muted">${P >= 43 ? $t("match.67") : $t("match.68")} ${$t("match.71")} <b>${exam}</b>.</p></div>`;
+      )}</div></div><div class="big-num gold">${grade(P)}</div></div><p class="small muted">${P >= 43 ? $t("transition.seriousInterestSecond") : $t("transition.needDevelopGetting")} ${$t("transition.universityExamScore")} <b>${exam}</b>.</p></div>`;
       offers = genOffers(avg, champ, 4);
       const uc = exam > 65 ? ["İstanbul", "Ankara"] : exam > 40 ? ["İstanbul"] : [];
       uc.forEach(c => {
@@ -961,7 +961,7 @@ function transitionInner(avg, champ, head) {
           team: t,
           stage: "uni",
           wage: WAGE.uni + (avg >= 6.3 ? 20 : 0),
-          note: $t("match.112"),
+          note: $t("transition.universityLeagueYear"),
           uni: true
         });
       });
@@ -970,16 +970,16 @@ function transitionInner(avg, champ, head) {
           team: makeTeam("myuni", "İstanbul", 2),
           stage: "uni",
           wage: WAGE.uni,
-          note: $t("match.113"),
+          note: $t("transition.sportsAcademyYear"),
           uni: true
         });
     } else {
-      title = $t("match.72");
+      title = $t("transition.newYearHigh");
       offers = [{ team: S.team, stage: "lise", wage: WAGE.lise, stay: true }];
     }
   } else if (S.stage === "uni") {
-    title = $t("match.69");
-    intro = `<p>${$t("match.73")} <b class="gold">${grade(P)}</b>${$t("match.74")}</p>`;
+    title = $t("transition.scoutReport");
+    intro = `<p>${$t("transition.potentialRating")} <b class="gold">${grade(P)}</b>${$t("transition.offersComeClubs")}</p>`;
     offers = genOffers(avg, champ, 3);
     if (S.clubDeal) {
       const t = teamByKey(S.clubDeal.club);
@@ -989,15 +989,15 @@ function transitionInner(avg, champ, head) {
         role: roleAt(ovr(), S.clubDeal.stage, t.cc) === "bench" ? "bench" : "rot",
         wage: Math.round(WAGE[S.clubDeal.stage] * 0.9),
         years: 2,
-        note: $t("match.114", {
+        note: $t("transition.promisePicked", {
           stage: leagueName(S.clubDeal.stage, t.cc)
         })
       });
     }
-    if (S.uniYear < 4) offers.push({ team: S.team, stage: "uni", wage: S.wage, stay: true, note: $t("match.115") });
+    if (S.uniYear < 4) offers.push({ team: S.team, stage: "uni", wage: S.wage, stay: true, note: $t("transition.oneMoreYear") });
   } else {
-    title = $t("match.75");
-    intro = `<p>${$t("match.76", {
+    title = $t("transition.contractTransfer");
+    intro = `<p>${$t("transition.agentLinedOffers", {
       agent: esc(S.npc.agent)
     })} <b class="gold">${grade(P)}</b>.</p>`;
     const stayOk = S.contract > 0 || avg >= 5 || S.rel.koc >= 30;
@@ -1012,10 +1012,10 @@ function transitionInner(avg, champ, head) {
         stay: true,
         note:
           S.contract > 0
-            ? $t("match.77", {
+            ? $t("transition.contractContinuesYears", {
                 contract: S.contract
               })
-            : $t("match.78")
+            : $t("transition.contractRenewal")
       });
     offers.push(...genOffers(avg, champ, S.transferReq === S.season - 1 ? 4 : 3));
   }
@@ -1037,23 +1037,23 @@ function transitionInner(avg, champ, head) {
       });
     sheet(
       title,
-      $t("match.79", {
+      $t("match.beforeSeason", {
         v: seasonLabel()
       }),
       late.snShellHTML(
         head,
         `${intro}${
           force
-            ? `<div class="say">${$t("match.80")}</div><button class="btn bad" id="ret">${$t("match.81")}</button>`
+            ? `<div class="say">${$t("match.bodyIsntWhat")}</div><button class="btn bad" id="ret">${$t("match.goRetirementCeremony")}</button>`
             : `<div class="choices">${offers
                 .map((o, i) =>
                   o.withdrawn
-                    ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.135")}</span></button>`
+                    ? `<button class="choice" disabled style="opacity:.5"><span class="ct">${esc(o.team.name)}</span><span class="cd">${$t("match.walkedAwayWont")}</span></button>`
                     : offerHTML(o, i)
                 )
                 .join(
                   ""
-                )}</div>${late.offerAdsHTML(offers, allowExtra)}${retire ? `<button class="btn ghost" id="ret">${$t("match.82")}</button>` : ""}`
+                )}</div>${late.offerAdsHTML(offers, allowExtra)}${retire ? `<button class="btn ghost" id="ret">${$t("match.retire")}</button>` : ""}`
         }`
       ),
       { noClose: true }
@@ -1076,7 +1076,7 @@ function transitionInner(avg, champ, head) {
 export const buyoutFor = o => buyoutFee(o, S); // src/logic/career.js
 export function acceptOffer(o) {
   const fee = buyoutFor(o);
-  if (fee) tx($t("match.134"), -fee);
+  if (fee) tx($t("offer.contractBuyoutFee"), -fee);
   // yeni kulüpte maddeler sözleşmeyle gelir; aynı kulüpte yenilemede yeni kazanılan maddeler eskilere eklenir
   S.clauses = o.stay ? { ...(S.clauses || {}), ...(o.clauses || {}) } : o.clauses || {};
   const prevStage = S.stage,
@@ -1102,16 +1102,16 @@ export function acceptOffer(o) {
     S.rel.koc = 45;
     S.rel.takim = 45;
     news(
-      `${$t("match.129", {
+      `${$t("offer.signed", {
         v: fullName(),
         name: t.name
-      })} ${o.years ? o.years + $t("match.128") : ""}${$t("match.130")}`
+      })} ${o.years ? o.years + $t("offer.year") : ""}${$t("offer.contract")}`
     );
   }
   if (S.city !== prevCity) {
     if (S.housing === "oda" || S.housing === "yurt") S.housing = S.stage === "uni" ? "yurt" : "daire";
     news(
-      $t("match.131", {
+      $t("offer.moved", {
         v: fullName(),
         city: S.city
       })
@@ -1146,29 +1146,29 @@ export function retireScreen() {
   closeSheet();
   const k = S.career;
   const legend = late.legacyScore(); // miras puanı: src/legacy.js
-  app.innerHTML = `<div class="pt-4h"><div class="eyebrow">${seasonLabel()}</div><h1>${$t("match.86")}</h1></div>
-  <div class="card"><div class="who"><div id="rp"></div><div><h2>${esc(fullName())}</h2><p class="muted">${$t("match.87", {
+  app.innerHTML = `<div class="pt-4h"><div class="eyebrow">${seasonLabel()}</div><h1>${$t("retire.retirement")}</h1></div>
+  <div class="card"><div class="who"><div id="rp"></div><div><h2>${esc(fullName())}</h2><p class="muted">${$t("retire.endedCareerJersey", {
     age: S.age,
     name: esc(S.team.name)
   })}</p></div></div>
-   <div class="box"><div><b>${k.games}</b><span class="eyebrow">${$t("match.88")}</span></div><div><b>${k.pts}</b><span class="eyebrow">${$t("arcade.6")}</span></div><div><b>${k.ast}</b><span class="eyebrow">${$t("extras.31")}</span></div><div><b>${k.trophies.length}</b><span class="eyebrow">${$t("match.89")}</span></div></div>
-   <div class="kv"><span>${$t("match.32")}</span><b>${k.wins}</b><span>${$t("match.90")}</span><b>${fmt(k.earned)}</b><span>${$t("match.43")}</span><b>${kfmt(S.followers)}</b><span>${$t("match.91")}</span><b>${legend}</b></div>
+   <div class="box"><div><b>${k.games}</b><span class="eyebrow">${$t("common.match")}</span></div><div><b>${k.pts}</b><span class="eyebrow">${$t("common.score")}</span></div><div><b>${k.ast}</b><span class="eyebrow">${$t("common.assists")}</span></div><div><b>${k.trophies.length}</b><span class="eyebrow">${$t("retire.award")}</span></div></div>
+   <div class="kv"><span>${$t("common.win")}</span><b>${k.wins}</b><span>${$t("common.careerEarnings")}</span><b>${fmt(k.earned)}</b><span>${$t("common.followers")}</span><b>${kfmt(S.followers)}</b><span>${$t("retire.legendPoints")}</span><b>${legend}</b></div>
    <p>${
      legend >= late.HOF[1][0]
-       ? $t("match.83")
+       ? $t("retire.hoopModaShore")
        : legend >= late.HOF[2][0]
-         ? $t("match.84")
-         : $t("match.85", {
+         ? $t("retire.neighborhoodCourt")
+         : $t("retire.kidsModaStill", {
              last: esc(S.last)
            })
    }</p>
-   <div class="grid2"><button class="btn pri big" id="nw">${$t("match.92")}</button>${late.cardButtonHTML()}</div>${late.albumButtonHTML()}</div>
+   <div class="grid2"><button class="btn pri big" id="nw">${$t("retire.newCareer")}</button>${late.cardButtonHTML()}</div>${late.albumButtonHTML()}</div>
   ${late.hofCard()}
   ${late.bondsRetireHTML()}
   ${late.legendRetireHTML()}
   ${late.afterCareerHTML()}
   ${late.cchCardHTML()}
-  <div class="card"><div class="eyebrow">${$t("match.93")}</div><div class="tbl"><table><tr><th>${$t("match.94")}</th><th>${$t("data.36")}</th><th>G-M</th><th>${$t("match.95")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
+  <div class="card"><div class="eyebrow">${$t("common.career")}</div><div class="tbl"><table><tr><th>${$t("common.season")}</th><th>${$t("common.team")}</th><th>G-M</th><th>${$t("retire.avg")}</th></tr>${S.hist.map(h => `<tr><td>${h.label}</td><td>${esc(h.team)}<div class="small muted">${esc(h.league)}</div></td><td>${h.w}-${h.l}</td><td>${h.avg.toFixed(1)}</td></tr>`).join("")}</table></div>${k.trophies.map(t => `<div class="small">${esc(t.label)}</div>`).join("")}</div>`;
   $("#rp").appendChild(portrait(S.look, { ...jersey(), mood: "mutlu" }, 84, 84, S.team.c1));
   if (!S.retired) {
     S.retired = true;

@@ -50,9 +50,9 @@ async function googleIdToken() {
   return new Promise((res, rej) => {
     window.google.accounts.id.initialize({
       client_id: CLOUD_CONFIG.googleClientId,
-      callback: r => (r.credential ? res(r.credential) : rej(new Error($t("cloud.1"))))
+      callback: r => (r.credential ? res(r.credential) : rej(new Error($t("cloud.signCanceled"))))
     });
-    window.google.accounts.id.prompt(n => n.isNotDisplayed && n.isNotDisplayed() && rej(new Error($t("cloud.2"))));
+    window.google.accounts.id.prompt(n => n.isNotDisplayed && n.isNotDisplayed() && rej(new Error($t("cloud.googleSignNot"))));
   });
 }
 async function firebaseSignIn(idToken) {
@@ -66,7 +66,7 @@ async function firebaseSignIn(idToken) {
     })
   });
   const j = await r.json();
-  if (!j.idToken) throw new Error((j.error && j.error.message) || $t("cloud.4"));
+  if (!j.idToken) throw new Error((j.error && j.error.message) || $t("cloud.firebaseSignFailed"));
   Object.assign(st, {
     uid: j.localId,
     email: j.email,
@@ -84,7 +84,7 @@ async function token() {
     body: `grant_type=refresh_token&refresh_token=${st.refreshToken}`
   });
   const j = await r.json();
-  if (!j.id_token) throw new Error($t("cloud.5"));
+  if (!j.id_token) throw new Error($t("cloud.sessionNotRefreshed"));
   Object.assign(st, { idToken: j.id_token, refreshToken: j.refresh_token, exp: Date.now() + (+j.expires_in - 60) * 1000 });
   persist();
   return st.idToken;
@@ -163,11 +163,11 @@ export async function syncAll() {
 function askNewer(slot, ts) {
   return new Promise(res => {
     sheet(
-      $t("cloud.8"),
-      $t("cloud.9", {
+      $t("cloud.cloudSaveNewer"),
+      $t("cloud.slot", {
         slot: slot
       }),
-      `<p>${$t("cloud.10")}${new Date(ts).toLocaleString()}${$t("cloud.11")}</p><div class="grid2"><button class="btn ghost" id="cl-keep">${$t("cloud.12")}</button><button class="btn pri" id="cl-take">${$t("cloud.13")}</button></div>`,
+      `<p>${$t("cloud.cloudSaveSlot")}${new Date(ts).toLocaleString()}${$t("cloud.newerOneDevice")}</p><div class="grid2"><button class="btn ghost" id="cl-keep">${$t("cloud.device")}</button><button class="btn pri" id="cl-take">${$t("cloud.cloud")}</button></div>`,
       { noClose: true }
     );
     $("#cl-keep").onclick = () => (closeSheet(), res(false));
@@ -195,8 +195,8 @@ document.addEventListener("visibilitychange", () => {
 
 /* ---- Ayarlar bölümü ---- */
 export function cloudSettingsHTML() {
-  if (!cloudReady()) return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${$t("cloud.15")}</p></div></div>`;
-  return `<div class="act"><div><h3>${$t("cloud.14")}</h3><p>${signedIn() ? `${$t("cloud.18")} ${st.email || $t("cloud.16")}${st.last ? ` ${$t("cloud.17")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.19")}</p></div><div class="grid2 span-all">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.20")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.21")}</button><button class="btn ghost sm span-all" id="cl-del">${$t("cloud.del")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.22")}</button>`}</div></div>`;
+  if (!cloudReady()) return `<div class="act"><div><h3>${$t("cloud.cloudSave")}</h3><p>${$t("cloud.comingSoonBack")}</p></div></div>`;
+  return `<div class="act"><div><h3>${$t("cloud.cloudSave")}</h3><p>${signedIn() ? `${$t("cloud.signed")} ${st.email || $t("cloud.googleAccount")}${st.last ? ` ${$t("cloud.lastSync")} ${new Date(st.last).toLocaleTimeString()}` : ""}` : $t("cloud.signGoogleAccount")}</p></div><div class="grid2 span-all">${signedIn() ? `<button class="btn sm" id="cl-sync">${$t("cloud.syncNow")}</button><button class="btn ghost sm" id="cl-out">${$t("cloud.sign")}</button><button class="btn ghost sm span-all" id="cl-del">${$t("cloud.del")}</button>` : `<button class="btn team sm" id="cl-in">${$t("cloud.signGoogle")}</button>`}</div></div>`;
 }
 export function bindCloudSettings(re) {
   const b = (id, f) => {
@@ -205,9 +205,9 @@ export function bindCloudSettings(re) {
       e.onclick = async () => {
         try {
           await f();
-          late.toast($t("cloud.23"));
+          late.toast($t("cloud.cloudSaveUpdated"));
         } catch (err) {
-          late.toast($t("cloud.24") + (err.message || "hata"));
+          late.toast($t("cloud.cloudSave2") + (err.message || "hata"));
         }
         re();
       };
@@ -230,7 +230,7 @@ export function bindCloudSettings(re) {
           await cloudDeleteAll();
           late.toast($t("cloud.delOk"));
         } catch (err) {
-          late.toast($t("cloud.24") + (err.message || ""));
+          late.toast($t("cloud.cloudSave2") + (err.message || ""));
         }
         closeSheet();
         re();

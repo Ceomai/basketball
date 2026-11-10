@@ -5,6 +5,8 @@
 // - Şehir adları, kişi/kulüp adları, anahtarlar, seçiciler, CSS ve makeTeam gibi özel adlar üreten kodlar dışlanır.
 // - Aynı metin tek anahtar alır; sözlük src/i18n/tr.auto.js dosyasına yazılır.
 // Kullanım: node tools/extract-i18n.js [--dry]
+// Not: yeni metinlere sayısal anahtar (dosya.no) verir. Sonra tools/rename-i18n-keys.js ile <alan>.<kavram> adlarına
+// çevirin; yeni metinler için tercih edilen yol keys/<ad>.json + elle anlamlı ad (docs/ANALIZ.md).
 const fs = require("fs"),
   path = require("path"),
   recast = require("recast");

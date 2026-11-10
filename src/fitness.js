@@ -74,7 +74,7 @@ async function workout() {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2 class="good">${$t("fit.title")} +${g.toFixed(1)}</h2><p class="small muted">${$t("fit.now", { v: fit().toFixed(1) })}</p><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2 class="good">${$t("fit.title")} +${g.toFixed(1)}</h2><p class="small muted">${$t("fit.now", { v: fit().toFixed(1) })}</p><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 async function rehab() {
@@ -96,7 +96,7 @@ async function rehab() {
   save();
   $("#stg").innerHTML = "";
   $("#res").innerHTML =
-    `<div class="card"><h2 class="${ok ? "good" : ""}">${ok ? $t("fit.rehabOk") : $t("fit.rehabNo")}</h2><button class="btn pri" id="bk">${$t("casino.13")}</button></div>`;
+    `<div class="card"><h2 class="${ok ? "good" : ""}">${ok ? $t("fit.rehabOk") : $t("fit.rehabNo")}</h2><button class="btn pri" id="bk">${$t("common.backMap")}</button></div>`;
   $("#bk").onclick = renderMain;
 }
 /** Gece hayatı kondisyonu düşürür */
