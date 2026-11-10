@@ -19,6 +19,7 @@
     "build:single": "vite build --mode single",
     "analysis": "npm run build:single && node tests/analysis.js",
     "analysis:report": "node tools/analysis-report.js",
+    "test:golden": "npm run build:single && node tests/match-golden.js",
     "test:fuzz": "npm run build:single && node tests/fuzz.js 8 45 && node tests/fuzz-state.js 24",
     "test:audit": "npm run build && npm run build:single && node tests/audit.js",
     "test:revenue": "npm run build && npm run build:single && node tests/revenue.js",
