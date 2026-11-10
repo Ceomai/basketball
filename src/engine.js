@@ -297,7 +297,7 @@ export async function playMatch(ctx) {
         us: { str: ourStr },
         them: { str: opp.str },
         opts: {
-          m: M,
+          m: () => M, // canlı M: her erişimde okunur
           plan,
           role,
           tempo: d => late.osDur(d), // rakip tarzı temposu (src/matchfeel.js)

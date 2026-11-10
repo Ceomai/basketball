@@ -15,13 +15,15 @@ const FIX = path.join(__dirname, "fixtures", "match-golden.json");
 const PRO = fs.readFileSync(path.join(__dirname, "fixtures", "career-long.json"), "utf8");
 const WRITE = process.argv.includes("--write");
 const POS = ["PG", "SG", "SF", "PF", "C"];
-// 20 senaryo: 0-9 lise kariyeri (yeni), 10-19 profesyonel kariyer (kayıt); ev/deplasman, milli maç, taktik karışık
-const SCEN = Array.from({ length: 20 }, (_, i) => ({
+// 22 senaryo: 0-9 lise kariyeri (yeni), 10-19 profesyonel kariyer (kayıt); ev/deplasman, milli maç karışık.
+// 20-21: üst üste iki simüle maç aynı anda başlar (hızlı hafta iki kez tıklanırsa): iki döngü de canlı M'ye yazar.
+const SCEN = Array.from({ length: 22 }, (_, i) => ({
   i,
-  pro: i >= 10,
+  pro: i >= 10 && i !== 20,
   pos: POS[i % 5],
   home: i % 2 === 0,
-  nat: i === 7 || i === 17
+  nat: i === 7 || i === 17,
+  dual: i >= 20
 }));
 
 async function run(browser, sc) {
@@ -79,7 +81,8 @@ async function run(browser, sc) {
       const ctx = sc.nat
         ? { opp, home: sc.home, comp: "nat", role: "rot", label: "golden", auto: true }
         : { opp, home: sc.home, comp: "lig", label: "golden", auto: true };
-      ctx.onEnd = win => {
+      const ends = [];
+      const onEnd = win => {
         const M = G.M;
         const pick = o => Object.fromEntries(Object.keys(o).map(k => [k, o[k]]));
         const r9 = v => (typeof v === "number" ? Math.round(v * 1e9) / 1e9 : v);
@@ -93,7 +96,7 @@ async function run(browser, sc) {
         const sv = JSON.stringify(S, (k, v) => (k === "cid" ? undefined : typeof v === "number" ? r9(v) : v)); // cid: zaman damgalı kariyer kimliği
         let h = 0x811c9dc5;
         for (let i = 0; i < sv.length; i++) h = Math.imul(h ^ sv.charCodeAt(i), 0x01000193) >>> 0;
-        res({
+        const r = {
           win,
           pre,
           opp: opp.key || opp.short,
@@ -104,9 +107,14 @@ async function run(browser, sc) {
           rng: n,
           sHash: h.toString(16),
           ms: Math.round(performance.now() - t0)
-        });
+        };
+        ends.push(r);
+        if (!sc.dual) res(r);
+        else if (ends.length === 2) res({ ...ends[1], first: { ...ends[0], ms: undefined } });
       };
+      ctx.onEnd = onEnd;
       G.playMatch(ctx).catch(e => res({ err: String(e && e.stack) }));
+      if (sc.dual) G.playMatch({ ...ctx, home: !ctx.home }).catch(e => res({ err: String(e && e.stack) }));
     });
   }, sc);
   await ctx.close();

@@ -2204,5 +2204,513 @@
   ],
   "rng": 1517,
   "sHash": "8d6701a5"
+ },
+ "20": {
+  "win": false,
+  "pre": {
+   "stage": "lise",
+   "pos": "PG",
+   "str": 0.95
+  },
+  "opp": "lise|İstanbul|5",
+  "qs": [
+   [
+    19,
+    21
+   ],
+   [
+    22,
+    27
+   ],
+   [
+    34,
+    57
+   ],
+   [
+    38,
+    62
+   ],
+   [
+    54,
+    81
+   ],
+   [
+    56,
+    83
+   ],
+   [
+    69,
+    116
+   ],
+   [
+    69,
+    116
+   ]
+  ],
+  "st": {
+   "us": 69,
+   "them": 116,
+   "pts": 4,
+   "ast": 4,
+   "reb": 1,
+   "blk": 0,
+   "stl": 0,
+   "stops": 1,
+   "fga": null,
+   "fgm": null,
+   "tpa": null,
+   "tpm": null,
+   "fta": null,
+   "ftm": null,
+   "pf": null,
+   "fo": null,
+   "plus": -32,
+   "mins": 1938,
+   "rating": 7.54,
+   "autoPts": 2,
+   "autoAst": 3,
+   "touches": 5,
+   "wsum": 4,
+   "wgood": 3.6,
+   "and1": null,
+   "low": -47,
+   "ref": "strict",
+   "dz": "man",
+   "ostyle": "denge",
+   "hype": 0,
+   "mmod": 0,
+   "effMod": 0,
+   "oppRun": 4
+  },
+  "star": {
+   "n": "K. Demir",
+   "o": 26.7,
+   "pts": 45
+  },
+  "feed": [
+   "4Ç 00:00 <b>Maç sona erdi.</b> 69-116.",
+   "4Ç 00:00 <b>Maç sona erdi.</b> 69-116.",
+   "4Ç 01:14 ATA · K. Demir hızlı hücumda smaç",
+   "4Ç 00:34 ATA · O. Öztürk üçlüğü soktu",
+   "4Ç 00:58 ATA · E. Demir üçlüğü soktu",
+   "4Ç 01:24 ATA · B. Arslan turnikeyle 2 sayı",
+   "4Ç 03:57 ATA · O. Yılmaz hızlı hücumda smaç",
+   "4Ç 03:57 Kenardayken skor 58-83 iken 63-95 oldu.",
+   "4Ç 03:57 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+   "4Ç 02:59 Kayıt hızlı hücumu smaçla bitirdi! <span class=\"good\">+0.02 Çeviklik</span>",
+   "4Ç 03:32 MMS · E. Koç üçlüğü soktu",
+   "4Ç 03:48 Kenardayken skor 54-81 iken 58-95 oldu.",
+   "4Ç 03:48 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+   "4Ç 07:23 ATA · K. Demir pota altından 2 sayı",
+   "4Ç 05:38 ATA · E. Demir pota altından 2 sayı",
+   "4Ç 06:10 ATA · E. Demir üçlüğü soktu",
+   "4Ç 08:58 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+   "4Ç 09:36 MMS · E. Kurt turnikeyle 2 sayı Tribünler coştu!",
+   "4Ç 09:57 <b>Rakip savunmasını değiştirdi:</b> Rakip: adam adama",
+   "3Ç 00:19 MMS · E. Koç turnikeyle 2 sayı",
+   "4Ç 09:00 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+   "3Ç 01:12 ATA · T. Şahin hızlı hücumda smaç",
+   "3Ç 02:56 Kenardayken skor 38-62 iken 54-79 oldu.",
+   "3Ç 02:56 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+   "3Ç 03:10 MMS · E. Koç hızlı hücumda smaç",
+   "3Ç 01:21 ATA · K. Çelik turnikeyle 2 sayı",
+   "3Ç 01:35 Kayıt asisti yaptı. <span class=\"good\">+0.02 Pas</span>",
+   "3Ç 02:46 Kenardayken skor 34-57 iken 47-77 oldu.",
+   "3Ç 02:46 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+   "3Ç 05:00 MMS · O. Kaya turnikeyle 2 sayı",
+   "3Ç 04:12 ATA · B. Arslan üçlüğü soktu",
+   "3Ç 06:49 MMS · E. Kurt turnikeyle 2 sayı",
+   "3Ç 08:12 ATA · B. Arslan üçlüğü soktu",
+   "3Ç 09:51 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+   "3Ç 09:51 <b>Rakip savunmasını değiştirdi:</b> Rakip: alan savunması",
+   "2Ç 01:58 ATA · K. Aksoy orta mesafeden 2 sayı",
+   "3Ç 09:58 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+   "2Ç 01:43 Pas iyiydi, şut girmedi. <span class=\"good\">+0.02 Pas</span>",
+   "2Ç 02:21 MMS · B. Erdem pota altından 2 sayı",
+   "2Ç 03:35 MMS · E. Kurt orta mesafeden 2 sayı"
+  ],
+  "rng": 2303,
+  "sHash": "1f0d1b",
+  "first": {
+   "win": false,
+   "pre": {
+    "stage": "lise",
+    "pos": "PG",
+    "str": 0.95
+   },
+   "opp": "lise|İstanbul|5",
+   "qs": [
+    [
+     19,
+     21
+    ],
+    [
+     22,
+     27
+    ],
+    [
+     34,
+     57
+    ],
+    [
+     38,
+     62
+    ],
+    [
+     54,
+     81
+    ],
+    [
+     56,
+     83
+    ],
+    [
+     69,
+     116
+    ],
+    [
+     69,
+     116
+    ]
+   ],
+   "st": {
+    "us": 69,
+    "them": 116,
+    "pts": 4,
+    "ast": 4,
+    "reb": 1,
+    "blk": 0,
+    "stl": 0,
+    "stops": 1,
+    "fga": null,
+    "fgm": null,
+    "tpa": null,
+    "tpm": null,
+    "fta": null,
+    "ftm": null,
+    "pf": null,
+    "fo": null,
+    "plus": -32,
+    "mins": 1938,
+    "rating": 7.54,
+    "autoPts": 2,
+    "autoAst": 3,
+    "touches": 5,
+    "wsum": 4,
+    "wgood": 3.6,
+    "and1": null,
+    "low": -47,
+    "ref": "strict",
+    "dz": "man",
+    "ostyle": "denge",
+    "hype": 0,
+    "mmod": 0,
+    "effMod": 0,
+    "oppRun": 4
+   },
+   "star": {
+    "n": "K. Demir",
+    "o": 26.7,
+    "pts": 45
+   },
+   "feed": [
+    "4Ç 00:00 <b>Maç sona erdi.</b> 69-116.",
+    "4Ç 01:14 ATA · K. Demir hızlı hücumda smaç",
+    "4Ç 00:34 ATA · O. Öztürk üçlüğü soktu",
+    "4Ç 00:58 ATA · E. Demir üçlüğü soktu",
+    "4Ç 01:24 ATA · B. Arslan turnikeyle 2 sayı",
+    "4Ç 03:57 ATA · O. Yılmaz hızlı hücumda smaç",
+    "4Ç 03:57 Kenardayken skor 58-83 iken 63-95 oldu.",
+    "4Ç 03:57 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+    "4Ç 02:59 Kayıt hızlı hücumu smaçla bitirdi! <span class=\"good\">+0.02 Çeviklik</span>",
+    "4Ç 03:32 MMS · E. Koç üçlüğü soktu",
+    "4Ç 03:48 Kenardayken skor 54-81 iken 58-95 oldu.",
+    "4Ç 03:48 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+    "4Ç 07:23 ATA · K. Demir pota altından 2 sayı",
+    "4Ç 05:38 ATA · E. Demir pota altından 2 sayı",
+    "4Ç 06:10 ATA · E. Demir üçlüğü soktu",
+    "4Ç 08:58 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+    "4Ç 09:36 MMS · E. Kurt turnikeyle 2 sayı Tribünler coştu!",
+    "4Ç 09:57 <b>Rakip savunmasını değiştirdi:</b> Rakip: adam adama",
+    "3Ç 00:19 MMS · E. Koç turnikeyle 2 sayı",
+    "4Ç 09:00 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+    "3Ç 01:12 ATA · T. Şahin hızlı hücumda smaç",
+    "3Ç 02:56 Kenardayken skor 38-62 iken 54-79 oldu.",
+    "3Ç 02:56 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+    "3Ç 03:10 MMS · E. Koç hızlı hücumda smaç",
+    "3Ç 01:21 ATA · K. Çelik turnikeyle 2 sayı",
+    "3Ç 01:35 Kayıt asisti yaptı. <span class=\"good\">+0.02 Pas</span>",
+    "3Ç 02:46 Kenardayken skor 34-57 iken 47-77 oldu.",
+    "3Ç 02:46 <b>Oyuncu değişikliği:</b> Kayıt oyuna girdi.",
+    "3Ç 05:00 MMS · O. Kaya turnikeyle 2 sayı",
+    "3Ç 04:12 ATA · B. Arslan üçlüğü soktu",
+    "3Ç 06:49 MMS · E. Kurt turnikeyle 2 sayı",
+    "3Ç 08:12 ATA · B. Arslan üçlüğü soktu",
+    "3Ç 09:51 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+    "3Ç 09:51 <b>Rakip savunmasını değiştirdi:</b> Rakip: alan savunması",
+    "2Ç 01:58 ATA · K. Aksoy orta mesafeden 2 sayı",
+    "3Ç 09:58 <b>Oyuncu değişikliği:</b> Kayıt kenara geldi.",
+    "2Ç 01:43 Pas iyiydi, şut girmedi. <span class=\"good\">+0.02 Pas</span>",
+    "2Ç 02:21 MMS · B. Erdem pota altından 2 sayı",
+    "2Ç 03:35 MMS · E. Kurt orta mesafeden 2 sayı",
+    "2Ç 03:48 Kenardayken skor 22-27 iken 30-50 oldu."
+   ],
+   "rng": 2303,
+   "sHash": "1f0d1b"
+  }
+ },
+ "21": {
+  "win": false,
+  "pre": {
+   "stage": "nba",
+   "pos": "SF",
+   "str": 0.984
+  },
+  "opp": "club|Minnesota Timberwolves",
+  "qs": [
+   [
+    45,
+    53
+   ],
+   [
+    54,
+    63
+   ],
+   [
+    92,
+    111
+   ],
+   [
+    107,
+    129
+   ],
+   [
+    151,
+    175
+   ],
+   [
+    170,
+    190
+   ],
+   [
+    203,
+    232
+   ],
+   [
+    208,
+    239
+   ]
+  ],
+  "st": {
+   "us": 208,
+   "them": 239,
+   "pts": 60,
+   "ast": 1,
+   "reb": 11,
+   "blk": 1,
+   "stl": 0,
+   "stops": 4,
+   "fga": 13,
+   "fgm": 4,
+   "tpa": 5,
+   "tpm": null,
+   "fta": 2,
+   "ftm": 2,
+   "pf": 1,
+   "fo": null,
+   "plus": -15,
+   "mins": 3424,
+   "rating": 4.893434343,
+   "autoPts": 50,
+   "autoAst": 1,
+   "touches": 36,
+   "wsum": 19.8,
+   "wgood": 7.3,
+   "and1": null,
+   "low": -34,
+   "ref": "normal",
+   "dz": "zone",
+   "ostyle": "denge",
+   "hype": 0,
+   "mmod": 0,
+   "effMod": 0,
+   "oppRun": 0
+  },
+  "star": {
+   "n": "M. Miller",
+   "o": 86.4,
+   "pts": 62
+  },
+  "feed": [
+   "4Ç 00:00 <b>Maç sona erdi.</b> 208-239.",
+   "4Ç 00:57 <b>Oyuncu değişikliği:</b> Kariyer kenara geldi.",
+   "4Ç 01:31 Kariyer top kaybı yaptı.",
+   "4Ç 01:52 MİN · K. Davis pota altından 2 sayı",
+   "4Ç 00:00 <b>Maç sona erdi.</b> 203-232.",
+   "4Ç 05:00 MİN · T. Williams orta mesafeden 2 sayı",
+   "4Ç 03:48 LAW · A. Moore hızlı hücumda smaç",
+   "4Ç 00:56 <b>Oyuncu değişikliği:</b> Kariyer kenara geldi.",
+   "4Ç 02:14 Kariyer şutu kaçırdı.",
+   "4Ç 05:08 MİN · J. Williams hızlı hücumda smaç",
+   "4Ç 05:39 MİN · K. Davis turnikeyle 2 sayı",
+   "4Ç 06:15 MİN · K. Davis orta mesafeden 2 sayı",
+   "4Ç 06:30 Kariyer orta mesafeden attı. <span class=\"good\">+0.00 Şut</span>",
+   "4Ç 06:30 <b class=\"gold\">Tribünler ayağa kalktı! Birkaç an boyunca her şey daha kolay.</b>",
+   "4Ç 07:03 LAW · T. Harris üçlüğü soktu",
+   "4Ç 07:21 MİN · M. Walker hızlı hücumda smaç",
+   "4Ç 04:04 Kariyer şutu kaçırdı.",
+   "4Ç 04:51 MİN · M. Miller pota altından 2 sayı",
+   "4Ç 05:07 Kariyer şutu kaçırdı.",
+   "4Ç 07:39 LAW · T. Williams pota altından 2 sayı",
+   "4Ç 08:53 MİN · C. Jackson hızlı hücumda smaç",
+   "4Ç 09:25 MİN · J. Taylor üçlüğü soktu",
+   "4Ç 09:58 Kenardayken skor 146-164 iken 170-190 oldu.",
+   "4Ç 09:58 <b>Oyuncu değişikliği:</b> Kariyer oyuna girdi.",
+   "4Ç 09:58 <b>Rakip savunmasını değiştirdi:</b> Rakip: alan savunması",
+   "4Ç 07:32 LAW · Z. Taylor turnikeyle 2 sayı",
+   "4Ç 08:04 LAW · Z. Taylor orta mesafeden 2 sayı",
+   "3Ç 00:10 LAW · Z. Taylor üçlüğü soktu",
+   "3Ç 01:36 MİN · M. Walker üçlüğü soktu",
+   "3Ç 02:22 LAW · A. Moore turnikeyle 2 sayı",
+   "4Ç 09:07 Kariyer şutu kaçırdı.",
+   "4Ç 09:46 Kenardayken skor 129-155 iken 151-175 oldu.",
+   "4Ç 09:46 <b>Oyuncu değişikliği:</b> Kariyer oyuna girdi.",
+   "4Ç 09:46 <b>Rakip savunmasını değiştirdi:</b> Rakip: adam adama",
+   "3Ç 00:08 MİN · D. Davis pota altından 2 sayı",
+   "3Ç 03:21 MİN · C. Jackson turnikeyle 2 sayı",
+   "3Ç 03:57 <b>Oyuncu değişikliği:</b> Kariyer kenara geldi.",
+   "3Ç 04:30 MİN · M. Walker orta mesafeden 2 sayı",
+   "3Ç 04:52 LAW · T. Williams üçlüğü soktu Ne oyun ama!",
+   "3Ç 05:21 LAW · A. Moore üçlüğü soktu"
+  ],
+  "rng": 3219,
+  "sHash": "11c84706",
+  "first": {
+   "win": false,
+   "pre": {
+    "stage": "nba",
+    "pos": "SF",
+    "str": 0.984
+   },
+   "opp": "club|Minnesota Timberwolves",
+   "qs": [
+    [
+     45,
+     53
+    ],
+    [
+     54,
+     63
+    ],
+    [
+     92,
+     111
+    ],
+    [
+     107,
+     129
+    ],
+    [
+     151,
+     175
+    ],
+    [
+     170,
+     190
+    ],
+    [
+     203,
+     232
+    ],
+    [
+     208,
+     239
+    ]
+   ],
+   "st": {
+    "us": 203,
+    "them": 232,
+    "pts": 60,
+    "ast": 1,
+    "reb": 11,
+    "blk": 1,
+    "stl": 0,
+    "stops": 4,
+    "fga": 12,
+    "fgm": 4,
+    "tpa": 5,
+    "tpm": null,
+    "fta": 2,
+    "ftm": 2,
+    "pf": 1,
+    "fo": null,
+    "plus": -13,
+    "mins": 3378,
+    "rating": 4.991489362,
+    "autoPts": 50,
+    "autoAst": 1,
+    "touches": 35,
+    "wsum": 18.8,
+    "wgood": 7.3,
+    "and1": null,
+    "low": -31,
+    "ref": "normal",
+    "dz": "zone",
+    "ostyle": "denge",
+    "hype": 0,
+    "mmod": 0,
+    "effMod": 0,
+    "oppRun": 1
+   },
+   "star": {
+    "n": "M. Miller",
+    "o": 86.4,
+    "pts": 62
+   },
+   "feed": [
+    "4Ç 00:00 <b>Maç sona erdi.</b> 203-232.",
+    "4Ç 05:00 MİN · T. Williams orta mesafeden 2 sayı",
+    "4Ç 03:48 LAW · A. Moore hızlı hücumda smaç",
+    "4Ç 00:56 <b>Oyuncu değişikliği:</b> Kariyer kenara geldi.",
+    "4Ç 02:14 Kariyer şutu kaçırdı.",
+    "4Ç 05:08 MİN · J. Williams hızlı hücumda smaç",
+    "4Ç 05:39 MİN · K. Davis turnikeyle 2 sayı",
+    "4Ç 06:15 MİN · K. Davis orta mesafeden 2 sayı",
+    "4Ç 06:30 Kariyer orta mesafeden attı. <span class=\"good\">+0.00 Şut</span>",
+    "4Ç 06:30 <b class=\"gold\">Tribünler ayağa kalktı! Birkaç an boyunca her şey daha kolay.</b>",
+    "4Ç 07:03 LAW · T. Harris üçlüğü soktu",
+    "4Ç 07:21 MİN · M. Walker hızlı hücumda smaç",
+    "4Ç 04:04 Kariyer şutu kaçırdı.",
+    "4Ç 04:51 MİN · M. Miller pota altından 2 sayı",
+    "4Ç 05:07 Kariyer şutu kaçırdı.",
+    "4Ç 07:39 LAW · T. Williams pota altından 2 sayı",
+    "4Ç 08:53 MİN · C. Jackson hızlı hücumda smaç",
+    "4Ç 09:25 MİN · J. Taylor üçlüğü soktu",
+    "4Ç 09:58 Kenardayken skor 146-164 iken 170-190 oldu.",
+    "4Ç 09:58 <b>Oyuncu değişikliği:</b> Kariyer oyuna girdi.",
+    "4Ç 09:58 <b>Rakip savunmasını değiştirdi:</b> Rakip: alan savunması",
+    "4Ç 07:32 LAW · Z. Taylor turnikeyle 2 sayı",
+    "4Ç 08:04 LAW · Z. Taylor orta mesafeden 2 sayı",
+    "3Ç 00:10 LAW · Z. Taylor üçlüğü soktu",
+    "3Ç 01:36 MİN · M. Walker üçlüğü soktu",
+    "3Ç 02:22 LAW · A. Moore turnikeyle 2 sayı",
+    "4Ç 09:07 Kariyer şutu kaçırdı.",
+    "4Ç 09:46 Kenardayken skor 129-155 iken 151-175 oldu.",
+    "4Ç 09:46 <b>Oyuncu değişikliği:</b> Kariyer oyuna girdi.",
+    "4Ç 09:46 <b>Rakip savunmasını değiştirdi:</b> Rakip: adam adama",
+    "3Ç 00:08 MİN · D. Davis pota altından 2 sayı",
+    "3Ç 03:21 MİN · C. Jackson turnikeyle 2 sayı",
+    "3Ç 03:57 <b>Oyuncu değişikliği:</b> Kariyer kenara geldi.",
+    "3Ç 04:30 MİN · M. Walker orta mesafeden 2 sayı",
+    "3Ç 04:52 LAW · T. Williams üçlüğü soktu Ne oyun ama!",
+    "3Ç 05:21 LAW · A. Moore üçlüğü soktu",
+    "3Ç 01:47 MİN · M. Miller hızlı hücumda smaç",
+    "3Ç 02:40 LAW · T. Williams pota altından 2 sayı",
+    "3Ç 03:01 MİN · T. Williams üçlüğü soktu",
+    "3Ç 03:51 LAW · T. Williams hızlı hücumda smaç"
+   ],
+   "rng": 3107,
+   "sHash": "11c84706"
+  }
  }
 }

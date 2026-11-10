@@ -116,80 +116,89 @@ export const newMatchState = () => ({
  *   pace?: () => unknown,
  *   yield?: () => unknown
  * }} MatchHooks
- * @typedef {{ m?: MatchState, plan?: StintPlan, role?: Role, tempo?: (d: number) => number, hooks?: MatchHooks,
+ * @typedef {{ m?: MatchState | (() => MatchState), plan?: StintPlan, role?: Role, tempo?: (d: number) => number, hooks?: MatchHooks,
  *   ppp?: number, threeP?: number, player?: { sk?: number, pas?: number, guc?: number, pos?: string } }} SimOpts
  */
 
 /**
- * Tam simüle maç. us/them: { str } takım güçleri. Oyunda opts.m = M (canlı maç durumu), opts.hooks oyunun
+ * Tam simüle maç. us/them: { str } takım güçleri. Oyunda opts.m = () => M (canlı maç durumu, her erişimde okunur), opts.hooks oyunun
  * bağımlılıkları; verilmezse basit takım modeli. Dönen: maç durumu (us, them, qs, istatistikler) ve son saha durumu.
  * @param {{ us: { str: number }, them: { str: number }, opts?: SimOpts }} match
  * @param {Rng} rng
  * @returns {Promise<{ m: MatchState, on: boolean }>}
  */
 export async function simulateMatch({ us, them, opts = {} }, rng) {
-  const m = opts.m || newMatchState(),
+  // canlı maç durumu her erişimde yeniden okunur (oyunda M, () => M): bekleme noktalarında yeni bir maç başlarsa
+  // (ör. hızlı hafta iki kez) eski döngü de güncel M'ye yazar; eski kodla aynı davranış
+  const own = typeof opts.m === "function" ? null : opts.m || newMatchState(),
+    cur = typeof opts.m === "function" ? opts.m : () => /** @type {MatchState} */ (own),
     role = opts.role || "rot",
     plan = opts.plan || stintPlanOf(role, 70, 50),
     tempo = opts.tempo || (d => d),
-    h = opts.hooks || defaultHooks(m, us, them, opts, role, rng);
+    h = opts.hooks || defaultHooks(cur(), us, them, opts, role, rng);
   /** @type {LoopState} */
   const L = { t: 0, end: MATCH_TOTAL, on: false, ourBall: rng() < 0.5, clutch: false, n: 0 };
   const qBreak = (/** @type {number} */ qn, /** @type {boolean} */ ot) =>
-    h.quarterBreak ? h.quarterBreak(qn, L.on, ot) : ((m.tac = null), undefined);
+    h.quarterBreak ? h.quarterBreak(qn, L.on, ot) : ((cur().tac = null), undefined);
   let lastQ = 1;
   while (L.t < L.end) {
     const dur = tempo(rngInt(rng, 12, 22)); // rakip tarzı temposu (src/matchfeel.js osDur)
     L.t = Math.min(L.end, L.t + dur);
-    Object.assign(m, matchClock(L.t));
+    Object.assign(cur(), matchClock(L.t));
     // çeyrek arası
     const q = Math.floor((L.t - 1) / 600) + 1;
     if (q > lastQ && L.t <= MATCH_TOTAL) {
-      m.qs.push([m.us, m.them]);
+      cur().qs.push([cur().us, cur().them]);
       await qBreak(lastQ, false);
       lastQ = q;
-      m.stint *= 0.4; // ara dinlendirir
+      cur().stint *= 0.4; // ara dinlendirir
       if (rng() < 0.3) {
-        m.dz = m.dz === "zone" ? "man" : "zone";
-        if (h.zoneSwitch) h.zoneSwitch(m.dz);
+        cur().dz = cur().dz === "zone" ? "man" : "zone";
+        if (h.zoneSwitch) h.zoneSwitch(cur().dz);
       }
     }
     // rotasyon (faulle oyun dışı / faul sorunu)
     const minute = L.t / 60,
-      want = (planHas(plan, Math.min(39.9, minute)) || (L.t > MATCH_TOTAL && role !== "bench")) && !m.fo && m.ftSit !== m.q;
+      want =
+        (planHas(plan, Math.min(39.9, minute)) || (L.t > MATCH_TOTAL && role !== "bench")) &&
+        !cur().fo &&
+        cur().ftSit !== cur().q;
     if (want !== L.on) {
       L.on = want;
-      m.on = want;
+      cur().on = want;
       if (h.sub) h.sub(want, L);
     }
     if (L.on) {
-      m.mins += dur;
-      m.stint += dur;
-    } else m.stint = Math.max(0, m.stint - dur * 2);
-    const close = Math.abs(m.us - m.them) <= 6,
+      cur().mins += dur;
+      cur().stint += dur;
+    } else cur().stint = Math.max(0, cur().stint - dur * 2);
+    const close = Math.abs(cur().us - cur().them) <= 6,
       clutch = L.t > MATCH_TOTAL - 120 && close;
     // takım arkadaşlarının sana pas verme isteği: hücumda topla buluşma (karar anı) olasılığı
     const involve =
-      0.08 + (clutch ? 0.35 : 0) + (m.tac === "ball" ? 0.05 : 0) + (L.ourBall ? (h.passTrustBonus ? h.passTrustBonus() : 0) : 0);
-    const before = [m.us, m.them];
-    const skipMoment = m.lcTrail;
-    m.lcTrail = false;
+      0.08 +
+      (clutch ? 0.35 : 0) +
+      (cur().tac === "ball" ? 0.05 : 0) +
+      (L.ourBall ? (h.passTrustBonus ? h.passTrustBonus() : 0) : 0);
+    const before = [cur().us, cur().them];
+    const skipMoment = cur().lcTrail;
+    cur().lcTrail = false;
     L.clutch = clutch;
     if (L.on && !skipMoment && rng() < involve) {
-      if (L.ourBall) m.touches = (m.touches || 0) + 1;
+      if (L.ourBall) cur().touches = (cur().touches || 0) + 1;
       await (h.moment ? h.moment(L.ourBall, clutch, L) : h.possession && h.possession(L.ourBall, L));
     } else if (h.possession) h.possession(L.ourBall, L);
-    if (L.on) m.plus += m.us - before[0] - (m.them - before[1]);
-    m.low = Math.min(m.low || 0, m.us - m.them); // en büyük geri düşülen fark
+    if (L.on) cur().plus += cur().us - before[0] - (cur().them - before[1]);
+    cur().low = Math.min(cur().low || 0, cur().us - cur().them); // en büyük geri düşülen fark
     L.ourBall = !L.ourBall;
     if (h.afterPossession) h.afterPossession(L);
     // uzatma
-    if (L.t >= L.end && L.end >= MATCH_TOTAL && m.us === m.them) {
+    if (L.t >= L.end && L.end >= MATCH_TOTAL && cur().us === cur().them) {
       L.end += MATCH_OT;
       if (h.overtime) h.overtime();
-      m.toLeft = 1; // uzatmada bir mola
+      cur().toLeft = 1; // uzatmada bir mola
       if (L.t === MATCH_TOTAL) {
-        m.qs.push([m.us, m.them]);
+        cur().qs.push([cur().us, cur().them]);
         await qBreak(4, true);
       }
     }
@@ -197,8 +206,8 @@ export async function simulateMatch({ us, them, opts = {} }, rng) {
     // uzun tek görev olmasın: ~10 hücumda bir nefes (sonucu/RNG sırasını değiştirmez)
     if (++L.n % 10 === 0 && h.yield) await h.yield();
   }
-  m.qs.push([m.us, m.them]);
-  return { m, on: L.on };
+  cur().qs.push([cur().us, cur().them]);
+  return { m: cur(), on: L.on };
 }
 
 /**
