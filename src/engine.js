@@ -8,6 +8,7 @@ import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey
 import { arenaFor } from "./places.js";
 import { LK, M, PEN, addFeed, feedRowHTML, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
 import { possessionChance, resolvePossession } from "./logic/possession.js";
+import { matchClock, planHas, simulateMatch, stintPlanOf } from "./logic/simmatch.js";
 /* ================= MAÇ MOTORU (NSS tarzı akış) =================
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
@@ -25,32 +26,9 @@ export function rosterNames(city, n) {
 export function schoolRole() {
   return roleAt(ovr(), S.stage, "TR");
 }
-export function stintPlan(role) {
-  const P = {
-    star: [
-      [0, 7],
-      [10, 18],
-      [20, 27],
-      [30, 40]
-    ],
-    rot: [
-      [3, 9],
-      [12, 19],
-      [23, 30],
-      [33, 40]
-    ],
-    bench: [
-      [6, 10],
-      [16, 20],
-      [27, 31],
-      [36, 40]
-    ]
-  }[role].map(s => s.slice());
-  if (S.energy < 35) P.forEach(s => (s[1] = Math.max(s[0] + 2, s[1] - 1)));
-  if (S.rel.koc < 25 && role !== "star") P.pop();
-  return P;
-}
-export const inStint = (plan, m) => plan.some(([a, b]) => m >= a && m < b);
+// rotasyon planı (saf hesap src/logic/simmatch.js): enerji ve koçla ilişkiye göre
+export const stintPlan = role => stintPlanOf(role, S.energy, S.rel.koc);
+export const inStint = planHas;
 /** Maç kartını (karar, mod seçimi, çeyrek arası) başparmak bölgesine hizala: kart ekrana sığıyorsa alt kenarı ekranın
     altına oturur (seçenekler altta, başlık üstte görünür); sığmıyorsa başlığı yapışkan tabelanın hemen altında kalır. */
 export function thumbAlign(el) {
@@ -253,17 +231,8 @@ export async function playMatch(ctx) {
   statLine();
   const TOTAL = 2400;
   let t = 0,
-    ourBall = Math.random() < 0.5,
-    lastQ = 1,
     benchFrom = null;
-  const setClock = () => {
-    const q = Math.min(5, Math.floor(t / 600) + 1),
-      inQ = t >= 2400 ? t - 2400 : t % 600,
-      len = t >= 2400 ? 300 : 600;
-    M.q = q > 4 ? 4 : q;
-    const left = Math.max(0, len - inQ);
-    M.clock = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
-  };
+  const setClock = () => Object.assign(M, matchClock(t)); // çeyrek ve kalan süre (M.q, M.clock)
   // "sadece anlarım": akış hiç beklemez, yalnızca karar anlarında durur
   const paceMs = () => (AUTO || mode === "only" ? 0 : mode === "key" && !on ? 0 : mode === "key" ? KEY_ON : PACE[M.speed]);
   const pace = async () => {
@@ -272,161 +241,92 @@ export async function playMatch(ctx) {
     // uygulama arka plandayken maç saati durur (telefon kilitlenince akış kaçmaz); öne gelince kaldığı yerden sürer
     while (!AUTO && document.hidden && $("#mstat")) await wait(300);
   };
-  let end = TOTAL,
-    nPoss = 0;
-  // window.__TEST.shortMatch (yalnız otomatik testler, ör. 4): elle oynanan maçta hücum süresi bu katla uzar → çeyrekler,
-  // rotasyon ve son dakika aynı kalır ama daha az hücum oynanır (tests/personas.js U14). Oyuncuda bayrak yok: 1.
-  const SHORT = (!AUTO && window.__TEST && +window.__TEST.shortMatch) || 1;
-  while (t < end) {
-    // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
-    if (!AUTO && !$("#mstat")) return;
-    // önde olan rakip son dakikada saati sonuna kadar kullanır (kendin oynarken: faul kararını anlamlı kılar)
-    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : late.osDur(ri(12, 22)) * SHORT; // rakip tarzı temposu (src/matchfeel.js)
-    const t0 = t;
-    t = Math.min(end, t + dur);
-    setClock();
-    // çeyrek arası
-    const q = Math.floor((t - 1) / 600) + 1;
-    if (q > lastQ && t <= TOTAL) {
-      M.qs.push([M.us, M.them]);
-      await quarterBreak(lastQ, on);
-      lastQ = q;
-      M.stint *= 0.4; // ara dinlendirir
-      if (Math.random() < 0.3) {
-        M.dz = M.dz === "zone" ? "man" : "zone";
-        addFeed(`<b>${$t("cond.switch")}</b> ${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}`);
-      }
-    }
-    // rotasyon
-    const minute = t / 60,
-      want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo && M.ftSit !== M.q; // faulle oyun dışı / faul sorunu
-    if (want !== on) {
-      on = want;
-      M.on = on;
-      if (on) {
-        banner(
-          $t("live.subbedInQuarter", {
-            q: M.q,
-            clock: M.clock
-          }),
-          true
-        );
-        addFeed(
-          `<b>${$t("live.substitution")}</b> ${$t("live.checked", {
-            sur: sur
-          })}`
-        );
-        if (benchFrom && mode === "key")
-          addFeed(
-            $t("live.whileBenchScore", {
-              v: benchFrom[0],
-              v2: benchFrom[1],
-              us: M.us,
-              them: M.them
-            })
-          );
-        benchFrom = null;
-      } else {
-        banner(
-          $t("live.subbedQ", {
-            q: M.q,
-            clock: M.clock
-          }),
-          false
-        );
-        addFeed(
-          `<b>${$t("live.substitution")}</b> ${$t("live.cameBench", {
-            sur: sur
-          })}`
-        );
-        benchFrom = [M.us, M.them];
-      }
-      statLine();
-    }
+  // oyuna giriş/çıkış: bant, akış satırı, kenardayken skor özeti
+  const subChange = () => {
     if (on) {
-      M.mins += dur;
-      M.stint += dur;
-    } else M.stint = Math.max(0, M.stint - dur * 2);
-    // mola (src/clutch.js): istenen mola sıradaki hücumdan önce
-    if (!AUTO && M.toReq) {
-      await late.timeoutCard($("#mview"));
-      renderSpd();
-    }
-    // son dakika kararı: faul yap / zamanı tüket
-    if (!AUTO && on && t > end - 50 && t < end) {
-      const call = await late.lateCall(ourBall, M.us - M.them, $("#mview"), end - t);
-      if (call === "foul") {
-        const { made, note } = late.oppFreeThrows();
-        M.them += made;
-        M.plus -= made;
-        t = Math.min(end, t0 + ri(2, 4)); // faul saati hemen durdurur
-        setClock();
-        addFeed(`<b>${$t("cl.foulFeed")}</b> ${$t("cl.ftRes", { n: made })}${note}`);
-        ourBall = true; // top size geçer
-        updBug();
-        statLine();
-        await pace();
-        continue;
-      }
-      if (call === "hold") {
-        t = Math.min(end, t + 10);
-        setClock();
-        M.hold = 1;
-        addFeed($t("cl.holdFeed"));
-      }
-    }
-    const close = Math.abs(M.us - M.them) <= 6,
-      clutch = t > TOTAL - 120 && close;
-    // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
-    const involve =
-      (AUTO ? 0.08 : 0.1) + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı
-    const before = [M.us, M.them];
-    const ap0 = M.autoPts || 0,
-      mp0 = M.pts;
-    const skipMoment = M.lcTrail;
-    M.lcTrail = false;
-    if (on && !skipMoment && ((!AUTO && late.toLastTake(ourBall)) || Math.random() < involve)) {
-      if (ourBall) M.touches = (M.touches || 0) + 1;
-      await moment(ourBall, clutch);
-    } else {
-      simPossession(ourBall);
-      // sahada hücumu izle: geçiş → set → şut (src/court.js)
-      if (!AUTO)
-        late.courtPlay(
-          { us: ourBall, scored: ourBall ? M.us > before[0] : M.them > before[1], mine: (M.autoPts || 0) > ap0 },
-          on,
-          paceMs()
+      banner(
+        $t("live.subbedInQuarter", {
+          q: M.q,
+          clock: M.clock
+        }),
+        true
+      );
+      addFeed(
+        `<b>${$t("live.substitution")}</b> ${$t("live.checked", {
+          sur: sur
+        })}`
+      );
+      if (benchFrom && mode === "key")
+        addFeed(
+          $t("live.whileBenchScore", {
+            v: benchFrom[0],
+            v2: benchFrom[1],
+            us: M.us,
+            them: M.them
+          })
         );
+      benchFrom = null;
+    } else {
+      banner(
+        $t("live.subbedQ", {
+          q: M.q,
+          clock: M.clock
+        }),
+        false
+      );
+      addFeed(
+        `<b>${$t("live.substitution")}</b> ${$t("live.cameBench", {
+          sur: sur
+        })}`
+      );
+      benchFrom = [M.us, M.them];
     }
-    if (on) M.plus += M.us - before[0] - (M.them - before[1]);
-    if (!AUTO) late.mfTrack({ us: ourBall, before, pts0: mp0, left: end - t, ot: t > TOTAL }); // kritik an (src/matchfeel.js)
-    M.low = Math.min(M.low || 0, M.us - M.them); // en büyük geri düşülen fark (geri dönüş başarımı)
-    ourBall = !ourBall;
-    updBug();
-    if (on) statLine();
-    // mola düğmesi durumu (kalan hak, rakip serisi) değişince yeniden çiz
-    if (!AUTO) {
-      const k = `${M.toLeft}|${M.toReq ? 1 : 0}|${M.oppRun >= 3}`;
-      if (k !== M._toKey) {
-        M._toKey = k;
-        renderSpd();
-      }
-    }
-    if (t >= end && end >= TOTAL && M.us === M.them) {
-      end += 300;
-      addFeed(`<b>${$t("live.overtime")}</b> ${$t("live.fiveMoreMinutes")}`);
-      if (!AUTO) late.commentLine("ot");
-      M.toLeft = 1; // uzatmada bir mola
-      if (t === TOTAL) {
-        M.qs.push([M.us, M.them]);
-        await quarterBreak(4, on, true);
-      }
-    }
-    await pace();
-    // simüle maç tek uzun görev olmasın: ~10 hücumda bir ana iş parçacığına nefes (sonucu/RNG sırasını değiştirmez)
-    if (AUTO && ++nPoss % 10 === 0) await yieldMain();
-  }
-  M.qs.push([M.us, M.them]);
+    statLine();
+  };
+  const zoneFeed = () => addFeed(`<b>${$t("cond.switch")}</b> ${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}`);
+  const otFeed = () => addFeed(`<b>${$t("live.overtime")}</b> ${$t("live.fiveMoreMinutes")}`);
+  if (AUTO) {
+    // simüle maç: saat, çeyrek, rotasyon, hücum sırası ve uzatma DOM'suz döngüde (src/logic/simmatch.js);
+    // hücumun ve karar anının oyun tarafı (akış, nitelik kazancı, koç tepkisi) buradaki fonksiyonlarla
+    const r = await simulateMatch(
+      {
+        us: { str: ourStr },
+        them: { str: opp.str },
+        opts: {
+          m: M,
+          plan,
+          role,
+          tempo: d => late.osDur(d), // rakip tarzı temposu (src/matchfeel.js)
+          hooks: {
+            quarterBreak: (qn, onC, ot) => quarterBreak(qn, onC, ot),
+            zoneSwitch: zoneFeed,
+            sub: v => {
+              on = v;
+              subChange();
+            },
+            passTrustBonus: () => late.passTrustBonus(),
+            moment: (us, clutch, L) => {
+              t = L.t;
+              return moment(us, clutch);
+            },
+            possession: (us, L) => {
+              t = L.t;
+              simPossession(us);
+            },
+            afterPossession: () => {
+              updBug();
+              if (on) statLine();
+            },
+            overtime: otFeed,
+            pace,
+            yield: yieldMain
+          }
+        }
+      },
+      () => Math.random()
+    );
+    on = r.on;
+  } else if (!(await liveLoop())) return; // maç ekranı kapandı
   if (M.silent) drawSilent();
   late.matchdayEnd();
   statLine(); // seyirci çubuğu ve canlı satır son haliyle
@@ -460,6 +360,122 @@ export async function playMatch(ctx) {
   if (ctx.onEnd) ctx.onEnd(win);
   else finishMatch(win);
 
+  // Elle oynanan maçın döngüsü (mola, son dakika kararı, saha animasyonu, tempo); simüle maç src/logic/simmatch.js.
+  // Maç ekranı kapanırsa (kariyerden çıkış, yeniden yükleme) false döner, motor sessizce durur.
+  async function liveLoop() {
+    let ourBall = Math.random() < 0.5,
+      lastQ = 1,
+      end = TOTAL;
+    // window.__TEST.shortMatch (yalnız otomatik testler, ör. 4): elle oynanan maçta hücum süresi bu katla uzar → çeyrekler,
+    // rotasyon ve son dakika aynı kalır ama daha az hücum oynanır (tests/personas.js U14). Oyuncuda bayrak yok: 1.
+    const SHORT = (window.__TEST && +window.__TEST.shortMatch) || 1;
+    while (t < end) {
+      if (!$("#mstat")) return false;
+      // önde olan rakip son dakikada saati sonuna kadar kullanır (kendin oynarken: faul kararını anlamlı kılar)
+      const dur = !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : late.osDur(ri(12, 22)) * SHORT; // rakip tarzı temposu (src/matchfeel.js)
+      const t0 = t;
+      t = Math.min(end, t + dur);
+      setClock();
+      // çeyrek arası
+      const q = Math.floor((t - 1) / 600) + 1;
+      if (q > lastQ && t <= TOTAL) {
+        M.qs.push([M.us, M.them]);
+        await quarterBreak(lastQ, on);
+        lastQ = q;
+        M.stint *= 0.4; // ara dinlendirir
+        if (Math.random() < 0.3) {
+          M.dz = M.dz === "zone" ? "man" : "zone";
+          zoneFeed();
+        }
+      }
+      // rotasyon
+      const minute = t / 60,
+        want = (inStint(plan, Math.min(39.9, minute)) || (t > TOTAL && role !== "bench")) && !M.fo && M.ftSit !== M.q; // faulle oyun dışı / faul sorunu
+      if (want !== on) {
+        on = want;
+        M.on = on;
+        subChange();
+      }
+      if (on) {
+        M.mins += dur;
+        M.stint += dur;
+      } else M.stint = Math.max(0, M.stint - dur * 2);
+      // mola (src/clutch.js): istenen mola sıradaki hücumdan önce
+      if (M.toReq) {
+        await late.timeoutCard($("#mview"));
+        renderSpd();
+      }
+      // son dakika kararı: faul yap / zamanı tüket
+      if (on && t > end - 50 && t < end) {
+        const call = await late.lateCall(ourBall, M.us - M.them, $("#mview"), end - t);
+        if (call === "foul") {
+          const { made, note } = late.oppFreeThrows();
+          M.them += made;
+          M.plus -= made;
+          t = Math.min(end, t0 + ri(2, 4)); // faul saati hemen durdurur
+          setClock();
+          addFeed(`<b>${$t("cl.foulFeed")}</b> ${$t("cl.ftRes", { n: made })}${note}`);
+          ourBall = true; // top size geçer
+          updBug();
+          statLine();
+          await pace();
+          continue;
+        }
+        if (call === "hold") {
+          t = Math.min(end, t + 10);
+          setClock();
+          M.hold = 1;
+          addFeed($t("cl.holdFeed"));
+        }
+      }
+      const close = Math.abs(M.us - M.them) <= 6,
+        clutch = t > TOTAL - 120 && close;
+      // takım arkadaşlarının sana pas verme isteği (takım ilişkisi + kadro uyumu): hücumda topla daha sık buluşursun
+      const involve = 0.1 + (clutch ? 0.35 : 0) + (M.tac === "ball" ? 0.05 : 0) + (ourBall ? late.passTrustBonus() : 0); // kendin oynarken biraz daha çok karar anı (simülede 0,08)
+      const before = [M.us, M.them];
+      const ap0 = M.autoPts || 0,
+        mp0 = M.pts;
+      const skipMoment = M.lcTrail;
+      M.lcTrail = false;
+      if (on && !skipMoment && (late.toLastTake(ourBall) || Math.random() < involve)) {
+        if (ourBall) M.touches = (M.touches || 0) + 1;
+        await moment(ourBall, clutch);
+      } else {
+        simPossession(ourBall);
+        // sahada hücumu izle: geçiş → set → şut (src/court.js)
+        late.courtPlay(
+          { us: ourBall, scored: ourBall ? M.us > before[0] : M.them > before[1], mine: (M.autoPts || 0) > ap0 },
+          on,
+          paceMs()
+        );
+      }
+      if (on) M.plus += M.us - before[0] - (M.them - before[1]);
+      late.mfTrack({ us: ourBall, before, pts0: mp0, left: end - t, ot: t > TOTAL }); // kritik an (src/matchfeel.js)
+      M.low = Math.min(M.low || 0, M.us - M.them); // en büyük geri düşülen fark (geri dönüş başarımı)
+      ourBall = !ourBall;
+      updBug();
+      if (on) statLine();
+      // mola düğmesi durumu (kalan hak, rakip serisi) değişince yeniden çiz
+      const k = `${M.toLeft}|${M.toReq ? 1 : 0}|${M.oppRun >= 3}`;
+      if (k !== M._toKey) {
+        M._toKey = k;
+        renderSpd();
+      }
+      if (t >= end && end >= TOTAL && M.us === M.them) {
+        end += 300;
+        otFeed();
+        late.commentLine("ot");
+        M.toLeft = 1; // uzatmada bir mola
+        if (t === TOTAL) {
+          M.qs.push([M.us, M.them]);
+          await quarterBreak(4, on, true);
+        }
+      }
+      await pace();
+    }
+    M.qs.push([M.us, M.them]);
+    return true;
+  }
   // arka plan hücumu: olasılık ve sonuç saf hesapta (src/logic/possession.js), burada uygulanır ve akışa yazılır
   function simPossession(us) {
     const p = possessionChance({ us, on, ppp, ourStr, oppStr: opp.str, tac: M.tac, possMod: late.possMod(us), osPossMul: late.osPossMul(us) });
