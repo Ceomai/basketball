@@ -64,7 +64,8 @@ import { carUpkeep, itemWeekly } from "./shops.js";
 import { brandText } from "./brand.js";
 import { mulberry32, seedHash } from "./logic/rng.js";
 import { buyoutFee } from "./logic/career.js";
-import { SHOT_MID, SHOT_THREE } from "./logic/shots.js";
+import { SHOT_THREE } from "./logic/shots.js";
+import { freeThrowsOf, playCategory, playOutcome } from "./logic/plays.js";
 /* ================= MAÇ ================= */
 export let M = null;
 export function bugHTML() {
@@ -112,302 +113,100 @@ export const PEN = {
   mid: 4,
   lay: 3
 };
-// Basket faul: sayı geçerli, bir serbest atış
-async function andOne(el, sur, dn, st, w) {
-  addFeed($t("play.gotPastFinished", { sur, dn }));
-  M.and1 = (M.and1 || 0) + 1;
-  M.fta = (M.fta || 0) + 1; // basket faul serbest atışı (src/court.js trackPlay sayının kendisini sayar)
-  const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("play.andOne"), tries: 1, label: $t("common.shoot") });
-  M.pts += f.ok;
-  M.ftm = (M.ftm || 0) + f.ok;
-  return { good: true, w, st, txt: f.ok ? $t("play.oneCompleted") : $t("play.freeThrowMissed") };
-}
-export async function resolvePlay(k, el, sur, dn) {
-  const three = SHOT_THREE,
-    mid = SHOT_MID;
-  if (three.includes(k) || mid.includes(k)) {
-    const th = three.includes(k);
-    const r = await mgShoot(el, {
+// Karar anının metinleri: sonuç kodu (src/logic/plays.js playOutcome) → akış metni
+const PLAY_TXT = {
+  hit3: sur => `${sur} ${$t("play.hitThree")}`,
+  hit2: sur => `${sur} ${$t("play.twoPointsMid")}`,
+  miss: sur => $t("common.missedShot", { sur: sur }),
+  turn: (sur, dn, ok, of) => (of ? `${$t("m2.charge", { sur })}${of}` : $t("common.turnedBall", { sur: sur })),
+  fb: sur => $t("common.finishedFastBreak", { sur: sur }),
+  blew: (sur, dn) => $t("play.blewPastFinished", { sur: sur, dn: dn }),
+  beat: sur => $t("play.beatManLayup", { sur: sur }),
+  int: sur => $t("play.sPassIntercepted", { sur: sur }),
+  lob: sur => $t("play.lobBigMan", { sur: sur }),
+  open: sur => $t("play.findsOpenMan", { sur: sur }),
+  nice: sur => $t("play.madeNicePass", { sur: sur }),
+  post: (sur, dn) => $t("play.backedDownFinished", { sur: sur, dn: dn }),
+  hook: sur => $t("play.sHookRolled", { sur: sur }),
+  dunk: sur => $t("play.slammedHomeAlley", { sur: sur }),
+  dunkMiss: sur => $t("play.hitRimDunk", { sur: sur }),
+  dreb: sur => $t("play.grabbedRebound", { sur: sur }),
+  putback: sur => $t("play.finishedOffensive", { sur: sur }),
+  orebMiss: sur => $t("play.gotReboundCouldnt", { sur: sur }),
+  lostReb: (sur, dn) => $t("play.grabbedRebound2", { dn: dn }),
+  block: (sur, dn) => $t("play.massiveBlock", { sur: sur, dn: dn }),
+  blockMiss: (sur, dn) => $t("play.foundBasket", { dn: dn }),
+  steal: sur => $t("play.stoleBallTwo", { sur: sur }),
+  stealMiss: (sur, dn) => $t("play.fouledLine", { sur: sur, dn: dn }),
+  charge: sur => $t("play.stoodGroundDrew", { sur: sur }),
+  chargeMiss: () => $t("play.refereeCalledBlocking"),
+  safe: (sur, dn) => $t("play.heldPositionTook", { sur: sur, dn: dn }),
+  safeMiss: (sur, dn) => $t("play.foundBasket", { dn: dn }),
+  ft3: (sur, dn, ok) => $t("m2.ft3", { sur, ok }),
+  ft2: (sur, dn, ok) => $t("play.hitFreeThrows2", { sur: sur, ok })
+};
+// Hamlenin mini oyunu (arayüz); şarj ve yerini koru mini oyunsuz
+function playMini(k, cat, el) {
+  if (cat === "shot") {
+    const th = SHOT_THREE.includes(k);
+    return mgShoot(el, {
       eff: eff("sut") - (PEN[k] || 0),
       shots: 1,
       title: th ? $t("play.threePointer") : $t("play.midRange"),
       dist: th ? "three" : "mid"
     });
-    M.pts += r.pts;
-    return {
-      good: r.made > 0,
-      w: th ? 1.3 : 1,
-      st: "sut",
-      txt: r.made
-        ? `${sur} ${th ? $t("play.hitThree") : $t("play.twoPointsMid")}`
-        : $t("common.missedShot", {
-            sur: sur
-          })
-    };
   }
-  if (k === "drive" || k === "break" || k === "lay") {
-    const r = await mgDribble(el, {
+  if (cat === "drive")
+    return mgDribble(el, {
       eff: eff("hiz") - (PEN[k] || 0),
       reps: 1,
       title: k === "break" ? $t("common.fastBreak") : k === "lay" ? $t("pl.lay") : $t("play.driveRim")
     });
-    if (!r.ok) {
-      // penetrede hücum faulü: kişisel faul sayılır
-      const of = k !== "break" && Math.random() < 0.15 ? late.addFoul() : "";
-      return {
-        good: false,
-        w: 1,
-        st: "hiz",
-        txt: of ? `${$t("m2.charge", { sur })}${of}` : $t("common.turnedBall", { sur: sur })
-      };
-    }
-    if (k === "break") {
-      M.pts += 2;
-      return {
-        good: true,
-        w: 1.2,
-        st: "hiz",
-        txt: $t("common.finishedFastBreak", {
-          sur: sur
-        })
-      };
-    }
-    if (Math.random() < (k === "lay" ? 0.12 : 0.18)) {
-      M.pts += 2;
-      addFeed(
-        $t("play.gotPastFinished", {
-          sur: sur,
-          dn: dn
-        })
-      );
-      const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("play.andOne"), tries: 1, label: $t("common.shoot") });
-      M.pts += f.ok;
-      return { good: true, w: 1.2, st: "hiz", txt: f.ok ? $t("play.oneCompleted") : $t("play.freeThrowMissed") };
-    }
-    if (Math.random() < 0.88) {
-      M.pts += 2;
-      return {
-        good: true,
-        w: 1,
-        st: "hiz",
-        txt: $t("play.blewPastFinished", {
-          sur: sur,
-          dn: dn
-        })
-      };
-    }
-    return {
-      good: true,
-      w: 0.6,
-      st: "hiz",
-      txt: $t("play.beatManLayup", {
-        sur: sur
-      })
-    };
-  }
-  if (k === "pnr" || k === "kick" || k === "lob") {
-    const r = await mgPass(el, {
+  if (cat === "pass")
+    return mgPass(el, {
       eff: eff("pas") - (PEN[k] || 0),
       reps: 1,
       title: k === "lob" ? $t("common.alleyOopPass") : k === "pnr" ? $t("play.pickRoll") : $t("common.passing")
     });
-    if (!r.ok)
-      return {
-        good: false,
-        w: 1,
-        st: "pas",
-        txt: $t("play.sPassIntercepted", {
-          sur: sur
-        })
-      };
-    const conv = (k === "lob" ? 0.75 : 0.58) + S.rel.takim * 0.003 + (late.chemAvg() - 40) * 0.002;
-    if (Math.random() < conv) {
-      M.ast++;
-      return {
-        good: true,
-        w: k === "lob" ? 1.3 : 1,
-        st: "pas",
-        txt:
-          k === "lob"
-            ? $t("play.lobBigMan", {
-                sur: sur
-              })
-            : $t("play.findsOpenMan", {
-                sur: sur
-              })
-      };
+  if (cat === "post") return mgPost(el, { eff: eff("guc"), reps: 1, title: $t("common.post") });
+  if (cat === "dunk")
+    return mgTiming(el, { eff: eff("guc") + 5, title: $t("common.alleyOopDunk"), tries: 1, label: $t("common.jump"), kind: "dunk" });
+  if (cat === "rebound")
+    return mgRebound(el, { eff: eff("guc"), reps: 1, title: k === "reb" ? $t("common.defensiveRebound") : $t("common.offensiveRebound") });
+  if (cat === "block") return mgBlock(el, { eff: (eff("sav") + eff("guc")) / 2, reps: 1, title: $t("common.block") });
+  if (cat === "steal") return mgTiming(el, { eff: eff("hiz") - 6, title: $t("play.steal"), tries: 1, label: $t("common.reach"), kind: "steal" });
+  if (cat === "charge" || cat === "safe") return null;
+  // serbest atış (üçlükte faul: 3)
+  return mgTiming(el, { eff: eff("sut") + 12, title: $t("common.freeThrow"), tries: freeThrowsOf(k), label: $t("common.shoot") });
+}
+// Sonucun gerektirdiği o anki değerler (yalnız gerekeni okur: kimya ve hakem yalnız başarılı mini oyunda)
+function playCtx(cat, mg) {
+  if (cat === "pass") return mg && mg.ok ? { takim: S.rel.takim, chem: late.chemAvg() } : {};
+  if (cat === "post" || cat === "dunk") return mg && mg.ok ? { refAnd1: late.refAnd1() } : {};
+  if (cat === "charge") return { sav: eff("sav") };
+  if (cat === "safe") return S.pos === "PF" ? { pos: "PF", guc: eff("guc") } : { pos: S.pos, sav: eff("sav") };
+  return {};
+}
+/** Kendin oynarken karar anı: mini oyun (arayüz) → saf sonuç (src/logic/plays.js) → M'ye uygula, metni yaz */
+export async function resolvePlay(k, el, sur, dn) {
+  const cat = playCategory(k);
+  const mg = await playMini(k, cat, el);
+  const o = playOutcome(k, mg, playCtx(cat, mg), () => Math.random());
+  for (const [f, v] of Object.entries(o.d)) if (v) M[f] += v;
+  const of = o.foul ? late.addFoul() : ""; // penetrede hücum faulü: kişisel faul
+  if (o.and1) {
+    // basket faul: sayı geçerli, bir serbest atış
+    addFeed($t("play.gotPastFinished", { sur, dn }));
+    if (o.and1.track) {
+      M.and1 = (M.and1 || 0) + 1;
+      M.fta = (M.fta || 0) + 1; // basket faul serbest atışı (src/court.js trackPlay sayının kendisini sayar)
     }
-    return {
-      good: true,
-      w: 0.6,
-      st: "pas",
-      txt: $t("play.madeNicePass", {
-        sur: sur
-      })
-    };
+    const f = await mgTiming(el, { eff: eff("sut") + 10, title: $t("play.andOne"), tries: 1, label: $t("common.shoot") });
+    M.pts += f.ok;
+    if (o.and1.track) M.ftm = (M.ftm || 0) + f.ok;
+    return { good: true, w: o.w, st: o.st, txt: f.ok ? $t("play.oneCompleted") : $t("play.freeThrowMissed") };
   }
-  if (k === "post") {
-    const r = await mgPost(el, { eff: eff("guc"), reps: 1, title: $t("common.post") });
-    if (r.ok) M.pts += 2;
-    if (r.ok && Math.random() < 0.1 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.3);
-    return {
-      good: r.ok > 0,
-      w: 1.2,
-      st: "guc",
-      txt: r.ok
-        ? $t("play.backedDownFinished", {
-            sur: sur,
-            dn: dn
-          })
-        : $t("play.sHookRolled", {
-            sur: sur
-          })
-    };
-  }
-  if (k === "dunk") {
-    const r = await mgTiming(el, { eff: eff("guc") + 5, title: $t("common.alleyOopDunk"), tries: 1, label: $t("common.jump"), kind: "dunk" });
-    if (r.ok) M.pts += 2;
-    if (r.ok && Math.random() < 0.08 * late.refAnd1()) return andOne(el, sur, dn, "guc", 1.4);
-    return {
-      good: r.ok > 0,
-      w: 1.3,
-      st: "guc",
-      txt: r.ok
-        ? $t("play.slammedHomeAlley", {
-            sur: sur
-          })
-        : $t("play.hitRimDunk", {
-            sur: sur
-          })
-    };
-  }
-  if (k === "putback" || k === "reb") {
-    const r = await mgRebound(el, { eff: eff("guc"), reps: 1, title: k === "reb" ? $t("common.defensiveRebound") : $t("common.offensiveRebound") });
-    if (r.ok) {
-      M.reb++;
-      if (k === "reb") {
-        M.stops++;
-        return {
-          good: true,
-          w: 1,
-          st: "guc",
-          txt: $t("play.grabbedRebound", {
-            sur: sur
-          })
-        };
-      }
-      if (Math.random() < 0.8) {
-        M.pts += 2;
-        return {
-          good: true,
-          w: 1.2,
-          st: "guc",
-          txt: $t("play.finishedOffensive", {
-            sur: sur
-          })
-        };
-      }
-      return {
-        good: true,
-        w: 0.6,
-        st: "guc",
-        txt: $t("play.gotReboundCouldnt", {
-          sur: sur
-        })
-      };
-    }
-    return {
-      good: false,
-      w: 1,
-      st: "guc",
-      txt: $t("play.grabbedRebound2", {
-        dn: dn
-      })
-    };
-  }
-  if (k === "block") {
-    const r = await mgBlock(el, { eff: (eff("sav") + eff("guc")) / 2, reps: 1, title: $t("common.block") });
-    if (r.ok) {
-      M.blk++;
-      M.stops++;
-    }
-    return {
-      good: r.ok > 0,
-      w: 1.2,
-      st: "sav",
-      txt: r.ok
-        ? $t("play.massiveBlock", {
-            sur: sur,
-            dn: dn
-          })
-        : $t("play.foundBasket", {
-            dn: dn
-          })
-    };
-  }
-  if (k === "steal") {
-    const r = await mgTiming(el, {
-      eff: eff("hiz") - 6,
-      title: $t("play.steal"),
-      tries: 1,
-      label: $t("common.reach"),
-      kind: "steal"
-    });
-    if (r.ok) M.stl++;
-    return {
-      good: r.ok > 0,
-      w: 1.2,
-      st: "hiz",
-      txt: r.ok
-        ? $t("play.stoleBallTwo", {
-            sur: sur
-          })
-        : $t("play.fouledLine", {
-            sur: sur,
-            dn: dn
-          })
-    };
-  }
-  if (k === "charge") {
-    const ok = Math.random() < clamp((eff("sav") / 100) * 0.6 + 0.15, 0.1, 0.75);
-    if (ok) M.stops++;
-    return {
-      good: ok,
-      w: 1.1,
-      st: "sav",
-      txt: ok
-        ? $t("play.stoodGroundDrew", {
-            sur: sur
-          })
-        : $t("play.refereeCalledBlocking")
-    };
-  }
-  if (k === "safe") {
-    const ok = Math.random() < clamp((eff(S.pos === "PF" ? "guc" : "sav") / 100) * 0.7 + 0.25, 0.2, 0.9);
-    if (ok) M.stops++;
-    return {
-      good: ok,
-      w: 0.5,
-      st: "sav",
-      txt: ok
-        ? $t("play.heldPositionTook", {
-            sur: sur,
-            dn: dn
-          })
-        : $t("play.foundBasket", {
-            dn: dn
-          })
-    };
-  }
-  const n = k === "free3" ? 3 : 2; // üçlükte faul: 3 serbest atış
-  const r = await mgTiming(el, { eff: eff("sut") + 12, title: $t("common.freeThrow"), tries: n, label: $t("common.shoot") });
-  M.pts += r.ok;
-  return {
-    good: r.ok > 0,
-    w: 0.6,
-    st: "sut",
-    txt: n === 3 ? $t("m2.ft3", { sur, ok: r.ok }) : $t("play.hitFreeThrows2", { sur: sur, ok: r.ok })
-  };
+  return { good: o.good, w: o.w, st: o.st, txt: PLAY_TXT[o.msg](sur, dn, mg ? mg.ok : 0, of) };
 }
 export function finishMatch(win) {
   late.duelSettle(); // rakip yıldız düellosu (src/matchday.js)

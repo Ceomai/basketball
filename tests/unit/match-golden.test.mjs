@@ -141,7 +141,7 @@ function possessionRuns() {
 
 // ---- karar anının çözümü (elle oynanan) ----
 async function playRuns() {
-  const code = between(src("src/match.js"), "// Basket faul", "export function finishMatch");
+  const code = between(src("src/match.js"), "// Karar anının metinleri", "export function finishMatch");
   const keys = [...LOGIC.SHOT_THREE, ...LOGIC.SHOT_MID, "drive", "break", "lay", "pnr", "kick", "lob", "post", "dunk"];
   keys.push("putback", "reb", "block", "steal", "charge", "safe", "free", "free3");
   // mini oyun sonuçları: [ilk mini oyun, ikinci (basket faul serbest atışı)]
