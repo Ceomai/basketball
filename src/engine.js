@@ -7,6 +7,7 @@ import { hapticSuccess, hapticTap, scrollMode } from "./motion.js";
 import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey } from "./core.js";
 import { arenaFor } from "./places.js";
 import { LK, M, PEN, addFeed, feedRowHTML, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
+import { possessionChance, resolvePossession } from "./logic/possession.js";
 /* ================= MAÇ MOTORU (NSS tarzı akış) =================
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
@@ -459,60 +460,60 @@ export async function playMatch(ctx) {
   if (ctx.onEnd) ctx.onEnd(win);
   else finishMatch(win);
 
+  // arka plan hücumu: olasılık ve sonuç saf hesapta (src/logic/possession.js), burada uygulanır ve akışa yazılır
   function simPossession(us) {
-    const tacU = M.tac === "tempo" ? 1.06 : M.tac === "def" ? 0.97 : 1,
-      tacT = M.tac === "def" ? 0.93 : M.tac === "tempo" ? 1.03 : 1;
-    const p = clamp(
-      ppp *
-        (us ? (ourStr / opp.str) * tacU * (on ? 1 : 0.97) : (opp.str / ourStr) * tacT) *
-        late.possMod(us) *
-        late.osPossMul(us),
-      0.15,
-      0.85
-    );
-    const starTurn = !us && Math.random() < 0.3, // rakip yıldızın payı: akışta da onun adı geçer
-      who = us ? pick(mates) : starTurn ? foes[0] : pick(foes.slice(1)),
-      team = us ? S.team.short : opp.short;
-    if (!us && on) {
-      const f = late.backgroundFoul();
-      if (f) addFeed(`${S.team.short} · <b>${sur}</b>${f}`);
-    }
-    const sc = Math.random() < p;
-    late.runTrack(us, sc); // rakip serisi (mola düğmesi)
-    M.hold = 0;
-    if (sc) {
-      const three = Math.random() < late.osThree(us),
-        pts = three ? 3 : 2;
-      if (us) M.us += pts;
-      else M.them += pts;
-      if (starTurn) late.starScore(pts);
-      late.crowdTick(us);
-      if (us && on) {
-        const sk = (eff("sut") + eff("hiz") + eff("guc")) / 3,
-          share = { star: 0.21, rot: 0.13, bench: 0.08 }[role] * (0.6 + (clamp(sk, 0, 100) / 100) * 0.8) * late.passTrustMul();
-        if (Math.random() < share) {
-          M.touches = (M.touches || 0) + 1;
-          M.pts += pts;
-          M.autoPts = (M.autoPts || 0) + pts;
-          if (mode === "full")
-            addFeed(
-              `${S.team.short} · <b>${sur}</b> ${three ? $t("play.drainedThree") : pick([$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2")])}`
-            );
-          return;
+    const p = possessionChance({ us, on, ppp, ourStr, oppStr: opp.str, tac: M.tac, possMod: late.possMod(us), osPossMul: late.osPossMul(us) });
+    const r = resolvePossession(
+      { us, on, p, nMates: mates.length, nFoes: foes.length, refMul: late.refMul(), threeP: late.osThree(us) },
+      () => Math.random(),
+      shot => {
+        if (shot.bgFoul) {
+          const f = late.addFoul();
+          if (f) addFeed(`${S.team.short} · <b>${sur}</b>${f}`);
         }
-        if (Math.random() < 0.12 * (0.6 + eff("pas") / 100)) {
-          M.ast++;
-          M.autoAst = (M.autoAst || 0) + 1;
+        late.runTrack(us, shot.sc); // rakip serisi (mola düğmesi)
+        M.hold = 0;
+        if (shot.sc) {
+          if (us) M.us += shot.pts;
+          else M.them += shot.pts;
+          if (shot.starTurn) late.starScore(shot.pts);
+          late.crowdTick(us);
         }
+        // payın ve asist/ribaund şansı sayının seyirci etkisinden SONRAKİ niteliklerle
+        return {
+          mode,
+          role,
+          pos: S.pos,
+          sk: (eff("sut") + eff("hiz") + eff("guc")) / 3,
+          pas: eff("pas"),
+          guc: eff("guc"),
+          trust: late.passTrustMul()
+        };
       }
-      if (Math.random() < 0.55 || mode === "full")
-        addFeed(
-          `${team} · ${who} ${three ? $t("play.drainedThree") : pick([$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2"), $t("play.dunkFastBreak")])}${us && Math.random() < 0.12 ? " " + pick(TR_CALLS) : ""}`
-        );
-    } else if (on && Math.random() < { C: 0.2, PF: 0.16, SF: 0.1, SG: 0.06, PG: 0.05 }[S.pos] * (0.6 + eff("guc") / 100)) {
-      M.reb++;
-    } else if (Math.random() < 0.35 && mode === "full")
-      addFeed(`${team} · ${who} ${pick([$t("play.missedShot"), $t("play.committedTurnover"), $t("play.committedFoul"), $t("play.missedLayup")])}`);
+    );
+    if (r.mine) {
+      M.touches = (M.touches || 0) + 1;
+      M.pts += r.pts;
+      M.autoPts = (M.autoPts || 0) + r.pts;
+    }
+    if (r.ast) {
+      M.ast++;
+      M.autoAst = (M.autoAst || 0) + 1;
+    }
+    if (r.reb) M.reb++;
+    const fd = r.feed;
+    if (!fd) return;
+    const team = us ? S.team.short : opp.short,
+      who = us ? mates[r.who] : foes[r.who];
+    if (fd.kind === "mine")
+      addFeed(
+        `${S.team.short} · <b>${sur}</b> ${fd.three ? $t("play.drainedThree") : [$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2")][fd.line]}`
+      );
+    else if (fd.kind === "score")
+      addFeed(
+        `${team} · ${who} ${fd.three ? $t("play.drainedThree") : [$t("play.pointsUnderRim2"), $t("play.pointsMidRange2"), $t("play.pointsLayup2"), $t("play.dunkFastBreak")][fd.line]}${fd.call >= 0 ? " " + TR_CALLS[fd.call] : ""}`
+      );
+    else addFeed(`${team} · ${who} ${[$t("play.missedShot"), $t("play.committedTurnover"), $t("play.committedFoul"), $t("play.missedLayup")][fd.line]}`);
   }
   async function moment(us, clutch) {
     const diff = M.us - M.them,

@@ -9,6 +9,8 @@ const fs = require("fs"),
   path = require("path");
 const { SINGLE } = require("./lib.js");
 
+// GAME_URL: başka bir derleme (ör. npx vite build --mode single --outDir /tmp/x → file:///tmp/x/index.html)
+const URL = process.env.GAME_URL || SINGLE;
 const FIX = path.join(__dirname, "fixtures", "match-golden.json");
 const PRO = fs.readFileSync(path.join(__dirname, "fixtures", "career-long.json"), "utf8");
 const WRITE = process.argv.includes("--write");
@@ -30,7 +32,7 @@ async function run(browser, sc) {
   const errs = [];
   p.on("pageerror", e => errs.push(e.message));
   p.on("dialog", d => d.dismiss().catch(() => {}));
-  await p.goto(SINGLE);
+  await p.goto(URL);
   await p.waitForTimeout(400);
   await p.evaluate(
     ([sc, pro]) => {
@@ -81,9 +83,10 @@ async function run(browser, sc) {
         const M = G.M;
         const pick = o => Object.fromEntries(Object.keys(o).map(k => [k, o[k]]));
         const r9 = v => (typeof v === "number" ? Math.round(v * 1e9) / 1e9 : v);
-        const keys = "us them pts ast reb blk stl stops fga fgm tpa tpm fta ftm pf fo plus mins rating autoPts autoAst touches wsum wgood and1 low ref dz ostyle hype mmod effMod oppRun".split(
-          " "
-        );
+        const keys =
+          "us them pts ast reb blk stl stops fga fgm tpa tpm fta ftm pf fo plus mins rating autoPts autoAst touches wsum wgood and1 low ref dz ostyle hype mmod effMod oppRun".split(
+            " "
+          );
         const st = {};
         for (const k of keys) st[k] = r9(M[k] === undefined ? null : M[k]);
         // maç sonu oyuncu durumu (karar anlarındaki nitelik kazancı vb.)

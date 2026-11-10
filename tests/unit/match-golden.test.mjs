@@ -182,7 +182,21 @@ async function playRuns() {
             clamp,
             pick,
             $t,
-            PEN: { pull: 6, catch: 4, wing: 5, step: 2, pop: 2, lob: -4, pnr: 0, kick: -6, corner: 7, top3: 11, float: 5, mid: 4, lay: 3 },
+            PEN: {
+              pull: 6,
+              catch: 4,
+              wing: 5,
+              step: 2,
+              pop: 2,
+              lob: -4,
+              pnr: 0,
+              kick: -6,
+              corner: 7,
+              top3: 11,
+              float: 5,
+              mid: 4,
+              lay: 3
+            },
             ...mg
           });
           const seed = [...id].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);

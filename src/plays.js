@@ -120,10 +120,6 @@ export function foulAfterMoment(k, good) {
   if (good || !(k in RISK) || Math.random() >= RISK[k] * late.refMul()) return ""; // hakem kişiliği (src/matchday.js)
   return addFoul();
 }
-/** Arka plan savunmasında ara sıra faul */
-export function backgroundFoul() {
-  return Math.random() < 0.015 * late.refMul() ? addFoul() : "";
-}
 export function addFoul() {
   if (!M || M.fo) return "";
   M.pf = (M.pf || 0) + 1;
