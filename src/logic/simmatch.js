@@ -55,6 +55,28 @@ export function matchClock(t) {
   const left = Math.max(0, len - inQ);
   return { q: q > 4 ? 4 : q, clock: `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}` };
 }
+/** src/data.js clamp ile aynı */
+/** @param {number} v @param {number} a @param {number} b */
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+/**
+ * Maç notu (1-10): karar anlarındaki başarı oranı (ağırlıklı), sonuç, artı/eksi, arka plan sayıların, sistem uyumu,
+ * faulle oyun dışı cezası.
+ * @param {{ win: boolean, wsum?: number, wgood?: number, plus: number, autoPts?: number, fit: number, foulPen: number }} r
+ */
+export function matchRating(r) {
+  const sr = r.wsum ? (r.wgood || 0) / r.wsum : 0.5;
+  return clampN(
+    3.5 +
+      5.0 * sr +
+      (r.win ? 0.2 : -0.15) +
+      clampN(r.plus / 35, -0.35, 0.35) +
+      clampN((r.autoPts || 0) / 50, 0, 0.2) +
+      clampN(r.fit / 40, -0.2, 0.2) -
+      r.foulPen,
+    1,
+    10
+  );
+}
 /** src/data.js ri ile aynı çekiş: [a, b] tamsayı */
 /** @param {Rng} rng @param {number} a @param {number} b */
 export const rngInt = (rng, a, b) => Math.floor(a + rng() * (b + 1 - a));

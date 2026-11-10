@@ -96,3 +96,16 @@ test("güçlü takım daha çok kazanır", async () => {
   }
   assert.ok(ws / 600 > 0.65, `galibiyet ${ws / 600}`);
 });
+
+test("maç notu: 1-10 arası; karar anı başarısı, sonuç, artı/eksi, faul cezası", async () => {
+  const { matchRating } = await import("../../src/logic/simmatch.js");
+  const base = { win: true, wsum: 0, wgood: 0, plus: 0, autoPts: 0, fit: 0, foulPen: 0 };
+  const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≠ ${b}`);
+  near(matchRating(base), 3.5 + 2.5 + 0.2);
+  near(matchRating({ ...base, wsum: 4, wgood: 4, plus: 100, autoPts: 99, fit: 99 }), 3.5 + 5 + 0.2 + 0.35 + 0.2 + 0.2);
+  assert.equal(
+    matchRating({ ...base, win: false, wsum: 4, wgood: 0, plus: -100, fit: -99, foulPen: 0.4 }),
+    3.5 - 0.15 - 0.35 - 0.2 - 0.4
+  );
+  assert.ok(matchRating({ ...base, wsum: 10, wgood: 0, win: false, plus: -99, fit: -99, foulPen: 5 }) === 1);
+});

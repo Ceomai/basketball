@@ -1,6 +1,6 @@
 import { t as $t } from "./i18n/index.js";
 import { late } from "./late.js";
-import { $, $$, BAL, Bus, PLAYS, SC, cOf, clamp, esc, isPro, pick, ri, roleAt, statName, wait } from "./data.js";
+import { $, $$, BAL, Bus, PLAYS, SC, cOf, esc, isPro, pick, ri, roleAt, statName, wait } from "./data.js";
 import { portrait } from "./art.js";
 import { buzz } from "./games.js";
 import { hapticSuccess, hapticTap, scrollMode } from "./motion.js";
@@ -8,7 +8,7 @@ import { S, TD, app, closeSheet, eff, fixture, lgName, ovr, phaseName, teamByKey
 import { arenaFor } from "./places.js";
 import { LK, M, PEN, addFeed, feedRowHTML, finishMatch, odds, resolvePlay, setM, updBug } from "./match.js";
 import { possessionChance, resolvePossession } from "./logic/possession.js";
-import { matchClock, planHas, simulateMatch, stintPlanOf } from "./logic/simmatch.js";
+import { matchClock, matchRating, planHas, simulateMatch, stintPlanOf } from "./logic/simmatch.js";
 /* ================= MAÇ MOTORU (NSS tarzı akış) =================
    Maç dört çeyrek boyunca hücum hücum akar. Oyuncu rotasyona göre sahaya girip çıkar.
    "Tüm maç" modunda akış izlenir; "Önemli anlar" modunda kenar dakikaları atlanır.
@@ -285,9 +285,13 @@ export async function playMatch(ctx) {
   };
   const zoneFeed = () => addFeed(`<b>${$t("cond.switch")}</b> ${M.dz === "zone" ? $t("cond.zone") : $t("cond.man")}`);
   const otFeed = () => addFeed(`<b>${$t("live.overtime")}</b> ${$t("live.fiveMoreMinutes")}`);
-  if (AUTO) {
-    // simüle maç: saat, çeyrek, rotasyon, hücum sırası ve uzatma DOM'suz döngüde (src/logic/simmatch.js);
-    // hücumun ve karar anının oyun tarafı (akış, nitelik kazancı, koç tepkisi) buradaki fonksiyonlarla
+  if (AUTO) await autoLoop();
+  else if (!(await liveLoop())) return; // maç ekranı kapandı
+  await endOfMatch();
+
+  // Simüle maç (AUTO): saat, çeyrek, rotasyon, hücum sırası ve uzatma DOM'suz döngüde (src/logic/simmatch.js);
+  // hücumun ve karar anının oyun tarafı (akış, nitelik kazancı, koç tepkisi) buradaki fonksiyonlarla
+  async function autoLoop() {
     const r = await simulateMatch(
       {
         us: { str: ourStr },
@@ -326,40 +330,31 @@ export async function playMatch(ctx) {
       () => Math.random()
     );
     on = r.on;
-  } else if (!(await liveLoop())) return; // maç ekranı kapandı
-  if (M.silent) drawSilent();
-  late.matchdayEnd();
-  statLine(); // seyirci çubuğu ve canlı satır son haliyle
-  M.q = 4;
-  M.clock = "00:00";
-  updBug();
-  late.sfx("buzzer");
-  late.crowd(false);
-  const win = M.us > M.them,
-    sr = M.wsum ? (M.wgood || 0) / M.wsum : 0.5;
-  M.rating = clamp(
-    3.5 +
-      5.0 * sr +
-      (win ? 0.2 : -0.15) +
-      clamp(M.plus / 35, -0.35, 0.35) +
-      clamp((M.autoPts || 0) / 50, 0, 0.2) +
-      clamp(fit / 40, -0.2, 0.2) -
-      late.foulPenalty(),
-    1,
-    10
-  );
-  addFeed(`<b>${$t("live.game")}</b> ${M.us}-${M.them}.`);
-  if (!AUTO) {
-    if (win) hapticSuccess(); // galibiyet: başarı titreşimi; mağlubiyet/beraberlik: tek kısa
-    else hapticTap();
-    const df = M.us - M.them;
-    late.commentLine(Math.abs(df) <= 3 ? "close" : df <= -18 ? "blowout" : df >= 18 ? "rout" : df > 0 ? "win" : "loss"); // spiker (src/tales.js)
   }
-  if (!AUTO) await wait(500);
-  M.auto = !!ctx.auto;
-  if (ctx.onEnd) ctx.onEnd(win);
-  else finishMatch(win);
-
+  // Maç sonu: tabela, not, spiker, sonuç ekranı (finishMatch) ya da çağıranın onEnd'i
+  async function endOfMatch() {
+    if (M.silent) drawSilent();
+    late.matchdayEnd();
+    statLine(); // seyirci çubuğu ve canlı satır son haliyle
+    M.q = 4;
+    M.clock = "00:00";
+    updBug();
+    late.sfx("buzzer");
+    late.crowd(false);
+    const win = M.us > M.them;
+    M.rating = matchRating({ win, wsum: M.wsum, wgood: M.wgood, plus: M.plus, autoPts: M.autoPts, fit, foulPen: late.foulPenalty() });
+    addFeed(`<b>${$t("live.game")}</b> ${M.us}-${M.them}.`);
+    if (!AUTO) {
+      if (win) hapticSuccess(); // galibiyet: başarı titreşimi; mağlubiyet/beraberlik: tek kısa
+      else hapticTap();
+      const df = M.us - M.them;
+      late.commentLine(Math.abs(df) <= 3 ? "close" : df <= -18 ? "blowout" : df >= 18 ? "rout" : df > 0 ? "win" : "loss"); // spiker (src/tales.js)
+    }
+    if (!AUTO) await wait(500);
+    M.auto = !!ctx.auto;
+    if (ctx.onEnd) ctx.onEnd(win);
+    else finishMatch(win);
+  }
   // Elle oynanan maçın döngüsü (mola, son dakika kararı, saha animasyonu, tempo); simüle maç src/logic/simmatch.js.
   // Maç ekranı kapanırsa (kariyerden çıkış, yeniden yükleme) false döner, motor sessizce durur.
   async function liveLoop() {
