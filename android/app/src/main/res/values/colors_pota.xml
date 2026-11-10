@@ -2,6 +2,6 @@
 <resources>
     <!-- Oyunun arka plan rengi (index.html bg değişkeni); sistem çubuklarının arkası -->
     <color name="pota_bg">#090D15</color>
-    <!-- durum çubuğu = oyunun üst şeridi (--bg2, src/theme.js); açılışta ve oyunda aynı renk -->
+    <!-- durum çubuğu = oyunun üst şeridi (bg2 token, src/theme.js); açılışta ve oyunda aynı renk -->
     <color name="pota_bar">#0E141F</color>
 </resources>
