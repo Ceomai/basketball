@@ -66,3 +66,29 @@ test("fnv1a = uzaktan ayar deney kovası özeti; strHash = data.js hash", () => 
   }
   assert.equal(strHash(12345), oldDataHash(12345));
 });
+
+// Test tohumu (src/testseed.js): yalnız window.__TEST.seed varken Math.random değişir; aynı tohum aynı dizi,
+// aynı sekmede yeniden yükleme (sayaç) farklı dizi
+test("test tohumu yalnız bayrakla kurulur, deterministik, yeniden yüklemede yeni dizi", async () => {
+  const { testSeedInstall } = await import("../../src/testseed.js");
+  const store = {};
+  const ss = { getItem: k => store[k] ?? null, setItem: (k, v) => (store[k] = v) };
+  const fake = T => ({ __TEST: T, sessionStorage: ss, Math: { random: Math.random } });
+  const off = fake(undefined);
+  assert.equal(testSeedInstall(off), null);
+  assert.equal(off.Math.random, Math.random);
+  assert.equal(testSeedInstall(fake({ quietSheets: 1 })), null);
+  const a = fake({ seed: "x" });
+  assert.equal(testSeedInstall(a), "x#0");
+  const b = fake({ seed: "x" });
+  assert.equal(testSeedInstall(b), "x#1");
+  const c = fake({ seed: "x" });
+  delete store["pota-test-seed-n"];
+  testSeedInstall(c);
+  const seqA = [1, 2, 3].map(() => a.Math.random()),
+    seqC = [1, 2, 3].map(() => c.Math.random()),
+    seqB = [1, 2, 3].map(() => b.Math.random());
+  assert.deepEqual(seqA, seqC);
+  assert.notDeepEqual(seqA, seqB);
+  assert.ok(seqA.every(v => v >= 0 && v < 1));
+});

@@ -155,7 +155,7 @@ export function jerseyBackSVG(w = 140, team = S.team) {
   return `<svg viewBox="0 0 100 110" width="${w}" height="${Math.round(w * 1.1)}" xmlns="http://www.w3.org/2000/svg"><path d="M28 4 Q50 14 72 4 L96 18 L86 40 L78 36 L78 106 L22 106 L22 36 L14 40 L4 18 Z" fill="${c1}" stroke="#141414" stroke-width="2.2" stroke-linejoin="round"/><path d="M28 4 Q50 14 72 4" fill="none" stroke="${c2}" stroke-width="4"/><path d="M22 36 L22 106 M78 36 L78 106" stroke="${c2}" stroke-width="3"/><text x="50" y="33" text-anchor="middle" font-size="${nm.length > 8 ? 9 : 11}" font-weight="800" font-family="${esc(f)}" fill="${c2}" stroke="#141414" stroke-width=".4">${nm}</text><text x="50" y="82" text-anchor="middle" font-size="44" font-weight="900" font-family="${esc(f)}" fill="${c2}" stroke="#141414" stroke-width="1.2">${S.num}</text></svg>`;
 }
 // takım değişince: yeni formayı ilk kez giyme anı (ilk takımda gösterilmez)
-function newJersey() {
+export function newJersey() {
   if (!S || !S.team) return false;
   if (!S.jTeam) {
     S.jTeam = S.team.name;

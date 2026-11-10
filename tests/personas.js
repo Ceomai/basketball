@@ -4,7 +4,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs"),
   path = require("path");
-const { ROOT, serveDist, open, career, toMain, week, assert } = require("./lib.js");
+const { ROOT, serveDist, open, career, toMain, week, assert, seedTest } = require("./lib.js");
 const FILTER = process.argv[2] ? new RegExp(process.argv[2]) : null;
 const FIX = () => fs.readFileSync(path.join(__dirname, "fixtures", "career-long.json"), "utf8");
 const P = [];
@@ -247,17 +247,25 @@ persona("U13", "Aynı kodu iki kez içe aktaran: iki ayrı yuva, ikisi de oynan�
   await p.ctx.close();
 });
 persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar dokunuşla", async () => {
-  const p = await open(browser);
+  // amaç her dokunuş türünü denemek, maçın uzunluğu değil: "önemli anlar" modu ve kısaltılmış maç (yalnız test
+  // bayrağı window.__TEST.shortMatch: hücum süresi 4 kat → çeyrekler, rotasyon, son dakika aynı; src/engine.js)
+  const p = await open(browser, { init: () => (window.__TEST = Object.assign(window.__TEST || {}, { shortMatch: 4 })) });
   await career(p);
-  const g0 = await p.evaluate(() => window.Game.S.career.games);
+  // ilk beşte başlar (nitelikler yüksek → yıldız rolü, src/engine.js stintPlan): kenarda geçen maçta dokunuş az olur
+  const g0 = await p.evaluate(() => {
+    const S = window.Game.S;
+    for (const k of Object.keys(S.st)) S.st[k] = 95;
+    S.energy = 100;
+    return S.career.games;
+  });
   await p.evaluate(() => {
     window.Game.playMatch(); // maç sözü beklenmez: oyuncunun dokunuşlarını bekler
   });
-  await p.waitForTimeout(400);
-  const m = (await p.$("[data-m='key']")) || (await p.$("[data-m]"));
-  if (m) await m.click();
+  await p.waitForSelector("[data-m='key']", { timeout: 8000 });
+  await p.click("[data-m='key']");
   // karar anında ilk seçenek; mini oyunda tuvalin ortasına ve eylem düğmesine dokunma olayları
-  const end = Date.now() + 230000;
+  const seen = {};
+  const end = Date.now() + 100000;
   while (Date.now() < end) {
     const st = await p.evaluate(g0 => {
       const $ = s => document.querySelector(s);
@@ -289,6 +297,10 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       }
       const q = $("#qgo");
       if (q) return (q.click(), "q");
+      // son hücum kaçınca "reklamla tekrar oyna" teklifi (src/ads.js): sonucu kabul et (döngü bunu tanımadığı için maç
+      // bazen burada süre sınırına kadar bekliyordu)
+      const ar = $("#mview #ad-retry-no");
+      if (ar) return (ar.click(), "ar");
       const cv = $("#mview canvas");
       if (cv) {
         const r = cv.getBoundingClientRect();
@@ -308,13 +320,21 @@ persona("U14", "Maçı kendi oynayan: bütün karar anları ve mini oyunlar doku
       return "w";
     }, g0);
     if (st === "done") break;
+    seen[st] = (seen[st] || 0) + 1;
     await p.waitForTimeout(40);
   }
+  // bitmediyse takıldığı kart raporda görünsün (tanınmayan yeni bir maç içi düğme: döngüye eklenmeli)
+  const stuck = await p.evaluate(
+    g0 => (window.Game.S.career.games > g0 ? "" : ((document.querySelector("#mview") || {}).textContent || "").slice(0, 160)),
+    g0
+  );
   await toMain(p);
   const g1 = await p.evaluate(() => window.Game.S.career.games);
-  assert(g1 === g0 + 1, `maç ${g0}→${g1}`);
+  assert(g1 === g0 + 1, `maç ${g0}→${g1} (100 sn içinde bitmedi) ${JSON.stringify(seen)} · ${stuck}`);
   noErr(p);
   await p.ctx.close();
+  delete seen.w;
+  return `dokunuşlar ${JSON.stringify(seen)}`;
 });
 persona("U15", "Reklam seven: enerji ve prim reklamlarını günlük sınıra kadar izler", async () => {
   const p = await open(browser);
@@ -553,12 +573,13 @@ persona("U25", "Eski cihaz: 4 kat yavaş işlemci, düşük grafik, 320 px", asy
   for (const x of P.filter(q => !process.env.ONLY || q.id === process.env.ONLY)) {
     if (FILTER && !FILTER.test(x.id)) continue;
     const t0 = Date.now();
+    seedTest(x.id);
     let status = "geçti",
       detail = "";
     try {
       const r = await Promise.race([
         x.fn(),
-        new Promise((_, rej) => setTimeout(() => rej(new Error("zaman aşımı (250 sn)")), 250000))
+        new Promise((_, rej) => setTimeout(() => rej(new Error("zaman aşımı (120 sn)")), 120000))
       ]);
       if (r) detail = String(r);
     } catch (e) {

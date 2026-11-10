@@ -16,8 +16,9 @@ async function serveDist() {
 }
 async function page(url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  // rastgele haftaya düşen derbi/koç panelleri testleri bölmesin (src/derby.js, src/bonds.js)
-  await ctx.addInitScript(() => (window.__TEST = Object.assign(window.__TEST || {}, { quietSheets: 1 })));
+  // rastgele haftaya düşen derbi/koç panelleri testleri bölmesin (src/derby.js, src/bonds.js); tohumlu rastgele:
+  // her test adından türeyen sabit diziyle deterministik (tests/lib.js seedInit, src/testseed.js)
+  await lib.seedInit(ctx, { quietSheets: 1 });
   const p = await ctx.newPage();
   p.errs = [];
   p.on("pageerror", e => p.errs.push(e.message));
@@ -73,6 +74,24 @@ async function waitNx(p, timeout) {
   await p.waitForSelector("#nx:visible, #pr-inl [data-press]", { timeout });
   if (!(await p.$("#nx:visible"))) await p.click("#pr-inl [data-press]");
   await p.waitForSelector("#nx:visible", { timeout: 5000 });
+}
+/** Elle oynanan maçta karar anını rastgele beklemeden kur: oyuncu ilk dakikadan sahada (nitelikler yüksek → yıldız
+    rolü, src/engine.js stintPlan) ve mod seçilir seçilmez "son şut" mola seti (M.toLast, src/clutch.js toLastTake)
+    kendi ilk hücumunda karar kartını açar. Rakip hücumla başlarsa önce savunma anı gelebilir: o da karar kartı. */
+async function matchWithMoment(p, mode = "key", beforeMode = async () => {}) {
+  await p.evaluate(() => {
+    const G = window.Game;
+    for (const k of Object.keys(G.S.st)) G.S.st[k] = 95;
+    G.S.energy = 100;
+    G.closeSheet();
+    G.renderMain();
+    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
+  });
+  await p.waitForSelector(`[data-m='${mode}']`, { timeout: 8000 });
+  await beforeMode();
+  await p.evaluate(() => (window.Game.M.toLast = 1));
+  await p.click(`[data-m='${mode}']`);
+  await p.waitForSelector("#mview .choices .choice[data-k]", { timeout: 15000 });
 }
 test("ondalıklı nitelik ve genel puan; seviye çarpanı; gainStat taşıma", async () => {
   const p = await page();
@@ -775,7 +794,7 @@ test("ev dekoru konforu artırır; takım değişince yeni forma anı; sayıdan 
     return { c0, c1, ov: /<svg/.test(G.decorOverlay()) };
   });
   assert(r.c1 === r.c0 + 3 && r.ov, "dekor konforu: " + JSON.stringify(r));
-  await p.evaluate(() => window.Game.Bus.first("week:sheet"));
+  await p.evaluate(() => window.Game.newJersey()); // doğrudan: başka hafta panelleri araya girmez
   await p.waitForSelector("#jy-ok", { timeout: 3000 });
   assert(/kez giy/.test(await p.textContent(".sheet")), "yeni forma metni");
   await p.click("#jy-ok");
@@ -945,12 +964,8 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     G.S.kid.born = G.S.season - 14;
     G.S.kid.named = 1;
     G.S.week = 5;
-    if (G.S.goals) G.S.goals.shown = true; // sezon hedefleri paneli öne geçmesin
-    // önce gelen başka rastgele paneller tüketilir
-    for (let i = 0; i < 6 && !document.querySelector('[data-kd="1"]'); i++) {
-      window.Game.closeSheet();
-      window.Game.Bus.first("week:sheet");
-    }
+    // aile paneli doğrudan açılır (hafta panelleri sırasındaki başka rastgele paneller araya girmez)
+    G.familySheet();
   });
   await p.waitForSelector('[data-kd="1"]', { timeout: 3000 });
   await p.click('[data-kd="1"]');
@@ -961,11 +976,8 @@ test("akademi mezunu maçta karşına çıkar; liman: çocuk büyür, 14'te bask
     G.S.wed = { s: G.S.season - 2, w: G.S.week };
     G.S.annWk = "";
     G.S.money = 5000;
-    // önce gelen başka rastgele paneller tüketilir
-    for (let i = 0; i < 6 && !document.querySelector('[data-an="trip"]'); i++) {
-      window.Game.closeSheet();
-      window.Game.Bus.first("week:sheet");
-    }
+    G.closeSheet();
+    G.familySheet(); // yıldönümü: doğrudan
   });
   await p.waitForSelector('[data-an="trip"]', { timeout: 3000 });
   const rp = await p.evaluate(() => window.Game.S.rel.partner);
@@ -1065,11 +1077,9 @@ test("cila: Stil alt sekmeleri (görünüm+tasarım), Vitrin'den Başarımlar, a
     G.S.pPrev = 3; // doğum bu hafta oldu (eski kayıt değil)
     if (G.S.goals) G.S.goals.shown = true;
     G.Bus.emit("week:start");
-    // önce gelen başka paneller (derbi basını vb. rastgele haftaya düşebilir) tüketilir
-    for (let i = 0; i < 6 && !document.querySelector("[data-kn]"); i++) {
-      G.closeSheet();
-      G.Bus.first("week:sheet");
-    }
+    // doğum (ad seçimi) paneli doğrudan açılır: başka rastgele hafta panelleri araya girmez
+    G.closeSheet();
+    G.familySheet();
   });
   await p.waitForSelector("[data-kn]", { timeout: 3000 });
   await p.click('#kn-g [data-v="f"]');
@@ -1227,11 +1237,9 @@ test("hikâye: haftalık hikâye olayı (güvenli seçenek), şanslı çorap şu
     if (G.S.goals) G.S.goals.shown = true;
     const R = Math.random;
     Math.random = () => 0.3;
-    // önce gelen başka paneller (derbi basını vb.) tüketilir
-    for (let i = 0; i < 6 && !document.querySelector("[data-tl]"); i++) {
-      G.closeSheet();
-      G.Bus.first("week:sheet");
-    }
+    // hikâye paneli doğrudan açılır (derbi basını vb. başka hafta panelleri araya girmez)
+    G.closeSheet();
+    G.taleSheet();
     Math.random = R;
   });
   await p.waitForSelector("[data-tl]", { timeout: 3000 });
@@ -1379,12 +1387,9 @@ test("yaz kampı (hızlı geç), ödül gecesi (3 adım), rehabilitasyon, rakipl
     S.season = 3;
     S.week = 1;
     S.campSeason = 0;
-    if (S.goals) S.goals.shown = true;
-    // önce gelen başka rastgele paneller tüketilir
-    for (let i = 0; i < 6 && !document.querySelector('[data-sl="skip"]'); i++) {
-      window.Game.closeSheet();
-      window.Game.Bus.first("week:sheet");
-    }
+    // yaz kampı paneli doğrudan açılır: başka rastgele hafta panelleri araya girmez
+    G.closeSheet();
+    G.campSheet();
   });
   await p.waitForSelector('[data-sl="skip"]', { timeout: 3000 });
   await p.click('[data-sl="skip"]');
@@ -1394,7 +1399,7 @@ test("yaz kampı (hızlı geç), ödül gecesi (3 adım), rehabilitasyon, rakipl
     const G = window.Game;
     G.closeSheet();
     G.S.galaDue = 1;
-    G.Bus.first("week:sheet");
+    G.galaSheet();
   });
   for (let i = 0; i < 3; i++) {
     await p.waitForSelector("[data-sl]", { timeout: 3000 });
@@ -1408,7 +1413,7 @@ test("yaz kampı (hızlı geç), ödül gecesi (3 adım), rehabilitasyon, rakipl
     S.injury = { n: "Ayak bileği", w: 3, total: 3 };
     S.week = 5;
     S.rehabWk = "";
-    G.Bus.first("week:sheet");
+    G.rehabSheet();
     const rh = !!document.querySelector('[data-sl="go"]');
     G.closeSheet();
     S.injury = null;
@@ -2835,34 +2840,8 @@ test("paket 4a: erişilebilirlik — yazı boyutu, renk körü, yüksek kontrast
   const k = await p.evaluate(() => document.documentElement.className);
   assert(/fs-xl/.test(k) && /hc/.test(k), "kalıcı değil: " + k);
   await career(p);
-  // maç: hız düğmeleri, karar kartı rolü, canlı skor
-  await p.evaluate(() => {
-    const G = window.Game;
-    G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
-  });
-  // karar anı rastgele: maç kararsız biterse yeni maç başlat (yavaş CI'da tek maça güvenme)
-  let gotChoice = false;
-  for (let k = 0; k < 4 && !gotChoice; k++) {
-    if (k > 0) {
-      await p.evaluate(() => {
-        const G = window.Game;
-        G.closeSheet();
-        G.renderMain();
-        G.playMatch({ opp: G.teamByKey(G.fixture().opp), home: true, comp: "lig" });
-      });
-    }
-    await p.waitForSelector("[data-m='only']", { timeout: 8000 });
-    await p.click("[data-m='only']");
-    const g0 = await p.evaluate(() => window.Game.S.career.games);
-    const st = await p
-      .waitForFunction(g => (document.querySelector("#mview .choices") ? "c" : window.Game.S.career.games > g ? "end" : null), g0, {
-        timeout: 90000
-      })
-      .then(h => h.jsonValue())
-      .catch(() => "timeout");
-    gotChoice = st === "c";
-  }
-  assert(gotChoice, "karar anı gelmedi");
+  // maç: hız düğmeleri, karar kartı rolü, canlı skor; karar anı doğrudan kurulur (matchWithMoment)
+  await matchWithMoment(p, "only");
   const g = await p.evaluate(() => ({
     spd: document.querySelector("#spd [data-s]").getAttribute("aria-label"),
     grp: document.querySelector("#mview .choices").getAttribute("role"),
@@ -4685,14 +4664,10 @@ test("yayın 3.3: oyun arayüzü — yapışkan eylem çubuğu, yapışkan tabel
     return { shown, sheet: !!document.querySelector("#ovl .sheet"), added: S.inbox.items.length - n0, onlyNow: tags.every(t => t === "" || t === "now") && tags.includes("now") };
   });
   // maç: tabela yapışkan, mola tabelanın yanında, hız/önemli anlar ≥44 px, data-mode
-  await p.evaluate(() => {
-    window.Game.closeSheet();
-    window.Game.playMatch();
+  // karar anı rastgele beklenmez, doğrudan kurulur (matchWithMoment)
+  await matchWithMoment(p, "key", async () => {
+    out.modeFirst = await p.evaluate(() => document.querySelector("#mview").firstElementChild.id === "mode-card");
   });
-  await p.waitForSelector("[data-m='key']", { timeout: 5000 });
-  out.modeFirst = await p.evaluate(() => document.querySelector("#mview").firstElementChild.id === "mode-card");
-  await p.click("[data-m='key']");
-  await p.waitForSelector("#mview .choice[data-k]", { timeout: 20000 });
   await p.waitForTimeout(600);
   out.bug = await inView("#bug .bug");
   out.choices = await inView("#mview .choices");
@@ -4950,6 +4925,7 @@ test("yayın 4: gece teması + renk körü/yüksek kontrast birincil düğme kon
   let fail = 0;
   for (const t of T.filter(x => !process.env.ONLY || x.name.includes(process.env.ONLY))) {
     let p;
+    lib.seedTest(t.name);
     try {
       p = await t.fn();
       if (p && p.errs.length) throw new Error("sayfa hatası: " + p.errs.join(" | "));

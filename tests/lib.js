@@ -32,9 +32,30 @@ function serveDist() {
       .listen(0, () => res({ server, base: `http://localhost:${server.address().port}/` }));
   });
 }
+/* Tohumlu rastgele (src/testseed.js): koşucu her testten önce seedTest(ad) çağırır; o testin her tarayıcı bağlamı
+   adından (+ bağlam sırası) türeyen sabit tohum alır → test her koşuda aynı rastgele diziyle çalışır, testler
+   birbirinden farklı dizi görür. TEST_SEED=<dizge> başka bir tohum ailesi seçer (aynı hata başka dizide de var mı?),
+   TEST_SEED=off kapatır. Denge (balance.js) ve maymun testleri (fuzz*.js) bunu kullanmaz: kendi rastgelelikleri. */
+let seedName = "",
+  seedCtx = 0;
+const seedTest = name => {
+  seedName = String(name);
+  seedCtx = 0;
+};
+/** Yeni bağlam için tohum (kapalıysa null) */
+const nextSeed = () => (process.env.TEST_SEED === "off" ? null : `${process.env.TEST_SEED || ""}|${seedName}|${seedCtx++}`);
+/** Bağlama tohum + test bayraklarını kur (window.__TEST); extra: { quietSheets: 1 } gibi */
+async function seedInit(ctx, extra = {}) {
+  const seed = nextSeed();
+  await ctx.addInitScript(
+    o => (window.__TEST = Object.assign(window.__TEST || {}, o)),
+    seed === null ? extra : { ...extra, seed }
+  );
+}
 /** Yeni tarayıcı bağlamı + sayfa; sayfa hataları p.errs'te */
 async function open(browser, opts = {}, url = SINGLE) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, ...(opts.ctx || {}) });
+  await seedInit(ctx);
   if (opts.init) await ctx.addInitScript(opts.init);
   const p = await ctx.newPage();
   p.errs = [];
@@ -141,4 +162,4 @@ async function week(p) {
 const assert = (c, m) => {
   if (!c) throw new Error(m);
 };
-module.exports = { ROOT, SINGLE, serveDist, open, career, toMain, week, assert };
+module.exports = { ROOT, SINGLE, serveDist, open, career, toMain, week, assert, seedTest, seedInit };

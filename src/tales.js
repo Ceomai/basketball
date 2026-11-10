@@ -456,7 +456,7 @@ function eligible() {
   if (pro && S.age >= 29 && (!S.mentee || (S.mentee.step < 3 && widx() - S.mentee.at >= 8))) out.push(mentorTale);
   return out;
 }
-function taleSheet() {
+export function taleSheet() {
   if (!S || window.__SIM || S.retired || !late.unlocked("hikaye")) return false;
   const T = tl();
   if (widx() - T.last < 3 || Math.random() > 0.55) return false;

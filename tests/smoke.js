@@ -2,6 +2,7 @@
 // Oyunu gerçek tarayıcıda açar, ana akışların hepsini kısaca dolaşır ve sayfa hatası olursa başarısız olur.
 const { chromium } = require("playwright");
 const path = require("path");
+const lib = require("./lib.js");
 // Derlenmiş tek dosyalık oyun (npm run build). Oyunun dışa aktarımlarına sayfada window.Game üzerinden erişilir.
 const URL = "file://" + path.resolve(__dirname, "..", "dist-single", "index.html");
 const fails = [];
@@ -23,9 +24,9 @@ async function waitNx(p, timeout) {
   const p = await ctx.newPage();
   const errs = [];
   p.on("pageerror", e => errs.push(e.message + " @ " + (e.stack || "").split("\n")[1]));
-  await p.addInitScript(() => {
-    window.__TEST = { noEvents: true, noSummer: true };
-  });
+  // tohumlu rastgele (tests/lib.js seedInit, src/testseed.js): her koşu aynı diziyle
+  lib.seedTest("smoke");
+  await lib.seedInit(ctx, { noEvents: true, noSummer: true });
   await p.goto(URL);
   await p.waitForTimeout(600);
 

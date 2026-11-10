@@ -273,11 +273,14 @@ export async function playMatch(ctx) {
   };
   let end = TOTAL,
     nPoss = 0;
+  // window.__TEST.shortMatch (yalnız otomatik testler, ör. 4): elle oynanan maçta hücum süresi bu katla uzar → çeyrekler,
+  // rotasyon ve son dakika aynı kalır ama daha az hücum oynanır (tests/personas.js U14). Oyuncuda bayrak yok: 1.
+  const SHORT = (!AUTO && window.__TEST && +window.__TEST.shortMatch) || 1;
   while (t < end) {
     // maç ekranı kapandıysa (kariyerden çıkış, yeniden yükleme) motor sessizce durur
     if (!AUTO && !$("#mstat")) return;
     // önde olan rakip son dakikada saati sonuna kadar kullanır (kendin oynarken: faul kararını anlamlı kılar)
-    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : late.osDur(ri(12, 22)); // rakip tarzı temposu (src/matchfeel.js)
+    const dur = !AUTO && !ourBall && M.them > M.us && t > end - 60 ? ri(20, 24) : late.osDur(ri(12, 22)) * SHORT; // rakip tarzı temposu (src/matchfeel.js)
     const t0 = t;
     t = Math.min(end, t + dur);
     setClock();

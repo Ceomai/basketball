@@ -206,7 +206,7 @@ function nameSheet() {
       })
   );
 }
-function familySheet() {
+export function familySheet() {
   if (!S || !S.partner) return false;
   // doğum: adını ve cinsiyetini sen seç
   if (S.kid && !S.kid.named) {

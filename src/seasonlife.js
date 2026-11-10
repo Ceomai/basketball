@@ -190,7 +190,7 @@ export function bindStreetExtra(re) {
 }
 
 /* ================= REHABİLİTASYON ================= */
-function rehabSheet() {
+export function rehabSheet() {
   if (!S || window.__SIM || !S.injury || S.injury.w < 2 || S.rehabWk === wk()) return false;
   S.rehabWk = wk();
   ask($t("sl.rh"), $t("sl.rhSub", { w: S.injury.w }), $t("sl.rhB", { n: esc(S.injury.n || "") }), [
@@ -218,7 +218,7 @@ Bus.on("season:end", () => {
   S.galaDue = awards > (S.galaAwards || 0) || S.followers >= 20000 ? 1 : 0;
   S.galaAwards = awards;
 });
-function galaSheet() {
+export function galaSheet() {
   if (!S || window.__SIM || !S.galaDue || S.week > 2) return false;
   S.galaDue = 0;
   (async () => {
@@ -395,7 +395,7 @@ async function summerCamp() {
   sheet($t("cp.t"), $t("cp.journal"), `<div class="card" style="padding:var(--sp-1h)">${campPhoto(loc)}</div><div class="card gap-1h">${journal.map((j, i) => `<div class="small"><b>${i + 1}.</b> ${j}</div>`).join("")}</div><button class="btn pri" id="cp-ok">${$t("casino.13")}</button>`);
   $("#cp-ok").onclick = renderMain;
 }
-function campSheet() {
+export function campSheet() {
   if (!S || window.__SIM || !isPro(S.stage) || S.season < 2 || S.campSeason === S.season || S.week > 2 || S.injury) return false;
   summerCamp();
   return true;
